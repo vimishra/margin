@@ -40,8 +40,10 @@ export type CaptureTarget = 'daily' | 'scratch' | 'inbox'
 
 export type StyleKey = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'bold' | 'italic'
 export interface TextStyle {
-  /** A CSS colour, or '' to use the normal text colour of the theme. */
+  /** Colour in the light theme, or '' to use the theme's normal text colour. */
   color: string
+  /** Colour in the dark theme. '' means: a lightened version of the light-theme colour, chosen automatically. */
+  darkColor?: string
   /** Size as a percentage of the note text size. */
   size: number
 }
@@ -657,6 +659,42 @@ export function cycleTab(dir: 1 | -1) {
   open(tabs[(tabs.indexOf(current) + dir + tabs.length) % tabs.length])
 }
 
+/** Close every tab in the active pane except the note it is showing. */
+export function closeOtherTabs() {
+  const s = get()
+  if (s.activePane === 'side' && s.side) {
+    local.set('sideTabs', [s.side])
+    return set({ sideTabs: [s.side] })
+  }
+  const keep = s.route.name === 'note' ? [s.route.id] : []
+  local.set('tabs', keep)
+  set({ tabs: keep })
+}
+
+/** Close every tab in the active pane. */
+export function closeAllTabs() {
+  const s = get()
+  if (s.activePane === 'side' && s.side) return closeSide()
+  local.set('tabs', [])
+  set({ tabs: [] })
+  if (s.route.name === 'note') go({ name: 'home' })
+}
+
+export async function renameNote(id: string) {
+  const note = get().notes[id]
+  if (!note) return
+  const title = await ask({ title: 'Rename note', message: 'Links to this note in other notes are updated to match.', initial: note.title, confirmLabel: 'Rename' })
+  if (title?.trim() && title.trim() !== note.title) updateNote(id, { title: title.trim() })
+}
+
+export async function addTag(id: string) {
+  const note = get().notes[id]
+  if (!note) return
+  const answer = await ask({ title: 'Add a tag', placeholder: 'tag, or several separated by spaces', confirmLabel: 'Add' })
+  const tags = (answer || '').split(/[\s,]+/).map((t) => t.replace(/^#/, '')).filter(Boolean)
+  if (tags.length) updateNote(id, { tags: [...new Set([...note.tags, ...tags])] })
+}
+
 export async function duplicateNote(id: string) {
   const n = get().notes[id]
   if (!n) return
@@ -972,10 +1010,44 @@ export function pageWidthMenu(): MenuItem[] {
   ]
 }
 
+/**
+ * A version of a colour that reads on a dark background: same hue, lightened if it is too dark.
+ * Used for the dark theme when no dark colour has been chosen.
+ */
+export function lightenForDark(hex: string): string {
+  const m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex.trim())
+  if (!m) return hex
+  const [r, g, b] = m.slice(1).map((v) => parseInt(v, 16) / 255)
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+  const l = (max + min) / 2
+  if (l >= 0.68) return hex
+  const d = max - min
+  const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1))
+  let h = 0
+  if (d !== 0) h = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4
+  h = (h * 60 + 360) % 360
+  // Rebuild at a lightness that stands out on dark, with the saturation eased so it does not glare.
+  const L = 0.74
+  const S = Math.min(s, 0.82)
+  const c = (1 - Math.abs(2 * L - 1)) * S
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1))
+  const [r1, g1, b1] = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x]
+  const to = (v: number) => Math.round((v + L - c / 2) * 255).toString(16).padStart(2, '0')
+  return `#${to(r1)}${to(g1)}${to(b1)}`
+}
+
+/** The colour a text style uses in the given theme; '' when it should follow the theme's text colour. */
+export function styleColor(style: TextStyle, dark: boolean): string {
+  if (!dark) return style.color
+  return style.darkColor || (style.color ? lightenForDark(style.color) : '')
+}
+
 export function applyAppearance() {
   const { accent, font, codeFont, fontSize, fontWeight, lineHeight, styles } = get().settings
   const root = document.documentElement
   root.dataset.accent = accent
+  const dark = root.dataset.theme === 'dark'
   root.dataset.imageBorder = get().settings.imageBorder || 'hairline'
   root.style.setProperty('--doc-font', fontCss(font))
   root.style.setProperty('--mono', fontCss(codeFont, true))
@@ -984,10 +1056,10 @@ export function applyAppearance() {
   root.style.setProperty('--list-indent', `${get().settings.listIndent ?? 28}px`)
   root.style.setProperty('--list-guide', get().settings.indentGuides === false ? 'transparent' : 'var(--border-strong)')
   // Bullets and list numbers take the Heading 2 colour when one is set.
-  root.style.setProperty('--list-marker', styles?.h2?.color || 'var(--text-3)')
+  root.style.setProperty('--list-marker', (styles?.h2 && styleColor(styles.h2, dark)) || 'var(--text-3)')
   for (const [key] of STYLE_KEYS) {
     const style = { ...DEFAULT_STYLES[key], ...styles?.[key] }
-    root.style.setProperty(`--${key}-color`, style.color || 'inherit')
+    root.style.setProperty(`--${key}-color`, styleColor(style, dark) || 'inherit')
     root.style.setProperty(`--${key}-size`, `${style.size / 100}em`)
   }
   root.style.setProperty('--doc-leading', String(lineHeight))
@@ -1013,6 +1085,8 @@ export function applyTheme() {
   const t = get().theme
   const dark = t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches)
   document.documentElement.dataset.theme = dark ? 'dark' : 'light'
+  // Text style colours differ between the themes.
+  applyAppearance()
 }
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme)
 

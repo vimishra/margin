@@ -11,6 +11,12 @@ import {
   Home,
   Hourglass,
   Columns2,
+  Copy,
+  FolderOpen,
+  Hash,
+  Link2,
+  PenLine,
+  X,
   Keyboard,
   ListTree,
   Search,
@@ -32,10 +38,11 @@ import {
   CalendarCheck,
   FolderPlus,
 } from 'lucide-react'
-import { askPageWidth, closeSide, createFolder, currentNote, openSide, swapPanes, importFromObsidian, newMeeting, deleteNote, go, newNote, openDaily, setPref, ui, updateNote, useStore } from './store'
+import { addTag, closeAllTabs, closeOtherTabs, duplicateNote, renameNote, toast, askPageWidth, closeSide, createFolder, currentNote, openSide, swapPanes, importFromObsidian, newMeeting, deleteNote, go, newNote, openDaily, setPref, ui, updateNote, useStore } from './store'
 import { exportHtml, exportMarkdown, exportPdf, exportWord } from './lib/export'
 import { ALT, MOD } from './lib/util'
 import { SHORTCUT_DEFS, hint } from './shortcuts'
+import { desktop, fileManager } from './desktop'
 
 export interface Command {
   id: string
@@ -56,6 +63,7 @@ export function toggleMode() {
 export function commands(): Command[] {
   const s = useStore.getState()
   const note = currentNote()
+  const daily = note?.type === 'daily'
   const i = (El: typeof Home) => <El size={16} />
   const list: Command[] = [
     { id: 'new', label: 'New note', icon: i(FilePlus2), hint: `${ALT}N`, keywords: 'create page', run: () => newNote('note') },
@@ -85,6 +93,20 @@ export function commands(): Command[] {
       { id: 'task', label: 'Task list', icon: i(ListChecks), keywords: 'todo checkbox', run: () => format('task') },
       { id: 'mode', label: s.mode === 'read' ? 'Switch to writing' : 'Switch to reading', icon: i(BookOpen), hint: `${MOD}E`, keywords: 'preview edit', run: toggleMode },
       { id: 'view', label: note.view === 'canvas' ? 'Show page' : 'Show canvas', icon: i(LayoutDashboard), keywords: 'board', run: () => updateNote(note.id, { view: note.view === 'canvas' ? '' : 'canvas' }) },
+      ...(daily ? [] : [{ id: 'rename', label: 'Rename this note…', icon: i(PenLine), keywords: 'title name', run: () => void renameNote(note.id) }]),
+      { id: 'duplicate', label: 'Duplicate this note', icon: i(Copy), keywords: 'copy clone', run: () => void duplicateNote(note.id) },
+      { id: 'addTag', label: 'Add a tag to this note…', icon: i(Hash), keywords: 'label', run: () => void addTag(note.id) },
+      {
+        id: 'copyLink',
+        label: 'Copy a link to this note',
+        icon: i(Link2),
+        keywords: 'wikilink reference',
+        run: () => navigator.clipboard.writeText(`[[${note.title}]]`).then(() => toast('Link copied. Paste it into another note.'), () => toast('Could not copy')),
+      },
+      ...(desktop ? [{ id: 'reveal', label: `Show this note's file in ${fileManager}`, icon: i(FolderOpen), keywords: 'finder file explorer reveal', run: () => void desktop!.revealFile(note.path) }] : []),
+      { id: 'closeTab', label: 'Close this tab', icon: i(X), run: () => window.dispatchEvent(new CustomEvent('margin:action', { detail: 'closeTab' })) },
+      { id: 'closeOthers', label: 'Close all other tabs', icon: i(X), keywords: 'tabs', run: () => closeOtherTabs() },
+      { id: 'closeAll', label: 'Close all tabs', icon: i(X), keywords: 'tabs', run: () => closeAllTabs() },
       { id: 'pin', label: note.pinned ? 'Unpin this note' : 'Pin this note', icon: i(Pin), run: () => updateNote(note.id, { pinned: !note.pinned }) },
       { id: 'history', label: 'Version history', icon: i(History), hint: `${ALT}V`, keywords: 'restore undo', run: () => ui({ historyFor: note.id }) },
       { id: 'move', label: 'Move to notebook…', icon: i(FolderInput), hint: `${ALT}M`, keywords: 'folder', run: () => ui({ palette: { mode: 'move', noteId: note.id } }) },
@@ -92,7 +114,7 @@ export function commands(): Command[] {
       { id: 'exhtml', label: 'Export as HTML', icon: i(Download), keywords: 'web page', run: () => exportHtml(note) },
       { id: 'expdf', label: 'Export as PDF', icon: i(Download), keywords: 'print', run: () => exportPdf(note) },
       { id: 'exdoc', label: 'Export as Word / Google Docs file', icon: i(Download), keywords: 'docx gdoc', run: () => exportWord(note) },
-      { id: 'delete', label: 'Move this note to trash', icon: i(Trash2), keywords: 'delete remove', run: () => deleteNote(note.id) },
+      { id: 'delete', label: 'Delete this note', icon: i(Trash2), keywords: 'trash remove move to trash', run: () => deleteNote(note.id) },
     )
   }
   list.push(

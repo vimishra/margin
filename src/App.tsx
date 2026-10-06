@@ -129,6 +129,8 @@ export default function App() {
     window.addEventListener('mouseup', onMouse, true)
     // Menu items and global shortcuts of the desktop app.
     const off = desktop?.onCommand((id) => runAction(id, 'menu'))
+    const onAction = (e: Event) => runAction((e as CustomEvent<string>).detail, 'key')
+    window.addEventListener('margin:action', onAction)
     const offContext = desktop?.onContextAction?.((action) => {
       if (action.type === 'open') void followLink(action.target, action.side)
       else if (action.type === 'search') ui({ palette: { mode: 'search', query: action.query } })
@@ -141,6 +143,7 @@ export default function App() {
       window.removeEventListener('mouseup', onMouse, true)
       off?.()
       offContext?.()
+      window.removeEventListener('margin:action', onAction)
     }
   }, [])
 

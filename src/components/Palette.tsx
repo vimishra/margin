@@ -127,8 +127,8 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
     }
 
     if (q.startsWith('>')) {
-      const c = q.slice(1).trim().toLowerCase()
-      return cmds.filter((x) => (x.label + ' ' + (x.keywords || '')).toLowerCase().includes(c)).map(commandItem)
+      const typed = q.slice(1).trim().toLowerCase().split(/\s+/).filter(Boolean)
+      return cmds.filter((x) => typed.every((w) => (x.label + ' ' + (x.keywords || '')).toLowerCase().includes(w))).map(commandItem)
     }
 
     if (!q) {
@@ -145,6 +145,11 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
 
     const hits = search(notes, q, 30)
     const out: Item[] = []
+    // Commands whose name matches every word typed go to the top: "rename", "delete", "close other".
+    const words = lower.split(/\s+/).filter(Boolean)
+    const named = cmds.filter((x) => words.every((w) => x.label.toLowerCase().includes(w)))
+    const byKeyword = cmds.filter((x) => !named.includes(x) && words.every((w) => (x.label + ' ' + (x.keywords || '')).toLowerCase().includes(w)))
+    if (!q.startsWith('#')) out.push(...named.slice(0, 4).map(commandItem))
     // "tomorrow", "next monday", "06/10": offer that day's daily note first.
     const date = parseDatePhrase(q, useStore.getState().settings.dayFirst)
     if (date) {
@@ -166,7 +171,7 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
           out.push({ key: 't:' + tag, group: 'Tags', icon: <Hash size={16} />, title: tag, meta: <span>{count} notes</span>, run: () => go({ name: 'tag', tag }) })
         }
       }
-      out.push(...cmds.filter((x) => (x.label + ' ' + (x.keywords || '')).toLowerCase().includes(lower)).slice(0, 5).map(commandItem))
+      out.push(...[...named.slice(4), ...byKeyword].slice(0, 6).map(commandItem))
       if (!Object.values(notes).some((n) => n.title.toLowerCase() === lower)) {
         out.push({ key: 'create', group: 'Create', icon: <FilePlus2 size={16} />, title: `New note “${q}”`, run: () => createNote({ title: q }) })
       }

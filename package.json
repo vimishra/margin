@@ -10,7 +10,7 @@
     "start": "vite build && node server/index.mjs",
     "serve": "node server/index.mjs",
     "typecheck": "tsc --noEmit",
-    "app": "vite build && electron .",
+    "app": "vite build && node scripts/brand-dev-app.mjs && electron .",
     "app:pack": "vite build && electron-builder --dir",
     "app:dist": "vite build && electron-builder",
     "docs": "node scripts/build-docs.mjs"

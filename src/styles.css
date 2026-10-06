@@ -3841,3 +3841,16 @@ body.resizing {
 .set-search .icon-btn {
   flex: none;
 }
+
+/* Light and dark colour pickers in Text styles; the one for the theme in use is outlined. */
+.color-pick > svg {
+  color: var(--text-3);
+  flex: none;
+}
+.color-pick.current {
+  border-color: var(--accent);
+}
+.color-pick span {
+  color: var(--text-3);
+  font-size: 12.5px;
+}

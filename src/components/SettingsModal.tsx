@@ -1,7 +1,9 @@
 import { createContext, useContext, useState } from 'react'
-import { CalendarDays, Search, LayoutTemplate, FolderCog, Keyboard, Palette, PenLine, RotateCcw, Settings2, SlidersHorizontal, Type, X, Zap } from 'lucide-react'
+import { CalendarDays, Moon, Sun, Search, LayoutTemplate, FolderCog, Keyboard, Palette, PenLine, RotateCcw, Settings2, SlidersHorizontal, Type, X, Zap } from 'lucide-react'
 import {
   ACCENTS,
+  lightenForDark,
+  styleColor,
   formatDate,
   setAttachmentsFolder,
   importFromObsidian,
@@ -440,35 +442,46 @@ export function SettingsModal() {
               <div className="set-section">
                 {searching && <h4 className="set-section-title">Text styles</h4>}
                 <p className="set-note" style={{ marginTop: 0 }}>
-                  Sizes are a percentage of the note text size. A custom colour is used in both the light and the dark theme, so pick one that reads well on both.
+                  Each style has a colour for the light theme and one for the dark theme. Leave the dark one on Auto and it uses a lightened version of the light colour. Sizes are a percentage of the note text size.
                 </p>
                 {STYLE_KEYS.map(([key, label]) => {
-                  if (searching && !matchesSearch(query, `${label} text style colour color size heading bold italic`)) return null
+                  if (searching && !matchesSearch(query, `${label} text style colour color size heading bold italic dark light theme`)) return null
                   const style = { ...DEFAULT_STYLES[key], ...s.styles?.[key] }
                   const update = (patch: Partial<TextStyle>) => setSetting('styles', { ...DEFAULT_STYLES, ...s.styles, [key]: { ...style, ...patch } } as Record<StyleKey, TextStyle>)
+                  const isDark = document.documentElement.dataset.theme === 'dark'
                   const sample: React.CSSProperties = {
                     fontSize: `${Math.min(style.size, 190) / 100}em`,
-                    color: style.color || undefined,
+                    color: styleColor(style, isDark) || undefined,
                     fontWeight: key === 'italic' ? 'var(--doc-weight)' as never : 700,
                     fontStyle: key === 'italic' ? 'italic' : undefined,
                   }
+                  const autoDark = style.color ? lightenForDark(style.color) : ''
                   return (
                     <div key={key} className="set-row style-row">
                       <div className="set-label">
                         <span style={sample}>{label}</span>
                       </div>
                       <div className="set-control">
-                        <label className="color-pick" title="Colour">
-                          <input type="color" value={style.color || textColor()} onChange={(e) => update({ color: e.target.value })} />
+                        <label className={cx('color-pick', !isDark && 'current')} title="Colour in the light theme">
+                          <Sun size={13} />
+                          <input type="color" value={style.color || '#1f1e1b'} onChange={(e) => update({ color: e.target.value })} />
                           {style.color ? (
-                            <>
-                              {style.color}
-                              <button title="Use the default colour" onClick={(e) => (e.preventDefault(), update({ color: '' }))}>
-                                <X size={13} />
-                              </button>
-                            </>
+                            <button title="Use the default colour" onClick={(e) => (e.preventDefault(), update({ color: '' }))}>
+                              <X size={13} />
+                            </button>
                           ) : (
-                            'Default'
+                            <span>Default</span>
+                          )}
+                        </label>
+                        <label className={cx('color-pick', isDark && 'current')} title="Colour in the dark theme">
+                          <Moon size={13} />
+                          <input type="color" value={style.darkColor || autoDark || '#ecebe7'} onChange={(e) => update({ darkColor: e.target.value })} />
+                          {style.darkColor ? (
+                            <button title="Back to automatic" onClick={(e) => (e.preventDefault(), update({ darkColor: '' }))}>
+                              <X size={13} />
+                            </button>
+                          ) : (
+                            <span>{style.color ? 'Auto' : 'Default'}</span>
                           )}
                         </label>
                         <Stepper value={style.size} min={60} max={300} step={5} unit="%" onChange={(size) => update({ size })} />

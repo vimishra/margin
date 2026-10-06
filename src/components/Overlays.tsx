@@ -84,11 +84,19 @@ export function Menu() {
 
 export function AskDialog() {
   const asking = useStore((s) => s.asking)
-  const [value, setValue] = useState('')
-  useEffect(() => setValue(asking?.initial || ''), [asking])
+  const input = useRef<HTMLInputElement | null>(null)
+  // The box starts with its text already in place and selected, so typing replaces it (renaming, for example).
+  const prepare = (el: HTMLInputElement | null) => {
+    input.current = el
+    if (el && !el.dataset.ready) {
+      el.dataset.ready = '1'
+      el.focus()
+      el.select()
+    }
+  }
   if (!asking) return null
   const withInput = asking.input !== false
-  const submit = () => asking.resolve(withInput ? value : '')
+  const submit = () => asking.resolve(withInput ? input.current?.value ?? '' : '')
   return (
     <div className="overlay" onMouseDown={() => asking.resolve(null)}>
       <form
@@ -103,7 +111,7 @@ export function AskDialog() {
         <h2>{asking.title}</h2>
         {asking.message && <p>{asking.message}</p>}
         {withInput && (
-          <input autoFocus value={value} placeholder={asking.placeholder} onChange={(e) => setValue(e.target.value)} onFocus={(e) => e.target.select()} />
+          <input key={asking.title + (asking.initial || '')} ref={prepare} defaultValue={asking.initial || ''} placeholder={asking.placeholder} />
         )}
         <div className="modal-actions">
           <button type="button" className="btn ghost" onClick={() => asking.resolve(null)}>
