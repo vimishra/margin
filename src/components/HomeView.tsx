@@ -55,12 +55,18 @@ export function HomeView() {
     .sort((a, b) => (a.status === 'reading' ? -1 : 1) - (b.status === 'reading' ? -1 : 1) || b.updated.localeCompare(a.updated))
   const dailyCards = daily ? parseCanvas(splitContent(daily.content).canvas).cards.length : 0
 
-  const actions: [React.ReactNode, string, string, () => void][] = [
+  // Sections switched off in the sidebar are left off Home too.
+  const hidden = useStore((s) => s.settings.hiddenSections) || []
+  const shown = (id: string) => !hidden.includes(id)
+  const showReading = shown('research') && reading.length > 0
+  const showScratch = shown('scratch') && scratch.length > 0
+  type Action = [React.ReactNode, string, string, () => void]
+  const actions: Action[] = [
     [<FilePlus2 size={16} />, 'New note', hint('new'), () => newNote('note')],
     [<CalendarCheck size={16} />, "Today's note", hint('daily'), () => openDaily()],
-    [<Hourglass size={16} />, 'Scratch note', hint('scratch'), () => newNote('scratch')],
+    ...(shown('scratch') ? [[<Hourglass size={16} />, 'Scratch note', hint('scratch'), () => newNote('scratch')] as Action] : []),
     [<Users size={16} />, 'Meeting note', hint('meeting'), () => void newMeeting()],
-    [<BookMarked size={16} />, 'Research note', '', () => newNote('article')],
+    ...(shown('research') ? [[<BookMarked size={16} />, 'Research note', '', () => newNote('article')] as Action] : []),
     [<LayoutDashboard size={16} />, 'Canvas', '', () => newNote('canvas')],
   ]
 
@@ -144,8 +150,8 @@ export function HomeView() {
           </div>
         </section>
 
-        <div className={cx('home-cols', (!scratch.length || !reading.length) && 'one')}>
-          {reading.length > 0 && (
+        <div className={cx('home-cols', (!showScratch || !showReading) && 'one')}>
+          {showReading && (
             <section>
               <h2>
                 Reading queue
@@ -160,7 +166,7 @@ export function HomeView() {
               </div>
             </section>
           )}
-          {scratch.length > 0 && (
+          {showScratch && (
             <section>
               <h2>
                 Scratch

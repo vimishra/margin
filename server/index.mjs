@@ -13,7 +13,22 @@ import { seedNotes } from './seed.mjs'
 import { importObsidian } from './obsidian.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const VAULT = path.resolve(process.env.VAULT_DIR || path.join(ROOT, 'vault'))
+// The notes folder: VAULT_DIR if given, else the folder chosen in the desktop app, else ./vault.
+// The desktop app always passes VAULT_DIR, so this lookup only matters when run from a terminal.
+function desktopVault() {
+  const base =
+    process.platform === 'darwin' ? path.join(os.homedir(), 'Library', 'Application Support')
+    : process.platform === 'win32' ? process.env.APPDATA || path.join(os.homedir(), 'AppData', 'Roaming')
+    : process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config')
+  try {
+    const dir = JSON.parse(fssync.readFileSync(path.join(base, 'Margin', 'config.json'), 'utf8')).vaultDir
+    if (typeof dir !== 'string' || !dir) return null
+    if (fssync.existsSync(dir)) return dir
+    console.warn(`\n  The notes folder chosen in the desktop app is missing: ${dir}\n  Using ./vault instead.`)
+  } catch {}
+  return null
+}
+const VAULT = path.resolve(process.env.VAULT_DIR || desktopVault() || path.join(ROOT, 'vault'))
 const PORT = Number(process.env.PORT || 4321)
 const DEV = process.argv.includes('--dev')
 const HISTORY = path.join(VAULT, '.history')
@@ -465,6 +480,12 @@ app.post('/api/import/obsidian', h(async (req, res) => {
 app.use('/api', (_req, _res, next) => next(new HttpError(404, 'Not found')))
 app.use('/files', express.static(VAULT, { dotfiles: 'deny', index: false }))
 app.use('/files', (_req, res) => res.status(404).end())
+// The guides (Help menu). The HTML pages are self-contained, so nothing else in docs/ is served.
+app.get('/docs/:page.html', (req, res) => {
+  const file = path.join(ROOT, 'docs', `${req.params.page}.html`)
+  if (!/^[\w-]+$/.test(req.params.page) || !fssync.existsSync(file)) return res.status(404).send('Guide not found. Run `npm run docs`.')
+  res.sendFile(file)
+})
 
 const server = http.createServer(app)
 

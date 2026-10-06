@@ -42,7 +42,7 @@ Run from this folder, the desktop app uses `./vault`. An installed copy uses `~/
 
 | Setting | Default | How to change |
 | --- | --- | --- |
-| Notes folder | `./vault` | `VAULT_DIR=~/Notes npm start` |
+| Notes folder | the folder chosen in the desktop app, else `./vault` | `VAULT_DIR=~/Notes npm start` |
 | Port | `4321` | `PORT=5000 npm start` |
 
 The server only listens on `127.0.0.1`.

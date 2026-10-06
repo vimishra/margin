@@ -61,6 +61,7 @@
       "dist/**",
       "server/**",
       "electron/**",
+      "docs/*.html",
       "build/icon.png",
       "package.json"
     ],

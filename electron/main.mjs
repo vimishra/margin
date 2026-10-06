@@ -50,6 +50,32 @@ function freePort(port, attempts = 20) {
   })
 }
 
+// The guides open in a plain window of their own, reused between the two.
+let docWin = null
+function openDoc(page) {
+  const url = `${origin}/docs/${page}.html`
+  if (docWin && !docWin.isDestroyed()) {
+    docWin.loadURL(url)
+    docWin.show()
+    docWin.focus()
+    return
+  }
+  docWin = new BrowserWindow({ width: 940, height: 860, minWidth: 480, minHeight: 360, title: 'Margin', icon: iconPath, webPreferences: { contextIsolation: true, nodeIntegration: false } })
+  docWin.on('closed', () => (docWin = null))
+  const outside = (target) => !target.startsWith(`${origin}/docs/`)
+  docWin.webContents.setWindowOpenHandler(({ url: target }) => {
+    if (/^(https?|mailto):/i.test(target) && outside(target)) shell.openExternal(target)
+    else if (!outside(target)) docWin.loadURL(target)
+    return { action: 'deny' }
+  })
+  docWin.webContents.on('will-navigate', (event, target) => {
+    if (!outside(target)) return
+    event.preventDefault()
+    if (/^(https?|mailto):/i.test(target)) shell.openExternal(target)
+  })
+  docWin.loadURL(url)
+}
+
 const send = (id) => {
   if (!win) return
   if (win.isMinimized()) win.restore()
@@ -171,7 +197,15 @@ function buildMenu() {
     },
     // No "Close" here: ⌘W belongs to Close Tab unless the user reassigns it.
     { label: 'Window', submenu: [{ role: 'minimize' }, { role: 'zoom' }, ...(isMac ? [{ type: 'separator' }, { role: 'front' }] : [])] },
-    { role: 'help', submenu: [cmd('Keyboard Shortcuts', 'help')] },
+    {
+      role: 'help',
+      submenu: [
+        { label: 'User Guide', click: () => openDoc('user-guide') },
+        { label: 'Design Guide', click: () => openDoc('design') },
+        { type: 'separator' },
+        cmd('Keyboard Shortcuts', 'help'),
+      ],
+    },
   ]
   Menu.setApplicationMenu(Menu.buildFromTemplate(template))
 }
@@ -208,6 +242,11 @@ function createWindow() {
   // Web links open in the default browser; only the app itself and its attachments load in app windows.
   const external = (url) => /^(https?|mailto):/i.test(url) && !url.startsWith(origin)
   win.webContents.setWindowOpenHandler(({ url }) => {
+    const doc = url.startsWith(`${origin}/docs/`) && /\/docs\/([\w-]+)\.html/.exec(url)
+    if (doc) {
+      openDoc(doc[1])
+      return { action: 'deny' }
+    }
     if (external(url)) shell.openExternal(url)
     return { action: url.startsWith(origin) ? 'allow' : 'deny' }
   })

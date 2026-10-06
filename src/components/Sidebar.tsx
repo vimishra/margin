@@ -87,6 +87,8 @@ export function Sidebar() {
   const folders = useStore((s) => s.folders)
   const route = useStore((s) => s.route)
   const showCalendar = useStore((s) => s.settings.sidebarCalendar)
+  const hidden = useStore((s) => s.settings.hiddenSections) || []
+  const shown = (id: string) => !hidden.includes(id)
   const [collapsed, setCollapsed] = useState<string[]>(() => local.get('collapsed', []))
   const [allTags, setAllTags] = useState(false)
   const [dropTarget, setDropTarget] = useState<string | null>(null)
@@ -214,35 +216,31 @@ export function Sidebar() {
       <div className="side-scroll">
         <div className="nav-group">
           <NavItem icon={<Home size={16} />} label="Home" active={is('home')} hint={hint('home')} onClick={() => go({ name: 'home' })} />
-          <NavItem
-            icon={<CalendarCheck size={16} />}
-            label="Today"
-            active={!!todayNote && activeNote === todayNote.id}
-            hint={hint('daily')}
-            onClick={() => openDaily()}
-          />
-          <NavItem icon={<CalendarDays size={16} />} label="Calendar" active={is('calendar')} hint={hint('calendar')} onClick={() => go({ name: 'calendar' })} />
-          <NavItem icon={<Files size={16} />} label="All notes" count={list.length} active={is('all')} hint={hint('all')} onClick={() => go({ name: 'all' })} />
-          <NavItem
-            icon={<BookMarked size={16} />}
-            label="Research"
-            count={list.filter((n) => n.type === 'article').length}
-            active={is('research')}
-            hint={hint('research')}
-            onClick={() => go({ name: 'research' })}
-          />
-          <NavItem
-            icon={<Hourglass size={16} />}
-            label="Scratch"
-            count={list.filter((n) => n.type === 'scratch').length}
-            active={is('scratch')}
-            onClick={() => go({ name: 'scratch' })}
-          />
+          {shown('today') && (
+            <NavItem icon={<CalendarCheck size={16} />} label="Today" active={!!todayNote && activeNote === todayNote.id} hint={hint('daily')} onClick={() => openDaily()} />
+          )}
+          {shown('calendar') && (
+            <NavItem icon={<CalendarDays size={16} />} label="Calendar" active={is('calendar')} hint={hint('calendar')} onClick={() => go({ name: 'calendar' })} />
+          )}
+          {shown('all') && <NavItem icon={<Files size={16} />} label="All notes" count={list.length} active={is('all')} hint={hint('all')} onClick={() => go({ name: 'all' })} />}
+          {shown('research') && (
+            <NavItem
+              icon={<BookMarked size={16} />}
+              label="Research"
+              count={list.filter((n) => n.type === 'article').length}
+              active={is('research')}
+              hint={hint('research')}
+              onClick={() => go({ name: 'research' })}
+            />
+          )}
+          {shown('scratch') && (
+            <NavItem icon={<Hourglass size={16} />} label="Scratch" count={list.filter((n) => n.type === 'scratch').length} active={is('scratch')} onClick={() => go({ name: 'scratch' })} />
+          )}
         </div>
 
         {showCalendar && <MiniCalendar />}
 
-        {pinned.length > 0 && (
+        {shown('pinned') && pinned.length > 0 && (
           <div className="nav-group">
             <div className="nav-head">Pinned</div>
             {pinned.map((n) => (
@@ -256,18 +254,20 @@ export function Sidebar() {
           </div>
         )}
 
-        <div className="nav-group">
-          <div className="nav-head">
-            Notebooks
-            <button className="icon-btn xs" title="New notebook" onClick={() => createFolder()}>
-              <Plus size={13} />
-            </button>
+        {shown('notebooks') && (
+          <div className="nav-group">
+            <div className="nav-head">
+              Notebooks
+              <button className="icon-btn xs" title="New notebook" onClick={() => createFolder()}>
+                <Plus size={13} />
+              </button>
+            </div>
+            {tree.length === 0 && <p className="nav-empty">No notebooks yet</p>}
+            {tree.map((n) => renderFolder(n, 0))}
           </div>
-          {tree.length === 0 && <p className="nav-empty">No notebooks yet</p>}
-          {tree.map((n) => renderFolder(n, 0))}
-        </div>
+        )}
 
-        {tags.length > 0 && (
+        {shown('tags') && tags.length > 0 && (
           <div className="nav-group">
             <div className="nav-head">Tags</div>
             <div className="tag-cloud">

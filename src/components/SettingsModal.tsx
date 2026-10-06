@@ -1,7 +1,8 @@
 import { createContext, useContext, useState } from 'react'
-import { CalendarDays, Moon, Sun, Search, LayoutTemplate, FolderCog, Keyboard, Palette, PenLine, RotateCcw, Settings2, SlidersHorizontal, Type, X, Zap } from 'lucide-react'
+import { CalendarDays, Check, Moon, Sun, Search, LayoutTemplate, FolderCog, Keyboard, Palette, PenLine, RotateCcw, Settings2, SlidersHorizontal, Type, X, Zap } from 'lucide-react'
 import {
   ACCENTS,
+  SIDEBAR_SECTIONS,
   lightenForDark,
   styleColor,
   formatDate,
@@ -360,6 +361,25 @@ export function SettingsModal() {
                 <Row label="Week starts on" hint="For the calendar.">
                   <Segmented value={s.weekStart} onChange={set('weekStart')} options={[['auto', 'Auto'], ['sunday', 'Sunday'], ['monday', 'Monday']]} />
                 </Row>
+                <Row label="Sidebar sections" hint="Switch off the parts of the sidebar you do not use. Hidden sections also leave the Home page. Everything stays reachable from ⌘K." stack>
+                  <div className="section-toggles">
+                    {SIDEBAR_SECTIONS.map(([id, label]) => {
+                      const on = !(s.hiddenSections || []).includes(id)
+                      return (
+                        <button
+                          key={id}
+                          role="switch"
+                          aria-checked={on}
+                          className={cx('chip toggle-chip', on && 'on')}
+                          onClick={() => setSetting('hiddenSections', on ? [...(s.hiddenSections || []), id] : (s.hiddenSections || []).filter((x) => x !== id))}
+                        >
+                          {on ? <Check size={12} /> : <X size={12} />}
+                          {label}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </Row>
                 <Row label="Calendar in the sidebar" hint="A small month calendar; click a day to open its daily note.">
                   <Toggle label="Calendar in the sidebar" value={s.sidebarCalendar} onChange={set('sidebarCalendar')} />
                 </Row>
@@ -624,7 +644,7 @@ export function SettingsModal() {
             {show('files') && (
               <div className="set-section">
                 {searching && <h4 className="set-section-title">Files &amp; data</h4>}
-                <Row label="Notes folder" hint={desktop ? 'Every note is a markdown file in this folder. Changing it restarts Margin with the new folder; nothing is moved or deleted.' : 'Every note is a markdown file in this folder. To use another folder, start Margin with VAULT_DIR set, for example: VAULT_DIR=~/Notes npm start'} stack>
+                <Row label="Notes folder" hint={desktop ? 'Every note is a markdown file in this folder. Changing it restarts Margin with the new folder; nothing is moved or deleted.' : 'Every note is a markdown file in this folder. In a browser, Margin opens the folder chosen in the desktop app. To use another one, start it with VAULT_DIR set, for example: VAULT_DIR=~/Notes npm start'} stack>
                   <div className="set-path">
                     <code>{vault || 'Unknown'}</code>
                     <button

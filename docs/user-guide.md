@@ -4,6 +4,8 @@ Margin is a note-taking app for people who keep a lot of notes: work, meetings, 
 
 ![Margin's home screen](images/home.png)
 
+You can open this guide from inside the app: **Help → User Guide** in the menu bar, the **User guide** button in the shortcuts window (press `?`), or type "guide" in ⌘K. The [design guide](design.md), which explains how Margin is built, is in the same places.
+
 This guide uses the desktop app's shortcuts. In a browser, most use ⌥ in place of ⌘ (see [Shortcuts](#shortcuts)). Every shortcut can be changed in Settings.
 
 ## Contents
@@ -45,7 +47,7 @@ npm run app
 | `npm start` | Build once and serve in a browser |
 | `npm run app:dist` | Build an installer for the system you are on, into `release/` |
 
-To use a different notes folder, choose **File → Choose Notes Folder** in the desktop app. In a browser, start it with `VAULT_DIR=~/Notes npm start`.
+To use a different notes folder, choose **File → Choose Notes Folder** in the desktop app. The browser version opens the same folder the desktop app uses; to give it a different one, start it with `VAULT_DIR=~/Notes npm start`.
 
 ## The window
 
@@ -126,6 +128,8 @@ A research note is a normal note with two extra fields. Its whole value is the q
 If you do not, ignore the Research section entirely. An ordinary note with the link pasted in, and perhaps a `#reading` tag, does the same job with less ceremony. Nothing else in Margin depends on research notes.
 
 The same goes for scratch notes and the canvas. They cost nothing if unused.
+
+To take a section you do not use out of view, switch it off in **Settings → General → Sidebar sections**. That hides it from the sidebar and from Home. The notes themselves are untouched and still turn up in search.
 
 ### What you cannot skip
 
@@ -373,7 +377,7 @@ Callouts appear as plain quotes, embedded notes become links, and plugin feature
 
 | Section | What is there |
 | --- | --- |
-| General | Start page, where new notes go, week start, sidebar calendar, time format, how typed dates are read, tabs |
+| General | Start page, where new notes go, which sidebar sections to show, week start, sidebar calendar, time format, how typed dates are read, tabs |
 | Appearance | Theme, accent colour, note font and code font (any installed font), text size and weight, line spacing, list indent, indent guides, image border, page width |
 | Text styles | Colour and size for Heading 1–5, bold and italic, with a separate colour for the light and dark themes |
 | Editor | Default mode, toolbar, spell check, auto-closing brackets, image pasting, line numbers, side panel |

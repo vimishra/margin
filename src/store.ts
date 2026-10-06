@@ -75,6 +75,8 @@ export interface Settings {
   /** How 06/10 is read when typing a date: day first (6 October) or month first (June 10). */
   dayFirst: boolean
   sidebarCalendar: boolean
+  /** Sidebar sections the user has switched off; see SIDEBAR_SECTIONS. */
+  hiddenSections: string[]
   tabs: boolean
   accent: string
   /** Font family for note text: an installed font's name, or 'system' for the default. */
@@ -124,6 +126,7 @@ export const DEFAULT_SETTINGS: Settings = {
   timeFormat: '24',
   dayFirst: true,
   sidebarCalendar: true,
+  hiddenSections: [],
   tabs: true,
   accent: 'indigo',
   font: 'system',
@@ -154,6 +157,18 @@ export const DEFAULT_SETTINGS: Settings = {
   meetingsSubfolder: 'YYYY/MMM',
   meetingLink: true,
 }
+
+/** Parts of the sidebar that can be switched off in Settings. Home and search always stay. */
+export const SIDEBAR_SECTIONS: [string, string][] = [
+  ['today', 'Today'],
+  ['calendar', 'Calendar'],
+  ['all', 'All notes'],
+  ['research', 'Research'],
+  ['scratch', 'Scratch'],
+  ['pinned', 'Pinned'],
+  ['notebooks', 'Notebooks'],
+  ['tags', 'Tags'],
+]
 
 /** id, name, swatch colour */
 export const ACCENTS: [string, string, string][] = [

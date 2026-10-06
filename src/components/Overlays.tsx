@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { Check, X } from 'lucide-react'
+import { BookOpen, Check, Workflow, X } from 'lucide-react'
 import { captureText, dismissToast, ui, useStore, type CaptureTarget } from '../store'
-import { shortcutGroups } from '../commands'
+import { openGuide, shortcutGroups } from '../commands'
 import { MOD, cx, local } from '../lib/util'
 
 export function Toasts() {
@@ -133,6 +133,12 @@ export function HelpModal() {
       <div className="modal help" tabIndex={-1} ref={(el) => el?.focus()} onMouseDown={(e) => e.stopPropagation()} onKeyDown={(e) => e.key === 'Escape' && close()}>
         <header className="modal-head">
           <h2>Keyboard shortcuts</h2>
+          <button className="btn ghost sm" onClick={() => openGuide('user-guide')}>
+            <BookOpen size={15} /> User guide
+          </button>
+          <button className="btn ghost sm" onClick={() => openGuide('design')}>
+            <Workflow size={15} /> Design guide
+          </button>
           <button className="icon-btn" onClick={close} title="Close">
             <X size={16} />
           </button>

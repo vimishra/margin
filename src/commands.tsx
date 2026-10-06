@@ -37,12 +37,16 @@ import {
   Zap,
   CalendarCheck,
   FolderPlus,
+  Workflow,
 } from 'lucide-react'
 import { addTag, closeAllTabs, closeOtherTabs, duplicateNote, renameNote, toast, askPageWidth, closeSide, createFolder, currentNote, openSide, swapPanes, importFromObsidian, newMeeting, deleteNote, go, newNote, openDaily, setPref, ui, updateNote, useStore } from './store'
 import { exportHtml, exportMarkdown, exportPdf, exportWord } from './lib/export'
 import { ALT, MOD } from './lib/util'
 import { SHORTCUT_DEFS, hint } from './shortcuts'
 import { desktop, fileManager } from './desktop'
+
+/** Opens one of the guides: a window of its own in the desktop app, a new tab in a browser. */
+export const openGuide = (page: 'user-guide' | 'design') => void window.open(`/docs/${page}.html`, '_blank')
 
 export interface Command {
   id: string
@@ -127,6 +131,8 @@ export function commands(): Command[] {
     { id: 'prefs', label: 'Settings', icon: i(Settings2), hint: `${MOD},`, keywords: 'preferences options configure font accent', run: () => ui({ prefs: true }) },
     { id: 'import', label: 'Import from Obsidian…', icon: i(Download), keywords: 'migrate vault', run: () => void importFromObsidian() },
     { id: 'help', label: 'Keyboard shortcuts', icon: i(Keyboard), hint: '?', run: () => ui({ help: true }) },
+    { id: 'userGuide', label: 'Help: User guide', icon: i(BookOpen), keywords: 'manual documentation docs how to', run: () => openGuide('user-guide') },
+    { id: 'designGuide', label: 'Help: Design guide', icon: i(Workflow), keywords: 'architecture documentation docs development', run: () => openGuide('design') },
   )
   // Show each command's current shortcut, which may have been changed in settings.
   return list.map((c) => ({ ...c, hint: hint(c.id) || (c.id === 'help' ? '?' : undefined) }))
