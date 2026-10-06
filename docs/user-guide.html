@@ -47,6 +47,7 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 <ul>
 <li><a href="#getting-started">Getting started</a></li>
 <li><a href="#the-window">The window</a></li>
+<li><a href="#how-margin-is-organised-and-why">How Margin is organised, and why</a></li>
 <li><a href="#writing">Writing</a></li>
 <li><a href="#finding-things">Finding things</a></li>
 <li><a href="#daily-notes-the-calendar-and-the-canvas">Daily notes, the calendar and the canvas</a></li>
@@ -103,6 +104,113 @@ npm run app
 </ul>
 <p><strong>Home</strong> shows today's note, your pinned notes, recently opened notes, your reading queue and scratch notes that are about to expire.</p>
 <p>Back and forward work as in a browser: ⌘[ and ⌘], the mouse's back and forward buttons, or the arrows at the left of the tab bar.</p>
+<h2 id="how-margin-is-organised-and-why">How Margin is organised, and why</h2>
+<p>Margin has a handful of ways to organise notes. This chapter explains what each is for, why it exists, and which ones you can ignore.</p>
+<h3 id="the-short-version">The short version</h3>
+<ul>
+<li>A <strong>notebook</strong> says where a note lives. A note is in exactly one.</li>
+<li>A <strong>tag</strong> says what kind of thing a note is. A note can have many.</li>
+<li>A <strong>link</strong> says what a note is related to. It is the most specific of the three.</li>
+<li><strong>Search</strong> finds everything else.</li>
+</ul>
+<p>If you only remember one thing: put notes in a few broad notebooks, link generously, and let search and backlinks do the rest.</p>
+<h3 id="notebooks">Notebooks</h3>
+<p><strong>What they are.</strong> A notebook is a folder inside your notes folder. <code>Work/Atlas plan.md</code> is a note called &quot;Atlas plan&quot; in the notebook &quot;Work&quot;.</p>
+<p><strong>Why they exist.</strong> Every note is a file, and a file has to be in some folder. Notebooks are simply those folders, shown in the sidebar. They are not a feature added on top; they are what the files already are. That is also why they keep working outside Margin: open the notes folder in Finder and the notebooks are right there.</p>
+<p><strong>What they are good for.</strong></p>
+<ul>
+<li>Separating areas of your life that rarely mix: Work, Personal, Learning.</li>
+<li>Keeping generated notes out of the way: Daily, Meetings, Scratch and Templates are notebooks Margin files things into for you.</li>
+<li>Scoping a list. Clicking a notebook shows only what is in it.</li>
+</ul>
+<p><strong>What they are bad at.</strong> A note can only be in one notebook, but most notes belong to several topics. A meeting about the Atlas project with a vendor is &quot;Meetings&quot;, &quot;Atlas&quot; and &quot;Vendors&quot; all at once. Trying to express that with folders leads to deep trees and time lost deciding where things go.</p>
+<p><strong>How to use them well.</strong></p>
+<ul>
+<li>Keep to a handful, by broad area. Five to seven is plenty for most people.</li>
+<li>Avoid nesting more than one level, except where Margin does it for you (Meetings by year and month).</li>
+<li>If you cannot decide where a note goes, leave it at the top level or in the Inbox. It is still found by search, links and tags.</li>
+<li>Use tags and links for topics, projects and people.</li>
+</ul>
+<h3 id="tags-and-links">Tags and links</h3>
+<p><strong>Tags</strong> answer &quot;what kind of note is this?&quot; or &quot;what state is it in?&quot;: <code>#meeting</code>, <code>#idea</code>, <code>#question</code>, <code>#todo</code>. They cut across notebooks, and a note can carry several.</p>
+<p><strong>Links</strong> answer &quot;what is this about?&quot;. Writing <code>[[Atlas]]</code> in a meeting note connects the two, and the Atlas note's backlinks then list every note that mentions it. This is what replaces deep folder trees: you do not file the meeting under Atlas, you mention Atlas in it.</p>
+<div class="table"><table><thead>
+<tr>
+<th>To say</th>
+<th>Use</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Where it lives</td>
+<td>Notebook</td>
+<td>Work</td>
+</tr>
+<tr>
+<td>What kind of thing it is</td>
+<td>Tag</td>
+<td><code>#meeting</code></td>
+</tr>
+<tr>
+<td>What it relates to</td>
+<td>Link</td>
+<td><code>[[Atlas]]</code>, <code>[[Priya]]</code></td>
+</tr>
+<tr>
+<td>That I need it close at hand</td>
+<td>Pin</td>
+<td></td>
+</tr>
+</tbody>
+</table></div><h3 id="the-kinds-of-note">The kinds of note</h3>
+<p>Every note is an ordinary markdown file. A few kinds get extra behaviour, switched on by one line at the top of the file. Remove that line and it is a plain note again.</p>
+<div class="table"><table><thead>
+<tr>
+<th>Kind</th>
+<th>What it adds</th>
+<th>Why it exists</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Daily note</strong></td>
+<td>Named for its date, shown on the calendar, one key to open today's, the default place captures land</td>
+<td>You need somewhere to write when you do not yet know where something belongs. The date is a name you never have to think of.</td>
+</tr>
+<tr>
+<td><strong>Scratch note</strong></td>
+<td>An expiry date; it moves to the trash by itself</td>
+<td>Much of what you jot down is only needed for a few days. Without an expiry, it piles up and buries the notes that matter.</td>
+</tr>
+<tr>
+<td><strong>Research note</strong></td>
+<td>A source link, a status (Unread, Reading, Done), a list filtered by status, a reading queue on Home</td>
+<td>To keep a source and your thinking about it together, and to see what you have not finished reading.</td>
+</tr>
+<tr>
+<td><strong>Meeting note</strong></td>
+<td>Nothing special in the file. It is a plain note made from a template, filed by date, tagged <code>#meeting</code> and linked from that day</td>
+<td>Meetings happen often and always have the same shape, so making one should take one keystroke.</td>
+</tr>
+<tr>
+<td><strong>Canvas</strong></td>
+<td>Not a kind of note: every note has a page and a canvas</td>
+<td>Some thinking is spatial.</td>
+</tr>
+</tbody>
+</table></div><h3 id="do-you-need-research-notes">Do you need research notes?</h3>
+<p>No. Be honest with yourself about whether you would use the reading status.</p>
+<p>A research note is a normal note with two extra fields. Its whole value is the queue: seeing at a glance what is unread, what you are part-way through, and what is done. If you collect articles, papers or documentation and want to track your way through them, that is useful.</p>
+<p>If you do not, ignore the Research section entirely. An ordinary note with the link pasted in, and perhaps a <code>#reading</code> tag, does the same job with less ceremony. Nothing else in Margin depends on research notes.</p>
+<p>The same goes for scratch notes and the canvas. They cost nothing if unused.</p>
+<h3 id="what-you-cannot-skip">What you cannot skip</h3>
+<p>Only two things are structural:</p>
+<ul>
+<li><strong>The notes folder</strong>, because that is where the files are.</li>
+<li><strong>Titles</strong>, because links go by title. Two notes with the same title make a link ambiguous, so keep titles distinct.</li>
+</ul>
+<p>Everything else is optional.</p>
 <h2 id="writing">Writing</h2>
 <h3 id="live-preview">Live preview</h3>
 <p>Notes render as you type. The line your cursor is on shows its markdown; every other line shows the result. So <code>**bold**</code> becomes <strong>bold</strong> when you move off the line.</p>
@@ -225,10 +333,60 @@ npm run app
 <li><strong>Words:</strong> full-text search across all notes. Opening a result scrolls to the match.</li>
 <li><strong><code>#tag</code>:</strong> only notes with that tag.</li>
 <li><strong>A date:</strong> <code>today</code>, <code>tomorrow</code>, <code>friday</code>, <code>next monday</code>, <code>last friday</code>, <code>06/10</code>, <code>6 oct</code>, <code>in 3 days</code>. The first result is that day's daily note.</li>
+<li><strong>A command:</strong> type what you want to do. <code>rename</code>, <code>delete</code>, <code>duplicate</code>, <code>close other</code>, <code>add tag</code>, <code>copy link</code>, <code>export</code>. A matching command appears at the top; press Enter.</li>
 <li><strong><code>&gt;</code>:</strong> commands only.</li>
 <li><strong>⌥↵</strong> opens the selected note in the side pane. <strong>⌘↵</strong> creates a note named with what you typed.</li>
 </ul>
-<h3 id="search-inside-a-note-s">Search inside a note: ⌃S</h3>
+<p>Commands act on the note in the active pane. The ones people reach for most:</p>
+<div class="table"><table><thead>
+<tr>
+<th>Type</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rename</code></td>
+<td>Rename this note (also F2). Links to it are updated.</td>
+</tr>
+<tr>
+<td><code>delete</code></td>
+<td>Move this note to the trash, with Undo</td>
+</tr>
+<tr>
+<td><code>duplicate</code></td>
+<td>Make a copy</td>
+</tr>
+<tr>
+<td><code>add tag</code></td>
+<td>Add one or more tags</td>
+</tr>
+<tr>
+<td><code>copy link</code></td>
+<td>Copy <code>[[Title]]</code> to paste into another note</td>
+</tr>
+<tr>
+<td><code>close other</code> / <code>close all</code></td>
+<td>Close the other tabs, or all of them</td>
+</tr>
+<tr>
+<td><code>move</code></td>
+<td>Move to another notebook</td>
+</tr>
+<tr>
+<td><code>open to the side</code></td>
+<td>Show this note in the side pane</td>
+</tr>
+<tr>
+<td><code>history</code>, <code>export</code></td>
+<td>Version history; export as PDF, Markdown, HTML or Word</td>
+</tr>
+<tr>
+<td><code>theme</code>, <code>settings</code>, <code>page width</code></td>
+<td>Change how the app looks</td>
+</tr>
+</tbody>
+</table></div><h3 id="search-inside-a-note-s">Search inside a note: ⌃S</h3>
 <p>⌃S opens a small search bar at the bottom of the note. Matches highlight as you type and the bar shows a count.</p>
 <ul>
 <li><strong>⌃S</strong> next match, <strong>⌃R</strong> previous match (⌃R also starts a backward search).</li>
@@ -312,6 +470,7 @@ npm run app
 <p>Each one has a source link, a status (Unread, Reading, Done), and sections for a summary, quotes and your notes. Paste screenshots and PDFs straight in.</p>
 <p><strong>Research</strong> in the sidebar lists them, filtered by status. Home shows what you are reading.</p>
 <h2 id="organising">Organising</h2>
+<p>For what each of these is for, see <a href="#how-margin-is-organised-and-why">How Margin is organised, and why</a>. This section is the how-to.</p>
 <ul>
 <li><strong>Notebooks</strong> are folders, and can be nested. Right-click one to add a note, add a notebook inside it, rename or delete it. Drag a note from a list onto a notebook to move it.</li>
 <li><strong>Tags:</strong> add them under the title, or write <code>#tag</code> in the text. Click a tag to see everything with it.</li>
@@ -360,7 +519,7 @@ npm run app
 </tr>
 <tr>
 <td>Text styles</td>
-<td>Colour and size for Heading 1–5, bold and italic</td>
+<td>Colour and size for Heading 1–5, bold and italic, with a separate colour for the light and dark themes</td>
 </tr>
 <tr>
 <td>Editor</td>
@@ -387,7 +546,8 @@ npm run app
 <td>Every shortcut; click one and press new keys</td>
 </tr>
 </tbody>
-</table></div><p>Page width is measured in characters per line. Settings are kept per app: the desktop app and a browser each have their own.</p>
+</table></div><p><strong>Text style colours</strong> have a light-theme and a dark-theme picker. Leave the dark one on Auto and it uses a lightened version of your light colour, so a dark heading colour stays readable on a dark background.</p>
+<p>Page width is measured in characters per line. Settings are kept per app: the desktop app and a browser each have their own.</p>
 <h2 id="shortcuts">Shortcuts</h2>
 <p>These are the defaults. Change any of them in Settings → Shortcuts.</p>
 <div class="table"><table><thead>
@@ -537,6 +697,11 @@ npm run app
 <td>Move to notebook</td>
 <td>⌥M</td>
 <td>⌥M</td>
+</tr>
+<tr>
+<td>Rename</td>
+<td>F2</td>
+<td>F2</td>
 </tr>
 <tr>
 <td>Export as PDF</td>

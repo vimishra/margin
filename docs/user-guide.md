@@ -10,6 +10,7 @@ This guide uses the desktop app's shortcuts. In a browser, most use ⌥ in place
 
 - [Getting started](#getting-started)
 - [The window](#the-window)
+- [How Margin is organised, and why](#how-margin-is-organised-and-why)
 - [Writing](#writing)
 - [Finding things](#finding-things)
 - [Daily notes, the calendar and the canvas](#daily-notes-the-calendar-and-the-canvas)
@@ -56,6 +57,84 @@ To use a different notes folder, choose **File → Choose Notes Folder** in the 
 **Home** shows today's note, your pinned notes, recently opened notes, your reading queue and scratch notes that are about to expire.
 
 Back and forward work as in a browser: ⌘[ and ⌘], the mouse's back and forward buttons, or the arrows at the left of the tab bar.
+
+## How Margin is organised, and why
+
+Margin has a handful of ways to organise notes. This chapter explains what each is for, why it exists, and which ones you can ignore.
+
+### The short version
+
+- A **notebook** says where a note lives. A note is in exactly one.
+- A **tag** says what kind of thing a note is. A note can have many.
+- A **link** says what a note is related to. It is the most specific of the three.
+- **Search** finds everything else.
+
+If you only remember one thing: put notes in a few broad notebooks, link generously, and let search and backlinks do the rest.
+
+### Notebooks
+
+**What they are.** A notebook is a folder inside your notes folder. `Work/Atlas plan.md` is a note called "Atlas plan" in the notebook "Work".
+
+**Why they exist.** Every note is a file, and a file has to be in some folder. Notebooks are simply those folders, shown in the sidebar. They are not a feature added on top; they are what the files already are. That is also why they keep working outside Margin: open the notes folder in Finder and the notebooks are right there.
+
+**What they are good for.**
+
+- Separating areas of your life that rarely mix: Work, Personal, Learning.
+- Keeping generated notes out of the way: Daily, Meetings, Scratch and Templates are notebooks Margin files things into for you.
+- Scoping a list. Clicking a notebook shows only what is in it.
+
+**What they are bad at.** A note can only be in one notebook, but most notes belong to several topics. A meeting about the Atlas project with a vendor is "Meetings", "Atlas" and "Vendors" all at once. Trying to express that with folders leads to deep trees and time lost deciding where things go.
+
+**How to use them well.**
+
+- Keep to a handful, by broad area. Five to seven is plenty for most people.
+- Avoid nesting more than one level, except where Margin does it for you (Meetings by year and month).
+- If you cannot decide where a note goes, leave it at the top level or in the Inbox. It is still found by search, links and tags.
+- Use tags and links for topics, projects and people.
+
+### Tags and links
+
+**Tags** answer "what kind of note is this?" or "what state is it in?": `#meeting`, `#idea`, `#question`, `#todo`. They cut across notebooks, and a note can carry several.
+
+**Links** answer "what is this about?". Writing `[[Atlas]]` in a meeting note connects the two, and the Atlas note's backlinks then list every note that mentions it. This is what replaces deep folder trees: you do not file the meeting under Atlas, you mention Atlas in it.
+
+| To say | Use | Example |
+| --- | --- | --- |
+| Where it lives | Notebook | Work |
+| What kind of thing it is | Tag | `#meeting` |
+| What it relates to | Link | `[[Atlas]]`, `[[Priya]]` |
+| That I need it close at hand | Pin | |
+
+### The kinds of note
+
+Every note is an ordinary markdown file. A few kinds get extra behaviour, switched on by one line at the top of the file. Remove that line and it is a plain note again.
+
+| Kind | What it adds | Why it exists |
+| --- | --- | --- |
+| **Daily note** | Named for its date, shown on the calendar, one key to open today's, the default place captures land | You need somewhere to write when you do not yet know where something belongs. The date is a name you never have to think of. |
+| **Scratch note** | An expiry date; it moves to the trash by itself | Much of what you jot down is only needed for a few days. Without an expiry, it piles up and buries the notes that matter. |
+| **Research note** | A source link, a status (Unread, Reading, Done), a list filtered by status, a reading queue on Home | To keep a source and your thinking about it together, and to see what you have not finished reading. |
+| **Meeting note** | Nothing special in the file. It is a plain note made from a template, filed by date, tagged `#meeting` and linked from that day | Meetings happen often and always have the same shape, so making one should take one keystroke. |
+| **Canvas** | Not a kind of note: every note has a page and a canvas | Some thinking is spatial. |
+
+### Do you need research notes?
+
+No. Be honest with yourself about whether you would use the reading status.
+
+A research note is a normal note with two extra fields. Its whole value is the queue: seeing at a glance what is unread, what you are part-way through, and what is done. If you collect articles, papers or documentation and want to track your way through them, that is useful.
+
+If you do not, ignore the Research section entirely. An ordinary note with the link pasted in, and perhaps a `#reading` tag, does the same job with less ceremony. Nothing else in Margin depends on research notes.
+
+The same goes for scratch notes and the canvas. They cost nothing if unused.
+
+### What you cannot skip
+
+Only two things are structural:
+
+- **The notes folder**, because that is where the files are.
+- **Titles**, because links go by title. Two notes with the same title make a link ambiguous, so keep titles distinct.
+
+Everything else is optional.
 
 ## Writing
 
@@ -148,8 +227,24 @@ In the desktop app, right-clicking in a note offers spelling suggestions, Cut, C
 - **Words:** full-text search across all notes. Opening a result scrolls to the match.
 - **`#tag`:** only notes with that tag.
 - **A date:** `today`, `tomorrow`, `friday`, `next monday`, `last friday`, `06/10`, `6 oct`, `in 3 days`. The first result is that day's daily note.
+- **A command:** type what you want to do. `rename`, `delete`, `duplicate`, `close other`, `add tag`, `copy link`, `export`. A matching command appears at the top; press Enter.
 - **`>`:** commands only.
 - **⌥↵** opens the selected note in the side pane. **⌘↵** creates a note named with what you typed.
+
+Commands act on the note in the active pane. The ones people reach for most:
+
+| Type | Does |
+| --- | --- |
+| `rename` | Rename this note (also F2). Links to it are updated. |
+| `delete` | Move this note to the trash, with Undo |
+| `duplicate` | Make a copy |
+| `add tag` | Add one or more tags |
+| `copy link` | Copy `[[Title]]` to paste into another note |
+| `close other` / `close all` | Close the other tabs, or all of them |
+| `move` | Move to another notebook |
+| `open to the side` | Show this note in the side pane |
+| `history`, `export` | Version history; export as PDF, Markdown, HTML or Word |
+| `theme`, `settings`, `page width` | Change how the app looks |
 
 ### Search inside a note: ⌃S
 
@@ -232,6 +327,8 @@ Each one has a source link, a status (Unread, Reading, Done), and sections for a
 
 ## Organising
 
+For what each of these is for, see [How Margin is organised, and why](#how-margin-is-organised-and-why). This section is the how-to.
+
 - **Notebooks** are folders, and can be nested. Right-click one to add a note, add a notebook inside it, rename or delete it. Drag a note from a list onto a notebook to move it.
 - **Tags:** add them under the title, or write `#tag` in the text. Click a tag to see everything with it.
 - **Pin** a note (the pin button) to keep it in the sidebar and on Home.
@@ -278,13 +375,15 @@ Callouts appear as plain quotes, embedded notes become links, and plugin feature
 | --- | --- |
 | General | Start page, where new notes go, week start, sidebar calendar, time format, how typed dates are read, tabs |
 | Appearance | Theme, accent colour, note font and code font (any installed font), text size and weight, line spacing, list indent, indent guides, image border, page width |
-| Text styles | Colour and size for Heading 1–5, bold and italic |
+| Text styles | Colour and size for Heading 1–5, bold and italic, with a separate colour for the light and dark themes |
 | Editor | Default mode, toolbar, spell check, auto-closing brackets, image pasting, line numbers, side panel |
 | Daily notes | Canvas or page, the daily notebook, a template for new days |
 | Templates & meetings | Template and meeting notebooks, how meetings are filed, the meeting template |
 | Capture & scratch | Capture destination, timestamps, scratch expiry |
 | Files & data | Notes folder, attachments folder, image naming, Obsidian import, reset |
 | Shortcuts | Every shortcut; click one and press new keys |
+
+**Text style colours** have a light-theme and a dark-theme picker. Leave the dark one on Auto and it uses a lightened version of your light colour, so a dark heading colour stays readable on a dark background.
 
 Page width is measured in characters per line. Settings are kept per app: the desktop app and a browser each have their own.
 
@@ -322,6 +421,7 @@ These are the defaults. Change any of them in Settings → Shortcuts.
 | Sidebar | ⌘\\ | ⌘\\ |
 | Version history | ⌥V | ⌥V |
 | Move to notebook | ⌥M | ⌥M |
+| Rename | F2 | F2 |
 | Export as PDF | ⌘P | — |
 | Settings | ⌘, | ⌘, |
 
