@@ -70,6 +70,7 @@
       "buildResources": "build"
     },
     "mac": {
+      "identity": "-",
       "category": "public.app-category.productivity",
       "target": [
         "dmg",
