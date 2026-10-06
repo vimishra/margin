@@ -6,6 +6,8 @@
   --doc-size: 16px;
   --doc-weight: 400;
   --list-indent: 28px;
+  --bullet-marker: 1.05em;
+  --task-marker: calc(15px + 0.6em);
   --list-marker: var(--text-3);
   --list-guide: var(--border-strong);
   --h1-size: 1.55em;
@@ -1698,9 +1700,15 @@ button.crumb:hover {
 }
 .cm-bullet {
   display: inline-block;
-  width: 0.62em;
+  /* The bullet and the space after it: the same width a wrapped line is indented by. */
+  width: var(--bullet-marker);
   color: var(--list-marker);
   font-weight: 700;
+}
+.cm-bullet::before {
+  content: '•';
+  display: inline-block;
+  width: 0.62em;
   transform: scale(1.25);
   transform-origin: 40% 55%;
 }
@@ -1709,6 +1717,14 @@ button.crumb:hover {
   color: var(--list-marker) !important;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
+}
+.cm-list-number {
+  display: inline-block;
+  white-space: pre;
+}
+/* Wrapped lines of a list item hang under its text. The indent must not carry into the marker boxes. */
+.cm-hang > * {
+  text-indent: 0;
 }
 .cm-list-indent {
   display: inline-block;
@@ -1731,7 +1747,7 @@ button.crumb:hover {
 .cm-checkbox {
   width: 15px;
   height: 15px;
-  margin: 0 0.15em 0 0;
+  margin: 0 0.6em 0 0;
   accent-color: var(--accent);
   vertical-align: -2px;
   cursor: pointer;
@@ -4524,4 +4540,14 @@ button.chip.tag:hover,
 }
 .pane-section.toned > .pane-empty {
   padding-left: 10px;
+}
+
+/* Guide lines of a nested list item run the full height of the item, wrapped rows included. */
+.cm-hang-nested {
+  background-image: repeating-linear-gradient(to right, var(--list-guide) 0 1px, transparent 1px var(--list-indent));
+  background-position: 0.28em 0;
+  background-repeat: no-repeat;
+}
+.cm-hang-nested .cm-list-indent {
+  background-image: none;
 }

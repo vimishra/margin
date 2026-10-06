@@ -1,9 +1,9 @@
 {
   "name": "margin-notes",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
-  "description": "Margin \u2014 a fast, local-first markdown note-taking app",
+  "description": "Margin — a fast, local-first markdown note-taking app",
   "scripts": {
     "dev": "node server/index.mjs --dev",
     "build": "vite build",

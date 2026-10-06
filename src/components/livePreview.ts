@@ -157,7 +157,6 @@ class BulletWidget extends WidgetType {
   toDOM() {
     const el = document.createElement('span')
     el.className = 'cm-bullet'
-    el.textContent = '•'
     return el
   }
   ignoreEvent() {
@@ -362,13 +361,27 @@ function build(state: EditorState, follow: (t: string, side?: boolean) => void):
       if (name === 'ListMark') {
         // Nested items are indented by a fixed width per level (set in Settings), whatever spaces the file uses.
         const lineStart = doc.lineAt(from).from
-        if (from > lineStart && !/\S/.test(text.slice(lineStart, from))) {
-          let depth = -1
+        // Only whitespace before the marker: an ordinary list line (not one inside a quote).
+        const plainStart = !/\S/.test(text.slice(lineStart, from))
+        let depth = 0
+        if (from > lineStart && plainStart) {
+          depth = -1
           for (let n = node.node.parent; n; n = n.parent) if (n.name === 'BulletList' || n.name === 'OrderedList') depth++
+          depth = Math.max(0, depth)
           if (depth > 0) out.push(Decoration.mark({ class: 'cm-list-indent', attributes: { style: `width: calc(${depth} * var(--list-indent))` } }).range(lineStart, from))
         }
         const task = /^ \[[ xX]\] /.exec(text.slice(to, to + 5))
         const ordered = node.node.parent?.parent?.name === 'OrderedList'
+        const spaced = text[to] === ' '
+        // When a long item wraps, its later lines start under its text, not under the marker.
+        // `marker` is the width of the marker with its space; each kind below is drawn at exactly that width.
+        const hang = (marker: string) => {
+          if (!plainStart) return
+          const width = `calc(${depth} * var(--list-indent) + ${marker})`
+          // The guide lines for nested items are drawn on the whole line, so they continue down the wrapped rows.
+          const guides = depth > 0 ? `; background-size: calc(${depth} * var(--list-indent)) 100%` : ''
+          out.push(Decoration.line({ class: depth > 0 ? 'cm-hang cm-hang-nested' : 'cm-hang', attributes: { style: `padding-left: ${width}; text-indent: calc(-1 * (${depth} * var(--list-indent) + ${marker}))${guides}` } }).range(lineStart))
+        }
         if (task) {
           // Priority and dates written on the task: shown as small labels, red once the day has passed.
           const line = doc.lineAt(from)
@@ -383,14 +396,20 @@ function build(state: EditorState, follow: (t: string, side?: boolean) => void):
           }
           if (!onLines(from, to)) {
             out.push(hide.range(from, to + 1))
-            out.push(Decoration.replace({ widget: new CheckboxWidget(text[to + 2] !== ' ') }).range(to + 1, to + 4))
+            // The box takes the place of "[ ]" and the space after it, at a fixed width.
+            out.push(Decoration.replace({ widget: new CheckboxWidget(text[to + 2] !== ' ') }).range(to + 1, to + 5))
             if (text[to + 2] !== ' ') out.push(Decoration.line({ class: 'cm-task-done' }).range(doc.lineAt(from).from))
-          }
+            hang('var(--task-marker)')
+          } else hang('1.85em')
         } else if (ordered) {
-          out.push(Decoration.mark({ class: 'cm-list-number' }).range(from, to))
+          // Wide enough for the digits, the dot and the space, so every number in a list lines up.
+          const width = `${((to - from - 1) * 0.62 + 0.8).toFixed(2)}em`
+          out.push(Decoration.mark({ class: 'cm-list-number', attributes: { style: `width: ${width}` } }).range(from, spaced ? to + 1 : to))
+          hang(width)
         } else if (!touches(from, to)) {
-          out.push(Decoration.replace({ widget: new BulletWidget() }).range(from, to))
-        }
+          out.push(Decoration.replace({ widget: new BulletWidget() }).range(from, spaced ? to + 1 : to))
+          hang('var(--bullet-marker)')
+        } else hang('var(--bullet-marker)')
         return
       }
       // A bare web address typed into the text: show and treat it as a link.
