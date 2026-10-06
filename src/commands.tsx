@@ -38,8 +38,10 @@ import {
   CalendarCheck,
   FolderPlus,
   Workflow,
+  User,
+  CalendarPlus,
 } from 'lucide-react'
-import { addTag, closeAllTabs, closeOtherTabs, duplicateNote, renameNote, toast, askPageWidth, closeSide, createFolder, currentNote, openSide, swapPanes, importFromObsidian, newMeeting, deleteNote, go, newNote, openDaily, setPref, ui, updateNote, useStore } from './store'
+import { addTag, closeAllTabs, closeOtherTabs, duplicateNote, renameNote, toast, askPageWidth, closeSide, createFolder, currentNote, openSide, swapPanes, importFromObsidian, newMeeting, newPerson, addMeetingEntry, deleteNote, go, newNote, openDaily, setPref, ui, updateNote, useStore } from './store'
 import { exportHtml, exportMarkdown, exportPdf, exportWord } from './lib/export'
 import { ALT, MOD } from './lib/util'
 import { SHORTCUT_DEFS, hint } from './shortcuts'
@@ -76,11 +78,13 @@ export function commands(): Command[] {
     { id: 'scratch', label: 'New scratch note', icon: i(Hourglass), hint: `${ALT}S`, keywords: 'temporary expire', run: () => newNote('scratch') },
     { id: 'canvas', label: 'New canvas', icon: i(LayoutDashboard), keywords: 'board whiteboard', run: () => newNote('canvas') },
     { id: 'meeting', label: 'New meeting note', icon: i(Users), keywords: 'minutes template', run: () => void newMeeting() },
+    { id: 'person', label: 'New person note', icon: i(User), keywords: '1:1 one on one people 1-1', run: () => void newPerson() },
     { id: 'template', label: 'New note from a template…', icon: i(LayoutTemplate), keywords: 'templates', run: () => ui({ palette: { mode: 'template' } }) },
     { id: 'article', label: 'New research note', icon: i(BookMarked), keywords: 'article link clip', run: () => newNote('article') },
     { id: 'folder', label: 'New notebook', icon: i(FolderPlus), keywords: 'folder', run: () => createFolder() },
     { id: 'home', label: 'Go to Home', icon: i(Home), hint: `${ALT}H`, run: () => go({ name: 'home' }) },
     { id: 'calendar', label: 'Go to Calendar', icon: i(CalendarDays), hint: `${ALT}L`, run: () => go({ name: 'calendar' }) },
+    { id: 'tasks', label: 'Go to Tasks', icon: i(ListChecks), keywords: 'action items todo due overdue', run: () => go({ name: 'tasks' }) },
     { id: 'all', label: 'Go to All notes', icon: i(Files), hint: `${ALT}A`, run: () => go({ name: 'all' }) },
     { id: 'goscratch', label: 'Go to Scratch', icon: i(Hourglass), run: () => go({ name: 'scratch' }) },
     { id: 'research', label: 'Go to Research', icon: i(BookMarked), hint: `${ALT}R`, run: () => go({ name: 'research' }) },
@@ -89,17 +93,19 @@ export function commands(): Command[] {
     list.push(
       { id: 'side', label: s.side ? 'Close the side pane' : 'Open this note to the side', icon: i(Columns2), keywords: 'split pane two', run: () => (s.side ? closeSide() : openSide(note.id)) },
       ...(s.side ? [{ id: 'swap', label: 'Swap the two panes', icon: i(Columns2), keywords: 'split side', run: () => swapPanes() }] : []),
+      { id: 'entry', label: "Add today's meeting entry", icon: i(CalendarPlus), keywords: '1:1 person dated heading', run: () => addMeetingEntry(note.id) },
       { id: 'outline', label: 'Jump to a heading…', icon: i(ListTree), keywords: 'outline index contents toc section', run: () => ui({ palette: { mode: 'outline', noteId: note.id } }) },
       { id: 'isearch', label: 'Search in this note', icon: i(Search), keywords: 'find incremental isearch', run: () => window.dispatchEvent(new CustomEvent('margin:isearch', { detail: 'forward' })) },
       { id: 'isearchBack', label: 'Search backward in this note', icon: i(Search), keywords: 'find reverse', run: () => window.dispatchEvent(new CustomEvent('margin:isearch', { detail: 'back' })) },
       { id: 'bullet', label: 'Bulleted list', icon: i(List), keywords: 'unordered bullets', run: () => format('bullet') },
       { id: 'numbered', label: 'Numbered list', icon: i(ListOrdered), keywords: 'ordered numbers', run: () => format('numbered') },
       { id: 'task', label: 'Task list', icon: i(ListChecks), keywords: 'todo checkbox', run: () => format('task') },
+      { id: 'done', label: 'Tick or untick this task', icon: i(ListChecks), keywords: 'complete done check toggle finish', run: () => format('done') },
       { id: 'mode', label: s.mode === 'read' ? 'Switch to writing' : 'Switch to reading', icon: i(BookOpen), hint: `${MOD}E`, keywords: 'preview edit', run: toggleMode },
       { id: 'view', label: note.view === 'canvas' ? 'Show page' : 'Show canvas', icon: i(LayoutDashboard), keywords: 'board', run: () => updateNote(note.id, { view: note.view === 'canvas' ? '' : 'canvas' }) },
       ...(daily ? [] : [{ id: 'rename', label: 'Rename this note…', icon: i(PenLine), keywords: 'title name', run: () => void renameNote(note.id) }]),
       { id: 'duplicate', label: 'Duplicate this note', icon: i(Copy), keywords: 'copy clone', run: () => void duplicateNote(note.id) },
-      { id: 'addTag', label: 'Add a tag to this note…', icon: i(Hash), keywords: 'label', run: () => void addTag(note.id) },
+      { id: 'addTag', label: 'Add a tag to this note…', icon: i(Hash), keywords: 'label', run: () => addTag(note.id) },
       {
         id: 'copyLink',
         label: 'Copy a link to this note',
@@ -157,6 +163,7 @@ export const FIXED_SHORTCUTS: [string, [string, string][]][] = [
     [
       ['/', 'Slash commands: headings, lists, tables, dates, templates'],
       ['[[', 'Link to a note'],
+      ['P1  >fri  @due(fri)', 'On a task: priority, planned day, due date'],
       [`${MOD}B  ${MOD}I`, 'Bold / italic'],
       [`${MOD}⇧K`, 'Wrap selection in a note link'],
       [`${MOD}F`, 'Find and replace'],

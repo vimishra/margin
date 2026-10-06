@@ -1,3 +1,4 @@
+import { tagHue } from './util'
 import MarkdownIt from 'markdown-it'
 import type StateInline from 'markdown-it/lib/rules_inline/state_inline.mjs'
 // @ts-expect-error no types published
@@ -89,7 +90,7 @@ function build(math: boolean): MarkdownIt {
   }
   md.renderer.rules.hashtag = (tokens, idx) => {
     const tag = tokens[idx].meta.tag
-    return `<a class="hashtag" data-tag="${esc(tag)}" href="#/tag/${encodeURIComponent(tag)}">#${esc(tag)}</a>`
+    return `<a class="hashtag" style="--tag-hue: ${tagHue(tag)}" data-tag="${esc(tag)}" href="#/tag/${encodeURIComponent(tag)}">#${esc(tag)}</a>`
   }
 
   const image = md.renderer.rules.image!

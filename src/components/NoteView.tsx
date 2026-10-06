@@ -42,12 +42,13 @@ import type { Note } from '../types'
 import { timeNow, deleteNote, duplicateNote, go, openDaily, openMenu, openSide, pageWidthMenu, setActivePane, setPref, swapPanes, toast, ui, updateNote, useStore, type Mode, type Settings, fontCss } from '../store'
 import { joinContent, splitContent } from '../lib/canvas'
 import { tagsOf } from '../lib/links'
-import { ALT, MOD, addDays, cx, dailyLabel, displayTitle, expiresIn, isYmd, today } from '../lib/util'
+import { ALT, MOD, addDays, cx, dailyLabel, displayTitle, expiresIn, isYmd, today, tagStyle } from '../lib/util'
 import { copyRichText, exportHtml, exportMarkdown, exportPdf, exportWord } from '../lib/export'
 import { Editor, type EditorHandle } from './Editor'
 import { Preview, followLink } from './Preview'
 import { CanvasView } from './CanvasView'
 import { RightPane } from './RightPane'
+import { DayTasks } from './TasksView'
 import { desktop } from '../desktop'
 import { hint } from '../shortcuts'
 
@@ -121,7 +122,7 @@ function Tags({ note }: { note: Note }) {
   return (
     <div className="tags-row">
       {note.tags.map((t) => (
-        <span key={t} className="chip tag">
+        <span key={t} className="chip tag" style={tagStyle(t)}>
           <button className="chip-label" onClick={() => go({ name: 'tag', tag: t })}>
             #{t}
           </button>
@@ -131,7 +132,7 @@ function Tags({ note }: { note: Note }) {
         </span>
       ))}
       {inline.map((t) => (
-        <button key={t} className="chip tag inline" title="Tag written in the note" onClick={() => go({ name: 'tag', tag: t })}>
+        <button key={t} className="chip tag inline" style={tagStyle(t)} title="Tag written in the note" onClick={() => go({ name: 'tag', tag: t })}>
           #{t}
         </button>
       ))}
@@ -304,6 +305,7 @@ export function NoteView({ note, slot = 'main' }: { note: Note; slot?: 'main' | 
         bullet: () => ed.toggleList('bullet'),
         numbered: () => ed.toggleList('numbered'),
         task: () => ed.toggleList('task'),
+        done: () => ed.toggleDone(),
         bold: () => ed.wrap('**', '**', 'bold'),
         italic: () => ed.wrap('*', '*', 'italic'),
         strike: () => ed.wrap('~~', '~~', 'text'),
@@ -332,7 +334,7 @@ export function NoteView({ note, slot = 'main' }: { note: Note; slot?: 'main' | 
   // Opened from a search result: go to the first place the search text appears.
   const jump = useStore((s) => s.jump)
   useEffect(() => {
-    if (!jump || jump.id !== note.id) return
+    if (!jump || jump.id !== note.id || (jump.pane && jump.pane !== slot)) return
     useStore.setState({ jump: null })
     if (isCanvas) return
     const lower = page.toLowerCase()
@@ -349,7 +351,8 @@ export function NoteView({ note, slot = 'main' }: { note: Note; slot?: 'main' | 
     }
     if (at < 0) return
     const needle = page.slice(at, at + length)
-    requestAnimationFrame(() => {
+    // A short delay rather than the next frame: frames do not run while the window is hidden.
+    setTimeout(() => {
       if (editor.current) return editor.current.reveal(at, at + length)
       // Read-only view: find the same text in the rendered page and select it.
       const root = scroller.current?.querySelector('.reading')
@@ -489,7 +492,14 @@ export function NoteView({ note, slot = 'main' }: { note: Note; slot?: 'main' | 
 
       <div className="note-body">
         {isCanvas ? (
-          <CanvasView key={note.id} note={note} />
+          <>
+            <CanvasView key={note.id} note={note} />
+            {isDaily && (
+              <div className="day-tasks-float">
+                <DayTasks note={note} floating />
+              </div>
+            )}
+          </>
         ) : (
           <div className="note-scroll" ref={scroller}>
             <div className="doc" style={{ maxWidth: width ? Math.round(width * charWidth(mode === 'source', settings)) + 112 : 'none' }}>
@@ -528,6 +538,7 @@ export function NoteView({ note, slot = 'main' }: { note: Note; slot?: 'main' | 
               )}
               <Strip note={note} />
               <Tags note={note} />
+              {isDaily && <DayTasks note={note} />}
               {mode !== 'read' && settings.toolbar && <Toolbar editor={editor} />}
               <div className={`doc-body mode-${mode}`}>
                 {mode !== 'read' && (

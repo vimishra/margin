@@ -1,3 +1,4 @@
+import type React from 'react'
 import type { Note } from '../types'
 
 export const isMac = /Mac|iPhone|iPad/.test(navigator.platform)
@@ -131,3 +132,15 @@ export function firstWeekday(): number {
   }
   return 0
 }
+
+// Tag colours are chosen from the tag's name, so a tag keeps one colour everywhere and needs no setting.
+/** The hue for a tag. Nested tags (work/atlas) take the colour of their first part, so a family looks alike. */
+export function tagHue(tag: string): number {
+  const root = tag.replace(/^#/, '').split('/')[0].toLowerCase()
+  let h = 2166136261
+  for (let i = 0; i < root.length; i++) h = Math.imul(h ^ root.charCodeAt(i), 16777619) >>> 0
+  // Steps of the golden angle spread names evenly round the colour wheel, so few tags end up alike.
+  return Math.round(((h % 997) * 137.508) % 360)
+}
+/** Inline style that gives an element its tag's colour (see the "tag colours" rules in styles.css). */
+export const tagStyle = (tag: string) => ({ '--tag-hue': tagHue(tag) }) as React.CSSProperties

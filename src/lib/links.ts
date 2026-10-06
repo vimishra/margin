@@ -7,6 +7,7 @@ const TAG = /(?:^|[\s(])#([A-Za-z][\w/-]*)/g
 
 interface Parsed {
   content: string
+  lower: string
   links: string[]
   tags: string[]
 }
@@ -19,7 +20,7 @@ function parse(note: Note): Parsed {
   const text = note.content.replace(/```[\s\S]*?(```|$)/g, ' ').replace(/`[^`\n]*`/g, ' ')
   const links = [...new Set([...text.matchAll(WIKI)].map((m) => m[1].trim().toLowerCase()))]
   const tags = [...new Set([...text.replace(/^#{1,6}\s.*$/gm, ' ').matchAll(TAG)].map((m) => m[1]))]
-  const next = { content: note.content, links, tags }
+  const next = { content: note.content, lower: note.content.toLowerCase(), links, tags }
   parsed.set(note.id, next)
   return next
 }
@@ -84,13 +85,67 @@ export function backlinks(notes: Notes, target: Note): Backlink[] {
   return out.sort((a, b) => b.note.updated.localeCompare(a.note.updated))
 }
 
+const escapeRe = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+/** The title as a whole word or phrase, not as part of a longer word. */
+const mentionRe = (title: string) => new RegExp(`(?<![\\p{L}\\p{N}_])${escapeRe(title)}(?![\\p{L}\\p{N}_])`, 'giu')
+
+/** Stretches of text where a mention must not be turned into a link: code, links, canvas markers. */
+function protectedRanges(content: string): [number, number][] {
+  const out: [number, number][] = []
+  for (const m of content.matchAll(/```[\s\S]*?(?:```|$)|`[^`\n]*`|\[\[[^\]\n]*\]\]|\[[^\]\n]*\]\([^)\n]*\)|<!--[\s\S]*?-->|https?:\/\/\S+/g)) out.push([m.index!, m.index! + m[0].length])
+  return out
+}
+
+function plainMentions(content: string, title: string): { from: number; to: number }[] {
+  const skip = protectedRanges(content)
+  return [...content.matchAll(mentionRe(title))].map((m) => ({ from: m.index!, to: m.index! + m[0].length })).filter((r) => !skip.some(([a, b]) => r.from < b && r.to > a))
+}
+
+export interface Mention {
+  note: Note
+  /** Lines where the title appears as plain text. */
+  lines: string[]
+  count: number
+}
+
 /** Notes that mention the title in plain text without linking to it. */
-export function unlinkedMentions(notes: Notes, target: Note): Note[] {
-  const key = target.title.toLowerCase()
-  if (key.length < 4 || target.type === 'daily') return []
-  return Object.values(notes).filter(
-    (n) => n.id !== target.id && !outgoing(n).includes(key) && n.content.toLowerCase().includes(key),
-  )
+export function unlinkedMentions(notes: Notes, target: Note): Mention[] {
+  const title = target.title.trim()
+  const key = title.toLowerCase()
+  if (key.length < 3 || target.type === 'daily' || /^untitled/i.test(title)) return []
+  const out: Mention[] = []
+  for (const n of Object.values(notes)) {
+    if (n.id === target.id || !parse(n).lower.includes(key)) continue
+    const found = plainMentions(n.content, title)
+    if (!found.length) continue
+    const lines = [...new Set(found.map((r) => n.content.slice(n.content.lastIndexOf('\n', r.from - 1) + 1, (n.content.indexOf('\n', r.to) + 1 || n.content.length + 1) - 1)))]
+      .slice(0, 3)
+      .map((l) => l.replace(/^\s*([-*+]|\d+\.|>|#{1,6})\s+(\[[ xX]\]\s+)?/, '').trim())
+    out.push({ note: n, lines, count: found.length })
+  }
+  return out.sort((a, b) => b.note.updated.localeCompare(a.note.updated))
+}
+
+/** The note's content with plain mentions of the title turned into links; all of them, or only the first. */
+export function linkMentions(content: string, title: string, all = true): string {
+  const found = plainMentions(content, title)
+  let out = content
+  for (const r of (all ? found : found.slice(0, 1)).reverse()) {
+    const written = content.slice(r.from, r.to)
+    out = out.slice(0, r.from) + (written === title ? `[[${title}]]` : `[[${title}|${written}]]`) + out.slice(r.to)
+  }
+  return out
+}
+
+/** Web addresses the note links to, in the order they appear. */
+export function webLinks(note: Note): { href: string; label: string }[] {
+  const text = note.content.replace(/```[\s\S]*?(```|$)/g, ' ').replace(/`[^`\n]*`/g, ' ').replace(/!\[[^\]\n]*\]\([^)\n]*\)/g, ' ')
+  const seen = new Map<string, string>()
+  for (const m of text.matchAll(/\[([^\]\n]+)\]\(\s*<?(https?:\/\/[^)\s>]+)>?[^)]*\)|(https?:\/\/[^\s<>)\]]+)/g)) {
+    const href = (m[2] || m[3]).replace(/[.,;:!?]+$/, '')
+    if (!seen.has(href)) seen.set(href, m[1] || '')
+  }
+  return [...seen.entries()].map(([href, label]) => ({ href, label }))
 }
 
 /** Changes only when the set of note titles changes; used to re-render wikilinks. */

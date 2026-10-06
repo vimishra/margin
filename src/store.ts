@@ -4,7 +4,8 @@ import { api } from './api'
 import { desktop } from './desktop'
 import type { Note, NotePatch, NoteType, Route } from './types'
 import { appendCard } from './lib/canvas'
-import { clock, isYmd, local, today } from './lib/util'
+import { clock, displayTitle, isYmd, local, today } from './lib/util'
+import { rewriteTask, shortDate, withDetails, type SavedTaskView, type Task, type TaskView } from './lib/tasks'
 
 export interface Toast {
   id: number
@@ -36,7 +37,7 @@ interface AskOptions {
 /** edit = live preview (rendered as you type), source = raw markdown, read = read-only page. */
 export type Mode = 'edit' | 'source' | 'read'
 export type Theme = 'system' | 'light' | 'dark'
-export type CaptureTarget = 'daily' | 'scratch' | 'inbox'
+export type CaptureTarget = 'daily' | 'scratch' | 'inbox' | 'note'
 
 export type StyleKey = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'bold' | 'italic'
 export interface TextStyle {
@@ -116,6 +117,10 @@ export interface Settings {
   meetingsSubfolder: string
   /** Add a link to each new meeting note in today's daily note. */
   meetingLink: boolean
+  /** Task filters saved from the Tasks view; they show under Tasks in the sidebar. */
+  taskViews: SavedTaskView[]
+  /** Notebook for notes about people (1:1s). */
+  peopleFolder: string
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -156,6 +161,8 @@ export const DEFAULT_SETTINGS: Settings = {
   meetingsFolder: 'Meetings',
   meetingsSubfolder: 'YYYY/MMM',
   meetingLink: true,
+  taskViews: [],
+  peopleFolder: 'People',
 }
 
 /** Parts of the sidebar that can be switched off in Settings. Home and search always stay. */
@@ -163,9 +170,11 @@ export const SIDEBAR_SECTIONS: [string, string][] = [
   ['today', 'Today'],
   ['calendar', 'Calendar'],
   ['all', 'All notes'],
+  ['tasks', 'Tasks'],
   ['research', 'Research'],
   ['scratch', 'Scratch'],
   ['pinned', 'Pinned'],
+  ['recent', 'Recent'],
   ['notebooks', 'Notebooks'],
   ['tags', 'Tags'],
 ]
@@ -193,7 +202,7 @@ export function fontCss(family: string, mono = false): string {
   return `"${family.replace(/["\\]/g, '')}", ${fallback}`
 }
 
-export type PaletteState = null | { mode: 'search' | 'move' | 'template' | 'outline'; noteId?: string; query?: string }
+export type PaletteState = null | { mode: 'search' | 'move' | 'template' | 'outline' | 'tag'; noteId?: string; query?: string }
 
 interface State {
   loaded: boolean
@@ -201,6 +210,8 @@ interface State {
   vault: string
   /** Name of the folder inside the vault where images and other files are stored. */
   attachmentsFolder: string
+  /** Tags that notes take on when created in, or moved into, a notebook. Kept in the notes folder's own config. */
+  folderTags: Record<string, string[]>
   notes: Record<string, Note>
   folders: string[]
   route: Route
@@ -226,13 +237,15 @@ interface State {
   /** The pane that keyboard commands (search, lists, jump to heading) apply to. */
   activePane: 'main' | 'side'
   /** Set when a note is opened from a search result, so it can scroll to the match. */
-  jump: { id: string; query: string; terms: string[] } | null
+  jump: { id: string; query: string; terms: string[]; pane?: 'main' | 'side' } | null
   settings: Settings
   historyFor: string | null
   /** Image shown enlarged over the page. */
   lightbox: { src: string; alt: string } | null
   toasts: Toast[]
   menu: { x: number; y: number; items: MenuItem[]; alignRight?: boolean } | null
+  /** The small calendar for choosing a date, anchored to what was clicked. */
+  datePick: { x: number; y: number; alignRight?: boolean; title: string; value?: string; removeLabel?: string; onPick: (date: string | null) => void } | null
   asking: (AskOptions & { resolve: (v: string | null) => void }) | null
 }
 
@@ -247,6 +260,8 @@ export function parseHash(hash: string): Route {
     case 'scratch':
     case 'research':
       return { name }
+    case 'tasks':
+      return arg ? { name, view: arg } : { name }
     case 'folder':
       return { name, path: arg }
     case 'tag':
@@ -262,6 +277,7 @@ export function routeHash(r: Route): string {
   if (r.name === 'folder') return `#/folder/${r.path.split('/').map(encodeURIComponent).join('/')}`
   if (r.name === 'tag') return `#/tag/${encodeURIComponent(r.tag)}`
   if (r.name === 'note') return `#/note/${r.id}`
+  if (r.name === 'tasks' && r.view) return `#/tasks/${encodeURIComponent(r.view)}`
   return `#/${r.name}`
 }
 
@@ -281,6 +297,7 @@ export const useStore = create<State>(() => ({
   error: null,
   vault: '',
   attachmentsFolder: 'attachments',
+  folderTags: {},
   notes: {},
   folders: [],
   route: parseHash(location.hash),
@@ -306,6 +323,7 @@ export const useStore = create<State>(() => ({
   lightbox: null,
   toasts: [],
   menu: null,
+  datePick: null,
   asking: null,
 }))
 
@@ -340,9 +358,11 @@ export const openNote = (id: string) => go({ name: 'note', id })
 export function openSide(id: string) {
   const s = get()
   const sideTabs = !s.settings.tabs ? [id] : s.sideTabs.includes(id) ? s.sideTabs : [...s.sideTabs, id]
+  const recent = [id, ...s.recent.filter((x) => x !== id)].slice(0, 60)
   local.set('side', id)
   local.set('sideTabs', sideTabs)
-  set({ side: id, sideTabs, activePane: 'side' })
+  local.set('recent', recent)
+  set({ side: id, sideTabs, recent, activePane: 'side' })
 }
 
 export function closeSide() {
@@ -401,6 +421,12 @@ export function openNoteAt(id: string, query: string, terms: string[]) {
   openNote(id)
 }
 
+/** The same, in the side pane. */
+export function openSideAt(id: string, query: string) {
+  set({ jump: { id, query, terms: [], pane: 'side' } })
+  openSide(id)
+}
+
 window.addEventListener('hashchange', () => enterRoute(parseHash(location.hash)))
 
 // ---------- loading ----------
@@ -437,7 +463,7 @@ export async function load() {
   try {
     const data = await api.state()
     const first = !get().loaded
-    set({ notes: mergeNotes(data.notes), folders: data.folders, vault: data.vault, attachmentsFolder: data.config?.attachments || 'attachments', loaded: true, error: null })
+    set({ notes: mergeNotes(data.notes), folders: data.folders, vault: data.vault, attachmentsFolder: data.config?.attachments || 'attachments', folderTags: data.config?.folderTags || {}, loaded: true, error: null })
     // Opened without a specific page in the address: go to the start page chosen in settings.
     const { settings, recent, notes } = get()
     if (first && !location.hash.replace(/^#\/?/, '')) {
@@ -530,6 +556,11 @@ window.addEventListener('focus', () => refresh())
 export function updateNote(id: string, patch: NotePatch) {
   const note = get().notes[id]
   if (!note) return
+  // Moved into a notebook: add that notebook's tags. Tags are never taken away on the way out.
+  if (patch.folder !== undefined && patch.folder !== note.folder) {
+    const tags = withTags(patch.tags ?? note.tags, patch.folder)
+    if (tags && tags !== (patch.tags ?? note.tags)) patch = { ...patch, tags }
+  }
   const next = { ...note, ...patch }
   if (patch.content !== undefined && patch.content !== note.content) next.updated = new Date().toISOString()
   set((s) => ({ notes: { ...s.notes, [id]: next } }))
@@ -551,9 +582,23 @@ function context(): { folder: string } {
   return { folder: '' }
 }
 
+/** The tags of a notebook and of every notebook above it. */
+export function inheritedTags(folder: string): string[] {
+  const { folderTags } = get()
+  const parts = folder ? folder.split('/') : []
+  return [...new Set(parts.flatMap((_p, i) => folderTags[parts.slice(0, i + 1).join('/')] || []))]
+}
+
+const withTags = (tags: string[] | undefined, folder: string) => {
+  const extra = inheritedTags(folder).filter((t) => !(tags || []).includes(t))
+  return extra.length ? [...(tags || []), ...extra] : tags
+}
+
 export async function createNote(fields: Partial<Note>, open = true): Promise<Note | null> {
   try {
-    const { note, folders } = await api.createNote(fields)
+    // A note made in a notebook takes that notebook's tags, written into the note itself.
+    const tags = withTags(fields.tags, fields.folder || '')
+    const { note, folders } = await api.createNote(tags ? { ...fields, tags } : fields)
     set((s) => ({ notes: { ...s.notes, [note.id]: note }, folders }))
     if (open) openNote(note.id)
     return note
@@ -702,12 +747,21 @@ export async function renameNote(id: string) {
   if (title?.trim() && title.trim() !== note.title) updateNote(id, { title: title.trim() })
 }
 
-export async function addTag(id: string) {
+/** Open the tag picker for a note: existing tags complete as you type, or a new one is created. */
+export function addTag(id: string) {
+  if (get().notes[id]) ui({ palette: { mode: 'tag', noteId: id } })
+}
+
+/** Add tags to one note. Typed text may hold several, separated by spaces or commas. */
+export function applyTags(id: string, text: string) {
   const note = get().notes[id]
   if (!note) return
-  const answer = await ask({ title: 'Add a tag', placeholder: 'tag, or several separated by spaces', confirmLabel: 'Add' })
-  const tags = (answer || '').split(/[\s,]+/).map((t) => t.replace(/^#/, '')).filter(Boolean)
-  if (tags.length) updateNote(id, { tags: [...new Set([...note.tags, ...tags])] })
+  const tags = [...new Set(text.split(/[\s,]+/).map((t) => t.replace(/^#/, '')).filter(Boolean))]
+  const fresh = tags.filter((t) => !note.tags.includes(t))
+  if (!tags.length) return
+  if (!fresh.length) return toast('This note already has that tag')
+  updateNote(id, { tags: [...note.tags, ...fresh] })
+  toast(`Added ${fresh.map((t) => '#' + t).join(' ')}`)
 }
 
 export async function duplicateNote(id: string) {
@@ -843,6 +897,172 @@ export async function newMeeting() {
   return note
 }
 
+export const PERSON_TEMPLATE = `## Next time
+
+- 
+
+## Meetings
+
+### {{date:ddd, Do MMM YYYY}}
+
+- 
+
+**Actions**
+
+- [ ] 
+
+## About
+
+- **Role:** 
+- **Team:** 
+`
+
+/** The person template note, created from the built-in one the first time it is needed. */
+export async function personTemplate(): Promise<Note | null> {
+  const existing = templates().find((n) => n.title.toLowerCase() === 'person')
+  return existing ?? createNote({ title: 'Person', folder: get().settings.templatesFolder, tags: ['person'], content: PERSON_TEMPLATE }, false)
+}
+
+/** A running note for one person: things to raise next time, then one dated entry per meeting. */
+export async function newPerson() {
+  const name = await ask({ title: 'New person note', message: 'Who is it for? One note holds every 1:1 with them.', placeholder: 'Priya Sharma', confirmLabel: 'Create' })
+  if (!name?.trim()) return null
+  const existing = Object.values(get().notes).find((n) => n.title.toLowerCase() === name.trim().toLowerCase())
+  if (existing) {
+    openNote(existing.id)
+    toast('That note already exists, so it was opened instead')
+    return existing
+  }
+  const template = await personTemplate()
+  return createNote({ title: name.trim(), folder: get().settings.peopleFolder, tags: template?.tags.length ? template.tags : ['person'], content: fillTemplate(template?.content ?? PERSON_TEMPLATE, name.trim()) })
+}
+
+/** Lines of the page (not the canvas) and the index where the section under `heading` ends. -1 if there is no such heading. */
+function sectionEnd(lines: string[], heading: string): { at: number; start: number } {
+  const want = heading.trim().toLowerCase()
+  const start = lines.findIndex((l) => /^#{1,6}\s/.test(l) && l.replace(/^#+\s+/, '').replace(/\s*#*\s*$/, '').toLowerCase() === want)
+  if (start < 0) return { at: -1, start }
+  const level = /^#+/.exec(lines[start])![0].length
+  let end = lines.length
+  for (let i = start + 1; i < lines.length; i++) {
+    const h = /^(#{1,6})\s/.exec(lines[i])
+    if (h && h[1].length <= level) {
+      end = i
+      break
+    }
+  }
+  while (end > start + 1 && !lines[end - 1].trim()) end--
+  return { at: end, start }
+}
+
+/** Start today's entry in a person note: a dated heading at the top of "Meetings", newest first. */
+export function addMeetingEntry(id: string) {
+  const note = get().notes[id]
+  if (!note) return
+  const idx = note.content.indexOf('\n\n<!-- canvas -->')
+  const page = idx < 0 ? note.content : note.content.slice(0, idx)
+  const tail = idx < 0 ? '' : note.content.slice(idx)
+  const lines = page.split('\n')
+  const title = formatDate(new Date(), 'ddd, Do MMM YYYY')
+  if (lines.some((l) => l.trim() === `### ${title}`)) return toast('Today already has an entry in this note')
+  const entry = [`### ${title}`, '', '- ', '', '**Actions**', '', '- [ ] ', '']
+  const { start } = sectionEnd(lines, 'Meetings')
+  if (start < 0) lines.push(...(lines[lines.length - 1]?.trim() ? [''] : []), '## Meetings', '', ...entry)
+  else lines.splice(start + 1, 0, '', ...entry.slice(0, -1))
+  updateNote(id, { content: lines.join('\n') + tail })
+  set({ jump: { id, query: `### ${title}`, terms: [] } })
+}
+
+/** Add text to a chosen note: at the end of the section under `heading`, or at the end of the page. */
+export function captureToNote(text: string, id: string, heading: string) {
+  const note = get().notes[id]
+  const body = text.trim()
+  if (!note || !body) return
+  const [head, ...rest] = body.split('\n')
+  // Already a list item or a task: keep it as typed.
+  const entry = [/^\s*([-*+]|\d+[.)])\s/.test(head) ? head : `- ${head}`, ...rest.map((l) => '  ' + l)]
+  const idx = note.content.indexOf('\n\n<!-- canvas -->')
+  const page = idx < 0 ? note.content : note.content.slice(0, idx)
+  const tail = idx < 0 ? '' : note.content.slice(idx)
+  const lines = page.replace(/\n+$/, '').split('\n')
+  const { at } = heading ? sectionEnd(lines, heading) : { at: -1 }
+  if (at < 0) lines.push(...entry)
+  else {
+    // An empty "- " left by a template is where the first entry goes.
+    if (/^\s*[-*+]\s*$/.test(lines[at - 1] ?? '')) lines.splice(at - 1, 1, ...entry)
+    else lines.splice(at, 0, ...entry)
+  }
+  updateNote(id, { content: (lines.join('\n').trim() ? lines.join('\n') + '\n' : '') + tail })
+  local.set('captureNote', { id, heading })
+  const where = heading && at >= 0 ? `${displayTitle(note)} › ${heading}` : displayTitle(note)
+  toast(`Added to ${where}`, { label: 'Open', run: () => openNote(id) })
+}
+
+// ---------- tasks ----------
+
+/** Save the current list of the Tasks view under a name, and open it. */
+export async function saveTaskView(view: TaskView) {
+  const name = await ask({ title: 'Save this filter', message: 'It will appear under Tasks in the sidebar.', placeholder: 'Atlas this week', confirmLabel: 'Save' })
+  if (!name?.trim()) return
+  const saved: SavedTaskView = { ...view, id: Math.random().toString(36).slice(2, 8), name: name.trim() }
+  setSetting('taskViews', [...get().settings.taskViews, saved])
+  go({ name: 'tasks', view: `s:${saved.id}` })
+}
+
+export function updateTaskView(id: string, patch: Partial<SavedTaskView>) {
+  setSetting('taskViews', get().settings.taskViews.map((v) => (v.id === id ? { ...v, ...patch } : v)))
+}
+
+export async function renameTaskView(id: string) {
+  const view = get().settings.taskViews.find((v) => v.id === id)
+  if (!view) return
+  const name = await ask({ title: 'Rename filter', initial: view.name, confirmLabel: 'Rename' })
+  if (name?.trim()) updateTaskView(id, { name: name.trim() })
+}
+
+export function deleteTaskView(id: string) {
+  const view = get().settings.taskViews.find((v) => v.id === id)
+  if (!view) return
+  setSetting('taskViews', get().settings.taskViews.filter((v) => v.id !== id))
+  const route = get().route
+  if (route.name === 'tasks' && route.view === `s:${id}`) go({ name: 'tasks' })
+  toast(`Removed the filter “${view.name}”`, { label: 'Undo', run: () => setSetting('taskViews', [...get().settings.taskViews, view]) })
+}
+
+/** Move several tasks to one day. For each, the date that made it late is the one changed. */
+export function rescheduleTasks(tasks: Task[], date: string) {
+  const now = today()
+  const done: { before: Task; after: string }[] = []
+  for (const task of tasks) {
+    const note = get().notes[task.noteId]
+    const field = task.due && task.due < now ? 'due' : task.scheduled ? 'scheduled' : 'due'
+    const raw = withDetails(task.raw, { [field]: date })
+    const content = note && rewriteTask(note.content, task, { raw })
+    if (!note || content == null) continue
+    updateNote(note.id, { content })
+    done.push({ before: task, after: raw })
+  }
+  if (!done.length) return toast('Those tasks have changed since this list was drawn. Try again.')
+  toast(`Moved ${done.length} task${done.length === 1 ? '' : 's'} to ${shortDate(date)}`, {
+    label: 'Undo',
+    run: () => {
+      for (const { before, after } of done) {
+        const note = get().notes[before.noteId]
+        const content = note && rewriteTask(note.content, { ...before, raw: after }, { raw: before.raw })
+        if (note && content != null) updateNote(note.id, { content })
+      }
+    },
+  })
+}
+
+/** Tick a task, or change its text, wherever it lives. */
+export function updateTask(task: Task, change: { done?: boolean; raw?: string }) {
+  const note = get().notes[task.noteId]
+  const content = note && rewriteTask(note.content, task, change)
+  if (!note || content == null) return toast('That task has changed since this list was drawn. Try again.')
+  updateNote(note.id, { content })
+}
+
 export async function setAttachmentsFolder(name: string) {
   try {
     const res = await api.setConfig({ attachments: name })
@@ -915,6 +1135,63 @@ export async function createFolder(parent = '') {
   }
 }
 
+async function saveFolderTags(next: Record<string, string[]>) {
+  const res = await api.setConfig({ folderTags: next })
+  set({ folderTags: res.config.folderTags || {} })
+}
+
+/** Choose the tags for a notebook, and offer to add them to the notes already in it. */
+export async function editFolderTags(path: string) {
+  const current = get().folderTags[path] || []
+  const above = inheritedTags(path).filter((t) => !current.includes(t))
+  const answer = await ask({
+    title: `Tags for “${path.split('/').pop()}”`,
+    message: `Notes created in or moved into this notebook get these tags, written into the note.${above.length ? ` It already inherits ${above.map((t) => '#' + t).join(' ')} from the notebook above.` : ''} Leave empty for none.`,
+    initial: current.map((t) => '#' + t).join(' '),
+    placeholder: '#meeting #work',
+    confirmLabel: 'Save',
+  })
+  if (answer === null) return
+  const tags = [...new Set(answer.split(/[\s,]+/).map((t) => t.replace(/^#/, '')).filter(Boolean))]
+  const next = { ...get().folderTags }
+  if (tags.length) next[path] = tags
+  else delete next[path]
+  try {
+    await saveFolderTags(next)
+  } catch (e) {
+    return toast((e as Error).message)
+  }
+  if (!tags.length) return toast(current.length ? 'This notebook no longer adds tags. Notes keep the tags they have.' : 'No tags set')
+  // Notes already here, including in notebooks inside this one, that are missing any of the tags.
+  const missing = Object.values(get().notes).filter((n) => (n.folder === path || n.folder.startsWith(path + '/')) && tags.some((t) => !n.tags.includes(t)))
+  const label = tags.map((t) => '#' + t).join(' ')
+  if (!missing.length) return toast(`New notes in this notebook will be tagged ${label}`)
+  const ok = await ask({
+    title: `Add ${label} to ${missing.length} existing note${missing.length === 1 ? '' : 's'}?`,
+    message: 'The tags are written into each note\'s file. Choose Cancel to tag only notes created or moved here from now on.',
+    confirmLabel: `Tag ${missing.length} note${missing.length === 1 ? '' : 's'}`,
+    input: false,
+  })
+  if (ok === null) return toast(`New notes in this notebook will be tagged ${label}`)
+  const before = missing.map((n) => ({ id: n.id, tags: n.tags }))
+  for (const n of missing) updateNote(n.id, { tags: [...n.tags, ...tags.filter((t) => !n.tags.includes(t))] })
+  toast(`Tagged ${missing.length} note${missing.length === 1 ? '' : 's'} with ${label}`, { label: 'Undo', run: () => before.forEach((b) => updateNote(b.id, { tags: b.tags })) })
+}
+
+/** Keep notebook tags attached when a notebook is renamed, and drop them when it is deleted. */
+function moveFolderTags(from: string, to: string | null) {
+  const current = get().folderTags
+  const next: Record<string, string[]> = {}
+  let changed = false
+  for (const [folder, tags] of Object.entries(current)) {
+    if (folder === from || folder.startsWith(from + '/')) {
+      changed = true
+      if (to !== null) next[to + folder.slice(from.length)] = tags
+    } else next[folder] = tags
+  }
+  if (changed) void saveFolderTags(next).catch(() => {})
+}
+
 export async function renameFolder(path: string) {
   const parts = path.split('/')
   const name = await ask({ title: 'Rename notebook', initial: parts[parts.length - 1], confirmLabel: 'Rename' })
@@ -924,6 +1201,7 @@ export async function renameFolder(path: string) {
   try {
     const res = await api.renameFolder(path, to)
     set({ notes: mergeNotes(res.notes), folders: res.folders })
+    moveFolderTags(path, to)
     const r = get().route
     if (r.name === 'folder' && (r.path === path || r.path.startsWith(path + '/'))) {
       go({ name: 'folder', path: to + r.path.slice(path.length) })
@@ -945,6 +1223,7 @@ export async function deleteFolder(path: string) {
   if (ok === null) return
   try {
     const res = await api.deleteFolder(path)
+    moveFolderTags(path, null)
     set((s) => ({ notes: mergeNotes(res.notes), folders: res.folders, tabs: s.tabs.filter((id) => res.notes.some((n) => n.id === id)) }))
     const r = get().route
     if (r.name === 'folder' && (r.path === path || r.path.startsWith(path + '/'))) go({ name: 'all' })
@@ -985,6 +1264,13 @@ export function openMenu(e: { currentTarget: EventTarget; clientX: number; clien
   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
   const alignRight = rect.left > window.innerWidth / 2
   set({ menu: { x: alignRight ? rect.right : rect.left, y: rect.bottom + 6, items, alignRight } })
+}
+
+/** Open the date picker under a button. `onPick` gets the chosen day, or null when the date is removed. */
+export function openDatePicker(e: { currentTarget: EventTarget }, options: { title: string; value?: string; removeLabel?: string; onPick: (date: string | null) => void }) {
+  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+  const alignRight = rect.left > window.innerWidth / 2
+  set({ datePick: { x: alignRight ? rect.right : rect.left, y: rect.bottom + 6, alignRight, ...options } })
 }
 
 export function setPref<K extends 'sidebar' | 'pane' | 'mode' | 'theme' | 'width'>(key: K, value: State[K]) {
@@ -1105,4 +1391,4 @@ export function applyTheme() {
 }
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme)
 
-export const ui = (patch: Partial<Pick<State, 'palette' | 'capture' | 'help' | 'prefs' | 'historyFor' | 'menu' | 'lightbox'>>) => set(patch)
+export const ui = (patch: Partial<Pick<State, 'palette' | 'capture' | 'help' | 'prefs' | 'historyFor' | 'menu' | 'lightbox' | 'datePick'>>) => set(patch)

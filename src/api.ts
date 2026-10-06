@@ -11,9 +11,15 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
 
 const json = (method: string, body?: unknown): RequestInit => ({ method, body: JSON.stringify(body ?? {}) })
 
+/** Settings kept in the notes folder itself, in .margin/config.json. */
+export interface VaultConfig {
+  attachments: string
+  folderTags?: Record<string, string[]>
+}
+
 export const api = {
-  state: () => request<{ notes: Note[]; folders: string[]; vault: string; config?: { attachments: string } }>('/api/state'),
-  setConfig: (config: { attachments: string }) => request<{ config: { attachments: string }; folders: string[] }>('/api/config', json('PUT', config)),
+  state: () => request<{ notes: Note[]; folders: string[]; vault: string; config?: VaultConfig }>('/api/state'),
+  setConfig: (config: Partial<VaultConfig>) => request<{ config: VaultConfig; folders: string[] }>('/api/config', json('PUT', config)),
   createNote: (note: Partial<Note>) => request<{ note: Note; folders: string[] }>('/api/notes', json('POST', note)),
   updateNote: (id: string, patch: NotePatch, keepalive = false) =>
     request<{ note: Note; touched: Note[] }>(`/api/notes/${id}`, { ...json('PUT', patch), keepalive }),

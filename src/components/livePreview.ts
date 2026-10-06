@@ -9,6 +9,8 @@ import { TableWidget, parseTable, tableActions } from './tableWidget'
 import { isearchState, setMatches } from './isearch'
 import { resolver } from '../lib/links'
 import { ui, useStore } from '../store'
+import { TASK_TOKENS } from '../lib/tasks'
+import { today } from '../lib/util'
 
 const setFocus = StateEffect.define<boolean>()
 const focusField = StateField.define<boolean>({
@@ -234,6 +236,7 @@ function build(state: EditorState, follow: (t: string, side?: boolean) => void):
   const onLines = (from: number, to: number) => touches(doc.lineAt(from).from, doc.lineAt(to).to)
 
   const tree = ensureSyntaxTree(state, doc.length, 40) ?? syntaxTree(state)
+  const now = today()
 
   // Ranges whose inner syntax must be left alone: code, and things rendered as a single widget.
   const code: [number, number][] = []
@@ -367,6 +370,17 @@ function build(state: EditorState, follow: (t: string, side?: boolean) => void):
         const task = /^ \[[ xX]\] /.exec(text.slice(to, to + 5))
         const ordered = node.node.parent?.parent?.name === 'OrderedList'
         if (task) {
+          // Priority and dates written on the task: shown as small labels, red once the day has passed.
+          const line = doc.lineAt(from)
+          const open = text[to + 2] === ' '
+          for (const m of line.text.matchAll(TASK_TOKENS)) {
+            const a = line.from + m.index!
+            const b = a + m[0].length
+            if (a < to + 4 || overlaps(code, a, b) || overlaps(atoms, a, b)) continue
+            const date = m[2] || m[3]
+            const cls = m[1] ? `cm-task-pri cm-task-pri-${4 - Number(m[1])}` : `cm-task-date${m[3] ? ' cm-task-due' : ''}${open && date < now ? ' late' : open && date === now ? ' now' : ''}`
+            out.push(Decoration.mark({ class: cls, attributes: { title: m[1] ? ['', 'High', 'Medium', 'Low'][Number(m[1])] + ' priority' : m[3] ? 'Due date' : 'Planned for this day' } }).range(a, b))
+          }
           if (!onLines(from, to)) {
             out.push(hide.range(from, to + 1))
             out.push(Decoration.replace({ widget: new CheckboxWidget(text[to + 2] !== ' ') }).range(to + 1, to + 4))

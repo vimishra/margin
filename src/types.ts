@@ -24,6 +24,8 @@ export type Route =
   | { name: 'home' }
   | { name: 'calendar' }
   | { name: 'all' }
+  /** `view` is a built-in list ("today", "overdue"…) or "s:<id>" for a saved filter. */
+  | { name: 'tasks'; view?: string }
   | { name: 'scratch' }
   | { name: 'research' }
   | { name: 'folder'; path: string }

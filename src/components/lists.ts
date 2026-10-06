@@ -248,3 +248,23 @@ export function toggleList(view: EditorView, kind: ListKind) {
   replaceBlock(view, first, last, lines, renumber(next), state.doc.lineAt(sel.head).number, shift)
   view.focus()
 }
+
+/** Tick or untick the task on the cursor's line, or every task in the selection. */
+export function toggleDone(view: EditorView) {
+  const { state } = view
+  const sel = state.selection.main
+  const changes: { from: number; to: number; insert: string }[] = []
+  const boxes: boolean[] = []
+  for (let n = state.doc.lineAt(sel.from).number; n <= state.doc.lineAt(sel.to).number; n++) {
+    const line = state.doc.line(n)
+    const m = /^(\s*(?:>\s*)*(?:[-*+]|\d+[.)])\s+\[)([ xX])\]/.exec(line.text)
+    if (!m) continue
+    boxes.push(m[2] !== ' ')
+    changes.push({ from: line.from + m[1].length, to: line.from + m[1].length + 1, insert: '' })
+  }
+  if (!changes.length) return false
+  // A mixed selection is all ticked first; a fully ticked one is cleared.
+  const mark = boxes.every(Boolean) ? ' ' : 'x'
+  view.dispatch({ changes: changes.map((c) => ({ ...c, insert: mark })), userEvent: 'input' })
+  return true
+}

@@ -130,6 +130,7 @@ save → PUT /api/notes/:id → server writes the file, snapshots a version
 <ul>
 <li><strong>Search</strong> (<code>lib/search.ts</code>) keeps a MiniSearch index and re-indexes only notes that changed.</li>
 <li><strong>Backlinks and tags</strong> (<code>lib/links.ts</code>) parse each note once and cache the result until its text changes.</li>
+<li><strong>Tasks</strong> (<code>lib/tasks.ts</code>) are the checkbox lines of every note, parsed the same way. Priority and dates are plain text on the line (<code>P2</code>, <code>&gt;2026-10-08</code>, <code>@due(2026-10-10)</code>), so the Tasks view and the panel under a daily note are views over the files, never a second copy. Changing a task rewrites its one line in its note.</li>
 </ul>
 <h3 id="live-preview">Live preview</h3>
 <p><code>livePreview.ts</code> builds a set of decorations from CodeMirror's syntax tree on every change or cursor move:</p>
@@ -165,7 +166,7 @@ Each canvas card is markdown too.
 <li>The <strong>canvas</strong> is appended after a marker, as cards in HTML comments. Other markdown tools show the page and ignore the canvas.</li>
 <li><strong>Images</strong> are ordinary markdown images; a width is written as <code>![name|400](path)</code>.</li>
 </ul>
-<p>Beside the notes: <code>attachments/</code> (or the name chosen in settings), <code>.history/&lt;id&gt;/&lt;time&gt;.md</code> for versions, <code>.trash/</code> for deleted notes, and <code>.margin/config.json</code> for settings that belong to the folder.</p>
+<p>Beside the notes: <code>attachments/</code> (or the name chosen in settings), <code>.history/&lt;id&gt;/&lt;time&gt;.md</code> for versions, <code>.trash/</code> for deleted notes, and <code>.margin/config.json</code> for settings that belong to the folder: the attachments folder name and the tags each notebook gives its notes.</p>
 <h2 id="key-decisions">Key decisions</h2>
 <div class="table"><table><thead>
 <tr>
@@ -243,6 +244,10 @@ Each canvas card is markdown too.
 <tr>
 <td>How markdown looks when reading or exported</td>
 <td><code>lib/markdown.ts</code>, <code>lib/export.ts</code></td>
+</tr>
+<tr>
+<td>What counts as a task, its details, the lists in the Tasks view</td>
+<td><code>lib/tasks.ts</code>; the view itself in <code>components/TasksView.tsx</code></td>
 </tr>
 <tr>
 <td>Slash commands, link completion</td>

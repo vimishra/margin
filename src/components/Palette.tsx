@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { CalendarDays, CornerDownLeft, FilePlus2, Folder, FolderPlus, Hash, LayoutTemplate, Search, Users } from 'lucide-react'
-import { createNote, go, openSide, openDaily, newFromTemplate, newMeeting, newTemplate, openNote, openNoteAt, templates, toast, ui, updateNote, useStore, type PaletteState } from '../store'
+import { CalendarDays, CornerDownLeft, FilePlus2, Folder, FolderPlus, Hash, LayoutTemplate, Search, Users, Plus } from 'lucide-react'
+import { createNote, go, openSide, openDaily, newFromTemplate, newMeeting, newTemplate, openNote, openNoteAt, templates, toast, ui, updateNote, useStore, type PaletteState, applyTags } from '../store'
 import { commands } from '../commands'
 import { search } from '../lib/search'
 import { tagCounts } from '../lib/links'
@@ -67,6 +67,25 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
         }))
       out.push({ key: 'meeting', group: 'Built in', icon: <Users size={16} />, title: 'Meeting note', subtitle: 'Dated, filed under Meetings and linked from today', run: () => void newMeeting() })
       out.push({ key: 'new', group: 'Manage', icon: <FilePlus2 size={16} />, title: 'Create a new template', subtitle: 'Any note in the Templates notebook is a template', run: () => void newTemplate() })
+      return out
+    }
+
+    if (state.mode === 'tag') {
+      const note = notes[state.noteId || '']
+      if (!note) return []
+      const typed = lower.replace(/^#/, '')
+      const pick = (tag: string) => () => applyTags(note.id, tag)
+      // Tags already in use, most used first; ones that start with what was typed come before ones that only contain it.
+      const known = tagCounts(notes).filter(([t]) => !note.tags.includes(t) && (!typed || t.toLowerCase().includes(typed)))
+      known.sort((a, b) => Number(b[0].toLowerCase().startsWith(typed)) - Number(a[0].toLowerCase().startsWith(typed)))
+      const out: Item[] = known.slice(0, 40).map(([t, n]) => ({ key: 't:' + t, group: 'Tags in use', icon: <Hash size={16} />, title: '#' + t, meta: `${n} note${n === 1 ? '' : 's'}`, run: pick(t) }))
+      const words = q.split(/[\s,]+/).filter(Boolean)
+      if (typed && (words.length > 1 || !tagCounts(notes).some(([t]) => t.toLowerCase() === typed))) {
+        const item: Item = { key: 'new', group: 'New', icon: <Plus size={16} />, title: words.length > 1 ? `Add ${words.map((w) => '#' + w.replace(/^#/, '')).join(' ')}` : `Create #${q.replace(/^#/, '')}`, run: () => applyTags(note.id, q) }
+        // Several words mean several tags, so that is what Enter does.
+        if (words.length > 1) out.unshift(item)
+        else out.push(item)
+      }
       return out
     }
 
@@ -199,7 +218,7 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
           <input
             autoFocus
             value={query}
-            placeholder={state.mode === 'outline' ? 'Jump to a heading in this note' : state.mode === 'template' ? 'New note from which template?' : moving ? `Move “${displayTitle(moving)}” to…` : 'Search notes, #tags, a date like “next monday”, or > for commands'}
+            placeholder={state.mode === 'outline' ? 'Jump to a heading in this note' : state.mode === 'template' ? 'New note from which template?' : state.mode === 'tag' ? `Tag “${notes[state.noteId || ''] ? displayTitle(notes[state.noteId || '']) : ''}” with…` : moving ? `Move “${displayTitle(moving)}” to…` : 'Search notes, #tags, a date like “next monday”, or > for commands'}
             spellCheck={false}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => {
@@ -221,7 +240,7 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
           <kbd>esc</kbd>
         </div>
         <div className="palette-list" ref={list}>
-          {items.length === 0 && <p className="palette-empty">{state.mode === 'outline' && !query ? 'This note has no headings yet. Start a line with # or ## to add one.' : `Nothing matches “${query}”.`}</p>}
+          {items.length === 0 && <p className="palette-empty">{state.mode === 'outline' && !query ? 'This note has no headings yet. Start a line with # or ## to add one.' : state.mode === 'tag' && !query ? 'No other tags yet. Type one to create it.' : `Nothing matches “${query}”.`}</p>}
           {items.map((item, i) => {
             const header = item.group !== group
             group = item.group

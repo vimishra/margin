@@ -11,6 +11,8 @@ import { TabBar } from './components/TabBar'
 import { HomeView } from './components/HomeView'
 import { CalendarView } from './components/CalendarView'
 import { ListView } from './components/ListView'
+import { TasksView } from './components/TasksView'
+import { DatePicker } from './components/DatePicker'
 import { NoteView } from './components/NoteView'
 import { followLink } from './components/Preview'
 import { Palette } from './components/Palette'
@@ -45,7 +47,7 @@ export function runAction(id: string, source: 'key' | 'menu') {
 function onKey(e: KeyboardEvent) {
   if (recording.active) return
   const s = useStore.getState()
-  const overlay = !!(s.palette || s.capture || s.help || s.prefs || s.historyFor || s.asking || s.menu || s.lightbox)
+  const overlay = !!(s.palette || s.capture || s.help || s.prefs || s.historyFor || s.asking || s.menu || s.lightbox || s.datePick)
   const combo = eventCombo(e)
 
   if (combo) {
@@ -166,6 +168,7 @@ export default function App() {
     )
   else if (route.name === 'home') view = <HomeView />
   else if (route.name === 'calendar') view = <CalendarView />
+  else if (route.name === 'tasks') view = <TasksView view={route.view} />
   else if (route.name === 'note')
     view = note ? (
       <NoteView key={note.id} note={note} />
@@ -201,6 +204,7 @@ export default function App() {
       <Lightbox />
       <AskDialog />
       <Menu />
+      <DatePicker />
       <Toasts />
     </div>
   )

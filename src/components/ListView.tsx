@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowDownUp, BookMarked, Files, Folder, FolderOpen, Hash, Hourglass, Pin, Plus, Search, Trash2 } from 'lucide-react'
 import type { Note, Route } from '../types'
-import { deleteNote, go, newNote, openFromClick, openMenu, openNote, updateNote, useStore } from '../store'
+import { deleteNote, editFolderTags, go, inheritedTags, newNote, openFromClick, openMenu, openNote, updateNote, useStore } from '../store'
 import { tagsOf } from '../lib/links'
-import { cx, displayTitle, expiresIn, local, relTime, snippet } from '../lib/util'
+import { cx, displayTitle, expiresIn, local, relTime, snippet, tagStyle } from '../lib/util'
 import { NoteIcon, noteMenu } from './bits'
 
 type Sort = 'updated' | 'created' | 'title' | 'expires'
@@ -76,6 +76,7 @@ function configFor(route: Route): Config {
 export function ListView({ route }: { route: Route }) {
   const notes = useStore((s) => s.notes)
   const folders = useStore((s) => s.folders)
+  useStore((s) => s.folderTags)
   const config = useMemo(() => configFor(route), [route])
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState('all')
@@ -174,6 +175,15 @@ export function ListView({ route }: { route: Route }) {
           </button>
         </div>
 
+        {route.name === 'folder' && (
+          <div className="folder-tags">
+            <button className="btn ghost sm" title="Tags that notes get when they are created in or moved into this notebook" onClick={() => void editFolderTags(route.path)}>
+              <Hash size={13} />
+              {inheritedTags(route.path).length ? `Notes here are tagged ${inheritedTags(route.path).map((t) => '#' + t).join(' ')}` : 'Tags for notes here…'}
+            </button>
+          </div>
+        )}
+
         {subfolders.length > 0 && (
           <div className="subfolders">
             {subfolders.map((f) => (
@@ -214,7 +224,7 @@ export function ListView({ route }: { route: Route }) {
                 {tagsOf(n)
                   .slice(0, 3)
                   .map((t) => (
-                    <span key={t} className="chip tag static">
+                    <span key={t} className="chip tag static" style={tagStyle(t)}>
                       #{t}
                     </span>
                   ))}

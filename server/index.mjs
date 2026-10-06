@@ -35,7 +35,7 @@ const HISTORY = path.join(VAULT, '.history')
 const TRASH = path.join(VAULT, '.trash')
 const CONFIG_FILE = path.join(VAULT, '.margin', 'config.json')
 // Settings that belong to the notes folder itself rather than to one browser or app.
-const config = { attachments: 'attachments' }
+const config = { attachments: 'attachments', folderTags: {} }
 try {
   Object.assign(config, JSON.parse(fssync.readFileSync(CONFIG_FILE, 'utf8')))
 } catch {
@@ -447,9 +447,18 @@ app.put('/api/config', h(async (req, res) => {
     }
     config.attachments = name
   }
+  // Tags that notes take on when they are created in, or moved into, a notebook: { "Meetings": ["meeting"] }.
+  if (req.body?.folderTags && typeof req.body.folderTags === 'object') {
+    const next = {}
+    for (const [folder, tags] of Object.entries(req.body.folderTags)) {
+      const clean = Array.isArray(tags) ? [...new Set(tags.map((t) => String(t).trim().replace(/^#/, '')).filter(Boolean))] : []
+      if (sanitizeFolder(folder) && clean.length) next[sanitizeFolder(folder)] = clean
+    }
+    config.folderTags = next
+  }
   await fs.mkdir(path.dirname(CONFIG_FILE), { recursive: true })
   await fs.writeFile(CONFIG_FILE, JSON.stringify(config, null, 2))
-  await scan()
+  if (typeof req.body?.attachments === 'string') await scan()
   res.json({ config, folders })
 }))
 

@@ -1448,6 +1448,19 @@ button.crumb:hover {
 }
 .cm-hashtag {
   color: var(--accent-text);
+  background: var(--accent-soft);
+  border-radius: 999px;
+  padding: 1px 7px;
+  font-size: 0.92em;
+  font-weight: 550;
+}
+.cm-hashtag * {
+  color: inherit !important;
+}
+.cm-task-done .cm-hashtag {
+  background: none;
+  color: inherit;
+  font-weight: inherit;
 }
 .cm-math {
   font-family: var(--mono);
@@ -1922,13 +1935,15 @@ button.crumb:hover {
   box-shadow: inset 0 0 0 1px var(--border-strong);
   color: var(--text-3);
 }
-.md a.hashtag {
+.md a.hashtag,
+.task-text a.hashtag {
   text-decoration: none;
-  color: var(--text-2);
-  background: var(--hover);
+  color: var(--accent-text);
+  background: var(--accent-soft);
   padding: 1px 7px;
   border-radius: 999px;
-  font-size: 0.88em;
+  font-size: 0.9em;
+  font-weight: 550;
 }
 .md blockquote {
   margin: 0 0 0.9em;
@@ -3877,4 +3892,636 @@ body.resizing {
   background: var(--accent-soft);
   box-shadow: none;
   text-decoration: none;
+}
+
+/* ---------- tasks ---------- */
+.task-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 24px;
+}
+.task-filters .chip {
+  height: 28px;
+  padding: 0 11px;
+  font-size: 13px;
+  gap: 6px;
+}
+.task-filters .chip.active .count {
+  color: inherit;
+  opacity: 0.7;
+}
+.task-filters .chip.warn:not(.active) .count {
+  color: var(--danger);
+  font-weight: 600;
+}
+.tasks .list-tools {
+  margin-top: 12px;
+}
+.tools-label {
+  font-size: 12.5px;
+  color: var(--text-3);
+  white-space: nowrap;
+}
+.task-groups {
+  margin-top: 6px;
+}
+.task-group {
+  margin-top: 14px;
+}
+.task-group > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+.task-group-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  margin-left: -6px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.task-group-head:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+.task-group.late .task-group-head {
+  color: var(--danger);
+}
+.task {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 7px 8px;
+  margin: 0 -8px;
+  border-radius: 8px;
+}
+.task:hover,
+.task.active {
+  background: var(--hover);
+}
+.task > input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  margin-top: 3px;
+  flex: none;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.task-main {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+.task-text {
+  display: block;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.task.done .task-text {
+  color: var(--text-3);
+  text-decoration: line-through;
+  text-decoration-color: var(--text-4);
+}
+.task-pri {
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 5px;
+  margin-right: 6px;
+  color: var(--danger);
+  background: var(--del);
+}
+.task.pri-2 .task-pri {
+  color: #b86e0a;
+  background: rgba(214, 140, 20, 0.16);
+}
+.task.pri-1 .task-pri {
+  color: var(--text-2);
+  background: var(--hover);
+}
+.task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  margin-top: 3px;
+}
+.task-meta:empty {
+  display: none;
+}
+.task-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--hover);
+  color: var(--text-2);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.task-chip:hover {
+  background: var(--active);
+}
+.task-chip.now {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+.task-chip.late {
+  background: var(--del);
+  color: var(--danger);
+}
+.task-where {
+  font-size: 12px;
+  color: var(--text-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.task-actions {
+  display: flex;
+  gap: 1px;
+  opacity: 0;
+  flex: none;
+}
+.task:hover .task-actions,
+.task.active .task-actions,
+.task:focus-within .task-actions {
+  opacity: 1;
+}
+.task-actions .icon-btn.active {
+  color: var(--accent-text);
+}
+
+/* Tasks from other notes, shown with a daily note */
+.day-tasks {
+  margin-top: 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-raised);
+}
+.day-tasks-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+.day-tasks-head .count {
+  margin-left: auto;
+  font-weight: 400;
+}
+.day-tasks-body {
+  padding: 0 12px 8px;
+  font-size: 14.5px;
+}
+.day-tasks-body .task {
+  margin: 0 -6px;
+  padding: 5px 6px;
+}
+.day-tasks-body h4 {
+  margin: 8px 0 2px;
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--danger);
+}
+.note-body {
+  position: relative;
+}
+.day-tasks-float {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  max-width: 340px;
+  max-height: 60%;
+  overflow-y: auto;
+  z-index: 3;
+  border-radius: 10px;
+  box-shadow: var(--shadow-md);
+}
+.day-tasks-float .day-tasks {
+  margin-top: 0;
+}
+
+/* Priority and dates written on a task, in the editor */
+.cm-task-pri {
+  font-size: 0.8em;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 5px;
+  color: var(--danger);
+  background: var(--del);
+}
+.cm-task-pri * {
+  color: inherit !important;
+}
+.cm-task-pri-2 {
+  color: #b86e0a;
+  background: rgba(214, 140, 20, 0.16);
+}
+.cm-task-pri-1 {
+  color: var(--text-2);
+  background: var(--hover);
+}
+.cm-task-date {
+  font-size: 0.86em;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--hover);
+  color: var(--text-2);
+  white-space: nowrap;
+}
+.cm-task-date * {
+  color: inherit !important;
+}
+.cm-task-date.now {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+.cm-task-date.late {
+  background: var(--del);
+  color: var(--danger);
+}
+.cm-task-done .cm-task-date,
+.cm-task-done .cm-task-pri {
+  background: none;
+  color: inherit;
+  font-weight: inherit;
+}
+
+/* Quick capture into a chosen note */
+.capture-dest {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px 10px 22px;
+  border-top: 1px solid var(--border);
+  font-size: 13.5px;
+}
+.capture-to {
+  color: var(--text-3);
+}
+.capture-dest input {
+  flex: 1 0 100%;
+  height: 30px;
+  font-size: 14px;
+}
+.capture-dest select {
+  max-width: 240px;
+  height: 26px;
+  padding: 0 6px;
+  border-radius: 7px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-raised);
+  color: var(--text);
+  font-size: 13px;
+}
+.capture-notes {
+  flex: 1 0 100%;
+  display: flex;
+  flex-direction: column;
+}
+.capture-notes button {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 5px 8px;
+  margin: 0 -8px;
+  border-radius: 7px;
+  text-align: left;
+}
+.capture-notes button.active {
+  background: var(--hover);
+}
+.capture-notes button span {
+  font-size: 12px;
+  color: var(--text-3);
+}
+.capture-notes p {
+  color: var(--text-3);
+  padding: 5px 0;
+}
+
+/* Unlinked mentions and web links in the side pane */
+.backlink.mention {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0 8px;
+}
+.backlink.mention .backlink-title {
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.backlink.mention .backlink-title:hover {
+  color: var(--accent-text);
+}
+.backlink.mention .context {
+  grid-column: 1 / -1;
+}
+.pane-link.web {
+  text-decoration: none;
+}
+.pane-link.web svg {
+  flex: none;
+  color: var(--text-4);
+}
+.pane-link.web span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- date picker ---------- */
+.menu.date-pick {
+  width: 262px;
+  padding: 12px;
+}
+.date-pick-title {
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 8px;
+}
+.date-pick input {
+  width: 100%;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg);
+  font-size: 14px;
+}
+.date-pick input:focus {
+  border-color: var(--accent);
+}
+.date-pick input.invalid {
+  border-color: var(--danger);
+}
+.date-pick-reads {
+  margin: 6px 2px 10px;
+  font-size: 12px;
+  color: var(--text-3);
+}
+.date-pick-reads.invalid {
+  color: var(--danger);
+}
+.date-pick-quick {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.menu.date-pick .chip {
+  width: auto;
+  height: 24px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: var(--hover);
+  color: var(--text-2);
+}
+.menu.date-pick .chip.active {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+.date-pick-head {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: 4px;
+  font-weight: 600;
+  font-size: 13px;
+}
+.date-pick-head span {
+  flex: 1;
+}
+.menu.date-pick .icon-btn {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  justify-content: center;
+}
+.menu.date-pick .mini-cal-day {
+  width: auto;
+  height: 30px;
+  padding: 0;
+  justify-content: center;
+  font-size: 13px;
+}
+.menu.date-pick .mini-cal-day.current:not(.selected) {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font-weight: 650;
+}
+.menu.date-pick .mini-cal-day.selected,
+.menu.date-pick .mini-cal-day.selected:hover,
+.menu.date-pick .mini-cal-day.selected:focus {
+  background: var(--accent);
+  color: #fff;
+}
+.menu.date-pick .date-pick-remove {
+  margin-top: 8px;
+  justify-content: center;
+  color: var(--danger);
+  font-size: 13px;
+}
+
+/* Lists under Tasks in the sidebar */
+.nav-item.sub {
+  height: 26px;
+  padding-left: 22px;
+  font-size: 13px;
+}
+.nav-item.sub .nav-icon {
+  width: 14px;
+  justify-content: center;
+}
+.nav-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--text-4);
+}
+.nav-item.sub.warn .count {
+  color: var(--danger);
+  font-weight: 600;
+}
+.task-bulk {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 7px 8px 7px 12px;
+  border-radius: 9px;
+  background: var(--del);
+  color: var(--danger);
+  font-size: 13px;
+}
+.task-group > header .btn {
+  margin-left: auto;
+}
+.task-group > header .btn + .btn {
+  margin-left: 4px;
+}
+
+.tasks-keys {
+  margin-top: 28px;
+  font-size: 12px;
+  color: var(--text-4);
+  text-align: center;
+}
+.tasks-keys kbd {
+  margin: 0 2px;
+}
+
+/* The line a jump landed on */
+.cm-jump-flash {
+  animation: jump-flash 1.6s ease-out;
+  border-radius: 4px;
+}
+@keyframes jump-flash {
+  0%,
+  35% {
+    background: var(--mark);
+  }
+  100% {
+    background: transparent;
+  }
+}
+
+.folder-tags {
+  margin: -2px 0 8px -8px;
+}
+.folder-tags .btn {
+  color: var(--text-3);
+}
+
+/* ---------- tag colours ----------
+   Each tag sets --tag-hue from its name (tagHue in lib/util.ts); these rules turn that into a colour. */
+:root {
+  --tag-l: 34%;
+  --tag-bg-a: 0.13;
+}
+:root[data-theme='dark'] {
+  --tag-l: 78%;
+  --tag-bg-a: 0.2;
+}
+.chip.tag,
+.chip.tag.static,
+.cm-hashtag,
+.md a.hashtag,
+.task-text a.hashtag {
+  color: hsl(var(--tag-hue, 245) 62% var(--tag-l));
+  background: hsl(var(--tag-hue, 245) 75% 52% / var(--tag-bg-a));
+}
+.chip.tag .chip-label,
+.chip.tag .count {
+  color: inherit;
+}
+.chip.tag .count {
+  opacity: 0.65;
+}
+button.chip.tag:hover,
+.chip.tag .chip-label:hover {
+  color: hsl(var(--tag-hue, 245) 62% var(--tag-l));
+  background: hsl(var(--tag-hue, 245) 75% 52% / calc(var(--tag-bg-a) * 1.8));
+}
+.chip.tag .chip-label:hover {
+  background: none;
+  text-decoration: underline;
+}
+/* A tag written in the note's text, shown beside the ones in its tag list: outlined rather than filled. */
+.chip.tag.inline {
+  background: none;
+  box-shadow: inset 0 0 0 1px hsl(var(--tag-hue, 245) 60% 50% / 0.45);
+}
+.chip.tag.active {
+  background: hsl(var(--tag-hue, 245) 70% 46%);
+  color: #fff;
+}
+.chip.tag .chip-x {
+  color: inherit;
+  opacity: 0.6;
+}
+.cm-task-done .cm-hashtag {
+  background: none;
+  color: inherit;
+}
+
+/* ---------- side panel sections, each with its own colour ---------- */
+.pane-section.toned {
+  padding: 0 0 6px;
+  margin-bottom: 10px;
+}
+.pane-section.toned > .pane-head {
+  padding: 7px 8px;
+  border-radius: 8px;
+  color: hsl(var(--tone) 60% var(--tag-l));
+  background: hsl(var(--tone) 75% 52% / var(--tag-bg-a));
+}
+.pane-section.toned > .pane-head:hover {
+  color: hsl(var(--tone) 60% var(--tag-l));
+  background: hsl(var(--tone) 75% 52% / calc(var(--tag-bg-a) * 1.6));
+}
+.pane-section.toned > .pane-head .count {
+  background: hsl(var(--tone) 70% 46%);
+  color: #fff;
+  font-weight: 650;
+}
+.pane-section.toned > .pane-head ~ * {
+  margin-left: 2px;
+}
+/* A thin line in the section's colour ties its contents to its heading. */
+.pane-section.toned > .pane-link,
+.pane-section.toned > .pane-empty,
+.pane-section.toned > .details {
+  border-left: 2px solid hsl(var(--tone) 70% 52% / 0.28);
+  border-radius: 0 6px 6px 0;
+  margin-left: 6px;
+  width: calc(100% - 6px);
+}
+.pane-section.toned > .pane-head + * {
+  margin-top: 6px;
+}
+.pane-section.toned > .backlink {
+  border-left: 3px solid hsl(var(--tone) 70% 52% / 0.55);
+}
+.pane-link-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+}
+.pane-link.outline {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+.pane-section.toned > .details {
+  padding: 4px 0 4px 10px;
+  margin-top: 6px;
+}
+.pane-section.toned > .pane-empty {
+  padding-left: 10px;
 }

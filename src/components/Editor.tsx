@@ -2,7 +2,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 're
 import { createPortal, flushSync } from 'react-dom'
 import { ChevronDown, ChevronUp, Search, X } from 'lucide-react'
 import { type Match, findMatches, isearchHighlight, setMatches, smartLineStart } from './isearch'
-import { EditorState } from '@codemirror/state'
+import { EditorState, StateEffect, StateField } from '@codemirror/state'
 import {
   Decoration,
   type DecorationSet,
@@ -29,9 +29,10 @@ import { linkHref } from '../lib/markdown'
 import { fillTemplate, templates, timeNow, toast, useStore } from '../store'
 import { tagCounts } from '../lib/links'
 import { parseDatePhrase } from '../lib/dates'
-import { dailyLabel, isYmd, longDate, today } from '../lib/util'
+import { TASK_LINE } from '../lib/tasks'
+import { dailyLabel, isYmd, longDate, today, tagHue } from '../lib/util'
 import { livePreview } from './livePreview'
-import { type ListKind, moveListItem, shiftListItem, toggleList } from './lists'
+import { type ListKind, moveListItem, shiftListItem, toggleDone, toggleList } from './lists'
 import { syntaxTree } from '@codemirror/language'
 
 export interface EditorHandle {
@@ -40,6 +41,8 @@ export interface EditorHandle {
   wrap(before: string, after?: string, placeholder?: string): void
   prefixLines(prefix: string): void
   toggleList(kind: ListKind): void
+  /** Tick or untick the task under the cursor. */
+  toggleDone(): void
   scrollToLine(line: number): void
   /** Select a range of text and bring it to the middle of the view. */
   reveal(from: number, to: number): void
@@ -84,10 +87,26 @@ const highlight = HighlightStyle.define([
   { tag: [t.operator, t.punctuation, t.bracket], color: 'var(--syn-punct)' },
 ])
 
+/** Briefly lights up the line a jump landed on. The value is a position in that line, or null to clear. */
+const flashLine = StateEffect.define<number | null>()
+const flashField = StateField.define<DecorationSet>({
+  create: () => Decoration.none,
+  update(value, tr) {
+    value = value.map(tr.changes)
+    for (const e of tr.effects) {
+      if (e.is(flashLine)) value = e.value == null ? Decoration.none : Decoration.set([Decoration.line({ class: 'cm-jump-flash' }).range(tr.state.doc.lineAt(Math.min(e.value, tr.state.doc.length)).from)])
+    }
+    return value
+  },
+  provide: (f) => EditorView.decorations.from(f),
+})
+
 const decorator = new MatchDecorator({
   regexp: /\[\[[^\]\n]+\]\]|(?<![\w&])#[A-Za-z][\w/-]*|\$\$?[^$\n]+\$\$?/g,
   decoration: (m) =>
-    Decoration.mark({ class: m[0].startsWith('[[') ? 'cm-wikilink' : m[0].startsWith('#') ? 'cm-hashtag' : 'cm-math' }),
+    m[0].startsWith('#')
+      ? Decoration.mark({ class: 'cm-hashtag', attributes: { style: `--tag-hue: ${tagHue(m[0])}` } })
+      : Decoration.mark({ class: m[0].startsWith('[[') ? 'cm-wikilink' : 'cm-math' }),
 })
 
 const marks = ViewPlugin.fromClass(
@@ -175,6 +194,15 @@ function slashCommands(ctx: CompletionContext) {
         picker.click()
       },
     },
+    { label: 'Due today', detail: '@due(…)', apply: insert(() => `@due(${today()})`), section: 'Tasks' },
+    { label: 'Due tomorrow', detail: '@due(…)', apply: insert(() => `@due(${date('tomorrow')()})`), section: 'Tasks' },
+    { label: 'Due date', detail: 'type a day', apply: insert('@due(‸)'), section: 'Tasks' },
+    { label: 'Plan for today', detail: '>date', apply: insert(() => `>${today()}`), section: 'Tasks' },
+    { label: 'Plan for tomorrow', detail: '>date', apply: insert(() => `>${date('tomorrow')()}`), section: 'Tasks' },
+    { label: 'Plan for a day', detail: 'type a day', apply: insert('>‸'), section: 'Tasks' },
+    { label: 'P1 high priority', detail: 'P1', apply: insert('P1 '), section: 'Tasks', boost: 2 },
+    { label: 'P2 medium priority', detail: 'P2', apply: insert('P2 '), section: 'Tasks', boost: 1 },
+    { label: 'P3 low priority', detail: 'P3', apply: insert('P3 '), section: 'Tasks' },
     { label: 'Today', detail: today(), apply: insert(() => `[[${today()}]]`), section: 'Dates' },
     { label: 'Tomorrow', detail: date('tomorrow')(), apply: insert(() => `[[${date('tomorrow')()}]]`), section: 'Dates' },
     { label: 'Yesterday', detail: date('yesterday')(), apply: insert(() => `[[${date('yesterday')()}]]`), section: 'Dates' },
@@ -222,6 +250,26 @@ function completions(ctx: CompletionContext) {
       }
     }
     return { from: link.from + 2, options, validFor: (text: string) => /^[^\]\n|]*$/.test(text) && !parseDatePhrase(text, useStore.getState().settings.dayFirst) }
+  }
+  // On a task: ">fri" plans it for a day and "@due(fri" sets the deadline; any date phrase works.
+  const when = ctx.matchBefore(/(?:(?<=\s)>|@due\()[\w ./-]*$/)
+  if (when && TASK_LINE.test(ctx.state.doc.lineAt(when.from).text)) {
+    const start = when.from + (when.text.startsWith('>') ? 1 : 5)
+    const typed = ctx.state.sliceDoc(start, ctx.pos)
+    const due = !when.text.startsWith('>')
+    const dayFirst = useStore.getState().settings.dayFirst
+    const apply = (date: string) => (view: EditorView, _c: unknown, from: number, to: number) => {
+      const close = due && view.state.sliceDoc(to, to + 1) !== ')' ? ')' : ''
+      const skip = due && !close ? 1 : 0
+      view.dispatch({ changes: { from, to, insert: date + close }, selection: { anchor: from + date.length + close.length + skip } })
+    }
+    const phrases = ['today', 'tomorrow', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', 'next week', 'next month']
+    const exact = parseDatePhrase(typed, dayFirst)
+    const options: Completion[] = phrases
+      .filter((p) => p.startsWith(typed.trim().toLowerCase()) && parseDatePhrase(p, dayFirst) !== exact)
+      .map((p, i) => ({ label: p, detail: longDate(parseDatePhrase(p, dayFirst)!), type: 'daily', boost: -i, apply: apply(parseDatePhrase(p, dayFirst)!) }))
+    if (exact && exact !== typed.trim()) options.unshift({ label: typed.trim() || exact, detail: longDate(exact), type: 'daily', boost: 5, apply: apply(exact) })
+    if (options.length) return { from: start, filter: false, options }
   }
   const slash = slashCommands(ctx)
   if (slash) return slash
@@ -377,6 +425,7 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
           showLineNumbers && !live ? lineNumbers() : [],
           EditorView.contentAttributes.of({ spellcheck: spellcheck ? 'true' : 'false', autocorrect: spellcheck ? 'on' : 'off' }),
           EditorView.lineWrapping,
+          flashField,
           markdown({ base: markdownLanguage, codeLanguages: languages }),
           syntaxHighlighting(highlight),
           marks,
@@ -492,6 +541,9 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
     wrap(before, after, fallback) {
       if (viewRef.current) wrapSelection(viewRef.current, before, after, fallback)
     },
+    toggleDone() {
+      if (viewRef.current && !toggleDone(viewRef.current)) toast('The cursor is not on a task')
+    },
     toggleList(kind) {
       if (viewRef.current) toggleList(viewRef.current, kind)
     },
@@ -518,6 +570,20 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
       const start = Math.min(from, end)
       view.dispatch({ selection: { anchor: start, head: end }, effects: EditorView.scrollIntoView(start, { y: 'center' }) })
       view.focus()
+      // Images, tables and a pane that has only just opened change the layout after the first scroll,
+      // so scroll again once things have settled, unless the cursor has been moved since.
+      const settle = (_again: boolean) => {
+        if (viewRef.current !== view) return
+        const sel = view.state.selection.main
+        if (sel.from !== start || sel.to !== end) return
+        view.dispatch({ effects: EditorView.scrollIntoView(start, { y: 'center' }) })
+      }
+      // Briefly light up the line, so it is obvious where the jump landed.
+      view.dispatch({ effects: flashLine.of(start) })
+      setTimeout(() => viewRef.current === view && view.dispatch({ effects: flashLine.of(null) }), 1700)
+      setTimeout(() => settle(true), 120)
+      setTimeout(() => settle(false), 450)
+      setTimeout(() => settle(false), 1000)
     },
     scrollToLine(line) {
       const view = viewRef.current

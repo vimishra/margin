@@ -16,8 +16,10 @@ This guide uses the desktop app's shortcuts. In a browser, most use ⌥ in place
 - [Writing](#writing)
 - [Finding things](#finding-things)
 - [Daily notes, the calendar and the canvas](#daily-notes-the-calendar-and-the-canvas)
+- [Tasks](#tasks)
 - [Quick capture and scratch notes](#quick-capture-and-scratch-notes)
 - [Meeting notes and templates](#meeting-notes-and-templates)
+- [People and 1:1s](#people-and-11s)
 - [Research notes](#research-notes)
 - [Organising](#organising)
 - [Two notes side by side](#two-notes-side-by-side)
@@ -51,10 +53,10 @@ To use a different notes folder, choose **File → Choose Notes Folder** in the 
 
 ## The window
 
-- **Sidebar** on the left: search, the New note button, Home, Today, Calendar, All notes, Research, Scratch, a small calendar, your pinned notes, notebooks and tags. ⌘\ hides it.
+- **Sidebar** on the left: search, the New note button, Home, Today, Calendar, All notes, Tasks, Research, Scratch, a small calendar, your pinned notes, the five notes you opened most recently, notebooks and tags. ⌘\ hides it.
 - **Tabs** along the top: every note you open stays in a tab. ⌘⇧[ and ⌘⇧] move between them, ⌥1–9 jump to one, ⌘W closes one.
 - **The note** in the middle, with its title, tags, a formatting toolbar and the text.
-- **The side panel** on the right of a note: backlinks, links from this note, an outline and file details. ⌘. hides it.
+- **The side panel** on the right of a note: backlinks, unlinked mentions, outgoing links, an outline and file details. ⌘. hides it.
 
 **Home** shows today's note, your pinned notes, recently opened notes, your reading queue and scratch notes that are about to expire.
 
@@ -266,7 +268,11 @@ Lists the headings in the note. Type to filter, Enter to jump. The Outline in th
 
 ### Backlinks
 
-The side panel lists every note that links to the one you are reading, with the line the link is on. It also lists notes that mention this note's title without linking to it.
+The side panel on the right of a note shows how it connects to the rest:
+
+- **Backlinks:** every note that links to this one, with the line the link is on.
+- **Unlinked mentions:** notes that contain this note's title as plain text, without a link. **Link** turns the mentions in that note into links, so they become backlinks. Titles shorter than three letters and daily notes are skipped.
+- **Outgoing links:** the notes this one links to, then the web addresses in it. A note that does not exist yet is marked *create*.
 
 ## Daily notes, the calendar and the canvas
 
@@ -288,6 +294,83 @@ On the canvas:
 
 **Calendar** shows a month. Days with a daily note have a dot. Click a day to see it; press Enter or double-click to open it. The small calendar in the sidebar opens a day's note with one click.
 
+## Tasks
+
+A task is a checkbox: `- [ ] Send the proposal`. Type `/task`, press ⌘⇧9, or write it by hand. Tasks can live in any note. To tick or untick the task the cursor is on, press ⌘↵ or click its box; with several lines selected, ⌘↵ ticks them all.
+
+### Details on a task
+
+Details are written on the task's own line, as plain text, so they stay readable in any editor:
+
+```
+- [ ] Send the proposal P2 #atlas >2026-10-08 @due(2026-10-10)
+```
+
+| Detail | Write | Meaning |
+| --- | --- | --- |
+| Priority | `P1` `P2` `P3` | High, medium, low |
+| Tags | `#atlas` | The same tags as everywhere else |
+| Planned day | `>2026-10-08` | The day you intend to work on it |
+| Due date | `@due(2026-10-10)` | The deadline |
+
+You do not have to type dates in full. On a task, type `>` or `@due(` and then a day in words (`fri`, `tomorrow`, `next week`, `14 oct`) and pick the suggestion. The slash commands `/due`, `/plan` and `/p1` (or `/priority`) insert the same things.
+
+In the editor the details show as small labels. A date turns red once it has passed, and a planned day that is today is highlighted.
+
+### The Tasks view
+
+**Tasks** in the sidebar (⌘⇧T) gathers every checkbox from every note. Templates are left out.
+
+- **Lists** across the top: All open, Today, This week, Next 30 days, Overdue, Upcoming, No date, Done. Each shows its count. Keys 1 to 8 switch between them.
+- **Narrow down** with the box: words match the task or its note's title, `#atlas` needs that tag, `p2` needs that priority or higher (P1 and P2). The tag chips below do the same with a click.
+- **From** chooses where tasks are taken from: All, Notes (leaves out tasks written in daily notes) or Daily (only those).
+- **Group by** date, note or priority.
+- **Tick** a task to complete it. The checkbox in the note's file is ticked.
+- **Hover** a task for three buttons: priority, planned day, due date. Clicking a date label changes it too.
+- **Rescheduling:** the planned-day and due-date buttons open a small calendar. Click a day, or type one in words (`fri`, `14 oct`, `in 3 days`) and press Enter. The arrow keys move the highlighted day, PgUp and PgDn change month, and Today, Tomorrow and Next week are one click. **Remove** clears the date.
+- **Click** a task to open its note at that line. ⌘-click opens the note to the side.
+
+With the keyboard:
+
+| Key | Does |
+| --- | --- |
+| ↑ ↓ (or K J) | Move between tasks |
+| Home, End | First and last task |
+| Space (or X) | Tick or untick |
+| ↵ | Open the task in its note; ⇧↵ opens it to the side |
+| D | Due date |
+| S | Planned day |
+| P | Priority |
+| 1 to 8 | Switch list |
+| / | Narrow down; ↓ or ↵ goes back to the list |
+
+How the lists are decided:
+
+- **Today:** due or planned for today.
+- **This week:** due or planned between the first and last day of this week (your Week starts on setting).
+- **Next 30 days:** due or planned from today to 30 days ahead.
+- **Overdue:** the due date has passed. A task with no due date counts as overdue once its planned day has passed.
+- **Upcoming:** its next date is after today.
+
+The number beside Tasks in the sidebar is how many are overdue or for today.
+
+### Saved filters
+
+Under **Tasks** in the sidebar are three lists that are always there, Today, Overdue and This week, each with its count. You can add your own:
+
+1. In the Tasks view, choose a list, narrow it down (say `#atlas p2`), and pick From and Group by.
+2. Click **Save filter** and give it a name.
+
+It appears under Tasks in the sidebar with a live count. Open it and change anything, and an **Update filter** button appears to keep the change. The ⋯ button, or a right-click in the sidebar, renames or deletes it. Saved filters are kept with your settings, so they belong to this app on this computer.
+
+### Moving overdue tasks
+
+When a list contains overdue tasks, **Move all…** opens the calendar. Pick one day and every overdue task shown is moved to it: the due date if that is what passed, otherwise the planned day. Narrow the list first to move only some of them. The confirmation has an **Undo**.
+
+### Tasks in the daily note
+
+A daily note shows a **Tasks for this day** panel listing tasks from other notes that are due or planned for that date. Today's note also lists what is overdue. The panel is a view: nothing is copied into the daily note's file, and ticking a task there ticks it in its own note. On a canvas day the panel starts folded in the top-left corner.
+
 ## Quick capture and scratch notes
 
 **Quick capture** (⌘⇧C, or ⌃⌥Space from any app) opens a small box. Type, press Enter, and carry on with what you were doing. Tab chooses where it goes:
@@ -295,6 +378,9 @@ On the canvas:
 - **Today's note:** a timestamped line, or a card if today is on the canvas.
 - **Scratch:** a new temporary note.
 - **Inbox:** a new note in the Inbox notebook.
+- **A note…:** added to a note you choose, as a new bullet. The first time, press Enter or click to search for the note; you can also pick a heading to add it under. Margin remembers the note and heading, so next time it is Tab and Enter. ⌥↓ chooses a different note.
+
+The destination the box opens with is still the one set in Settings, so the usual capture is unchanged. Anything you type as a task (`- [ ] …`) is kept as a task.
 
 **Scratch notes** (⌘⌥N) are for things you need for a few days. They expire after a week and move to the trash. Each one shows how long it has left, with buttons to extend it or **Keep** it as a normal note.
 
@@ -321,6 +407,29 @@ Templates can contain placeholders that are filled in when the note is made:
 
 The format letters are the same as Obsidian's: `YYYY`, `MMMM`, `MMM`, `MM`, `Do`, `DD`, `dddd`, `ddd`, `HH`, `h`, `mm`, `A`.
 
+## People and 1:1s
+
+**New person note** (in the New menu, or ⌘K → "New person note") asks for a name and creates one note for that person in the `People` notebook. The note holds every 1:1 with them:
+
+```
+## Next time
+- things to raise
+
+## Meetings
+### Tue, 6th Oct 2026
+- notes
+**Actions**
+- [ ] …
+
+## About
+```
+
+- **Between meetings:** add to *Next time*. Quick capture can do it without opening the note: choose **A note…**, pick the person and the *Next time* heading once, and it is remembered.
+- **When the meeting starts:** ⌘K → "Add today's meeting entry". A new dated heading is added at the top of *Meetings*, newest first.
+- **Actions** are tasks, so they show in the Tasks view. Give them a due date with `@due(fri)`.
+
+The layout comes from the `Person` template in the Templates notebook, which is created the first time you use the command. Edit it to change what new person notes start with. The notebook is set in Settings → Templates & meetings.
+
 ## Research notes
 
 A research note keeps a source and your thinking about it together. **New → Research note** asks for a link and fetches the page's title.
@@ -334,7 +443,13 @@ Each one has a source link, a status (Unread, Reading, Done), and sections for a
 For what each of these is for, see [How Margin is organised, and why](#how-margin-is-organised-and-why). This section is the how-to.
 
 - **Notebooks** are folders, and can be nested. Right-click one to add a note, add a notebook inside it, rename or delete it. Drag a note from a list onto a notebook to move it.
-- **Tags:** add them under the title, or write `#tag` in the text. Click a tag to see everything with it.
+- **Tags:** add them under the title, or write `#tag` in the text. Click a tag to see everything with it. ⌘T adds a tag to the note you are in: the tags you already use are listed and narrow as you type, Enter picks the highlighted one, and a name that does not exist yet is offered as a new tag. Several words separated by spaces add several tags. Every tag has its own colour, chosen automatically from its name, and keeps it everywhere: under the title, in the text, in the sidebar and in the Tasks view. Nested tags such as `work/atlas` share the colour of their first part.
+- **Notebook tags:** right-click a notebook and choose **Tags for notes here…** to give it tags, such as `#meeting` for Meetings.
+  - A note created in the notebook, or moved into it, gets those tags written into the note itself, alongside the ones you add by hand.
+  - Notebooks inside it inherit them.
+  - When you set the tags, Margin offers to add them to the notes already there, and tells you how many.
+  - Moving a note out does not remove the tags; remove them by hand if they no longer apply.
+  - The notebook's page shows its tags under the title.
 - **Pin** a note (the pin button) to keep it in the sidebar and on Home.
 - **Move** a note with ⌥M, or by clicking its notebook name above the title.
 
@@ -400,6 +515,8 @@ These are the defaults. Change any of them in Settings → Shortcuts.
 | Search, switch, run commands | ⌘K | ⌘K |
 | New note | ⌘N | ⌥N |
 | New meeting note | ⌘⇧M | ⌥T |
+| Add a tag to this note | ⌘T | ⌥G |
+| Tick or untick a task | ⌘↵ | ⌘↵ |
 | New scratch note | ⌘⌥N | ⌥S |
 | New canvas | ⌘⇧N | — |
 | Quick capture | ⌘⇧C | ⌥C |
@@ -408,6 +525,7 @@ These are the defaults. Change any of them in Settings → Shortcuts.
 | Home | ⌘⇧H | ⌥H |
 | Calendar | ⌘⇧L | ⌥L |
 | All notes | ⌘⇧A | ⌥A |
+| Tasks | ⌘⇧T | ⌥I |
 | Back / forward | ⌘[ / ⌘] | ⌘[ / ⌘] |
 | Previous / next tab | ⌘⇧[ / ⌘⇧] | ⌥[ / ⌥] |
 | Jump to tab | ⌥1–9 | ⌥1–9 |
@@ -451,6 +569,14 @@ These are habits that keep notes useful without much upkeep. None of them need a
 4. Add `[[Project]]` anywhere in the note. The project's backlinks become the meeting history.
 
 To find a meeting later: ⌘K and its name, `#meeting` for all of them, or the daily note for that day.
+
+### 1:1s
+
+1. Make one note per person with **New person note**. Pin the people you meet every week.
+2. When something comes up, quick-capture it to their *Next time* list.
+3. At the meeting, add today's entry, work through *Next time*, and write actions as tasks with a due date.
+4. In group meetings, write `[[Their name]]`. Their note's backlinks then list every meeting where they came up.
+5. Check **Tasks → This week** on Monday and **Overdue** whenever its count is not zero.
 
 ### Research and learning
 

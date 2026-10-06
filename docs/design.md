@@ -90,6 +90,7 @@ All derived in the browser from the notes in memory:
 
 - **Search** (`lib/search.ts`) keeps a MiniSearch index and re-indexes only notes that changed.
 - **Backlinks and tags** (`lib/links.ts`) parse each note once and cache the result until its text changes.
+- **Tasks** (`lib/tasks.ts`) are the checkbox lines of every note, parsed the same way. Priority and dates are plain text on the line (`P2`, `>2026-10-08`, `@due(2026-10-10)`), so the Tasks view and the panel under a daily note are views over the files, never a second copy. Changing a task rewrites its one line in its note.
 
 ### Live preview
 
@@ -133,7 +134,7 @@ Each canvas card is markdown too.
 - The **canvas** is appended after a marker, as cards in HTML comments. Other markdown tools show the page and ignore the canvas.
 - **Images** are ordinary markdown images; a width is written as `![name|400](path)`.
 
-Beside the notes: `attachments/` (or the name chosen in settings), `.history/<id>/<time>.md` for versions, `.trash/` for deleted notes, and `.margin/config.json` for settings that belong to the folder.
+Beside the notes: `attachments/` (or the name chosen in settings), `.history/<id>/<time>.md` for versions, `.trash/` for deleted notes, and `.margin/config.json` for settings that belong to the folder: the attachments folder name and the tags each notebook gives its notes.
 
 ## Key decisions
 
@@ -157,6 +158,7 @@ Beside the notes: `attachments/` (or the name chosen in settings), `.history/<id
 | A shortcut or its default | `src/shortcuts.ts`; the action itself in `src/commands.tsx` |
 | How markdown looks while editing | `components/livePreview.ts` and the "live preview" part of `src/styles.css` |
 | How markdown looks when reading or exported | `lib/markdown.ts`, `lib/export.ts` |
+| What counts as a task, its details, the lists in the Tasks view | `lib/tasks.ts`; the view itself in `components/TasksView.tsx` |
 | Slash commands, link completion | `slashCommands` and `completions` in `components/Editor.tsx` |
 | The menu bar or right-click menu | `electron/main.mjs` |
 | Colours, spacing, fonts | The tokens at the top of `src/styles.css` |

@@ -20,7 +20,7 @@ Changes under `server/` or `electron/` need a restart; `src/` reloads in `npm ru
 
 The owner's real notes (work meetings) are in `~/Documents/Vault`, set as `vaultDir` in `~/Library/Application Support/Margin/config.json`. Both `npm run app` and `npm run dev` open that folder unless `VAULT_DIR` is set, and so does the `margin` preview config. `vault/` in the project is the fallback when no folder is chosen; it is git-ignored and must stay that way.
 
-- Test against a throwaway folder: `PORT=4477 VAULT_DIR=<scratch dir> node server/index.mjs --dev`.
+- Test against a throwaway folder: `PORT=4477 VAULT_DIR=<scratch dir> node server/index.mjs --dev`. For the browser preview, add a launch config that runs `env VAULT_DIR=<scratch dir> PORT=4490 node server/index.mjs --dev`; the plain `margin` config opens the real notes.
 - Or, in the running app, create a note titled `zz …` through the API, test on it, and delete it afterwards. Restore `localStorage` keys (`margin.settings`, `margin.tabs`, `margin.mode`, `margin.theme`) you changed.
 - Do not type into, rename or reformat existing notes while testing.
 
@@ -30,6 +30,8 @@ The owner's real notes (work meetings) are in `~/Documents/Vault`, set as `vault
 - `src/store.ts` — all state (Zustand): notes in memory, settings, tabs, panes, autosave, routing.
 - `src/shortcuts.ts`, `src/commands.tsx` — every action: its default keys, and what it does. ⌘K, the menu bar and Settings → Shortcuts all read from these.
 - `src/components/Editor.tsx` — CodeMirror setup, slash commands, link completion, incremental search bar. Helpers: `livePreview.ts`, `tableWidget.ts`, `lists.ts`, `isearch.ts`.
+- `src/lib/tasks.ts` — tasks are checkbox lines with `P1`–`P3`, `>date`, `@due(date)` written on them; `components/TasksView.tsx` is the Tasks view and the panel under daily notes. Saved filters are `settings.taskViews`; the route is `#/tasks/<list>` or `#/tasks/s:<id>`. `components/DatePicker.tsx` is the calendar opened by `openDatePicker()`.
+- Notebook tags live in the vault's `.margin/config.json` (`folderTags`). `createNote` and `updateNote` in `store.ts` write them into a note's own tags when it is created in or moved into a notebook; they are never removed automatically.
 - `src/components/SettingsModal.tsx` — settings UI. `src/lib/` — markdown, canvas format, links, search, dates, export.
 - `electron/main.mjs` — window, menu bar, right-click menu, IPC. `electron/preload.cjs` — the bridge, typed in `src/desktop.ts`.
 
@@ -48,6 +50,7 @@ The owner's real notes (work meetings) are in `~/Documents/Vault`, set as `vault
 - When a key press opens an input that must receive the next keystroke, render it with `flushSync` and focus it in the same handler. Do not rely on `requestAnimationFrame` or effects for focus or selection.
 - Widgets that replace text (link pills, math, tables, images) hide anything decorated underneath; search and similar features must account for that.
 - On macOS, the menu-bar name and Dock icon of the unpackaged app come from `node_modules/electron`; `scripts/brand-dev-app.mjs` handles the name, `app.dock.setIcon` the icon.
+- The preview's typing tool does not open CodeMirror's completion popup. To test completions, get the view from `document.querySelector('.cm-content').cmTile.view` and dispatch changes with `userEvent: 'input.type'`.
 - Native menus cannot be clicked from tests. Verify their logic by emitting the event in a scratch Electron script, and say plainly what was not exercised.
 
 ## Working agreements with the owner
@@ -60,7 +63,7 @@ The owner's real notes (work meetings) are in `~/Documents/Vault`, set as `vault
 
 ## Open ideas, not yet built
 
-- An "open action items" view gathering unticked tasks across notes.
+- Task details shown as labels in read mode and exports (today they appear as typed).
 - Per-pane drag and drop of tabs; more than two panes.
 - Search highlighting inside tables and rendered math.
 - Version-history frequency as a setting (needs server-side config).

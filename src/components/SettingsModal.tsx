@@ -565,6 +565,9 @@ export function SettingsModal() {
                 <Row label="Meeting notes notebook" hint="New meeting notes are saved here.">
                   <Text value={s.meetingsFolder} onChange={set('meetingsFolder')} />
                 </Row>
+                <Row label="People notebook" hint="New person notes, one per person for your 1:1s, are saved here.">
+                  <Text value={s.peopleFolder} onChange={set('peopleFolder')} />
+                </Row>
                 <Row label="File meetings by date" hint={`Sub-folders made from the meeting's date. ${s.meetingsSubfolder ? `Today's meetings go to ${s.meetingsFolder}/${formatDate(new Date(), s.meetingsSubfolder)}.` : 'Off: all meetings go straight into the notebook.'}`}>
                   <Select
                     value={s.meetingsSubfolder}
