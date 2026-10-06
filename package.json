@@ -1,0 +1,91 @@
+{
+  "name": "margin-notes",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Margin \u2014 a fast, local-first markdown note-taking app",
+  "scripts": {
+    "dev": "node server/index.mjs --dev",
+    "build": "vite build",
+    "start": "vite build && node server/index.mjs",
+    "serve": "node server/index.mjs",
+    "typecheck": "tsc --noEmit",
+    "app": "vite build && electron .",
+    "app:pack": "vite build && electron-builder --dir",
+    "app:dist": "vite build && electron-builder",
+    "docs": "node scripts/build-docs.mjs"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@codemirror/autocomplete": "^6.18.0",
+    "@codemirror/commands": "^6.6.0",
+    "@codemirror/lang-markdown": "^6.2.5",
+    "@codemirror/language": "^6.10.2",
+    "@codemirror/language-data": "^6.5.2",
+    "@codemirror/search": "^6.5.6",
+    "@codemirror/state": "^6.4.1",
+    "@codemirror/view": "^6.33.0",
+    "@lezer/highlight": "^1.2.1",
+    "@types/diff": "^5.2.2",
+    "@types/markdown-it": "^14.1.2",
+    "@types/react": "^18.3.8",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "@vscode/markdown-it-katex": "^1.1.0",
+    "diff": "^7.0.0",
+    "dompurify": "^3.1.6",
+    "electron": "^44.5.1",
+    "electron-builder": "^26.15.3",
+    "highlight.js": "^11.10.0",
+    "katex": "^0.16.11",
+    "lucide-react": "^0.447.0",
+    "markdown-it": "^14.1.0",
+    "markdown-it-task-lists": "^2.1.1",
+    "minisearch": "^7.1.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.8",
+    "zustand": "^4.5.5"
+  },
+  "main": "electron/main.mjs",
+  "productName": "Margin",
+  "author": "Vikas Mishra",
+  "build": {
+    "appId": "org.vikasmishra.margin",
+    "productName": "Margin",
+    "files": [
+      "dist/**",
+      "server/**",
+      "electron/**",
+      "build/icon.png",
+      "package.json"
+    ],
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "linux": {
+      "category": "Office",
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    }
+  }
+}

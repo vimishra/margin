@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7474EC"/>
+      <stop offset="1" stop-color="#4141B8"/>
+    </linearGradient>
+    <linearGradient id="sheet" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F1F0FB"/>
+    </linearGradient>
+    <filter id="lift" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="14.5" stdDeviation="17.7" flood-color="#1B1B5E" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <rect x="100.0" y="100.0" width="824.0" height="824.0" rx="186.7" fill="url(#bg)"/>
+  <g filter="url(#lift)">
+    <rect x="301.2" y="257.7" width="421.7" height="508.6" rx="41.8" fill="url(#sheet)"/>
+  </g>
+  <!-- the margin rule -->
+  <rect x="409.0" y="257.7" width="11.3" height="508.6" fill="#F0696A"/>
+  <!-- a note in the margin -->
+  <circle cx="355.1" cy="483.0" r="19.3" fill="#F0696A"/>
+  <!-- lines of text -->
+  <rect x="458.9" y="346.2" width="172.2" height="35.4" rx="17.7" fill="#4141B8"/>
+  <rect x="458.9" y="466.9" width="214.0" height="32.2" rx="16.1" fill="#B9B9EE"/>
+  <rect x="458.9" y="539.4" width="214.0" height="32.2" rx="16.1" fill="#B9B9EE"/>
+  <rect x="458.9" y="611.8" width="135.2" height="32.2" rx="16.1" fill="#B9B9EE"/>
+</svg>
