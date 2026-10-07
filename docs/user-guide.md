@@ -165,7 +165,7 @@ The buttons at the top right of a note switch between three modes:
 | Quote | `> quote` |
 | Inline code, code block | `` `code` ``, or three backticks and a language on their own line |
 | Link to a note | `[[Note title]]` |
-| Web link | `[text](https://example.com)`, or just paste the address |
+| Web link | `[text](https://example.com)`, ⌘L, or just paste the address |
 | Tag | `#tag` anywhere in the text |
 | Inline math | `$e^{i\pi} + 1 = 0$` |
 | Display math | `$$` on its own line, the formula, `$$` on its own line |
@@ -182,6 +182,10 @@ Type `/` at the start of a line or after a space. A menu appears; keep typing to
 - **Insert:** Code block, Table, Math block, Inline math, Divider, Link to a note, Web link, Image or file.
 - **Dates:** Today, Tomorrow, Yesterday (links to that day's note), Date, Time.
 - **Templates:** one entry per template; it inserts the template's text.
+
+### Headings
+
+⌘1 to ⌘5 turn the current line into a heading of that level. Pressing the same one again turns it back into plain text, and a different one changes the level. With several lines selected, each becomes a heading.
 
 ### Lists
 
@@ -218,6 +222,8 @@ Paste or drop an image, PDF or any file into a note. It is saved in your attachm
 - A link to a note that does not exist yet is shown outlined; clicking it creates the note.
 - To edit a link, put the cursor on its line first; then a click places the cursor and ⌘-click opens.
 - Renaming a note updates every link to it.
+- **Web links:** ⌘L inserts `[]()` with the cursor between the square brackets, ready for the link's text. With words selected it wraps them and puts the cursor in the round brackets for the address.
+- **Paste to link:** select some words and paste a web address. The words become a link to it. This does not happen inside code or an existing link.
 
 ### Right-click
 
@@ -517,6 +523,8 @@ These are the defaults. Change any of them in Settings → Shortcuts.
 | New meeting note | ⌘⇧M | ⌥T |
 | Add a tag to this note | ⌘T | ⌥G |
 | Tick or untick a task | ⌘↵ | ⌘↵ |
+| Heading 1 to 5 | ⌘1 to ⌘5 | ⌘⌥1 to ⌘⌥5 |
+| Insert a web link | ⌘L | ⌥K |
 | New scratch note | ⌘⌥N | ⌥S |
 | New canvas | ⌘⇧N | — |
 | Quick capture | ⌘⇧C | ⌥C |

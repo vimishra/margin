@@ -106,6 +106,7 @@ let accelerators = {
   calendar: 'CmdOrCtrl+Shift+L', all: 'CmdOrCtrl+Shift+A', prevTab: 'CmdOrCtrl+Shift+[', nextTab: 'CmdOrCtrl+Shift+]',
   closeTab: 'CmdOrCtrl+W', new: 'CmdOrCtrl+N', capture: 'CmdOrCtrl+Shift+C', scratch: 'CmdOrCtrl+Alt+N',
   canvas: 'CmdOrCtrl+Shift+N', meeting: 'CmdOrCtrl+Shift+M', expdf: 'CmdOrCtrl+P', prefs: 'CmdOrCtrl+,', tasks: 'CmdOrCtrl+Shift+T',
+  h1: 'CmdOrCtrl+1', h2: 'CmdOrCtrl+2', h3: 'CmdOrCtrl+3', h4: 'CmdOrCtrl+4', h5: 'CmdOrCtrl+5', mdlink: 'CmdOrCtrl+L',
 }
 
 function buildMenu() {
@@ -317,9 +318,11 @@ function createWindow() {
         {
           label: 'Paragraph',
           submenu: [
-            format('Heading 1', 'h1'),
-            format('Heading 2', 'h2'),
-            format('Heading 3', 'h3'),
+            format('Heading 1', 'h1', accelerators.h1),
+            format('Heading 2', 'h2', accelerators.h2),
+            format('Heading 3', 'h3', accelerators.h3),
+            format('Heading 4', 'h4', accelerators.h4),
+            format('Heading 5', 'h5', accelerators.h5),
             sep,
             format('Bulleted List', 'bullet', accelerators.bullet),
             format('Numbered List', 'numbered', accelerators.numbered),
@@ -329,7 +332,7 @@ function createWindow() {
         },
         {
           label: 'Insert',
-          submenu: [format('Link to a Note', 'wikilink'), format('Web Link', 'link'), format('Table', 'table'), format('Math', 'math'), format("Today's Date", 'date'), format('Current Time', 'time')],
+          submenu: [format('Link to a Note', 'wikilink'), format('Web Link', 'link', accelerators.mdlink), format('Table', 'table'), format('Math', 'math'), format("Today's Date", 'date'), format('Current Time', 'time')],
         },
       )
     }

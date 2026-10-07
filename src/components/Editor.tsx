@@ -40,6 +40,8 @@ export interface EditorHandle {
   insert(text: string): void
   wrap(before: string, after?: string, placeholder?: string): void
   prefixLines(prefix: string): void
+  /** Insert a markdown link, leaving the cursor where the missing part goes. */
+  insertLink(): void
   toggleList(kind: ListKind): void
   /** Tick or untick the task under the cursor. */
   toggleDone(): void
@@ -121,6 +123,9 @@ const marks = ViewPlugin.fromClass(
   },
   { decorations: (v) => v.decorations },
 )
+
+/** A whole web address and nothing else. */
+const WEB_URL = /^(?:https?:\/\/|mailto:|www\.)\S+$/i
 
 const LINE_MARKUP = /^(\s*)(?:(?:[-*+]|\d+[.)])\s+(?:\[[ xX]\]\s+)?|#{1,6}\s+|(?:>\s?)+)?/
 
@@ -459,6 +464,21 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
           EditorView.domEventHandlers({
             paste(e, v) {
               const files = [...(e.clipboardData?.files ?? [])]
+              // A web address pasted over selected words turns them into a link to it.
+              const pasted = e.clipboardData?.getData('text/plain').trim() ?? ''
+              const sel = v.state.selection.main
+              if (!files.length && !sel.empty && WEB_URL.test(pasted)) {
+                const words = v.state.sliceDoc(sel.from, sel.to)
+                let inCode = false
+                for (let n: ReturnType<typeof syntaxTree>['topNode'] | null = syntaxTree(v.state).resolveInner(sel.from, 1); n; n = n.parent) if (/Code|URL|Link|Image/.test(n.name)) inCode = true
+                // Not when the selection is itself an address (that is replacing one link with another), spans lines, or sits in code or a link.
+                if (!WEB_URL.test(words.trim()) && !words.includes('\n') && words.trim() && !inCode) {
+                  e.preventDefault()
+                  const insert = `[${words}](${pasted})`
+                  v.dispatch({ changes: { from: sel.from, to: sel.to, insert }, selection: { anchor: sel.from + insert.length }, userEvent: 'input.paste', scrollIntoView: true })
+                  return true
+                }
+              }
               if (!files.length) return false
               e.preventDefault()
               uploadInto(v, files, undefined, true)
@@ -546,6 +566,18 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
     },
     toggleList(kind) {
       if (viewRef.current) toggleList(viewRef.current, kind)
+    },
+    insertLink() {
+      const view = viewRef.current
+      if (!view) return
+      const { from, to } = view.state.selection.main
+      const selected = view.state.sliceDoc(from, to)
+      // Nothing selected: [|](). A web address selected: [|](address). Words selected: [words](|).
+      const isUrl = WEB_URL.test(selected.trim())
+      const insert = !selected ? '[]()' : isUrl ? `[](${selected.trim()})` : `[${selected}]()`
+      const anchor = !selected || isUrl ? from + 1 : from + insert.length - 1
+      view.dispatch({ changes: { from, to, insert }, selection: { anchor }, scrollIntoView: true })
+      view.focus()
     },
     prefixLines(prefix) {
       const view = viewRef.current

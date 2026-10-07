@@ -38,6 +38,7 @@ import {
   CalendarCheck,
   FolderPlus,
   Workflow,
+  Heading,
   User,
   CalendarPlus,
 } from 'lucide-react'
@@ -97,6 +98,8 @@ export function commands(): Command[] {
       { id: 'outline', label: 'Jump to a heading…', icon: i(ListTree), keywords: 'outline index contents toc section', run: () => ui({ palette: { mode: 'outline', noteId: note.id } }) },
       { id: 'isearch', label: 'Search in this note', icon: i(Search), keywords: 'find incremental isearch', run: () => window.dispatchEvent(new CustomEvent('margin:isearch', { detail: 'forward' })) },
       { id: 'isearchBack', label: 'Search backward in this note', icon: i(Search), keywords: 'find reverse', run: () => window.dispatchEvent(new CustomEvent('margin:isearch', { detail: 'back' })) },
+      ...[1, 2, 3, 4, 5].map((n) => ({ id: `h${n}`, label: `Heading ${n}`, icon: i(Heading), keywords: `title section h${n} ${'#'.repeat(n)}`, run: () => format(`h${n}`) })),
+      { id: 'mdlink', label: 'Insert a web link', icon: i(Link2), keywords: 'url hyperlink markdown', run: () => format('mdlink') },
       { id: 'bullet', label: 'Bulleted list', icon: i(List), keywords: 'unordered bullets', run: () => format('bullet') },
       { id: 'numbered', label: 'Numbered list', icon: i(ListOrdered), keywords: 'ordered numbers', run: () => format('numbered') },
       { id: 'task', label: 'Task list', icon: i(ListChecks), keywords: 'todo checkbox', run: () => format('task') },
@@ -163,6 +166,7 @@ export const FIXED_SHORTCUTS: [string, [string, string][]][] = [
     [
       ['/', 'Slash commands: headings, lists, tables, dates, templates'],
       ['[[', 'Link to a note'],
+      ['Paste a web address', 'Over selected words: makes them a link to it'],
       ['P1  >fri  @due(fri)', 'On a task: priority, planned day, due date'],
       [`${MOD}B  ${MOD}I`, 'Bold / italic'],
       [`${MOD}⇧K`, 'Wrap selection in a note link'],

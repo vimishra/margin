@@ -262,7 +262,7 @@ npm run app
 </tr>
 <tr>
 <td>Web link</td>
-<td><code>[text](https://example.com)</code>, or just paste the address</td>
+<td><code>[text](https://example.com)</code>, ⌘L, or just paste the address</td>
 </tr>
 <tr>
 <td>Tag</td>
@@ -294,6 +294,8 @@ npm run app
 <li><strong>Dates:</strong> Today, Tomorrow, Yesterday (links to that day's note), Date, Time.</li>
 <li><strong>Templates:</strong> one entry per template; it inserts the template's text.</li>
 </ul>
+<h3 id="headings">Headings</h3>
+<p>⌘1 to ⌘5 turn the current line into a heading of that level. Pressing the same one again turns it back into plain text, and a different one changes the level. With several lines selected, each becomes a heading.</p>
 <h3 id="lists">Lists</h3>
 <ul>
 <li><strong>Tab</strong> nests an item under the one above. <strong>⇧Tab</strong> moves it back out. Numbering fixes itself.</li>
@@ -326,6 +328,8 @@ npm run app
 <li>A link to a note that does not exist yet is shown outlined; clicking it creates the note.</li>
 <li>To edit a link, put the cursor on its line first; then a click places the cursor and ⌘-click opens.</li>
 <li>Renaming a note updates every link to it.</li>
+<li><strong>Web links:</strong> ⌘L inserts <code>[]()</code> with the cursor between the square brackets, ready for the link's text. With words selected it wraps them and puts the cursor in the round brackets for the address.</li>
+<li><strong>Paste to link:</strong> select some words and paste a web address. The words become a link to it. This does not happen inside code or an existing link.</li>
 </ul>
 <h3 id="right-click">Right-click</h3>
 <p>In the desktop app, right-clicking in a note offers spelling suggestions, Cut, Copy and Paste, Look Up, &quot;Search Notes for…&quot;, and Format, Paragraph and Insert menus. Right-clicking a link offers Open, Open to the Side and Copy Link.</p>
@@ -735,6 +739,16 @@ npm run app
 <td>Tick or untick a task</td>
 <td>⌘↵</td>
 <td>⌘↵</td>
+</tr>
+<tr>
+<td>Heading 1 to 5</td>
+<td>⌘1 to ⌘5</td>
+<td>⌘⌥1 to ⌘⌥5</td>
+</tr>
+<tr>
+<td>Insert a web link</td>
+<td>⌘L</td>
+<td>⌥K</td>
 </tr>
 <tr>
 <td>New scratch note</td>
