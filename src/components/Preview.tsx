@@ -1,7 +1,7 @@
 import { memo, useEffect, useMemo, useRef } from 'react'
 import { renderMarkdown, toggleTask } from '../lib/markdown'
 import { resolver, titlesKey } from '../lib/links'
-import { createNote, go, openNote, openSide, ui, useStore } from '../store'
+import { createNote, go, openNote, openSide, ui, useStore, ensureDaily } from '../store'
 import { isYmd } from '../lib/util'
 import { openDaily } from '../store'
 
@@ -10,7 +10,7 @@ export async function followLink(target: string, side = false) {
   const id = resolver(useStore.getState().notes)(target)
   if (side) {
     // Open beside the current note, creating the note first if the link points at nothing yet.
-    const note = id ? { id } : isYmd(target) ? await createNote({ title: target, folder: useStore.getState().settings.dailyFolder, type: 'daily' }, false) : await createNote({ title: target }, false)
+    const note = id ? { id } : isYmd(target) ? await ensureDaily(target) : await createNote({ title: target }, false)
     if (note) openSide(note.id)
     return
   }

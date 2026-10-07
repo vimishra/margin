@@ -105,7 +105,7 @@ let accelerators = {
   search: 'CmdOrCtrl+K', back: 'CmdOrCtrl+[', forward: 'CmdOrCtrl+]', home: 'CmdOrCtrl+Shift+H', daily: 'CmdOrCtrl+D',
   calendar: 'CmdOrCtrl+Shift+L', all: 'CmdOrCtrl+Shift+A', prevTab: 'CmdOrCtrl+Shift+[', nextTab: 'CmdOrCtrl+Shift+]',
   closeTab: 'CmdOrCtrl+W', new: 'CmdOrCtrl+N', capture: 'CmdOrCtrl+Shift+C', scratch: 'CmdOrCtrl+Alt+N',
-  canvas: 'CmdOrCtrl+Shift+N', meeting: 'CmdOrCtrl+Shift+M', expdf: 'CmdOrCtrl+P', prefs: 'CmdOrCtrl+,', tasks: 'CmdOrCtrl+Shift+T',
+  canvas: 'CmdOrCtrl+Shift+N', meeting: 'CmdOrCtrl+Shift+M', expdf: 'CmdOrCtrl+P', prefs: 'CmdOrCtrl+,', tasks: 'CmdOrCtrl+Shift+T', journal: 'CmdOrCtrl+J',
   h1: 'CmdOrCtrl+1', h2: 'CmdOrCtrl+2', h3: 'CmdOrCtrl+3', h4: 'CmdOrCtrl+4', h5: 'CmdOrCtrl+5', mdlink: 'CmdOrCtrl+L',
 }
 
@@ -188,6 +188,7 @@ function buildMenu() {
         { type: 'separator' },
         cmd('Home', 'home'),
         cmd("Today's Daily Note", 'daily'),
+        cmd('Journal', 'journal'),
         cmd('Calendar', 'calendar'),
         cmd('All Notes', 'all'),
         cmd('Tasks', 'tasks'),

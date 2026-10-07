@@ -18,6 +18,7 @@ import {
   Users,
   User,
   ListChecks,
+  BookOpenText,
   Filter,
   LayoutDashboard,
   Moon,
@@ -250,6 +251,7 @@ export function Sidebar() {
           {shown('today') && (
             <NavItem icon={<CalendarCheck size={16} />} label="Today" active={!!todayNote && activeNote === todayNote.id} hint={hint('daily')} onClick={() => openDaily()} />
           )}
+          {shown('journal') && <NavItem icon={<BookOpenText size={16} />} label="Journal" active={is('journal')} hint={hint('journal')} onClick={() => go({ name: 'journal' })} />}
           {shown('calendar') && (
             <NavItem icon={<CalendarDays size={16} />} label="Calendar" active={is('calendar')} hint={hint('calendar')} onClick={() => go({ name: 'calendar' })} />
           )}

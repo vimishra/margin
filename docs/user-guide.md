@@ -53,7 +53,7 @@ To use a different notes folder, choose **File → Choose Notes Folder** in the 
 
 ## The window
 
-- **Sidebar** on the left: search, the New note button, Home, Today, Calendar, All notes, Tasks, Research, Scratch, a small calendar, your pinned notes, the five notes you opened most recently, notebooks and tags. ⌘\ hides it.
+- **Sidebar** on the left: search, the New note button, Home, Today, Journal, Calendar, All notes, Tasks, Research, Scratch, a small calendar, your pinned notes, the five notes you opened most recently, notebooks and tags. ⌘\ hides it.
 - **Tabs** along the top: every note you open stays in a tab. ⌘⇧[ and ⌘⇧] move between them, ⌥1–9 jump to one, ⌘W closes one.
 - **The note** in the middle, with its title, tags, a formatting toolbar and the text.
 - **The side panel** on the right of a note: backlinks, unlinked mentions, outgoing links, an outline and file details. ⌘. hides it.
@@ -298,6 +298,15 @@ On the canvas:
 - Paste or drop images and files to add them as cards.
 - Select a card for colours, duplicate and delete. ⌫ deletes the selection.
 
+**Journal** in the sidebar (⌘J) shows your daily notes as one continuous page, today at the top and earlier days below. Scrolling down loads more.
+
+- Every day is editable in place: click into any day and write. It is the same daily note, so nothing is copied.
+- Each day shows its **Tasks for this day** panel, and today's also lists what is overdue.
+- Only days that have a note appear, and days in the future are left out. Today is always there.
+- Click a day's date to open it on its own; ⌘-click opens it beside the journal.
+- Formatting shortcuts, ⌘K commands and search-in-note apply to the day you last clicked in.
+- A day that also has a canvas shows a **Canvas** button. The journal shows only the page side.
+
 **Calendar** shows a month. Days with a daily note have a dot. Click a day to see it; press Enter or double-click to open it. The small calendar in the sidebar opens a day's note with one click.
 
 ## Tasks
@@ -410,6 +419,14 @@ Templates can contain placeholders that are filled in when the note is made:
 | `{{title}}` | The note's or meeting's name |
 | `{{date:ddd, Do MMM}}` | Tue, 6th Oct |
 | `{{time:h:mmA}}` | 4:54PM |
+
+**Daily notes** start from the note called `Daily` in the Templates notebook. Margin creates it the first time a daily note is needed, with a "Top 3" list and a "Log" section. Edit it like any note to change what each day starts with; empty it for blank daily notes. Because it is a note, it travels with your notes folder to another computer.
+
+- Placeholders are filled in for the day the note is for, so a note for next Tuesday says Tuesday.
+- Tags on the `Daily` note are given to each new daily note.
+- The template is applied when a daily note is first created, whichever way that happens: Today, the calendar, the journal, quick capture, or a link such as `[[tomorrow]]`.
+- Daily notes that already exist are not changed. To add the template to one, type `/template` in it.
+- If you typed a template into Settings → Daily notes before, it is still used as long as there is no `Daily` note.
 
 The format letters are the same as Obsidian's: `YYYY`, `MMMM`, `MMM`, `MM`, `Do`, `DD`, `dddd`, `ddd`, `HH`, `h`, `mm`, `A`.
 
@@ -532,6 +549,7 @@ These are the defaults. Change any of them in Settings → Shortcuts.
 | Today's daily note | ⌘D | ⌥D |
 | Home | ⌘⇧H | ⌥H |
 | Calendar | ⌘⇧L | ⌥L |
+| Journal | ⌘J | ⌥J |
 | All notes | ⌘⇧A | ⌥A |
 | Tasks | ⌘⇧T | ⌥I |
 | Back / forward | ⌘[ / ⌘] | ⌘[ / ⌘] |

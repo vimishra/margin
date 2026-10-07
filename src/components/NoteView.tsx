@@ -56,7 +56,7 @@ const DAY = 86400000
 
 const measured: Record<string, number> = {}
 /** Average width in pixels of one character of body text, so "90 characters per line" means what it says. */
-function charWidth(mono: boolean, settings: Settings): number {
+export function charWidth(mono: boolean, settings: Settings): number {
   const size = mono ? 14 : settings.fontSize
   const key = `${mono}:${settings.font}:${settings.codeFont}:${size}`
   if (!measured[key]) {
@@ -255,6 +255,34 @@ function Toolbar({ editor }: { editor: React.RefObject<EditorHandle> }) {
   )
 }
 
+/** Carry out a formatting command (from a shortcut, the menu bar or ⌘K) in an editor. */
+export function applyFormat(ed: EditorHandle, kind: string) {
+  const actions: Record<string, () => void> = {
+    bullet: () => ed.toggleList('bullet'),
+    numbered: () => ed.toggleList('numbered'),
+    task: () => ed.toggleList('task'),
+    done: () => ed.toggleDone(),
+    bold: () => ed.wrap('**', '**', 'bold'),
+    italic: () => ed.wrap('*', '*', 'italic'),
+    strike: () => ed.wrap('~~', '~~', 'text'),
+    code: () => ed.wrap('`', '`', 'code'),
+    h1: () => ed.prefixLines('# '),
+    h2: () => ed.prefixLines('## '),
+    h3: () => ed.prefixLines('### '),
+    h4: () => ed.prefixLines('#### '),
+    h5: () => ed.prefixLines('##### '),
+    mdlink: () => ed.insertLink(),
+    quote: () => ed.prefixLines('> '),
+    wikilink: () => ed.wrap('[[', ']]'),
+    link: () => ed.insertLink(),
+    math: () => ed.wrap('$', '$', 'x^2'),
+    table: () => ed.insert('\n\n| Column 1 | Column 2 |\n| --- | --- |\n|  |  |\n\n'),
+    date: () => ed.insert(today()),
+    time: () => ed.insert(timeNow()),
+  }
+  actions[kind]?.()
+}
+
 export function NoteView({ note, slot = 'main' }: { note: Note; slot?: 'main' | 'side' }) {
   const isSide = slot === 'side'
   const split = useStore((s) => !!s.side)
@@ -300,31 +328,7 @@ export function NoteView({ note, slot = 'main' }: { note: Note; slot?: 'main' | 
     const onFormat = (e: Event) => {
       const ed = editor.current
       if (!ed || useStore.getState().activePane !== slot) return
-      const kind = (e as CustomEvent<string>).detail
-      const actions: Record<string, () => void> = {
-        bullet: () => ed.toggleList('bullet'),
-        numbered: () => ed.toggleList('numbered'),
-        task: () => ed.toggleList('task'),
-        done: () => ed.toggleDone(),
-        bold: () => ed.wrap('**', '**', 'bold'),
-        italic: () => ed.wrap('*', '*', 'italic'),
-        strike: () => ed.wrap('~~', '~~', 'text'),
-        code: () => ed.wrap('`', '`', 'code'),
-        h1: () => ed.prefixLines('# '),
-        h2: () => ed.prefixLines('## '),
-        h3: () => ed.prefixLines('### '),
-        h4: () => ed.prefixLines('#### '),
-        h5: () => ed.prefixLines('##### '),
-        mdlink: () => ed.insertLink(),
-        quote: () => ed.prefixLines('> '),
-        wikilink: () => ed.wrap('[[', ']]'),
-        link: () => ed.insertLink(),
-        math: () => ed.wrap('$', '$', 'x^2'),
-        table: () => ed.insert('\n\n| Column 1 | Column 2 |\n| --- | --- |\n|  |  |\n\n'),
-        date: () => ed.insert(today()),
-        time: () => ed.insert(timeNow()),
-      }
-      actions[kind]?.()
+      applyFormat(ed, (e as CustomEvent<string>).detail)
     }
     window.addEventListener('margin:line', onLine)
     window.addEventListener('margin:format', onFormat)

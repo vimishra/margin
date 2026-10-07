@@ -4,7 +4,7 @@ import { api } from './api'
 import { desktop } from './desktop'
 import type { Note, NotePatch, NoteType, Route } from './types'
 import { appendCard } from './lib/canvas'
-import { clock, displayTitle, isYmd, local, today } from './lib/util'
+import { clock, displayTitle, isYmd, local, today, parseYmd, ymd } from './lib/util'
 import { rewriteTask, shortDate, withDetails, type SavedTaskView, type Task, type TaskView } from './lib/tasks'
 
 export interface Toast {
@@ -168,6 +168,7 @@ export const DEFAULT_SETTINGS: Settings = {
 /** Parts of the sidebar that can be switched off in Settings. Home and search always stay. */
 export const SIDEBAR_SECTIONS: [string, string][] = [
   ['today', 'Today'],
+  ['journal', 'Journal'],
   ['calendar', 'Calendar'],
   ['all', 'All notes'],
   ['tasks', 'Tasks'],
@@ -237,6 +238,8 @@ interface State {
   /** The pane that keyboard commands (search, lists, jump to heading) apply to. */
   activePane: 'main' | 'side'
   /** Set when a note is opened from a search result, so it can scroll to the match. */
+  /** The day being written in while the journal is open; it is the current note for commands. */
+  journalNote: string | null
   jump: { id: string; query: string; terms: string[]; pane?: 'main' | 'side' } | null
   settings: Settings
   historyFor: string | null
@@ -256,6 +259,7 @@ export function parseHash(hash: string): Route {
   const arg = decodeURIComponent(rest.join('/'))
   switch (name) {
     case 'calendar':
+    case 'journal':
     case 'all':
     case 'scratch':
     case 'research':
@@ -314,6 +318,7 @@ export const useStore = create<State>(() => ({
   help: false,
   prefs: false,
   jump: null,
+  journalNote: null,
   side: local.get<string | null>('side', null),
   sideTabs: local.get<string[]>('sideTabs', []),
   sideWidth: local.get('sideWidth', 0.5),
@@ -406,6 +411,7 @@ export const setActivePane = (pane: 'main' | 'side') => get().activePane !== pan
 export function currentNote(): Note | undefined {
   const s = get()
   if (s.activePane === 'side' && s.side && s.notes[s.side]) return s.notes[s.side]
+  if (s.route.name === 'journal') return s.notes[s.journalNote || '']
   return s.route.name === 'note' ? s.notes[s.route.id] : undefined
 }
 
@@ -655,9 +661,50 @@ export function findDaily(date: string): Note | undefined {
   return Object.values(get().notes).find((n) => n.type === 'daily' && n.title === date)
 }
 
-async function ensureDaily(date: string): Promise<Note | null> {
+/** What a new daily note starts with until the "Daily" template note is edited. */
+export const DAILY_TEMPLATE = `## Top 3 for {{day}}
+
+1. 
+
+## Log
+
+- 
+`
+
+const makingDaily = new Map<string, Promise<Note | null>>()
+/** The daily note for a date, created from the template if it does not exist yet. */
+export function ensureDaily(date: string): Promise<Note | null> {
+  const existing = findDaily(date)
+  if (existing) return Promise.resolve(existing)
+  // Two requests for the same new day (or for the template) must not create it twice.
+  let making = makingDaily.get(date)
+  if (!making) {
+    making = createDaily(date).finally(() => makingDaily.delete(date))
+    makingDaily.set(date, making)
+  }
+  return making
+}
+
+let makingTemplate: Promise<Note | null> | null = null
+async function createDaily(date: string): Promise<Note | null> {
   const { dailyFolder, dailyView, dailyTemplate } = get().settings
-  return findDaily(date) ?? createNote({ title: date, folder: dailyFolder, type: 'daily', view: dailyView === 'canvas' ? 'canvas' : '', content: dailyTemplate }, false)
+  // A note called "Daily" in the templates notebook is the template. Text typed into Settings before that note
+  // existed still counts. With neither, the note is made from the built-in template, so the template lives in the
+  // notes folder and comes along to another computer.
+  let template = templates().find((n) => /^daily( notes?)?$/i.test(n.title.trim())) ?? null
+  if (!template && !dailyTemplate.trim()) {
+    makingTemplate ??= createNote({ title: 'Daily', folder: get().settings.templatesFolder, content: DAILY_TEMPLATE }, false).finally(() => (makingTemplate = null))
+    template = await makingTemplate
+  }
+  // Someone else may have made the day's note while the template was being created.
+  const again = findDaily(date)
+  if (again) return again
+  // Placeholders are filled for the day the note is for, which is not always today.
+  const when = parseYmd(date)
+  const now = new Date()
+  when.setHours(now.getHours(), now.getMinutes())
+  const content = fillTemplate(template ? template.content : dailyTemplate, date, when)
+  return createNote({ title: date, folder: dailyFolder, type: 'daily', view: dailyView === 'canvas' ? 'canvas' : '', content, ...(template?.tags.length ? { tags: template.tags } : {}) }, false)
 }
 
 export async function openDaily(date = today()) {
@@ -787,7 +834,9 @@ async function addToDaily(body: string, withTime: boolean): Promise<Note | null>
     const idx = current.content.indexOf('\n\n<!-- canvas -->')
     const page = idx < 0 ? current.content : current.content.slice(0, idx)
     const tail = idx < 0 ? '' : current.content.slice(idx)
-    content = (page.trim() ? page.replace(/\n+$/, '') + '\n' : '') + entry + tail
+    // An empty bullet left at the end by the template is where the first entry goes.
+    const kept = page.replace(/\n+$/, '').replace(/(^|\n)[-*+][ \t]*$/, '$1').replace(/\n+$/, (m) => (m.length > 1 ? '\n\n' : '\n'))
+    content = (kept.trim() ? kept + (kept.endsWith('\n') ? '' : '\n') : '') + entry + tail
   }
   updateNote(note.id, { content })
   return note
@@ -847,13 +896,12 @@ export function formatDate(d: Date, pattern: string): string {
 }
 
 /** Fill in {{date}}, {{time}}, {{day}} and {{title}}. {{date:FORMAT}} and {{time:FORMAT}} take a pattern, see formatDate. */
-export function fillTemplate(text: string, title: string): string {
-  const now = new Date()
+export function fillTemplate(text: string, title: string, now = new Date()): string {
   return text.replace(/\{\{\s*(date|time|day|title)\s*(?::([^}]*))?\}\}/gi, (_m, key: string, pattern?: string) => {
     const k = key.toLowerCase()
     if (k === 'title') return title
     if (pattern?.trim()) return formatDate(now, pattern.trim())
-    return k === 'date' ? today() : k === 'time' ? timeNow(now) : DAYS[now.getDay()]
+    return k === 'date' ? ymd(now) : k === 'time' ? timeNow(now) : DAYS[now.getDay()]
   })
 }
 

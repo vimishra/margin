@@ -39,6 +39,7 @@ import {
   FolderPlus,
   Workflow,
   Heading,
+  BookOpenText,
   User,
   CalendarPlus,
 } from 'lucide-react'
@@ -84,6 +85,7 @@ export function commands(): Command[] {
     { id: 'article', label: 'New research note', icon: i(BookMarked), keywords: 'article link clip', run: () => newNote('article') },
     { id: 'folder', label: 'New notebook', icon: i(FolderPlus), keywords: 'folder', run: () => createFolder() },
     { id: 'home', label: 'Go to Home', icon: i(Home), hint: `${ALT}H`, run: () => go({ name: 'home' }) },
+    { id: 'journal', label: 'Go to Journal', icon: i(BookOpenText), keywords: 'daily notes scroll roam all days', run: () => go({ name: 'journal' }) },
     { id: 'calendar', label: 'Go to Calendar', icon: i(CalendarDays), hint: `${ALT}L`, run: () => go({ name: 'calendar' }) },
     { id: 'tasks', label: 'Go to Tasks', icon: i(ListChecks), keywords: 'action items todo due overdue', run: () => go({ name: 'tasks' }) },
     { id: 'all', label: 'Go to All notes', icon: i(Files), hint: `${ALT}A`, run: () => go({ name: 'all' }) },

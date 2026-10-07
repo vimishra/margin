@@ -308,8 +308,8 @@ async function uploadInto(view: EditorView, files: File[], pos?: number, pasted 
     try {
       const s = useStore.getState()
       // The note this editor belongs to, for naming pasted images after it.
-      const inSide = view.dom.closest<HTMLElement>('.note')?.dataset.pane === 'side'
-      const note = inSide ? s.notes[s.side || ''] : s.route.name === 'note' ? s.notes[s.route.id] : undefined
+      const inSide = view.dom.closest<HTMLElement>('[data-pane]')?.dataset.pane === 'side'
+      const note = inSide ? s.notes[s.side || ''] : s.route.name === 'note' ? s.notes[s.route.id] : s.route.name === 'journal' ? s.notes[s.journalNote || ''] : undefined
       const md = await uploadAsMarkdown(file, { pasted, actualSize: s.settings.imageActualSize, noteTitle: s.settings.imageNoteName ? note?.title : undefined })
       const at = pos ?? view.state.selection.main.head
       const line = view.state.doc.lineAt(at)
@@ -407,7 +407,7 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
   useEffect(() => {
     // With two notes side by side, only the one in the active pane responds.
     const onSearch = (e: Event) => {
-      const mine = host.current?.closest<HTMLElement>('.note')?.dataset.pane || 'main'
+      const mine = host.current?.closest<HTMLElement>('[data-pane]')?.dataset.pane || 'main'
       if (mine === useStore.getState().activePane) startSearch((e as CustomEvent<string>).detail === 'back')
     }
     window.addEventListener('margin:isearch', onSearch)

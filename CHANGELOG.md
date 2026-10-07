@@ -2,6 +2,25 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.3.0 (2026-10-07)
+
+### Added
+
+- **Journal:** all daily notes on one continuous page, today at the top, each day editable in place with its tasks. ⌘J, or Journal in the sidebar.
+- **A default daily template:** new daily notes start with a "Top 3" list and a "Log" section. The template is a note called `Daily` in the Templates notebook, created the first time it is needed, so it travels with your notes to another computer. Edit that note to change it.
+
+### Fixed
+
+- The daily template is applied however a daily note comes to exist. Following a link to a day (such as `[[next monday]]`) into the side pane used to create an empty note.
+- Placeholders in the daily template (`{{day}}`, `{{date:Do MMM}}`, `{{time}}`) are now filled in, for the day the note is for.
+
+### Changed
+
+- Date headings in the journal are larger.
+- Quick capture to today's note fills the template's empty Log bullet instead of adding below it.
+
+Existing daily notes are not changed.
+
 ## 1.2.0 (2026-10-07)
 
 ### Added

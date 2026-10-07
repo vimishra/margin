@@ -23,6 +23,7 @@ export type NotePatch = Partial<Omit<Note, 'id' | 'path' | 'created' | 'updated'
 export type Route =
   | { name: 'home' }
   | { name: 'calendar' }
+  | { name: 'journal' }
   | { name: 'all' }
   /** `view` is a built-in list ("today", "overdue"…) or "s:<id>" for a saved filter. */
   | { name: 'tasks'; view?: string }

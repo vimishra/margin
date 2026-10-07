@@ -12,6 +12,7 @@ import { HomeView } from './components/HomeView'
 import { CalendarView } from './components/CalendarView'
 import { ListView } from './components/ListView'
 import { TasksView } from './components/TasksView'
+import { JournalView } from './components/JournalView'
 import { DatePicker } from './components/DatePicker'
 import { NoteView } from './components/NoteView'
 import { followLink } from './components/Preview'
@@ -168,6 +169,7 @@ export default function App() {
     )
   else if (route.name === 'home') view = <HomeView />
   else if (route.name === 'calendar') view = <CalendarView />
+  else if (route.name === 'journal') view = <JournalView />
   else if (route.name === 'tasks') view = <TasksView view={route.view} />
   else if (route.name === 'note')
     view = note ? (

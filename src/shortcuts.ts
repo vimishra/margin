@@ -20,6 +20,7 @@ export const SHORTCUT_DEFS: ShortcutDef[] = [
   { id: 'forward', label: 'Forward', group: 'Navigate', web: 'Mod+]' },
   { id: 'home', label: 'Home', group: 'Navigate', web: 'Alt+H', desktop: 'Mod+Shift+H' },
   { id: 'daily', label: "Today's daily note", group: 'Navigate', web: 'Alt+D', desktop: 'Mod+D' },
+  { id: 'journal', label: 'Journal (all daily notes on one page)', group: 'Navigate', web: 'Alt+J', desktop: 'Mod+J' },
   { id: 'calendar', label: 'Calendar', group: 'Navigate', web: 'Alt+L', desktop: 'Mod+Shift+L' },
   { id: 'all', label: 'All notes', group: 'Navigate', web: 'Alt+A', desktop: 'Mod+Shift+A' },
   { id: 'tasks', label: 'Tasks', group: 'Navigate', web: 'Alt+I', desktop: 'Mod+Shift+T' },

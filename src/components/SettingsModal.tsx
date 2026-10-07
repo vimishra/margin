@@ -608,7 +608,7 @@ export function SettingsModal() {
                 <Row label="Daily notes notebook" hint="New daily notes are saved here as YYYY-MM-DD.md. Existing ones stay where they are.">
                   <Text value={s.dailyFolder} onChange={set('dailyFolder')} />
                 </Row>
-                <Row label="Template for new daily notes" hint="Markdown placed on the page of each new daily note. Leave empty for a blank page." stack>
+                <Row label="Template for new daily notes" hint="New daily notes start from the note called “Daily” in the Templates notebook; edit that note to change them. It is created for you the first time it is needed and travels with your notes. Text in this box is only used if there is no such note." stack>
                   <textarea
                     key={s.dailyTemplate}
                     className="set-textarea"
