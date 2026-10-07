@@ -22,6 +22,10 @@ Tasks now follow the Things 3 workflow.
 - The list keys are now 1 to 9 and 0, in the new order. Done is called Logbook; saved filters that used it still work.
 - The number beside Tasks in the sidebar is the Today count.
 
+- **Both themes have a new palette, measured from Things 3.** Light: a white page, a barely-grey sidebar and near-black text in place of the warm greys. Dark: one charcoal for the page and the sidebar with a darker line between them. The default accent is now the deep blue Things uses for project titles and headings; if you were on the old default (Indigo) you are moved to it once, and any other accent you chose is kept.
+- **The sidebar can be resized:** drag its right edge; double-click the edge for the usual width.
+- The lists under Tasks in the sidebar have their own icons and colours: a yellow star for Today, red for Upcoming, teal for Anytime, tan for Someday and green for the Logbook.
+
 No note is changed until you tick, plan or park a task.
 
 ## 1.4.0 (2026-10-07)

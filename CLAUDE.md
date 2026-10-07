@@ -12,6 +12,7 @@ npm run dev        # browser at http://localhost:4321 with reload on change
 npm run typecheck  # tsc --noEmit; run after every change
 npm run docs       # regenerate docs/*.html from docs/*.md
 npm run app:dist   # installers into release/ (only when asked)
+npx electron-builder --mac dmg --arm64   # the Apple-silicon installer used for releases
 ```
 
 Changes under `server/` or `electron/` need a restart; `src/` reloads in `npm run dev`. The desktop app serves the built `dist/`, so it needs `npm run app` again to pick anything up.
@@ -30,7 +31,7 @@ The owner's real notes (work meetings) are in `~/Documents/Vault`, set as `vault
 - `src/store.ts` — all state (Zustand): notes in memory, settings, tabs, panes, autosave, routing.
 - `src/shortcuts.ts`, `src/commands.tsx` — every action: its default keys, and what it does. ⌘K, the menu bar and Settings → Shortcuts all read from these.
 - `src/components/Editor.tsx` — CodeMirror setup, slash commands, link completion, incremental search bar. Helpers: `livePreview.ts`, `tableWidget.ts`, `lists.ts`, `isearch.ts`.
-- `src/lib/tasks.ts` — tasks are checkbox lines with `P1`–`P3`, `>date`, `@due(date)` written on them; `components/TasksView.tsx` is the Tasks view and the panel under daily notes. Saved filters are `settings.taskViews`; the route is `#/tasks/<list>` or `#/tasks/s:<id>`. `components/DatePicker.tsx` is the calendar opened by `openDatePicker()`.
+- `src/lib/tasks.ts` — tasks are checkbox lines with `P1`–`P3`, `>date` or `>someday`, `@due(date)` and `@done(date)` written on them. The lists follow Things 3: Today (planned today or earlier, or due), Upcoming, Anytime, Someday, Logbook; only a missed due date is overdue. Ticking writes `@done(date)` unless the setting is off; `components/TasksView.tsx` is the Tasks view and the panel under daily notes. Saved filters are `settings.taskViews`; the route is `#/tasks/<list>` or `#/tasks/s:<id>`. `components/DatePicker.tsx` is the calendar opened by `openDatePicker()`.
 - Notebook tags live in the vault's `.margin/config.json` (`folderTags`). `createNote` and `updateNote` in `store.ts` write them into a note's own tags when it is created in or moved into a notebook; they are never removed automatically.
 - `src/components/JournalView.tsx` — all daily notes on one page, each with its own editor. The day last clicked in is `journalNote` in the store and is what `currentNote()` returns there; editors find out whether app-level commands are for them from the nearest `data-pane` attribute.
 - `src/lib/shortlinks.ts` — the pattern for company short links (`go/name`, `b/123`). `livePreview.ts` marks them in the editor and a core rule in `lib/markdown.ts` does the same for rendered text; neither changes the note.
@@ -58,7 +59,8 @@ The owner's real notes (work meetings) are in `~/Documents/Vault`, set as `vault
 ## Working agreements with the owner
 
 - Commit and push only when asked. End commit messages with the `Co-Authored-By` line.
-- Do not rebuild `release/`; they will package the app later.
+- Build and publish an installer only when asked ("deploy" means: commit, push, bump the version, add a `CHANGELOG.md` entry, build the Apple-silicon `.dmg`, smoke-test it against a scratch folder, and publish a GitHub release). `.github/workflows/mac-build.yml` can also build the `.dmg` on demand from the Actions tab.
+- Work done from another computer arrives as a `claude/...` branch on GitHub, not on `main`; fetch and check for one when asked to sync.
 - After changing behaviour, update `docs/user-guide.md` and run `npm run docs`.
 - Report in plain language what changed, what was tested and how, and what was not tested.
 - Preferences already reflected in defaults: day-first typed dates, meeting notes filed as `Meetings/YYYY/MMM`, attachments folder configurable (they use `Assets`).

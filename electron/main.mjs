@@ -226,7 +226,7 @@ function createWindow() {
     title: 'Margin',
     titleBarStyle: isMac ? 'hiddenInset' : 'default',
     trafficLightPosition: { x: 16, y: 15 },
-    backgroundColor: '#f8f7f4',
+    backgroundColor: '#f9f9fb',
     icon: iconPath,
     webPreferences: { preload: path.join(here, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, spellcheck: true },
   })

@@ -138,7 +138,7 @@ export const DEFAULT_SETTINGS: Settings = {
   sidebarCalendar: true,
   hiddenSections: [],
   tabs: true,
-  accent: 'indigo',
+  accent: 'sky',
   font: 'system',
   codeFont: 'system',
   fontSize: 16,
@@ -189,8 +189,9 @@ export const SIDEBAR_SECTIONS: [string, string][] = [
 
 /** id, name, swatch colour */
 export const ACCENTS: [string, string, string][] = [
+  ['sky', 'Blue', '#255fb3'],
   ['indigo', 'Indigo', '#5b5bd6'],
-  ['blue', 'Blue', '#2b72d9'],
+  ['blue', 'Bright blue', '#2b72d9'],
   ['teal', 'Teal', '#0f8f88'],
   ['green', 'Green', '#2f9150'],
   ['orange', 'Orange', '#d9731b'],
@@ -242,6 +243,8 @@ interface State {
   sideTabs: string[]
   /** Share of the width the side pane takes, 0.25 to 0.7. */
   sideWidth: number
+  /** Width of the left sidebar in pixels. */
+  sidebarWidth: number
   /** The pane that keyboard commands (search, lists, jump to heading) apply to. */
   activePane: 'main' | 'side'
   /** Set when a note is opened from a search result, so it can scroll to the match. */
@@ -300,8 +303,20 @@ function loadSettings(): Settings {
     saved.spellcheck = true
     if (Object.keys(saved).length > 1) local.set('settings', saved)
   }
+  // The light theme moved to a cooler palette with a blue accent. Anyone still on the old default accent
+  // gets the new one once; a colour that was chosen on purpose is left alone.
+  if (!local.get('paletteSky', false)) {
+    local.set('paletteSky', true)
+    if (saved.accent === 'indigo') {
+      saved.accent = 'sky'
+      local.set('settings', saved)
+    }
+  }
   return { ...DEFAULT_SETTINGS, ...saved }
 }
+
+/** The sidebar's width until it is dragged. */
+export const SIDEBAR_WIDTH = 264
 
 export const useStore = create<State>(() => ({
   loaded: false,
@@ -329,6 +344,7 @@ export const useStore = create<State>(() => ({
   side: local.get<string | null>('side', null),
   sideTabs: local.get<string[]>('sideTabs', []),
   sideWidth: local.get('sideWidth', 0.5),
+  sidebarWidth: local.get('sidebarWidth', SIDEBAR_WIDTH),
   activePane: 'main',
   settings: loadSettings(),
   historyFor: null,
@@ -404,6 +420,12 @@ export function swapPanes() {
   const side = s.side
   openSide(main)
   openNote(side)
+}
+
+export function setSidebarWidth(px: number) {
+  const sidebarWidth = Math.round(Math.min(480, Math.max(224, px)))
+  local.set('sidebarWidth', sidebarWidth)
+  set({ sidebarWidth })
 }
 
 export function setSideWidth(fraction: number) {

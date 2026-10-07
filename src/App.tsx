@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { FileQuestion } from 'lucide-react'
-import { closeSideTab, closeTab, cycleTab, go, load, paneTabs, setSideWidth, ui, useStore } from './store'
+import { SIDEBAR_WIDTH, closeSideTab, closeTab, cycleTab, go, load, paneTabs, setSidebarWidth, setSideWidth, ui, useStore } from './store'
 import type { Note } from './types'
 import { commands } from './commands'
 import { actionFor, eventCombo, recording, syncDesktopMenu } from './shortcuts'
@@ -104,6 +104,24 @@ function SidePane({ note }: { note: Note }) {
   )
 }
 
+/** The edge of the sidebar: drag it to make the sidebar wider or narrower. */
+function SidebarResizer() {
+  const start = (e: React.PointerEvent) => {
+    e.preventDefault()
+    const left = (e.currentTarget as HTMLElement).parentElement!.getBoundingClientRect().left
+    const move = (ev: PointerEvent) => setSidebarWidth(ev.clientX - left)
+    const up = () => {
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', up)
+      document.body.classList.remove('resizing')
+    }
+    document.body.classList.add('resizing')
+    window.addEventListener('pointermove', move)
+    window.addEventListener('pointerup', up)
+  }
+  return <div className="pane-resizer sidebar-resizer" onPointerDown={start} onDoubleClick={() => setSidebarWidth(SIDEBAR_WIDTH)} title="Drag to resize the sidebar. Double-click for the usual width." />
+}
+
 export default function App() {
   const loaded = useStore((s) => s.loaded)
   const error = useStore((s) => s.error)
@@ -189,6 +207,7 @@ export default function App() {
   return (
     <div className={sidebar ? 'app' : 'app no-sidebar'}>
       {sidebar && <Sidebar />}
+      {sidebar && <SidebarResizer />}
       <main className="main">
         <div className={sideNote ? 'view split' : 'view'}>
           <div className="pane-col">

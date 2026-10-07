@@ -19,6 +19,11 @@ import {
   User,
   ListChecks,
   BookOpenText,
+  Star,
+  Layers,
+  Archive,
+  BookCheck,
+  Flag,
   Filter,
   LayoutDashboard,
   Moon,
@@ -81,6 +86,16 @@ function buildTree(folders: string[]): TreeNode[] {
   return roots
 }
 
+/** The lists under Tasks, each with the kind of icon and colour Things gives it. */
+const LIST_ICONS: Record<string, React.ReactNode> = {
+  today: <Star size={13} fill="currentColor" />,
+  upcoming: <CalendarDays size={13} />,
+  anytime: <Layers size={13} />,
+  someday: <Archive size={13} />,
+  done: <BookCheck size={13} />,
+  overdue: <Flag size={13} fill="currentColor" />,
+}
+
 function NavItem({ icon, label, count, active, hint, onClick }: { icon: React.ReactNode; label: string; count?: number; active?: boolean; hint?: string; onClick: () => void }) {
   return (
     <button className={cx('nav-item', active && 'active')} onClick={onClick} title={hint}>
@@ -136,6 +151,7 @@ export function Sidebar() {
     return m
   }, [list])
   const recent = useStore((s) => s.recent)
+  const sidebarWidth = useStore((s) => s.sidebarWidth)
   const folderTags = useStore((s) => s.folderTags)
   // The last five notes opened, newest first.
   const recentNotes = useMemo(() => recent.map((id) => notes[id]).filter(Boolean).slice(0, 5), [recent, notes])
@@ -203,7 +219,7 @@ export function Sidebar() {
 
 
   return (
-    <nav className="sidebar">
+    <nav className="sidebar" style={{ width: sidebarWidth }}>
       <div className="side-top">
         <div className="brand">
           <img className="logo" src={logo} alt="" />
@@ -277,7 +293,7 @@ export function Sidebar() {
                     ])
                   }
                 >
-                  <span className="nav-icon">{v.savedId ? <Filter size={13} /> : <i className="nav-dot" />}</span>
+                  <span className={cx('nav-icon', !v.savedId && `list-${v.id}`)}>{v.savedId ? <Filter size={13} /> : LIST_ICONS[v.id] ?? <i className="nav-dot" />}</span>
                   <span className="nav-label">{v.label}</span>
                   {v.count > 0 && <span className="count">{v.count}</span>}
                 </button>

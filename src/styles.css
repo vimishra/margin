@@ -25,31 +25,39 @@
   --bold-color: inherit;
   --italic-color: inherit;
   --doc-leading: 1.7;
+  /* Light theme: measured from Things 3. White page, a barely-grey sidebar, near-black text. */
   --bg: #ffffff;
-  --bg-side: #f8f7f4;
+  --bg-side: #f9f9fb;
   --bg-raised: #ffffff;
-  --bg-sunken: #f5f4f1;
-  --hover: rgba(40, 36, 28, 0.055);
-  --active: rgba(40, 36, 28, 0.095);
-  --border: #ebe9e4;
-  --border-strong: #dbd8d1;
-  --text: #1f1e1b;
-  --text-2: #56534d;
-  --text-3: #8b8880;
-  --text-4: #b7b4ac;
+  --bg-sunken: #f3f4f6;
+  --hover: rgba(40, 58, 90, 0.06);
+  --active: rgba(40, 58, 90, 0.125);
+  --border: #ebecee;
+  --border-strong: #d3d5d8;
+  --text: #15171a;
+  --text-2: #3c3e41;
+  --text-3: #8e9093;
+  --text-4: #b7b8ba;
   --accent: #5b5bd6;
   --accent-hover: #4e4ec7;
   --accent-soft: rgba(91, 91, 214, 0.1);
   --accent-text: #4a4ac4;
-  --code: #b0452a;
-  --danger: #cf4439;
-  --mark: rgba(255, 204, 51, 0.42);
-  --add: rgba(46, 160, 67, 0.16);
-  --del: rgba(218, 54, 51, 0.14);
-  --dot: rgba(40, 36, 28, 0.13);
-  --shadow-sm: 0 1px 2px rgba(20, 18, 12, 0.06);
-  --shadow-md: 0 4px 14px rgba(20, 18, 12, 0.08), 0 1px 3px rgba(20, 18, 12, 0.05);
-  --shadow-lg: 0 24px 60px rgba(20, 18, 12, 0.18), 0 4px 14px rgba(20, 18, 12, 0.08);
+  --code: #c2410c;
+  --danger: #e0345a;
+  --mark: rgba(254, 211, 1, 0.4);
+  --add: rgba(52, 199, 89, 0.17);
+  --del: rgba(249, 92, 122, 0.14);
+  --dot: rgba(40, 58, 90, 0.12);
+  --shadow-sm: 0 1px 2px rgba(18, 26, 42, 0.06);
+  --shadow-md: 0 4px 14px rgba(18, 26, 42, 0.08), 0 1px 3px rgba(18, 26, 42, 0.05);
+  --shadow-lg: 0 24px 60px rgba(18, 26, 42, 0.18), 0 4px 14px rgba(18, 26, 42, 0.08);
+  /* The colours Things gives its lists: Today, Upcoming, Anytime, Someday, Logbook. */
+  --list-today: #fed301;
+  --list-upcoming: #d92f5c;
+  --list-anytime: #39a69c;
+  --list-someday: #cbbf7f;
+  --list-logbook: #4dbc61;
+  --pri-2: #c97a00;
   --card-amber: #fff6d6;
   --card-amber-b: #edd98f;
   --card-green: #e4f5e6;
@@ -60,39 +68,46 @@
   --card-pink-b: #efb2c8;
   --card-purple: #eee8fd;
   --card-purple-b: #c5b5ee;
-  --syn-comment: #8b8880;
+  --syn-comment: #8a8f96;
   --syn-keyword: #a04ad1;
   --syn-string: #2e8555;
   --syn-number: #c2681a;
   --syn-function: #2f6fd0;
   --syn-type: #0e7c86;
   --syn-property: #9a5b13;
-  --syn-punct: #6f6c66;
+  --syn-punct: #6b7077;
   color-scheme: light;
 }
 :root[data-theme='dark'] {
-  --bg: #1a1a19;
-  --bg-side: #151514;
-  --bg-raised: #232321;
-  --bg-sunken: #121211;
-  --hover: rgba(255, 252, 240, 0.06);
-  --active: rgba(255, 252, 240, 0.1);
-  --border: #2c2c2a;
-  --border-strong: #3b3b38;
-  --text: #ecebe7;
-  --text-2: #b7b5ae;
-  --text-3: #86847d;
-  --text-4: #696862;
+  /* Dark theme: measured from Things 3. One charcoal for page and sidebar, with a darker line between. */
+  --list-today: #fed402;
+  --list-upcoming: #d73d67;
+  --list-anytime: #4eb0a4;
+  --list-someday: #d1c68a;
+  --list-logbook: #4dbd61;
+  --pri-2: #f0a63a;
+  --bg: #282828;
+  --bg-side: #282828;
+  --bg-raised: #323234;
+  --bg-sunken: #212122;
+  --hover: rgba(200, 215, 235, 0.06);
+  --active: rgba(190, 205, 225, 0.115);
+  --border: #1f2021;
+  --border-strong: #4a4b4d;
+  --text: #f2f2f2;
+  --text-2: #d2d2d3;
+  --text-3: #8a8a8c;
+  --text-4: #69696b;
   --accent: #8787f2;
   --accent-hover: #9a9af7;
   --accent-soft: rgba(135, 135, 242, 0.17);
   --accent-text: #a6a6ff;
   --code: #f0987c;
-  --danger: #f0655a;
+  --danger: #f0577a;
   --mark: rgba(255, 204, 51, 0.3);
   --add: rgba(63, 185, 80, 0.2);
   --del: rgba(248, 81, 73, 0.2);
-  --dot: rgba(255, 252, 240, 0.11);
+  --dot: rgba(200, 215, 235, 0.1);
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.35);
   --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.55), 0 4px 14px rgba(0, 0, 0, 0.3);
@@ -2484,7 +2499,7 @@ button.crumb:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(20, 18, 12, 0.28);
+  background: rgba(18, 26, 42, 0.28);
   animation: fade 0.12s ease-out;
 }
 :root[data-theme='dark'] .overlay {
@@ -2978,6 +2993,12 @@ button.crumb:hover {
   --accent-hover: color-mix(in srgb, var(--accent) 86%, white);
   --accent-soft: color-mix(in srgb, var(--accent) 19%, transparent);
   --accent-text: color-mix(in srgb, var(--accent) 78%, white);
+}
+:root[data-accent='sky'] {
+  --accent: #255fb3;
+}
+:root[data-theme='dark'][data-accent='sky'] {
+  --accent: #5b9df0;
 }
 :root[data-accent='blue'] {
   --accent: #2b72d9;
@@ -3808,7 +3829,7 @@ body.resizing {
 }
 :root[data-image-border='shadow'] .cm-image,
 :root[data-image-border='shadow'] .md img {
-  box-shadow: 0 0 0 1px rgba(20, 18, 12, 0.05), 0 1px 3px rgba(20, 18, 12, 0.1), 0 8px 24px rgba(20, 18, 12, 0.1);
+  box-shadow: 0 0 0 1px rgba(18, 26, 42, 0.05), 0 1px 3px rgba(18, 26, 42, 0.1), 0 8px 24px rgba(18, 26, 42, 0.1);
   margin-bottom: 6px;
 }
 :root[data-theme='dark'][data-image-border='shadow'] .cm-image,
@@ -4016,7 +4037,7 @@ body.resizing {
   background: var(--del);
 }
 .task.pri-2 .task-pri {
-  color: #b86e0a;
+  color: var(--pri-2);
   background: rgba(214, 140, 20, 0.16);
 }
 .task.pri-1 .task-pri {
@@ -4188,7 +4209,7 @@ body.resizing {
   color: inherit !important;
 }
 .cm-task-pri-2 {
-  color: #b86e0a;
+  color: var(--pri-2);
   background: rgba(214, 140, 20, 0.16);
 }
 .cm-task-pri-1 {
@@ -4693,4 +4714,27 @@ button.chip.tag:hover,
   text-decoration: underline;
   text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent);
   text-underline-offset: 2px;
+}
+
+/* Things-style colours for the lists under Tasks */
+.nav-item.sub .nav-icon.list-today { color: var(--list-today); }
+.nav-item.sub .nav-icon.list-upcoming { color: var(--list-upcoming); }
+.nav-item.sub .nav-icon.list-anytime { color: var(--list-anytime); }
+.nav-item.sub .nav-icon.list-someday { color: var(--list-someday); }
+.nav-item.sub .nav-icon.list-done { color: var(--list-logbook); }
+.nav-item.sub .nav-icon.list-overdue { color: var(--danger); }
+.nav-item.sub.active .nav-icon[class*='list-'] { filter: saturate(1.1); }
+
+/* The sidebar's own border is the line; the resizer only adds the grab area and the hover colour. */
+.sidebar-resizer {
+  background: none;
+}
+.side-foot .btn {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mini-cal-title {
+  white-space: nowrap;
 }
