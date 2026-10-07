@@ -1,0 +1,47 @@
+# Builds the macOS installer (.dmg) on a GitHub-hosted Mac, only when asked:
+# Actions → "Build Mac app" → Run workflow. Pick the branch in "Use workflow from".
+# The .dmg is attached to the run as an artifact for 14 days. Nothing is published as a release.
+name: Build Mac app
+
+on:
+  workflow_dispatch:
+    inputs:
+      arch:
+        description: 'Processor: arm64 for Apple silicon (M1 and later), x64 for Intel, universal for both in one app'
+        type: choice
+        options: [arm64, x64, universal]
+        default: arm64
+  # TEMPORARY: one test run from this branch; removed once it passes.
+  push:
+    branches: [claude/keen-turing-ngofbc]
+
+permissions:
+  contents: read
+
+jobs:
+  dmg:
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # There is no Apple developer certificate: the app is signed ad hoc ("identity": "-" in package.json),
+      # as the installers built at home are.
+      - name: Build the .dmg
+        run: npx vite build && npx electron-builder --mac dmg --${{ inputs.arch || 'arm64' }} --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Margin-mac-${{ inputs.arch || 'arm64' }}-run${{ github.run_number }}
+          path: release/*.dmg
+          if-no-files-found: error
+          retention-days: 14
