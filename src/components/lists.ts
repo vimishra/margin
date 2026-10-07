@@ -1,6 +1,7 @@
 // List editing for the markdown editor: nest and un-nest items with Tab / Shift+Tab,
 // keep numbered lists numbered, and switch lines between list kinds.
 import type { EditorView } from '@codemirror/view'
+import { lineDoneChanges } from '../lib/tasks'
 
 const ITEM = /^(\s*)([-*+]|\d+[.)])(\s+)(\[[ xX]\]\s+)?/
 
@@ -249,8 +250,8 @@ export function toggleList(view: EditorView, kind: ListKind) {
   view.focus()
 }
 
-/** Tick or untick the task on the cursor's line, or every task in the selection. */
-export function toggleDone(view: EditorView) {
+/** Tick or untick the task on the cursor's line, or every task in the selection. With `stamp`, ticking records the day. */
+export function toggleDone(view: EditorView, stamp = false) {
   const { state } = view
   const sel = state.selection.main
   const changes: { from: number; to: number; insert: string }[] = []
@@ -264,7 +265,14 @@ export function toggleDone(view: EditorView) {
   }
   if (!changes.length) return false
   // A mixed selection is all ticked first; a fully ticked one is cleared.
-  const mark = boxes.every(Boolean) ? ' ' : 'x'
-  view.dispatch({ changes: changes.map((c) => ({ ...c, insert: mark })), userEvent: 'input' })
+  const done = !boxes.every(Boolean)
+  // Ticking can also add "@done(date)" at the end of the line, and unticking take it off.
+  view.dispatch({
+    changes: changes.flatMap((c) => {
+      const line = state.doc.lineAt(c.from)
+      return (lineDoneChanges(line.text, done, stamp) ?? []).map((x) => ({ from: line.from + x.from, to: line.from + x.to, insert: x.insert }))
+    }),
+    userEvent: 'input',
+  })
   return true
 }

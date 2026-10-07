@@ -9,7 +9,7 @@ import { TableWidget, parseTable, tableActions } from './tableWidget'
 import { isearchState, setMatches } from './isearch'
 import { resolver } from '../lib/links'
 import { ui, useStore } from '../store'
-import { TASK_TOKENS } from '../lib/tasks'
+import { TASK_TOKENS, lineDoneChanges } from '../lib/tasks'
 import { shortLinkHref, shortLinkPattern, shortLinks } from '../lib/shortlinks'
 import { today } from '../lib/util'
 
@@ -182,7 +182,12 @@ class CheckboxWidget extends WidgetType {
       e.preventDefault()
       const pos = view.posAtDOM(box)
       const text = view.state.sliceDoc(pos, pos + 3)
-      if (/^\[[ xX]\]$/.test(text)) view.dispatch({ changes: { from: pos, to: pos + 3, insert: text === '[ ]' ? '[x]' : '[ ]' } })
+      if (!/^\[[ xX]\]$/.test(text)) return
+      // Ticking can also record the day at the end of the line.
+      const line = view.state.doc.lineAt(pos)
+      const edits = lineDoneChanges(line.text, text === '[ ]', useStore.getState().settings.logCompletion)
+      if (edits) view.dispatch({ changes: edits.map((x) => ({ from: line.from + x.from, to: line.from + x.to, insert: x.insert })) })
+      else view.dispatch({ changes: { from: pos, to: pos + 3, insert: text === '[ ]' ? '[x]' : '[ ]' } })
     })
     return box
   }
@@ -406,9 +411,14 @@ function build(state: EditorState, follow: (t: string, side?: boolean) => void):
             const a = line.from + m.index!
             const b = a + m[0].length
             if (a < to + 4 || overlaps(code, a, b) || overlaps(atoms, a, b)) continue
-            const date = m[2] || m[3]
-            const cls = m[1] ? `cm-task-pri cm-task-pri-${4 - Number(m[1])}` : `cm-task-date${m[3] ? ' cm-task-due' : ''}${open && date < now ? ' late' : open && date === now ? ' now' : ''}`
-            out.push(Decoration.mark({ class: cls, attributes: { title: m[1] ? ['', 'High', 'Medium', 'Low'][Number(m[1])] + ' priority' : m[3] ? 'Due date' : 'Planned for this day' } }).range(a, b))
+            // Only a missed deadline is late; a planned day that has passed just means the task is in Today.
+            const cls = m[1] ? `cm-task-pri cm-task-pri-${4 - Number(m[1])}`
+              : m[4] ? 'cm-task-date cm-task-someday'
+              : m[5] ? 'cm-task-date cm-task-done-on'
+              : m[3] ? `cm-task-date cm-task-due${open && m[3] < now ? ' late' : open && m[3] === now ? ' now' : ''}`
+              : `cm-task-date${open && m[2] <= now ? ' now' : ''}`
+            const title = m[1] ? ['', 'High', 'Medium', 'Low'][Number(m[1])] + ' priority' : m[4] ? 'Someday: kept out of Today, Upcoming and Anytime' : m[5] ? 'Done on this day' : m[3] ? 'Due date' : 'Planned for this day'
+            out.push(Decoration.mark({ class: cls, attributes: { title } }).range(a, b))
           }
           if (!onLines(from, to)) {
             out.push(hide.range(from, to + 1))

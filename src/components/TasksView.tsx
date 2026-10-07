@@ -1,27 +1,29 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { BookmarkPlus, CalendarClock, CalendarDays, ChevronDown, ChevronRight, Flag, ListChecks, MoreHorizontal, Search } from 'lucide-react'
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
+import { Archive, BookmarkPlus, CalendarClock, CalendarDays, Check, ChevronDown, ChevronRight, Flag, ListChecks, MoreHorizontal, Search } from 'lucide-react'
 import type { Note } from '../types'
 import { deleteTaskView, go, openDatePicker, openFromClick, openMenu, openNoteAt, openSideAt, renameTaskView, rescheduleTasks, saveTaskView, updateTask, updateTaskView, useStore, type MenuItem } from '../store'
 import { renderInline } from '../lib/markdown'
-import { PRIORITIES, TASK_FILTERS, TASK_SOURCES, allTasks, byUrgency, isOn, isOverdue, nextDate, priorityLabel, selectTasks, shortDate, weekRange, withDetails, type Task, type TaskFilter, type TaskGroup, type TaskSource, type TaskView } from '../lib/tasks'
+import { PRIORITIES, TASK_FILTERS, TASK_SOURCES, allTasks, byUrgency, isCarried, isOn, isOverdue, nextDate, priorityLabel, selectTasks, shortDate, tasksOf, weekRange, withDetails, type Task, type TaskFilter, type TaskGroup, type TaskSource, type TaskView } from '../lib/tasks'
 import { addDays, cx, displayTitle, firstWeekday, local, today, tagStyle } from '../lib/util'
 
 const weekStartOf = (setting: string) => (setting === 'sunday' ? 0 : setting === 'monday' ? 1 : firstWeekday())
 
 const GROUPS: [TaskGroup, string][] = [
   ['date', 'Date'],
-  ['note', 'Note'],
+  ['note', 'Project'],
   ['priority', 'Priority'],
   ['none', 'None'],
 ]
 
-/** Open the calendar for a task's due date or planned day, under the element given. */
+/** Open the calendar for a task's due date or planned day, under the element given. The planned day can also be Someday. */
 function pickDate(anchor: Element, task: Task, field: 'due' | 'scheduled') {
+  const planning = field === 'scheduled'
   openDatePicker({ currentTarget: anchor }, {
-    title: field === 'due' ? 'Due date' : 'Plan for a day',
+    title: planning ? 'When' : 'Due date',
     value: task[field],
-    removeLabel: field === 'due' ? 'Remove due date' : 'Remove planned day',
-    onPick: (date) => updateTask(task, { raw: withDetails(task.raw, { [field]: date }) }),
+    removeLabel: !planning ? 'Remove due date' : task.someday ? 'Take out of Someday' : 'Remove planned day',
+    someday: planning ? (task.someday ? 'on' : 'off') : undefined,
+    onPick: (date) => updateTask(task, { raw: withDetails(task.raw, planning && date === 'someday' ? { someday: true } : { [field]: date }) }),
   })
 }
 
@@ -47,9 +49,23 @@ export function TaskRow({ task, note, showNote = true, active = false, onHover }
           <span dangerouslySetInnerHTML={{ __html: html }} />
         </span>
         <span className="task-meta">
+          {task.done && task.completed && (
+            <span className="task-chip done-on" title="The day it was ticked">
+              <Check size={12} /> Done {shortDate(task.completed)}
+            </span>
+          )}
           {task.scheduled && (
-            <button className={cx('task-chip', late(task.scheduled) && !task.due && 'late', task.scheduled === now && 'now')} title="Planned for this day. Click to change." onClick={(e) => (e.stopPropagation(), pickDate(e.currentTarget, task, 'scheduled'))}>
+            <button
+              className={cx('task-chip', !task.done && task.scheduled <= now && 'now')}
+              title={!task.done && task.scheduled < now ? 'Planned for this day, so it has been in Today since. Click to change.' : 'Planned for this day. Click to change.'}
+              onClick={(e) => (e.stopPropagation(), pickDate(e.currentTarget, task, 'scheduled'))}
+            >
               <CalendarClock size={12} /> {shortDate(task.scheduled)}
+            </button>
+          )}
+          {task.someday && (
+            <button className="task-chip someday" title="Someday: kept out of Today, Upcoming and Anytime. Click to change." onClick={(e) => (e.stopPropagation(), pickDate(e.currentTarget, task, 'scheduled'))}>
+              <Archive size={12} /> Someday
             </button>
           )}
           {task.due && (
@@ -69,7 +85,7 @@ export function TaskRow({ task, note, showNote = true, active = false, onHover }
         <button className={cx('icon-btn sm', task.priority > 0 && 'active')} title="Priority" onClick={(e) => openMenu(e, priorityMenu(task))}>
           <Flag size={14} />
         </button>
-        <button className={cx('icon-btn sm', task.scheduled && 'active')} title="Plan for a day" onClick={(e) => (e.stopPropagation(), pickDate(e.currentTarget, task, 'scheduled'))}>
+        <button className={cx('icon-btn sm', (task.scheduled || task.someday) && 'active')} title="When: plan for a day, or Someday" onClick={(e) => (e.stopPropagation(), pickDate(e.currentTarget, task, 'scheduled'))}>
           <CalendarClock size={14} />
         </button>
         <button className={cx('icon-btn sm', task.due && 'active')} title="Due date" onClick={(e) => (e.stopPropagation(), pickDate(e.currentTarget, task, 'due'))}>
@@ -81,6 +97,9 @@ export function TaskRow({ task, note, showNote = true, active = false, onHover }
 }
 
 function dateBucket(t: Task, now: string, weekEnd: string): [string, string] {
+  // The Logbook is grouped by the day each task was done, the latest first.
+  if (t.done) return t.completed ? [`0${t.completed.replace(/\d/g, (c) => String(9 - Number(c)))}`, shortDate(t.completed, now)] : ['1', 'Day not recorded']
+  if (t.someday && !t.due) return ['6', 'Someday']
   const d = nextDate(t, now)
   if (!d) return ['5', 'No date']
   if (d < now) return ['0', 'Overdue']
@@ -88,6 +107,25 @@ function dateBucket(t: Task, now: string, weekEnd: string): [string, string] {
   if (d === addDays(now, 1)) return ['2', 'Tomorrow']
   if (d <= weekEnd) return ['3', 'Later this week']
   return ['4', 'Later']
+}
+
+interface Group {
+  label: string
+  tasks: Task[]
+  /** The project's note, when grouped by project. */
+  noteId?: string
+  /** The notebook the project is in. */
+  area?: string
+  /** Ticked and all tasks in the project, for its progress circle. */
+  progress?: [number, number]
+  /** The small heading a task sits under inside its group. */
+  sub?: (t: Task) => string
+}
+
+/** A small circle that fills as a project's tasks are ticked, as in Things. */
+function Progress({ done, total }: { done: number; total: number }) {
+  const share = total ? done / total : 0
+  return <span className="task-progress" title={`${done} of ${total} done`} style={{ '--share': `${Math.round(share * 360)}deg` } as React.CSSProperties} />
 }
 
 export function TasksView({ view }: { view?: string }) {
@@ -150,18 +188,34 @@ export function TasksView({ view }: { view?: string }) {
 
   const groups = useMemo(() => {
     const weekEnd = weekRange(now, weekStart)[1]
-    const map = new Map<string, { label: string; noteId?: string; tasks: Task[] }>()
+    const map = new Map<string, Group>()
     for (const t of shown) {
       const note = notes[t.noteId]
+      if (!note) continue
+      // A project is a note, shown under its notebook (the area). Daily notes are kept together as one group.
+      const daily = note.type === 'daily'
       const [key, label] =
         group === 'date' ? dateBucket(t, now, weekEnd)
-        : group === 'note' ? [`${note ? displayTitle(note).toLowerCase() : ''}:${t.noteId}`, note ? displayTitle(note) : '']
+        : group === 'note' ? (daily ? ['2', 'Daily notes'] : [`1${(note.folder || '').toLowerCase()}\u0000${displayTitle(note).toLowerCase()}\u0000${t.noteId}`, displayTitle(note)])
         : group === 'priority' ? [String(3 - t.priority), t.priority ? `${priorityLabel(t.priority)} · ${PRIORITIES[t.priority]} priority` : 'No priority']
         : ['', '']
-      const entry = map.get(key) || { label, noteId: group === 'note' ? t.noteId : undefined, tasks: [] }
+      let entry = map.get(key)
+      if (!entry) {
+        entry = { label, tasks: [] }
+        if (group === 'note' && !daily) {
+          const all = tasksOf(note)
+          Object.assign(entry, { noteId: t.noteId, area: note.folder, progress: [all.filter((x) => x.done).length, all.length] })
+        }
+        map.set(key, entry)
+      }
       entry.tasks.push(t)
-      map.set(key, entry)
     }
+    // Inside a project, tasks keep the order they are written in, under their headings; daily notes go latest first.
+    if (group === 'note')
+      for (const g of map.values()) {
+        g.tasks.sort((a, b) => (g.noteId ? 0 : notes[b.noteId].title.localeCompare(notes[a.noteId].title)) || (a.noteId === b.noteId ? a.line - b.line : 0))
+        g.sub = (t: Task) => (g.noteId ? t.heading : displayTitle(notes[t.noteId]))
+      }
     return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]))
   }, [shown, group, notes, now, weekStart])
 
@@ -210,7 +264,7 @@ export function TasksView({ view }: { view?: string }) {
         if ((e.target as HTMLElement).closest('button, a, select, input') && (e.key === 'Enter' || e.key === ' ')) return
         if (!plain) return
         if (e.key === '/') (e.preventDefault(), input.current?.focus())
-        else if (/^[1-8]$/.test(e.key)) pick(TASK_FILTERS[Number(e.key) - 1][0])
+        else if (/^[0-9]$/.test(e.key)) pick(TASK_FILTERS[(Number(e.key) + 9) % 10][0])
         else if (e.key === 'ArrowDown' || e.key === 'j') move(at + 1)
         else if (e.key === 'ArrowUp' || e.key === 'k') move(at - 1)
         else if (e.key === 'Home') move(0)
@@ -264,8 +318,8 @@ export function TasksView({ view }: { view?: string }) {
 
         <div className="task-filters">
           {TASK_FILTERS.map(([f, label, title], i) => (
-            <button key={f} className={cx('chip', filter === f && 'active', f === 'overdue' && counts.overdue > 0 && 'warn')} title={`${title}  (${i + 1})`} onClick={() => pick(f)}>
-              {label} <span className="count">{counts[f]}</span>
+            <button key={f} className={cx('chip', filter === f && 'active', f === 'overdue' && counts.overdue > 0 && 'warn', i === 5 && 'after-gap')} title={`${title}  (${(i + 1) % 10})`} onClick={() => pick(f)}>
+              {label} {f !== 'done' && <span className="count">{counts[f]}</span>}
             </button>
           ))}
         </div>
@@ -328,6 +382,8 @@ export function TasksView({ view }: { view?: string }) {
                   <header>
                     <button className="task-group-head" onClick={() => setClosed({ ...closed, [key]: !isClosed })}>
                       {isClosed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
+                      {g.progress && <Progress done={g.progress[0]} total={g.progress[1]} />}
+                      {g.area && <span className="task-area">{g.area.split('/').pop()}</span>}
                       {g.label}
                       <span className="count">{g.tasks.length}</span>
                     </button>
@@ -344,9 +400,17 @@ export function TasksView({ view }: { view?: string }) {
                   </header>
                 )}
                 {!isClosed &&
-                  g.tasks.map((t) => {
+                  g.tasks.map((t, n) => {
                     const i = rows.indexOf(t)
-                    return notes[t.noteId] && <TaskRow key={`${t.noteId}:${t.line}`} task={t} note={notes[t.noteId]} showNote={group !== 'note'} active={i === at} onHover={() => ((keyboard.current = false), i !== at && setActive(i))} />
+                    const sub = g.sub?.(t)
+                    return (
+                      notes[t.noteId] && (
+                        <Fragment key={`${t.noteId}:${t.line}`}>
+                          {sub && sub !== g.label && (n === 0 || sub !== g.sub!(g.tasks[n - 1])) && <h5 className="task-subhead">{sub}</h5>}
+                          <TaskRow task={t} note={notes[t.noteId]} showNote={group !== 'note'} active={i === at} onHover={() => ((keyboard.current = false), i !== at && setActive(i))} />
+                        </Fragment>
+                      )
+                    )
                   })}
               </section>
             )
@@ -354,7 +418,7 @@ export function TasksView({ view }: { view?: string }) {
         </div>
         {rows.length > 0 && (
           <p className="tasks-keys">
-            <kbd>↑</kbd><kbd>↓</kbd> move · <kbd>Space</kbd> tick · <kbd>↵</kbd> open · <kbd>D</kbd> due · <kbd>S</kbd> plan · <kbd>P</kbd> priority · <kbd>/</kbd> narrow down
+            <kbd>↑</kbd><kbd>↓</kbd> move · <kbd>Space</kbd> tick · <kbd>↵</kbd> open · <kbd>D</kbd> due · <kbd>S</kbd> when · <kbd>P</kbd> priority · <kbd>/</kbd> narrow down
           </p>
         )}
       </div>
@@ -362,7 +426,10 @@ export function TasksView({ view }: { view?: string }) {
   )
 }
 
-/** Tasks from other notes that are due or planned for a day, shown with that day's note. Today also lists what is overdue. */
+/**
+ * Tasks from other notes that are due or planned for a day, shown with that day's note.
+ * Today's also lists what is overdue and what was planned for an earlier day and is still open, as the Today list does.
+ */
 export function DayTasks({ note, floating = false }: { note: Note; floating?: boolean }) {
   const notes = useStore((s) => s.notes)
   const templatesFolder = useStore((s) => s.settings.templatesFolder)
@@ -371,14 +438,16 @@ export function DayTasks({ note, floating = false }: { note: Note; floating?: bo
   const [open, setOpen] = useState(() => local.get(key, !floating))
   const date = note.title
   const now = today()
-  const { due, late } = useMemo(() => {
+  const { due, late, carried } = useMemo(() => {
     const elsewhere = allTasks(notes, templatesFolder).filter((t) => t.noteId !== note.id)
+    const isNow = date === now
     return {
       due: elsewhere.filter((t) => isOn(t, date)).sort((a, b) => Number(a.done) - Number(b.done) || byUrgency(a, b)),
-      late: date === now ? elsewhere.filter((t) => isOverdue(t, now)).sort(byUrgency) : [],
+      late: isNow ? elsewhere.filter((t) => isOverdue(t, now)).sort(byUrgency) : [],
+      carried: isNow ? elsewhere.filter((t) => isCarried(t, now) && !isOn(t, now)).sort(byUrgency) : [],
     }
   }, [notes, templatesFolder, note.id, date, now])
-  if (!due.length && !late.length) return null
+  if (!due.length && !late.length && !carried.length) return null
   const left = due.filter((t) => !t.done).length
   return (
     <section className="day-tasks">
@@ -386,7 +455,7 @@ export function DayTasks({ note, floating = false }: { note: Note; floating?: bo
         {open ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
         <ListChecks size={14} /> Tasks for this day
         <span className="count">
-          {left} open{late.length ? ` · ${late.length} overdue` : ''}
+          {left} open{late.length ? ` · ${late.length} overdue` : ''}{carried.length ? ` · ${carried.length} from earlier days` : ''}
         </span>
       </button>
       {open && (
@@ -394,6 +463,8 @@ export function DayTasks({ note, floating = false }: { note: Note; floating?: bo
           {due.map((t) => notes[t.noteId] && <TaskRow key={`${t.noteId}:${t.line}`} task={t} note={notes[t.noteId]} />)}
           {late.length > 0 && <h4>Overdue</h4>}
           {late.map((t) => notes[t.noteId] && <TaskRow key={`${t.noteId}:${t.line}`} task={t} note={notes[t.noteId]} />)}
+          {carried.length > 0 && <h4 className="carried">From earlier days</h4>}
+          {carried.map((t) => notes[t.noteId] && <TaskRow key={`${t.noteId}:${t.line}`} task={t} note={notes[t.noteId]} />)}
         </div>
       )}
     </section>

@@ -361,6 +361,9 @@ export function SettingsModal() {
                 <Row label="Week starts on" hint="For the calendar.">
                   <Segmented value={s.weekStart} onChange={set('weekStart')} options={[['auto', 'Auto'], ['sunday', 'Sunday'], ['monday', 'Monday']]} />
                 </Row>
+                <Row label="Record when tasks are done" hint="Ticking a task writes @done(date) on its line, so the Logbook can show when it was done. Unticking takes it off.">
+                  <Toggle label="Record when tasks are done" value={s.logCompletion} onChange={set('logCompletion')} />
+                </Row>
                 <Row label="Sidebar sections" hint="Switch off the parts of the sidebar you do not use. Hidden sections also leave the Home page. Everything stays reachable from ⌘K." stack>
                   <div className="section-toggles">
                     {SIDEBAR_SECTIONS.map(([id, label]) => {

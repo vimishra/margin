@@ -122,6 +122,8 @@ export interface Settings {
   shortLinks: boolean
   /** Task filters saved from the Tasks view; they show under Tasks in the sidebar. */
   taskViews: SavedTaskView[]
+  /** Write "@done(date)" on a task when it is ticked, for the Logbook. */
+  logCompletion: boolean
   /** Notebook for notes about people (1:1s). */
   peopleFolder: string
 }
@@ -166,6 +168,7 @@ export const DEFAULT_SETTINGS: Settings = {
   meetingLink: true,
   shortLinks: true,
   taskViews: [],
+  logCompletion: true,
   peopleFolder: 'People',
 }
 
@@ -252,7 +255,7 @@ interface State {
   toasts: Toast[]
   menu: { x: number; y: number; items: MenuItem[]; alignRight?: boolean } | null
   /** The small calendar for choosing a date, anchored to what was clicked. */
-  datePick: { x: number; y: number; alignRight?: boolean; title: string; value?: string; removeLabel?: string; onPick: (date: string | null) => void } | null
+  datePick: ({ x: number; y: number; alignRight?: boolean } & DatePickOptions) | null
   asking: (AskOptions & { resolve: (v: string | null) => void }) | null
 }
 
@@ -1110,7 +1113,7 @@ export function rescheduleTasks(tasks: Task[], date: string) {
 /** Tick a task, or change its text, wherever it lives. */
 export function updateTask(task: Task, change: { done?: boolean; raw?: string }) {
   const note = get().notes[task.noteId]
-  const content = note && rewriteTask(note.content, task, change)
+  const content = note && rewriteTask(note.content, task, { ...change, stamp: get().settings.logCompletion })
   if (!note || content == null) return toast('That task has changed since this list was drawn. Try again.')
   updateNote(note.id, { content })
 }
@@ -1319,7 +1322,19 @@ export function openMenu(e: { currentTarget: EventTarget; clientX: number; clien
 }
 
 /** Open the date picker under a button. `onPick` gets the chosen day, or null when the date is removed. */
-export function openDatePicker(e: { currentTarget: EventTarget }, options: { title: string; value?: string; removeLabel?: string; onPick: (date: string | null) => void }) {
+/**
+ * What the date picker is for. With `someday` set it also offers Someday, which `onPick` receives as the
+ * string "someday"; `someday: 'on'` means the task is already someday.
+ */
+export interface DatePickOptions {
+  title: string
+  value?: string
+  removeLabel?: string
+  someday?: 'on' | 'off'
+  onPick: (date: string | null) => void
+}
+
+export function openDatePicker(e: { currentTarget: EventTarget }, options: DatePickOptions) {
   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
   const alignRight = rect.left > window.innerWidth / 2
   set({ datePick: { x: alignRight ? rect.right : rect.left, y: rect.bottom + 6, alignRight, ...options } })

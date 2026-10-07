@@ -2,6 +2,28 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.5.0 (2026-10-07)
+
+Tasks now follow the Things 3 workflow.
+
+### Added
+
+- **Anytime:** everything you could do now, leaving out tasks planned for later and Someday.
+- **Someday:** write `>someday` on a task, or pick Someday in the when calendar, to park it. It stays out of Today, Upcoming and Anytime and has its own list.
+- **Logbook:** ticking a task writes the day on its line as `@done(2026-10-07)`, and the Logbook lists ticked tasks by the day they were done, latest first. Unticking takes the day off. Can be turned off in Settings → General.
+- **Group by project:** each note's tasks together under its notebook, in the order they are written and under their headings, with a progress circle.
+- Today, Upcoming, Anytime, Someday and Logbook are in the sidebar under Tasks. Overdue is shown there only while something is overdue.
+
+### Changed
+
+- **Today** now holds tasks planned for today *or earlier* and tasks due today or earlier. A planned day that has passed no longer makes a task overdue: it stays in Today until it is ticked.
+- **Overdue** means a missed due date only. **Move all…** sets a new due date.
+- **Upcoming** holds tasks planned for a later day. A task with only a due date is in Anytime until it is due.
+- The list keys are now 1 to 9 and 0, in the new order. Done is called Logbook; saved filters that used it still work.
+- The number beside Tasks in the sidebar is the Today count.
+
+No note is changed until you tick, plan or park a task.
+
 ## 1.4.0 (2026-10-07)
 
 ### Added

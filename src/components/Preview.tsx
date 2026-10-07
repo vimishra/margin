@@ -81,7 +81,7 @@ export const Preview = memo(function Preview({ source, className, onChange }: Pr
     if (el instanceof HTMLInputElement && el.type === 'checkbox') {
       if (!onChange) return e.preventDefault()
       const boxes = [...ref.current!.querySelectorAll('input[type=checkbox]')]
-      onChange(toggleTask(source, boxes.indexOf(el)))
+      onChange(toggleTask(source, boxes.indexOf(el), useStore.getState().settings.logCompletion))
     }
   }
 

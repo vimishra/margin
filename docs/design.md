@@ -90,7 +90,7 @@ All derived in the browser from the notes in memory:
 
 - **Search** (`lib/search.ts`) keeps a MiniSearch index and re-indexes only notes that changed.
 - **Backlinks and tags** (`lib/links.ts`) parse each note once and cache the result until its text changes.
-- **Tasks** (`lib/tasks.ts`) are the checkbox lines of every note, parsed the same way. Priority and dates are plain text on the line (`P2`, `>2026-10-08`, `@due(2026-10-10)`), so the Tasks view and the panel under a daily note are views over the files, never a second copy. Changing a task rewrites its one line in its note.
+- **Tasks** (`lib/tasks.ts`) are the checkbox lines of every note, parsed the same way. Priority and dates are plain text on the line (`P2`, `>2026-10-08` or `>someday`, `@due(2026-10-10)`, `@done(2026-10-07)`), so the Tasks view and the panel under a daily note are views over the files, never a second copy. Changing a task rewrites its one line in its note. The lists follow Things 3: a planned day is a start date (the task is in Today from then until ticked), only a missed `@due` is overdue, and `>someday` keeps a task out of Today, Upcoming and Anytime. Every way of ticking (the Tasks view, the editor's checkbox and ⌘↵, read mode) goes through `setLineDone`, which adds or removes `@done(date)` when `settings.logCompletion` is on.
 
 ### Live preview
 

@@ -100,6 +100,11 @@ function Picker() {
               {label}
             </button>
           ))}
+          {pick.someday && (
+            <button className={cx('chip', pick.someday === 'on' && 'active')} title="Keep it out of Today, Upcoming and Anytime" onClick={() => choose('someday')}>
+              Someday
+            </button>
+          )}
         </div>
         <div className="date-pick-head">
           <span>{parseYmd(month + '-01').toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</span>
@@ -128,7 +133,7 @@ function Picker() {
             </button>
           ))}
         </div>
-        {pick.value && (
+        {(pick.value || pick.someday === 'on') && (
           <button className="date-pick-remove" onClick={() => choose(null)}>
             {pick.removeLabel || 'Remove date'}
           </button>

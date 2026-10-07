@@ -3919,7 +3919,7 @@ body.resizing {
 }
 .task-filters .chip {
   height: 28px;
-  padding: 0 11px;
+  padding: 0 10px;
   font-size: 13px;
   gap: 6px;
 }
@@ -4056,6 +4056,44 @@ body.resizing {
   background: var(--del);
   color: var(--danger);
 }
+.task-chip.someday {
+  font-style: italic;
+}
+.task-chip.done-on,
+.task-chip.done-on:hover {
+  background: none;
+  color: var(--text-3);
+  padding-left: 0;
+}
+/* Things-style lists come first, then a little space before the date-based ones. */
+.task-filters .chip.after-gap {
+  margin-left: 8px;
+}
+/* Grouped by project: the notebook the project is in, a progress circle, and the headings inside it. */
+.task-area {
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-3);
+}
+.task-area::after {
+  content: ' ›';
+}
+.task-progress {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  background: conic-gradient(currentColor var(--share), transparent 0);
+  opacity: 0.8;
+}
+.task-subhead {
+  margin: 10px 0 2px 26px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-2);
+}
 .task-where {
   font-size: 12px;
   color: var(--text-3);
@@ -4116,6 +4154,9 @@ body.resizing {
   text-transform: uppercase;
   color: var(--danger);
 }
+.day-tasks-body h4.carried {
+  color: var(--text-3);
+}
 .note-body {
   position: relative;
 }
@@ -4172,6 +4213,13 @@ body.resizing {
 .cm-task-date.late {
   background: var(--del);
   color: var(--danger);
+}
+.cm-task-date.cm-task-someday {
+  font-style: italic;
+}
+.cm-task-date.cm-task-done-on {
+  background: none;
+  color: var(--text-3);
 }
 .cm-task-done .cm-task-date,
 .cm-task-done .cm-task-pri {
@@ -4303,6 +4351,7 @@ body.resizing {
 }
 .date-pick-quick {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   margin-bottom: 10px;
 }

@@ -205,6 +205,7 @@ function slashCommands(ctx: CompletionContext) {
     { label: 'Plan for today', detail: '>date', apply: insert(() => `>${today()}`), section: 'Tasks' },
     { label: 'Plan for tomorrow', detail: '>date', apply: insert(() => `>${date('tomorrow')()}`), section: 'Tasks' },
     { label: 'Plan for a day', detail: 'type a day', apply: insert('>‸'), section: 'Tasks' },
+    { label: 'Someday', detail: '>someday', apply: insert('>someday'), section: 'Tasks' },
     { label: 'P1 high priority', detail: 'P1', apply: insert('P1 '), section: 'Tasks', boost: 2 },
     { label: 'P2 medium priority', detail: 'P2', apply: insert('P2 '), section: 'Tasks', boost: 1 },
     { label: 'P3 low priority', detail: 'P3', apply: insert('P3 '), section: 'Tasks' },
@@ -274,6 +275,9 @@ function completions(ctx: CompletionContext) {
       .filter((p) => p.startsWith(typed.trim().toLowerCase()) && parseDatePhrase(p, dayFirst) !== exact)
       .map((p, i) => ({ label: p, detail: longDate(parseDatePhrase(p, dayFirst)!), type: 'daily', boost: -i, apply: apply(parseDatePhrase(p, dayFirst)!) }))
     if (exact && exact !== typed.trim()) options.unshift({ label: typed.trim() || exact, detail: longDate(exact), type: 'daily', boost: 5, apply: apply(exact) })
+    // ">someday" parks the task instead of giving it a day.
+    if (!due && typed.trim() && 'someday'.startsWith(typed.trim().toLowerCase()) && typed.trim().toLowerCase() !== 'someday')
+      options.push({ label: 'someday', detail: 'Out of Today, Upcoming and Anytime', type: 'daily', apply: apply('someday') })
     if (options.length) return { from: start, filter: false, options }
   }
   const slash = slashCommands(ctx)
@@ -562,7 +566,7 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
       if (viewRef.current) wrapSelection(viewRef.current, before, after, fallback)
     },
     toggleDone() {
-      if (viewRef.current && !toggleDone(viewRef.current)) toast('The cursor is not on a task')
+      if (viewRef.current && !toggleDone(viewRef.current, useStore.getState().settings.logCompletion)) toast('The cursor is not on a task')
     },
     toggleList(kind) {
       if (viewRef.current) toggleList(viewRef.current, kind)

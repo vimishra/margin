@@ -55,7 +55,7 @@ import {
 } from '../store'
 import type { Route } from '../types'
 import { tagCounts } from '../lib/links'
-import { TASK_FILTERS, allTasks, isOn, isOverdue, selectTasks, type TaskFilter, type TaskView } from '../lib/tasks'
+import { TASK_FILTERS, allTasks, isToday, selectTasks, type TaskFilter, type TaskView } from '../lib/tasks'
 import { ALT, MOD, cx, displayTitle, firstWeekday, local, today, tagStyle } from '../lib/util'
 import { NoteIcon, noteMenu } from './bits'
 import { MiniCalendar } from './MiniCalendar'
@@ -107,18 +107,21 @@ export function Sidebar() {
   const taskViews = useStore((s) => s.settings.taskViews)
   const weekSetting = useStore((s) => s.settings.weekStart)
   const taskView = route.name === 'tasks' ? route.view : undefined
-  // Lists shown under Tasks: three built-in ones, then the filters saved from the Tasks view.
+  // Lists shown under Tasks: the ones from Things, Overdue while anything is, then the filters saved from the Tasks view.
   const { dueNow, taskLists } = useMemo(() => {
     const all = allTasks(notes, templatesFolder)
     const weekStart = weekSetting === 'sunday' ? 0 : weekSetting === 'monday' ? 1 : firstWeekday()
     const count = (v: Pick<TaskView, 'filter' | 'query' | 'source'>) => selectTasks(all, notes, v, weekStart).length
-    const builtIn = (['today', 'overdue', 'week'] as TaskFilter[]).map((f) => {
-      const [, label, title] = TASK_FILTERS.find(([x]) => x === f)!
-      return { id: f as string, label, title, count: count({ filter: f, query: '', source: 'all' }), warn: f === 'overdue', savedId: undefined as string | undefined }
-    })
+    const builtIn = (['today', 'upcoming', 'anytime', 'someday', 'done', 'overdue'] as TaskFilter[])
+      .map((f) => {
+        const [, label, title] = TASK_FILTERS.find(([x]) => x === f)!
+        // The Logbook only grows, so a count beside it says nothing.
+        return { id: f as string, label, title, count: f === 'done' ? 0 : count({ filter: f, query: '', source: 'all' }), warn: f === 'overdue', savedId: undefined as string | undefined }
+      })
+      .filter((v) => v.id !== 'overdue' || v.count > 0)
     const saved = taskViews.map((v) => ({ id: `s:${v.id}`, label: v.name, title: 'Saved filter. Right-click to rename or delete.', count: count(v), warn: false, savedId: v.id as string | undefined }))
-    // Tasks that want attention now: overdue, or due or planned for today.
-    return { dueNow: all.filter((t) => !t.done && (isOverdue(t) || isOn(t, today()))).length, taskLists: [...builtIn, ...saved] }
+    // As in Things, the number beside Tasks is what is in Today, which includes anything overdue.
+    return { dueNow: all.filter((t) => isToday(t)).length, taskLists: [...builtIn, ...saved] }
   }, [notes, templatesFolder, taskViews, weekSetting])
   const tree = useMemo(() => buildTree(folders), [folders])
   const counts = useMemo(() => {

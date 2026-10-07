@@ -1,4 +1,5 @@
 import { tagHue } from './util'
+import { setLineDone } from './tasks'
 import { shortLinkHref, shortLinkPattern, shortLinks } from './shortlinks'
 import MarkdownIt from 'markdown-it'
 import type StateInline from 'markdown-it/lib/rules_inline/state_inline.mjs'
@@ -198,11 +199,15 @@ export function headings(src: string): Heading[] {
   return out
 }
 
-/** Toggle the nth task checkbox in the markdown source. */
-export function toggleTask(src: string, index: number): string {
+/** Toggle the nth task checkbox in the markdown source. With `stamp`, ticking records the day as "@done(date)". */
+export function toggleTask(src: string, index: number, stamp = false): string {
   let i = -1
-  return src.replace(/^(\s*(?:>\s*)*(?:[-*+]|\d+[.)])\s+)\[([ xX])\]/gm, (m, lead, mark) => {
-    i++
-    return i === index ? `${lead}[${mark === ' ' ? 'x' : ' '}]` : m
-  })
+  return src
+    .split('\n')
+    .map((line) => {
+      const m = /^(\s*(?:>\s*)*(?:[-*+]|\d+[.)])\s+)\[([ xX])\]/.exec(line)
+      if (!m || ++i !== index) return line
+      return setLineDone(line, m[2] === ' ', stamp) ?? `${m[1]}[${m[2] === ' ' ? 'x' : ' '}]${line.slice(m[0].length)}`
+    })
+    .join('\n')
 }
