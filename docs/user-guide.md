@@ -202,7 +202,7 @@ Tables are edited in place. Click a cell and type.
 
 - **Tab** and **⇧Tab** move between cells; **Enter** moves down. Both add a row at the end.
 - The **+** bars on the right and bottom edges add a column or a row.
-- **Right-click** a cell to insert or delete rows and columns, set alignment, or **sort** the table by that column, A to Z or Z to A. Numbers sort as numbers, and empty cells go to the bottom. Sorting reorders the rows in the note itself; ⌘Z undoes it.
+- **Right-click** a cell to insert or delete rows and columns, set alignment, or **sort** the table by that column, A to Z or Z to A. You can also sort from the header: hover a column's heading and click the arrow at its right edge; click again to reverse. The arrow stays visible on the column the table is currently sorted by. Numbers sort as numbers, and empty cells go to the bottom. Sorting reorders the rows in the note itself; ⌘Z undoes it.
 - **Width:** a table is only as wide as its contents need. To stretch every table across the page instead, choose Full width in Settings → Appearance → Table width.
 - **Edit markdown** (top right, on hover) shows the raw table. Click **Done**, or move the cursor out, to return.
 

@@ -2,6 +2,16 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.7.0 (2026-10-07)
+
+### Added
+
+- **Sort from the header:** hover a column heading in a table and click the arrow to sort by it; click again to reverse.
+
+### Changed
+
+- Table headings are slightly larger and bolder.
+
 ## 1.6.0 (2026-10-07)
 
 ### Added

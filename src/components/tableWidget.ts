@@ -155,6 +155,18 @@ export function sortRows(m: TableModel, col: number, dir: 1 | -1) {
     .map((x) => x.row)
 }
 
+/** 1 if the rows are already in A-to-Z order by this column, -1 for Z to A, 0 if neither (or there is nothing to order). */
+export function sortedBy(m: TableModel, col: number): 1 | -1 | 0 {
+  const filled = m.rows.filter((r) => (r[col] ?? '').trim())
+  if (filled.length < 2 || new Set(filled.map((r) => r[col].trim().toLowerCase())).size < 2) return 0
+  for (const dir of [1, -1] as const) {
+    const copy: TableModel = { head: m.head, align: m.align, rows: [...m.rows] }
+    sortRows(copy, col, dir)
+    if (copy.rows.every((r, i) => r === m.rows[i])) return dir
+  }
+  return 0
+}
+
 /** The table as tab-separated text, which spreadsheets paste as cells. Markdown marks inside cells are left as written. */
 export function tableToTsv(m: TableModel): string {
   const cell = (s: string) => s.replace(/\\\|/g, '|').replace(/[\t\n]/g, ' ')
@@ -219,6 +231,18 @@ function render(dom: HTMLElement) {
     inner.spellcheck = false
     showRendered(inner, raw(model, r, c))
     el.append(inner)
+    if (tag === 'th') {
+      // Click the arrow to sort by this column; click again to reverse. The header text itself stays editable.
+      const dir = sortedBy(model, c)
+      const sort = document.createElement('button')
+      sort.className = 'tw-sort' + (dir ? ' on' : '')
+      sort.dataset.c = String(c)
+      sort.tabIndex = -1
+      sort.textContent = dir === -1 ? '↓' : '↑'
+      sort.title = dir === 1 ? 'Sorted A to Z. Click for Z to A.' : dir === -1 ? 'Sorted Z to A. Click for A to Z.' : 'Sort by this column'
+      el.classList.add('tw-head')
+      el.append(sort)
+    }
     return el
   }
   const table = document.createElement('table')
@@ -385,6 +409,16 @@ function attach(dom: HTMLElement) {
       const st = state()
       const from = st.view.posAtDOM(dom)
       tableActions.editRaw(st.view, from, from + st.source.length)
+      return
+    }
+    const sort = (e.target as HTMLElement).closest<HTMLElement>('.tw-sort')
+    if (sort) {
+      e.preventDefault()
+      const active = document.activeElement as HTMLElement | null
+      if (active && dom.contains(active)) active.blur()
+      const c = Number(sort.dataset.c)
+      // Already A to Z by this column: reverse it. Anything else: A to Z.
+      reshape(dom, (t) => sortRows(t, c, sortedBy(t, c) === 1 ? -1 : 1))
       return
     }
     const add = (e.target as HTMLElement).closest('.tw-add')

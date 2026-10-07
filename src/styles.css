@@ -4760,3 +4760,41 @@ button.chip.tag:hover,
 :root[data-table-width='fit'] .md td {
   min-width: 4.5em;
 }
+
+/* Table headers: a little larger and bolder, with a sort arrow that appears on hover */
+.md th {
+  font-weight: 700;
+  font-size: 1.04em;
+  color: var(--text);
+}
+.md th.tw-head {
+  position: relative;
+}
+.md th.tw-head .tw-cell {
+  padding-right: 30px;
+}
+.tw-sort {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  margin-top: -10px;
+  border-radius: 5px;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--text-3);
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.md th.tw-head:hover .tw-sort,
+.tw-sort.on {
+  opacity: 1;
+}
+.tw-sort.on {
+  color: var(--accent-text);
+}
+.tw-sort:hover {
+  background: var(--active);
+  color: var(--text);
+}
