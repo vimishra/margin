@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { ReactNode } from 'react'
 import { api } from './api'
+import { shortLinks } from './lib/shortlinks'
 import { desktop } from './desktop'
 import type { Note, NotePatch, NoteType, Route } from './types'
 import { appendCard } from './lib/canvas'
@@ -117,6 +118,8 @@ export interface Settings {
   meetingsSubfolder: string
   /** Add a link to each new meeting note in today's daily note. */
   meetingLink: boolean
+  /** Show go/name and b/123 as links. */
+  shortLinks: boolean
   /** Task filters saved from the Tasks view; they show under Tasks in the sidebar. */
   taskViews: SavedTaskView[]
   /** Notebook for notes about people (1:1s). */
@@ -161,6 +164,7 @@ export const DEFAULT_SETTINGS: Settings = {
   meetingsFolder: 'Meetings',
   meetingsSubfolder: 'YYYY/MMM',
   meetingLink: true,
+  shortLinks: true,
   taskViews: [],
   peopleFolder: 'People',
 }
@@ -1393,6 +1397,7 @@ export function styleColor(style: TextStyle, dark: boolean): string {
 }
 
 export function applyAppearance() {
+  shortLinks.on = get().settings.shortLinks !== false
   const { accent, font, codeFont, fontSize, fontWeight, lineHeight, styles } = get().settings
   const root = document.documentElement
   root.dataset.accent = accent

@@ -223,6 +223,7 @@ Paste or drop an image, PDF or any file into a note. It is saved in your attachm
 - To edit a link, put the cursor on its line first; then a click places the cursor and ⌘-click opens.
 - Renaming a note updates every link to it.
 - **Web links:** ⌘L inserts `[]()` with the cursor between the square brackets, ready for the link's text. With words selected it wraps them and puts the cursor in the round brackets for the address.
+- **Short links:** company short links written as plain text are clickable as they stand: `go/some-name`, `b/1234567` and `b/hotlists/1234567`. Clicking one opens `http://go/some-name` (or `http://b/…`) in your browser. The text in the note is not changed. They are recognised in the editor, read mode, canvas cards and the Tasks view, but not inside code, web addresses or existing links. Turn this off in Settings → Editor → Short links.
 - **Paste to link:** select some words and paste a web address. The words become a link to it. This does not happen inside code or an existing link.
 
 ### Right-click

@@ -532,6 +532,9 @@ export function SettingsModal() {
                 <Row label="Auto-close brackets and quotes" hint="Typing ( [ { or a quote inserts the closing one too.">
                   <Toggle label="Auto-close brackets" value={s.autoPair} onChange={set('autoPair')} />
                 </Row>
+                <Row label="Short links" hint="Show company short links written as plain text, such as go/some-name, b/1234567 and b/hotlists/1234567, as links that open in your browser. The text in the note is not changed.">
+                  <Toggle label="Short links" value={s.shortLinks} onChange={set('shortLinks')} />
+                </Row>
                 <Row label="Paste images at actual size" hint="A screenshot from a Retina display has twice the pixels it had on screen. With this on, it is shown at the size you saw, not doubled. You can change the number after the | in the image's markdown.">
                   <Toggle label="Paste images at actual size" value={s.imageActualSize} onChange={set('imageActualSize')} />
                 </Row>

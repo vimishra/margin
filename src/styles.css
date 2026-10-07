@@ -4633,3 +4633,15 @@ button.chip.tag:hover,
   font-size: 13px;
   padding: 6px 0 20px;
 }
+
+/* Company short links (go/name, b/123) */
+.cm-shortlink {
+  cursor: pointer;
+}
+.md a.shortlink,
+.task-text a.shortlink {
+  color: var(--accent-text);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  text-underline-offset: 2px;
+}

@@ -1,4 +1,5 @@
 import { tagHue } from './util'
+import { shortLinkHref, shortLinkPattern, shortLinks } from './shortlinks'
 import MarkdownIt from 'markdown-it'
 import type StateInline from 'markdown-it/lib/rules_inline/state_inline.mjs'
 // @ts-expect-error no types published
@@ -82,6 +83,43 @@ function build(math: boolean): MarkdownIt {
   if (math) md.use(((katexPlugin as any).default ?? katexPlugin) as any, { throwOnError: false })
   md.inline.ruler.before('link', 'wikilink', wikilink)
   md.inline.ruler.push('hashtag', hashtag)
+  // Company short links (go/name, b/123) in ordinary text become links. This runs over finished text,
+  // because they start with a letter and so cannot be caught while the line is being read.
+  md.core.ruler.push('shortlinks', (state) => {
+    if (!shortLinks.on) return
+    for (const block of state.tokens) {
+      if (block.type !== 'inline' || !block.children) continue
+      const out: typeof block.children = []
+      let inLink = 0
+      for (const token of block.children) {
+        if (token.type === 'link_open') inLink++
+        else if (token.type === 'link_close') inLink--
+        if (token.type !== 'text' || inLink > 0 || !/(?:^|[^\w/])(?:b|go)\//.test(token.content)) {
+          out.push(token)
+          continue
+        }
+        let last = 0
+        for (const m of token.content.matchAll(shortLinkPattern())) {
+          if (m.index! > last) {
+            const before = new state.Token('text', '', 0)
+            before.content = token.content.slice(last, m.index)
+            out.push(before)
+          }
+          const link = new state.Token('html_inline', '', 0)
+          link.content = `<a class="shortlink" href="${esc(shortLinkHref(m[0]))}" target="_blank" rel="noopener noreferrer">${esc(m[0])}</a>`
+          out.push(link)
+          last = m.index! + m[0].length
+        }
+        if (last === 0) out.push(token)
+        else if (last < token.content.length) {
+          const after = new state.Token('text', '', 0)
+          after.content = token.content.slice(last)
+          out.push(after)
+        }
+      }
+      block.children = out
+    }
+  })
 
   md.renderer.rules.wikilink = (tokens, idx, _o, env: RenderEnv) => {
     const { target, label } = tokens[idx].meta

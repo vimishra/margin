@@ -10,6 +10,7 @@ import { isearchState, setMatches } from './isearch'
 import { resolver } from '../lib/links'
 import { ui, useStore } from '../store'
 import { TASK_TOKENS } from '../lib/tasks'
+import { shortLinkHref, shortLinkPattern, shortLinks } from '../lib/shortlinks'
 import { today } from '../lib/util'
 
 const setFocus = StateEffect.define<boolean>()
@@ -282,6 +283,21 @@ function build(state: EditorState, follow: (t: string, side?: boolean) => void):
     if (touches(from, to)) continue
     const target = m[1].trim()
     out.push(Decoration.replace({ widget: new WikiWidget(target, (m[3] || target + (m[2] || '')).trim(), !!resolve(target), follow, found(from, to)) }).range(from, to))
+  }
+
+  // Company short links (go/name, b/123): clickable as they stand, the text is left alone.
+  if (shortLinks.on) {
+    for (const m of text.matchAll(shortLinkPattern())) {
+      const from = m.index!
+      const to = from + m[0].length
+      if (overlaps(code, from, to) || overlaps(atoms, from, to)) continue
+      // Not inside something that is already a link or an address.
+      let taken = false
+      for (let n: ReturnType<typeof tree.resolveInner> | null = tree.resolveInner(from, 1); n; n = n.parent) if (/^(Link|Image|URL|Autolink)$/.test(n.name)) taken = true
+      if (taken) continue
+      const href = shortLinkHref(m[0])
+      out.push(Decoration.mark({ class: 'cm-link-text cm-shortlink', attributes: { 'data-href': href, title: `Open ${href}` } }).range(from, to))
+    }
   }
 
   /** Hide a syntax mark together with the single space that follows it. */
