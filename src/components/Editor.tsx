@@ -32,6 +32,7 @@ import { parseDatePhrase } from '../lib/dates'
 import { TASK_LINE } from '../lib/tasks'
 import { dailyLabel, isYmd, longDate, today, tagHue } from '../lib/util'
 import { livePreview } from './livePreview'
+import { cellsFromClipboard, serializeTable, tableFromCells } from './tableWidget'
 import { type ListKind, moveListItem, shiftListItem, toggleDone, toggleList } from './lists'
 import { syntaxTree } from '@codemirror/language'
 
@@ -479,6 +480,25 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
                 if (!WEB_URL.test(words.trim()) && !words.includes('\n') && words.trim() && !inCode) {
                   e.preventDefault()
                   const insert = `[${words}](${pasted})`
+                  v.dispatch({ changes: { from: sel.from, to: sel.to, insert }, selection: { anchor: sel.from + insert.length }, userEvent: 'input.paste', scrollIntoView: true })
+                  return true
+                }
+              }
+              // Cells copied from a spreadsheet (or a table from a web page) become a markdown table.
+              // A spreadsheet also puts a picture of the cells on the clipboard, so this comes before files.
+              const cells = cellsFromClipboard(e.clipboardData?.getData('text/html') ?? '', e.clipboardData?.getData('text/plain') ?? '')
+              if (cells) {
+                let inCode = false
+                for (let n: ReturnType<typeof syntaxTree>['topNode'] | null = syntaxTree(v.state).resolveInner(sel.from, -1); n; n = n.parent) if (/Code/.test(n.name)) inCode = true
+                if (!inCode) {
+                  e.preventDefault()
+                  const table = serializeTable(tableFromCells(cells))
+                  // A table needs an empty line above and below to be read as one.
+                  const before = v.state.sliceDoc(Math.max(0, sel.from - 2), sel.from)
+                  const after = v.state.sliceDoc(sel.to, Math.min(v.state.doc.length, sel.to + 2))
+                  const lead = sel.from === 0 || before.endsWith('\n\n') ? '' : before.endsWith('\n') ? '\n' : '\n\n'
+                  const trail = after.startsWith('\n\n') ? '' : after.startsWith('\n') || sel.to === v.state.doc.length ? '\n' : '\n\n'
+                  const insert = lead + table + trail
                   v.dispatch({ changes: { from: sel.from, to: sel.to, insert }, selection: { anchor: sel.from + insert.length }, userEvent: 'input.paste', scrollIntoView: true })
                   return true
                 }

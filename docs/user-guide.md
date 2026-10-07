@@ -202,8 +202,26 @@ Tables are edited in place. Click a cell and type.
 
 - **Tab** and **⇧Tab** move between cells; **Enter** moves down. Both add a row at the end.
 - The **+** bars on the right and bottom edges add a column or a row.
-- **Right-click** a cell to insert or delete rows and columns, or set alignment.
+- **Right-click** a cell to insert or delete rows and columns, set alignment, or **sort** the table by that column, A to Z or Z to A. Numbers sort as numbers, and empty cells go to the bottom. Sorting reorders the rows in the note itself; ⌘Z undoes it.
+- **Width:** a table is only as wide as its contents need. To stretch every table across the page instead, choose Full width in Settings → Appearance → Table width.
 - **Edit markdown** (top right, on hover) shows the raw table. Click **Done**, or move the cursor out, to return.
+
+**Working with a spreadsheet.** For anything more than a small table, edit it in Google Sheets, Excel or Numbers and bring it back:
+
+- **From a spreadsheet:** select the cells, copy, and paste into a note. They become a markdown table. The first row is the header, and a column that holds only numbers is right-aligned. Tables copied from a web page work the same way.
+- **To a spreadsheet:** hover the table and click **Copy for spreadsheet**, then paste into the sheet. The cells arrive as cells.
+- **Round trip:** copy the table out, edit it in the sheet, copy it back, and paste it over the old one (use **Edit markdown** and select the old table first, or delete it and paste).
+
+In the file, every table is written with its columns padded so the pipes line up in a fixed-width font, in markdown source mode and in any other editor:
+
+```
+| Block   | Owner   | Power (mW) |
+| ------- | ------- | ---------: |
+| Mempath | Shankar |         30 |
+| LPCM    | Priya   |      1,200 |
+```
+
+Formulas come across as their results, and formatting such as colours, bold and merged cells is dropped. Pasting inside a code block is left as plain text.
 
 ### Images and files
 

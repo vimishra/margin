@@ -2,6 +2,19 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.6.0 (2026-10-07)
+
+### Added
+
+- **Paste from a spreadsheet:** cells copied from Google Sheets, Excel or Numbers (or a table from a web page) paste into a note as a markdown table. The first row is the header and columns of numbers are right-aligned.
+- **Copy for spreadsheet:** a button on each table copies it as cells for pasting into a spreadsheet.
+- **Sort a table by a column:** right-click a cell and choose A to Z or Z to A. Numbers sort as numbers and empty cells go to the bottom.
+
+### Changed
+
+- Tables are now only as wide as their contents need, instead of always filling the page. Settings → Appearance → Table width switches back to full width.
+- Tables are written with right-aligned and centred columns padded to match, so the file lines up in a fixed-width font whatever the alignment.
+
 ## 1.5.0 (2026-10-07)
 
 Tasks now follow the Things 3 workflow.

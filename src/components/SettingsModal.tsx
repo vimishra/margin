@@ -447,6 +447,9 @@ export function SettingsModal() {
                 <Row label="Image border" hint="Separates images from the page. Useful for screenshots with a white background.">
                   <Segmented value={s.imageBorder} onChange={set('imageBorder')} options={[['none', 'None'], ['hairline', 'Hairline'], ['shadow', 'Shadow']]} />
                 </Row>
+                <Row label="Table width" hint="Fit makes a table only as wide as its contents need. Full stretches every table across the page.">
+                  <Segmented value={s.tableWidth} onChange={set('tableWidth')} options={[['fit', 'Fit contents'], ['full', 'Full width']]} />
+                </Row>
                 <Row label="Page width" hint="How many characters fit on one line of a note.">
                   <Select
                     value={presetWidth ? width : -1}

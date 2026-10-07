@@ -95,6 +95,8 @@ export interface Settings {
   /** Width in pixels of each level of list nesting. */
   listIndent: number
   imageBorder: 'none' | 'hairline' | 'shadow'
+  /** Tables are as wide as their contents need, or always the full width of the page. */
+  tableWidth: 'fit' | 'full'
   /** Faint vertical lines marking each level of a nested list. */
   indentGuides: boolean
   toolbar: boolean
@@ -148,6 +150,7 @@ export const DEFAULT_SETTINGS: Settings = {
   lineHeight: 1.7,
   listIndent: 28,
   imageBorder: 'hairline',
+  tableWidth: 'fit',
   indentGuides: true,
   toolbar: true,
   spellcheck: true,
@@ -1440,6 +1443,7 @@ export function applyAppearance() {
   root.dataset.accent = accent
   const dark = root.dataset.theme === 'dark'
   root.dataset.imageBorder = get().settings.imageBorder || 'hairline'
+  root.dataset.tableWidth = get().settings.tableWidth || 'fit'
   root.style.setProperty('--doc-font', fontCss(font))
   root.style.setProperty('--mono', fontCss(codeFont, true))
   root.style.setProperty('--doc-size', `${fontSize}px`)

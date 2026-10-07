@@ -3,7 +3,7 @@
 import { type EditorView, WidgetType } from '@codemirror/view'
 import { renderInline } from '../lib/markdown'
 import { resolver } from '../lib/links'
-import { type MenuItem, ui, useStore } from '../store'
+import { type MenuItem, toast, ui, useStore } from '../store'
 
 type Align = '' | 'left' | 'center' | 'right'
 
@@ -51,18 +51,114 @@ export function parseTable(source: string): TableModel | null {
   return { head, align, rows }
 }
 
+/** How many columns a piece of text takes in a fixed-width font: wide characters (CJK, emoji) count as two. */
+function textWidth(text: string): number {
+  let w = 0
+  for (const ch of text) w += /[ᄀ-ᅟ⺀-꓏가-힣豈-﫿︰-﹏＀-｠￠-￦]|\p{Extended_Pictographic}/u.test(ch) ? 2 : 1
+  return w
+}
+
+/**
+ * The table as markdown, with every column padded so the pipes line up in a fixed-width font.
+ * Right-aligned columns are padded on the left and centred ones on both sides, so the file reads the way the table looks.
+ */
 export function serializeTable(m: TableModel): string {
   const clean = (s: string) => s.replace(/\s*\n\s*/g, ' ').replace(/(?<!\\)\|/g, '\\|').trim()
   const head = m.head.map(clean)
-  const rows = m.rows.map((r) => r.map(clean))
-  const width = head.map((h, i) => Math.max(3, h.length, ...rows.map((r) => r[i].length)))
-  const line = (cells: string[]) => '| ' + cells.map((c, i) => c.padEnd(width[i])).join(' | ') + ' |'
-  const delim = m.align.map((a, i) => {
+  const rows = m.rows.map((r) => head.map((_, i) => clean(r[i] ?? '')))
+  const width = head.map((h, i) => Math.max(3, textWidth(h), ...rows.map((r) => textWidth(r[i]))))
+  const pad = (cell: string, i: number) => {
+    const space = width[i] - textWidth(cell)
+    const a = m.align[i]
+    if (a === 'right') return ' '.repeat(space) + cell
+    if (a === 'center') return ' '.repeat(Math.floor(space / 2)) + cell + ' '.repeat(Math.ceil(space / 2))
+    return cell + ' '.repeat(space)
+  }
+  const line = (cells: string[]) => '| ' + cells.map(pad).join(' | ') + ' |'
+  const delim = '| ' + head.map((_, i) => {
+    const a = m.align[i]
     const left = a === 'left' || a === 'center' ? ':' : ''
     const right = a === 'right' || a === 'center' ? ':' : ''
     return left + '-'.repeat(width[i] - left.length - right.length) + right
+  }).join(' | ') + ' |'
+  return [line(head), delim, ...rows.map(line)].join('\n')
+}
+
+const NUMBER = /^[-+(]?[$€£₹¥]?\s?\d[\d,.\s]*\)?\s?(%|[kKmMbB]|[a-zA-Z]{1,3})?$/
+
+/** A table from rows of cells, as copied from a spreadsheet. The first row is the header; columns of numbers are right-aligned. */
+export function tableFromCells(cells: string[][]): TableModel {
+  const cols = Math.max(...cells.map((r) => r.length))
+  const grid = cells.map((r) => Array.from({ length: cols }, (_, i) => (r[i] ?? '').replace(/\s*\n\s*/g, ' ').trim()))
+  const [head, ...rows] = grid
+  const align = head.map((_, i): Align => {
+    const filled = rows.map((r) => r[i]).filter(Boolean)
+    return filled.length > 0 && filled.every((v) => NUMBER.test(v)) ? 'right' : ''
   })
-  return [line(head), line(delim), ...rows.map(line)].join('\n')
+  return { head, align, rows }
+}
+
+/**
+ * Cells on the clipboard, if what was copied is a block of spreadsheet cells or a table from a web page.
+ * Google Sheets, Excel and Numbers put an HTML table on the clipboard; plain tab-separated text is accepted too.
+ */
+export function cellsFromClipboard(html: string, text: string): string[][] | null {
+  if (/<table[\s>]/i.test(html)) {
+    const table = new DOMParser().parseFromString(html, 'text/html').querySelector('table')
+    const out: string[][] = []
+    for (const tr of table?.querySelectorAll('tr') ?? []) {
+      // Rows of a table nested inside a cell belong to that cell, not to this table.
+      if (tr.closest('table') !== table) continue
+      const row: string[] = []
+      for (const cell of tr.querySelectorAll('th, td')) {
+        if (cell.closest('tr') !== tr) continue
+        cell.querySelectorAll('br').forEach((br) => br.replaceWith(' '))
+        row.push((cell.textContent || '').replace(/ /g, ' ').trim())
+        // A merged cell keeps its text in the first column and leaves the rest empty.
+        for (let i = 1; i < Number(cell.getAttribute('colspan') || 1); i++) row.push('')
+      }
+      if (row.length) out.push(row)
+    }
+    while (out.length && out[out.length - 1].every((c) => !c)) out.pop()
+    if (out.length && out.reduce((n, r) => n + r.length, 0) >= 2) return out
+  }
+  // Tab-separated text: every line must have the same number of tabs, and at least one.
+  const lines = text.replace(/\r\n?/g, '\n').replace(/\n+$/, '').split('\n')
+  const tabs = (l: string) => l.split('\t').length - 1
+  if (lines.length >= 1 && tabs(lines[0]) >= 1 && lines.every((l) => tabs(l) === tabs(lines[0]))) return lines.map((l) => l.split('\t').map((c) => c.trim()))
+  return null
+}
+
+/** A cell as a number, if that is all it holds: "1,200", "-5.5", "$40", "12%". */
+function cellNumber(cell: string): number | null {
+  const s = cell.trim()
+  if (!NUMBER.test(s)) return null
+  const n = Number(s.replace(/[^\d.()+-]/g, '').replace(/^\((.*)\)$/, '-$1'))
+  return Number.isFinite(n) ? n : null
+}
+
+/**
+ * Sort the rows by one column. Numbers sort as numbers and come before text; text sorts the way a person
+ * would expect ("item 2" before "item 10"); empty cells stay at the bottom either way. Rows that tie keep their order.
+ */
+export function sortRows(m: TableModel, col: number, dir: 1 | -1) {
+  const text = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
+  m.rows = m.rows
+    .map((row, i) => ({ row, i }))
+    .sort((a, b) => {
+      const [x, y] = [a.row[col] ?? '', b.row[col] ?? '']
+      if (!x.trim() || !y.trim()) return (x.trim() ? 0 : 1) - (y.trim() ? 0 : 1) || a.i - b.i
+      const [nx, ny] = [cellNumber(x), cellNumber(y)]
+      const order = nx !== null && ny !== null ? nx - ny : nx !== null ? -1 : ny !== null ? 1 : text.compare(x, y)
+      return order * dir || a.i - b.i
+    })
+    .map((x) => x.row)
+}
+
+/** The table as tab-separated text, which spreadsheets paste as cells. Markdown marks inside cells are left as written. */
+export function tableToTsv(m: TableModel): string {
+  const cell = (s: string) => s.replace(/\\\|/g, '|').replace(/[\t\n]/g, ' ')
+  return [m.head, ...m.rows].map((r) => r.map(cell).join('\t')).join('\n')
 }
 
 /** Set by the live preview: show a table's markdown source for editing. */
@@ -149,7 +245,12 @@ function render(dom: HTMLElement) {
   edit.title = 'Edit this table as markdown'
   edit.textContent = 'Edit markdown'
   edit.tabIndex = -1
-  dom.replaceChildren(wrap, edit, button('tw-add tw-add-col', 'Add column'), button('tw-add tw-add-row', 'Add row'))
+  const copy = document.createElement('button')
+  copy.className = 'tw-raw tw-copy'
+  copy.title = 'Copy this table so it pastes into Google Sheets, Excel or Numbers as cells'
+  copy.textContent = 'Copy for spreadsheet'
+  copy.tabIndex = -1
+  dom.replaceChildren(wrap, copy, edit, button('tw-add tw-add-col', 'Add column'), button('tw-add tw-add-row', 'Add row'))
 }
 
 /** Write the table back into the note. */
@@ -264,6 +365,18 @@ function attach(dom: HTMLElement) {
     }
   })
   dom.addEventListener('mousedown', (e) => {
+    if ((e.target as HTMLElement).closest('.tw-copy')) {
+      e.preventDefault()
+      const active = document.activeElement as HTMLElement | null
+      if (active && dom.contains(active)) active.blur()
+      commit(dom)
+      const m = state().model
+      navigator.clipboard.writeText(tableToTsv(m)).then(
+        () => toast(`Copied ${m.rows.length + 1} row${m.rows.length ? 's' : ''}. Paste into a spreadsheet.`),
+        () => toast('Could not copy the table'),
+      )
+      return
+    }
     if ((e.target as HTMLElement).closest('.tw-raw')) {
       e.preventDefault()
       const active = document.activeElement as HTMLElement | null
@@ -294,6 +407,9 @@ function attach(dom: HTMLElement) {
       { label: 'Insert row below', onSelect: () => reshape(dom, (t) => addRow(t, r + 1), { r: r + 1, c }) },
       { label: 'Insert column left', onSelect: () => reshape(dom, (t) => addCol(t, c), { r, c }) },
       { label: 'Insert column right', onSelect: () => reshape(dom, (t) => addCol(t, c + 1), { r, c: c + 1 }) },
+      { separator: true },
+      { label: `Sort by “${m.head[c] || 'this column'}”, A to Z`, onSelect: () => reshape(dom, (t) => sortRows(t, c, 1), { r, c }) },
+      { label: `Sort by “${m.head[c] || 'this column'}”, Z to A`, onSelect: () => reshape(dom, (t) => sortRows(t, c, -1), { r, c }) },
       { separator: true },
       { label: 'Align left', checked: m.align[c] === 'left', onSelect: align('left') },
       { label: 'Align center', checked: m.align[c] === 'center', onSelect: align('center') },

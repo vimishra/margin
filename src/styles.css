@@ -4738,3 +4738,25 @@ button.chip.tag:hover,
 .mini-cal-title {
   white-space: nowrap;
 }
+
+/* "Copy for spreadsheet" sits to the left of "Edit markdown" above a table */
+.tw-raw.tw-copy {
+  right: 128px;
+}
+
+/* Tables only as wide as their contents need (Settings → Appearance → Table width) */
+:root[data-table-width='fit'] .md .table-wrap {
+  width: fit-content;
+  max-width: 100%;
+}
+:root[data-table-width='fit'] .md table {
+  width: auto;
+}
+:root[data-table-width='fit'] .cm-table-widget {
+  width: fit-content;
+  max-width: 100%;
+}
+:root[data-table-width='fit'] .md th,
+:root[data-table-width='fit'] .md td {
+  min-width: 4.5em;
+}
