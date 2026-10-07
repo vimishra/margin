@@ -11,9 +11,6 @@ on:
         type: choice
         options: [arm64, x64, universal]
         default: arm64
-  # TEMPORARY: one test run from this branch; removed once it passes.
-  push:
-    branches: [claude/keen-turing-ngofbc]
 
 permissions:
   contents: read
