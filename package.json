@@ -1,7 +1,7 @@
 {
   "name": "margin-notes",
   "private": true,
-  "version": "1.8.2",
+  "version": "1.9.0",
   "type": "module",
   "description": "Margin — a fast, local-first markdown note-taking app",
   "scripts": {
@@ -13,7 +13,8 @@
     "app": "vite build && node scripts/brand-dev-app.mjs && electron .",
     "app:pack": "vite build && electron-builder --dir",
     "app:dist": "vite build && electron-builder",
-    "docs": "node scripts/build-docs.mjs"
+    "docs": "node scripts/build-docs.mjs",
+    "test:tasks": "node scripts/task-fixtures.mjs --check && python3 tools/test_margin_tasks.py"
   },
   "dependencies": {
     "express": "^4.21.0",
@@ -64,6 +65,12 @@
       "docs/*.html",
       "build/icon.png",
       "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "tools/margin_tasks.py",
+        "to": "tools/margin_tasks.py"
+      }
     ],
     "directories": {
       "output": "release",

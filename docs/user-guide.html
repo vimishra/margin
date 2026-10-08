@@ -91,6 +91,7 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 <li><a href="#moving-overdue-tasks">Moving overdue tasks</a></li>
 <li><a href="#the-top-3">The Top 3</a></li>
 <li><a href="#tasks-in-the-daily-note">Tasks in the daily note</a></li>
+<li><a href="#tasks-from-the-command-line">Tasks from the command line</a></li>
 </ul>
 </li>
 </ul>
@@ -789,6 +790,129 @@ npm run app
 <p>The Top 3 is the short checklist at the top of each daily note: the few things that would make the day a success. Its items are tasks like any other. What is left unticked moves into the next day's Top 3 when that note is created; see <a href="#meeting-notes-and-templates">Meeting notes and templates</a> for the details and the setting that turns this off.</p>
 <h3 id="tasks-in-the-daily-note">Tasks in the daily note</h3>
 <p>A daily note shows a <strong>Tasks for this day</strong> panel listing tasks from other notes that are due or planned for that date. Today's note also lists what is overdue, and, under <strong>From earlier days</strong>, tasks planned for an earlier day that are still open. The panel is a view: nothing is copied into the daily note's file, and ticking a task there ticks it in its own note. On a canvas day the panel starts folded in the top-left corner.</p>
+<h3 id="tasks-from-the-command-line">Tasks from the command line</h3>
+<p><code>margin-tasks</code> lists your tasks in a terminal, for scripts and automation. It reads the notes folder directly, gives the same lists as the Tasks view, and never changes a note. It works whether or not Margin is running.</p>
+<p>It ships inside Margin and needs only Python 3.8 or newer: nothing else to install.</p>
+<p><strong>Installing it.</strong> Choose <strong>Help → Command-Line Tool…</strong> and click <strong>Install</strong>. Margin puts a link named <code>margin-tasks</code> in <code>~/.local/bin</code>, a folder in your own home, so no password is needed. The link keeps working when Margin is updated.</p>
+<p>To do the same by hand, or on a Mac where you would rather not use the button:</p>
+<pre><code class="language-bash">mkdir -p ~/.local/bin &amp;&amp; ln -sf &quot;/Applications/Margin.app/Contents/Resources/tools/margin_tasks.py&quot; ~/.local/bin/margin-tasks
+</code></pre>
+<p>If the terminal then says <code>margin-tasks</code> is not found, <code>~/.local/bin</code> is not on your path yet. Add it once and open a new Terminal window:</p>
+<div class="table"><table><thead>
+<tr>
+<th>Shell</th>
+<th>Run once</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>zsh (the Mac default) or bash</td>
+<td><code>echo 'export PATH=&quot;$HOME/.local/bin:$PATH&quot;' &gt;&gt; ~/.zshrc</code></td>
+</tr>
+<tr>
+<td>fish</td>
+<td><code>fish_add_path ~/.local/bin</code></td>
+</tr>
+</tbody>
+</table></div><p>You can also run it without installing: <code>python3 &quot;/Applications/Margin.app/Contents/Resources/tools/margin_tasks.py&quot; today</code>. If you run Margin from the project folder, the file is <code>tools/margin_tasks.py</code> there.</p>
+<p>It finds your notes folder from Margin's own settings. Use <code>--vault PATH</code>, or set <code>MARGIN_VAULT</code>, to point it elsewhere.</p>
+<p><strong>Lists.</strong> The first word chooses the list; without one you get Today.</p>
+<pre><code class="language-bash">margin-tasks today
+margin-tasks upcoming
+margin-tasks logbook --done-after -7
+</code></pre>
+<p>The lists are <code>today</code>, <code>upcoming</code>, <code>anytime</code>, <code>someday</code>, <code>logbook</code>, <code>overdue</code>, <code>week</code>, <code>month</code>, <code>undated</code>, <code>open</code>, and <code>all</code> for every task, ticked or not.</p>
+<p><strong>Narrowing down.</strong> Options combine: a task must satisfy all of them.</p>
+<div class="table"><table><thead>
+<tr>
+<th>Option</th>
+<th>Keeps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--tag atlas</code></td>
+<td>Tasks with that tag, including nested ones such as <code>atlas/finance</code>. Repeat for several.</td>
+</tr>
+<tr>
+<td><code>--priority p2</code></td>
+<td>P2 or higher. Add <code>--exact-priority</code> for P2 only. <code>--priority none</code> for tasks without one.</td>
+</tr>
+<tr>
+<td><code>--due-before</code>, <code>--due-after</code>, <code>--due-on</code></td>
+<td>By due date</td>
+</tr>
+<tr>
+<td><code>--planned-before</code>, <code>--planned-after</code>, <code>--planned-on</code></td>
+<td>By planned day</td>
+</tr>
+<tr>
+<td><code>--done-before</code>, <code>--done-after</code>, <code>--done-on</code></td>
+<td>By the day it was ticked</td>
+</tr>
+<tr>
+<td><code>--has-due</code>, <code>--no-due</code></td>
+<td>With or without a due date</td>
+</tr>
+<tr>
+<td><code>--notebook Work</code></td>
+<td>Tasks in that notebook and the ones inside it</td>
+</tr>
+<tr>
+<td><code>--note atlas</code></td>
+<td>Tasks in notes whose title contains the text</td>
+</tr>
+<tr>
+<td><code>--note-tag meeting</code></td>
+<td>Tasks in notes that carry that tag</td>
+</tr>
+<tr>
+<td><code>--source daily</code></td>
+<td>Only daily notes; <code>notes</code> for everything else</td>
+</tr>
+<tr>
+<td><code>-q &quot;#atlas p2 priya&quot;</code></td>
+<td>The same text you would type in the Tasks view's box</td>
+</tr>
+</tbody>
+</table></div><p>A day can be written as <code>2026-10-12</code>, <code>today</code>, <code>tomorrow</code>, <code>yesterday</code>, <code>+3</code>, <code>-7</code>, or a weekday such as <code>friday</code> (the next one).</p>
+<p><strong>Output.</strong> The plain listing is for reading. For scripts, pick a format:</p>
+<div class="table"><table><thead>
+<tr>
+<th>Option</th>
+<th>Gives</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--json</code></td>
+<td>A list of tasks, each with its text, done state, priority, tags, planned day, due date, done date, note, notebook, heading, file path and line number</td>
+</tr>
+<tr>
+<td><code>--csv</code></td>
+<td>The same as rows with a header</td>
+</tr>
+<tr>
+<td><code>--paths</code></td>
+<td><code>path:line: [ ] task</code>, the way grep prints, which editors can jump to</td>
+</tr>
+<tr>
+<td><code>--format &quot;{due}\t{text}&quot;</code></td>
+<td>One line per task from your own template; the fields are the JSON names</td>
+</tr>
+<tr>
+<td><code>--count</code></td>
+<td>Only the number</td>
+</tr>
+</tbody>
+</table></div><p><code>--sort</code>, <code>--reverse</code>, <code>--limit</code> and <code>--group</code> control the order and layout. <code>margin-tasks --help</code> lists everything.</p>
+<p>Some examples:</p>
+<pre><code class="language-bash">margin-tasks open --tag atlas --priority p2 --due-before friday
+margin-tasks overdue --count
+margin-tasks today --json
+margin-tasks open --no-due --notebook Work --paths
+</code></pre>
+<p>Two settings live inside the app and cannot be read from outside it. If you renamed the Templates notebook, pass <code>--templates NAME</code> so its tasks are left out. If the <code>week</code> list starts on the wrong day, pass <code>--week-start sunday</code> or <code>monday</code>. Saved filters from the sidebar are not available by name; pass the equivalent options.</p>
 <hr>
 <h1 id="reference">Reference</h1>
 <h2 id="settings">Settings</h2>

@@ -76,6 +76,62 @@ function openDoc(page) {
   docWin.loadURL(url)
 }
 
+// The task lister for the terminal ships inside the app. This shows where it is and can link it into
+// ~/.local/bin as "margin-tasks": a folder the user owns, so no password is needed.
+async function commandLineTool() {
+  const script = app.isPackaged ? path.join(process.resourcesPath, 'tools', 'margin_tasks.py') : path.join(here, '..', 'tools', 'margin_tasks.py')
+  if (!fs.existsSync(script)) return void dialog.showMessageBox(win, { type: 'warning', message: 'The command-line tool is missing from this copy of Margin.', detail: script })
+  const windows = process.platform === 'win32'
+  const bin = path.join(os.homedir(), '.local', 'bin')
+  const target = path.join(bin, 'margin-tasks')
+  const command = windows ? `python "${script}" today` : `mkdir -p ~/.local/bin && ln -sf "${script}" ~/.local/bin/margin-tasks`
+  let linked = false
+  try {
+    linked = fs.realpathSync(target) === fs.realpathSync(script)
+  } catch {}
+  const onPath = 'If "margin-tasks" is not found afterwards, ~/.local/bin is not on your path yet. Add it once:\n' +
+    '  zsh or bash:  echo \'export PATH="$HOME/.local/bin:$PATH"\' >> ~/.zshrc\n' +
+    '  fish:  fish_add_path ~/.local/bin\nthen open a new Terminal window.'
+  const { response } = await dialog.showMessageBox(win, {
+    type: 'info',
+    message: 'margin-tasks: your tasks in the terminal',
+    detail:
+      'Lists the same tasks as the Tasks view, for scripts and automation. It only reads your notes and needs Python 3.\n\n' +
+      `Run it directly:\npython3 "${script}" today\n\n` +
+      (windows
+        ? ''
+        : (linked ? 'It is installed as "margin-tasks" in ~/.local/bin.' : 'Install puts a link named "margin-tasks" in ~/.local/bin, a folder of your own, so no password is needed. The same thing as a command:\n' + command) +
+          `\n\nThe link keeps working after Margin is updated.\n\n${onPath}\n\n`) +
+      'See "Tasks from the command line" in the user guide for every option.',
+    buttons: windows ? ['Copy command', 'Show file', 'Close'] : [linked ? 'Reinstall' : 'Install', 'Copy command', 'Show in Finder', 'Close'],
+    defaultId: 0,
+    cancelId: windows ? 2 : 3,
+  })
+  if (windows) {
+    if (response === 0) clipboard.writeText(command)
+    else if (response === 1) shell.showItemInFolder(script)
+    return
+  }
+  if (response === 1) clipboard.writeText(command)
+  else if (response === 2) shell.showItemInFolder(script)
+  else if (response === 0) {
+    try {
+      fs.mkdirSync(bin, { recursive: true })
+      // Replace an older link of ours, but never a real file someone put there.
+      let existing = null
+      try {
+        existing = fs.lstatSync(target)
+      } catch {}
+      if (existing && !existing.isSymbolicLink()) throw new Error(`${target} already exists and is not a link. Move it away and try again.`)
+      if (existing) fs.unlinkSync(target)
+      fs.symlinkSync(script, target)
+      dialog.showMessageBox(win, { type: 'info', message: 'Installed margin-tasks', detail: `Open a new Terminal window and run:\nmargin-tasks today\n\n${onPath}` })
+    } catch (e) {
+      dialog.showMessageBox(win, { type: 'error', message: 'Could not install margin-tasks', detail: `${e.message}\n\nYou can run this in Terminal instead:\n${command}` })
+    }
+  }
+}
+
 const send = (id) => {
   if (!win) return
   if (win.isMinimized()) win.restore()
@@ -209,6 +265,8 @@ function buildMenu() {
         { label: 'Design Guide', click: () => openDoc('design') },
         { type: 'separator' },
         cmd('Keyboard Shortcuts', 'help'),
+        { type: 'separator' },
+        { label: 'Command-Line Tool…', click: () => commandLineTool() },
       ],
     },
   ]

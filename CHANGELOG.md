@@ -2,6 +2,13 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.9.0 (2026-10-08)
+
+### Added
+
+- **`margin-tasks`, a command-line tool** (`tools/margin_tasks.py`) that lists tasks from the notes folder: the same lists as the Tasks view, narrowed by tag, priority, dates, notebook or note, with JSON, CSV and grep-style output. It is read-only and needs only Python. It ships inside the app: Help → Command-Line Tool… installs it as `margin-tasks` in `~/.local/bin`, a folder of your own, so no password is needed.
+- **Shared test cases for the task rules** (`tests/task-cases.json`), checked against both the app and the command-line tool by `npm run test:tasks`.
+
 ## 1.8.2 (2026-10-08)
 
 ### Fixed

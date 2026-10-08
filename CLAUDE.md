@@ -11,6 +11,7 @@ npm run app        # build, then open the desktop app (what the owner uses day t
 npm run dev        # browser at http://localhost:4321 with reload on change
 npm run typecheck  # tsc --noEmit; run after every change
 npm run docs       # regenerate docs/*.html from docs/*.md
+npm run test:tasks # the task rules, checked in the app's code and in the Python command-line tool
 npm run app:dist   # installers into release/ (only when asked)
 npx electron-builder --mac dmg --arm64   # the Apple-silicon installer used for releases
 ```
@@ -33,6 +34,7 @@ The owner's real notes (work meetings) are in `~/Documents/Vault`, set as `vault
 - `src/components/Editor.tsx` — CodeMirror setup, slash commands, link completion, incremental search bar. Helpers: `livePreview.ts`, `tableWidget.ts`, `lists.ts`, `isearch.ts`.
 - `src/lib/tasks.ts` — tasks are checkbox lines with `P1`–`P3`, `>date` or `>someday`, `@due(date)` and `@done(date)` written on them. The lists follow Things 3: Today (planned today or earlier, or due), Upcoming, Anytime, Someday, Logbook; only a missed due date is overdue. Ticking writes `@done(date)` unless the setting is off; `components/TasksView.tsx` is the Tasks view and the panel under daily notes. Saved filters are `settings.taskViews`; the route is `#/tasks/<list>` or `#/tasks/s:<id>`. `components/DatePicker.tsx` is the calendar opened by `openDatePicker()`.
 - Notebook tags live in the vault's `.margin/config.json` (`folderTags`). `createNote` and `updateNote` in `store.ts` write them into a note's own tags when it is created in or moved into a notebook; they are never removed automatically.
+- `tools/margin_tasks.py` — a read-only Python command-line tool that lists tasks straight from the notes folder. It is packaged into the app (`extraResources`) and Help → Command-Line Tool… links it into `~/.local/bin/margin-tasks`; the owner wants it there, not in `/usr/local/bin`, so nothing needs sudo. It re-implements the rules in `src/lib/tasks.ts`, so **any change to those rules must be made in both**: run `node scripts/task-fixtures.mjs --write` to re-record `tests/task-cases.json` from the app's code, update the Python to match, and run `npm run test:tasks`.
 - `src/lib/top3.ts` — the Top 3 list of a daily note: `carryTop3()` in `store.ts` moves unticked items from the last daily note into today's when it is created.
 - `src/components/JournalView.tsx` — all daily notes on one page, each with its own editor. The day last clicked in is `journalNote` in the store and is what `currentNote()` returns there; editors find out whether app-level commands are for them from the nearest `data-pane` attribute.
 - `src/lib/shortlinks.ts` — the pattern for company short links (`go/name`, `b/123`). `livePreview.ts` marks them in the editor and a core rule in `lib/markdown.ts` does the same for rendered text; neither changes the note.
@@ -72,4 +74,5 @@ The owner's real notes (work meetings) are in `~/Documents/Vault`, set as `vault
 - Per-pane drag and drop of tabs; more than two panes.
 - Search highlighting inside tables and rendered math.
 - Version-history frequency as a setting (needs server-side config).
-- Automated tests; start with `src/lib/` and `components/lists.ts`.
+- More automated tests (only the task rules are covered, by `npm run test:tasks`); `src/lib/` and `components/lists.ts` next.
+- Write commands for `margin-tasks` (tick, plan, due, add). Deliberately left out so far; they should go through the local server when the app is running.

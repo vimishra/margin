@@ -7,6 +7,7 @@ A fast, local-first note-taking app. Every note is a plain markdown file in a fo
 ![Margin's home screen](docs/images/home.png)
 
 - **[User guide](docs/user-guide.md)** ([HTML](docs/user-guide.html)): everything the app does, with recommended workflows.
+- **[Theory of operations](docs/operations.md)** ([HTML](docs/operations.html)): the routine to follow each morning, meeting, day, week and month.
 - **[Design and development flow](docs/design.md)** ([HTML](docs/design.html)): how it is built and how to change it.
 
 ## Run it
@@ -19,6 +20,17 @@ npm run app
 That builds Margin and opens it as a desktop app. The first run creates a `vault/` folder with a few starter notes.
 
 To run it in a browser instead, `npm run dev` serves it at http://localhost:4321 and reloads as the code changes; `npm start` builds once and serves the optimised version.
+
+## Tasks from the command line
+
+`tools/margin_tasks.py` lists the tasks in your notes from a terminal: the same lists as the app, with filters and JSON output. It is read-only and needs only Python 3.8 or newer.
+
+```bash
+python3 tools/margin_tasks.py today
+python3 tools/margin_tasks.py open --tag atlas --priority p2 --json
+```
+
+In the installed app, **Help → Command-Line Tool…** installs it as `margin-tasks` in `~/.local/bin` (no password needed). See "Tasks from the command line" in the user guide for every option.
 
 ## Desktop app
 

@@ -56,6 +56,8 @@ These settle most design questions. When two of them pull apart, the earlier one
 | `lists.ts` | Nesting, renumbering and moving list items |
 | `isearch.ts` | Incremental search and smart line-start |
 
+**Command-line tool** (`tools/margin_tasks.py`). A single Python file, standard library only, that lists tasks by reading the notes folder directly. It never writes. It re-implements the task rules of `lib/tasks.ts`, and `tests/task-cases.json` holds cases that both must satisfy (`npm run test:tasks`). It is packaged into the app's `Resources/tools`, and Help → Command-Line Tool… links it into `~/.local/bin` as `margin-tasks`: a folder the user owns, so the app never needs administrator rights.
+
 **Desktop shell** (`electron/`). Starts the server inside the app, opens a window on it, and adds what a browser cannot: a menu bar, a native right-click menu, a folder picker, direct PDF saving and a global hotkey. `preload.cjs` is the narrow bridge the page uses to reach those.
 
 ## How data flows
@@ -158,7 +160,7 @@ Beside the notes: `attachments/` (or the name chosen in settings), `.history/<id
 | A shortcut or its default | `src/shortcuts.ts`; the action itself in `src/commands.tsx` |
 | How markdown looks while editing | `components/livePreview.ts` and the "live preview" part of `src/styles.css` |
 | How markdown looks when reading or exported | `lib/markdown.ts`, `lib/export.ts` |
-| What counts as a task, its details, the lists in the Tasks view | `lib/tasks.ts`; the view itself in `components/TasksView.tsx` |
+| What counts as a task, its details, the lists in the Tasks view | `lib/tasks.ts`; the view itself in `components/TasksView.tsx`. Make the same change in `tools/margin_tasks.py`, re-record the cases with `node scripts/task-fixtures.mjs --write`, and run `npm run test:tasks`. |
 | Slash commands, link completion | `slashCommands` and `completions` in `components/Editor.tsx` |
 | The menu bar or right-click menu | `electron/main.mjs` |
 | Colours, spacing, fonts | The tokens at the top of `src/styles.css` |
@@ -232,4 +234,4 @@ npm run docs
 - **Titles must be unique to link reliably.** Links go by title.
 - **Search inside tables and rendered math** counts matches but does not highlight them until opened.
 - **Settings are per app,** except the attachments folder.
-- **No automated tests yet.** Changes are verified by hand using the checks above. The pure logic in `src/lib/` and `components/lists.ts` would be the first place to add them.
+- **Few automated tests.** Only the task rules are covered, by `npm run test:tasks`, which checks the app's code and the command-line tool against the same cases. Everything else is verified by hand using the checks above; the pure logic in `src/lib/` and `components/lists.ts` would be the next place to add tests.

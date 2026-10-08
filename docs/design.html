@@ -121,7 +121,8 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 <td>Incremental search and smart line-start</td>
 </tr>
 </tbody>
-</table></div><p><strong>Desktop shell</strong> (<code>electron/</code>). Starts the server inside the app, opens a window on it, and adds what a browser cannot: a menu bar, a native right-click menu, a folder picker, direct PDF saving and a global hotkey. <code>preload.cjs</code> is the narrow bridge the page uses to reach those.</p>
+</table></div><p><strong>Command-line tool</strong> (<code>tools/margin_tasks.py</code>). A single Python file, standard library only, that lists tasks by reading the notes folder directly. It never writes. It re-implements the task rules of <code>lib/tasks.ts</code>, and <code>tests/task-cases.json</code> holds cases that both must satisfy (<code>npm run test:tasks</code>). It is packaged into the app's <code>Resources/tools</code>, and Help → Command-Line Tool… links it into <code>~/.local/bin</code> as <code>margin-tasks</code>: a folder the user owns, so the app never needs administrator rights.</p>
+<p><strong>Desktop shell</strong> (<code>electron/</code>). Starts the server inside the app, opens a window on it, and adds what a browser cannot: a menu bar, a native right-click menu, a folder picker, direct PDF saving and a global hotkey. <code>preload.cjs</code> is the narrow bridge the page uses to reach those.</p>
 <h2 id="how-data-flows">How data flows</h2>
 <h3 id="starting-up">Starting up</h3>
 <ol>
@@ -262,7 +263,7 @@ Each canvas card is markdown too.
 </tr>
 <tr>
 <td>What counts as a task, its details, the lists in the Tasks view</td>
-<td><code>lib/tasks.ts</code>; the view itself in <code>components/TasksView.tsx</code></td>
+<td><code>lib/tasks.ts</code>; the view itself in <code>components/TasksView.tsx</code>. Make the same change in <code>tools/margin_tasks.py</code>, re-record the cases with <code>node scripts/task-fixtures.mjs --write</code>, and run <code>npm run test:tasks</code>.</td>
 </tr>
 <tr>
 <td>Slash commands, link completion</td>
@@ -328,7 +329,7 @@ git push
 <li><strong>Titles must be unique to link reliably.</strong> Links go by title.</li>
 <li><strong>Search inside tables and rendered math</strong> counts matches but does not highlight them until opened.</li>
 <li><strong>Settings are per app,</strong> except the attachments folder.</li>
-<li><strong>No automated tests yet.</strong> Changes are verified by hand using the checks above. The pure logic in <code>src/lib/</code> and <code>components/lists.ts</code> would be the first place to add them.</li>
+<li><strong>Few automated tests.</strong> Only the task rules are covered, by <code>npm run test:tasks</code>, which checks the app's code and the command-line tool against the same cases. Everything else is verified by hand using the checks above; the pure logic in <code>src/lib/</code> and <code>components/lists.ts</code> would be the next place to add tests.</li>
 </ul>
 
 </main>

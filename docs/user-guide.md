@@ -41,6 +41,7 @@ The guide has two main parts, because Margin does two different jobs. **Part 1**
   - [Moving overdue tasks](#moving-overdue-tasks)
   - [The Top 3](#the-top-3)
   - [Tasks in the daily note](#tasks-in-the-daily-note)
+  - [Tasks from the command line](#tasks-from-the-command-line)
 
 **[Reference](#reference)**
 
@@ -591,6 +592,82 @@ The Top 3 is the short checklist at the top of each daily note: the few things t
 ### Tasks in the daily note
 
 A daily note shows a **Tasks for this day** panel listing tasks from other notes that are due or planned for that date. Today's note also lists what is overdue, and, under **From earlier days**, tasks planned for an earlier day that are still open. The panel is a view: nothing is copied into the daily note's file, and ticking a task there ticks it in its own note. On a canvas day the panel starts folded in the top-left corner.
+
+### Tasks from the command line
+
+`margin-tasks` lists your tasks in a terminal, for scripts and automation. It reads the notes folder directly, gives the same lists as the Tasks view, and never changes a note. It works whether or not Margin is running.
+
+It ships inside Margin and needs only Python 3.8 or newer: nothing else to install.
+
+**Installing it.** Choose **Help → Command-Line Tool…** and click **Install**. Margin puts a link named `margin-tasks` in `~/.local/bin`, a folder in your own home, so no password is needed. The link keeps working when Margin is updated.
+
+To do the same by hand, or on a Mac where you would rather not use the button:
+
+```bash
+mkdir -p ~/.local/bin && ln -sf "/Applications/Margin.app/Contents/Resources/tools/margin_tasks.py" ~/.local/bin/margin-tasks
+```
+
+If the terminal then says `margin-tasks` is not found, `~/.local/bin` is not on your path yet. Add it once and open a new Terminal window:
+
+| Shell | Run once |
+| --- | --- |
+| zsh (the Mac default) or bash | `echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc` |
+| fish | `fish_add_path ~/.local/bin` |
+
+You can also run it without installing: `python3 "/Applications/Margin.app/Contents/Resources/tools/margin_tasks.py" today`. If you run Margin from the project folder, the file is `tools/margin_tasks.py` there.
+
+It finds your notes folder from Margin's own settings. Use `--vault PATH`, or set `MARGIN_VAULT`, to point it elsewhere.
+
+**Lists.** The first word chooses the list; without one you get Today.
+
+```bash
+margin-tasks today
+margin-tasks upcoming
+margin-tasks logbook --done-after -7
+```
+
+The lists are `today`, `upcoming`, `anytime`, `someday`, `logbook`, `overdue`, `week`, `month`, `undated`, `open`, and `all` for every task, ticked or not.
+
+**Narrowing down.** Options combine: a task must satisfy all of them.
+
+| Option | Keeps |
+| --- | --- |
+| `--tag atlas` | Tasks with that tag, including nested ones such as `atlas/finance`. Repeat for several. |
+| `--priority p2` | P2 or higher. Add `--exact-priority` for P2 only. `--priority none` for tasks without one. |
+| `--due-before`, `--due-after`, `--due-on` | By due date |
+| `--planned-before`, `--planned-after`, `--planned-on` | By planned day |
+| `--done-before`, `--done-after`, `--done-on` | By the day it was ticked |
+| `--has-due`, `--no-due` | With or without a due date |
+| `--notebook Work` | Tasks in that notebook and the ones inside it |
+| `--note atlas` | Tasks in notes whose title contains the text |
+| `--note-tag meeting` | Tasks in notes that carry that tag |
+| `--source daily` | Only daily notes; `notes` for everything else |
+| `-q "#atlas p2 priya"` | The same text you would type in the Tasks view's box |
+
+A day can be written as `2026-10-12`, `today`, `tomorrow`, `yesterday`, `+3`, `-7`, or a weekday such as `friday` (the next one).
+
+**Output.** The plain listing is for reading. For scripts, pick a format:
+
+| Option | Gives |
+| --- | --- |
+| `--json` | A list of tasks, each with its text, done state, priority, tags, planned day, due date, done date, note, notebook, heading, file path and line number |
+| `--csv` | The same as rows with a header |
+| `--paths` | `path:line: [ ] task`, the way grep prints, which editors can jump to |
+| `--format "{due}\t{text}"` | One line per task from your own template; the fields are the JSON names |
+| `--count` | Only the number |
+
+`--sort`, `--reverse`, `--limit` and `--group` control the order and layout. `margin-tasks --help` lists everything.
+
+Some examples:
+
+```bash
+margin-tasks open --tag atlas --priority p2 --due-before friday
+margin-tasks overdue --count
+margin-tasks today --json
+margin-tasks open --no-due --notebook Work --paths
+```
+
+Two settings live inside the app and cannot be read from outside it. If you renamed the Templates notebook, pass `--templates NAME` so its tasks are left out. If the `week` list starts on the wrong day, pass `--week-start sunday` or `monday`. Saved filters from the sidebar are not available by name; pass the equivalent options.
 
 ---
 

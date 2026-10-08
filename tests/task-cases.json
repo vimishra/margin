@@ -1,0 +1,848 @@
+{
+ "comment": "Cases shared by the app's task rules (src/lib/tasks.ts) and the command-line tool (tools/margin_tasks.py). 'expected' is produced from the app's code by `node scripts/task-fixtures.mjs --write`; both sides are checked against it by `npm run test:tasks`.",
+ "today": "2026-10-08",
+ "weekStart": 1,
+ "templates": "Templates",
+ "notes": [
+  {
+   "path": "Work/Project Atlas.md",
+   "raw": "---\nid: atlas01\ntags: [atlas, plan]\n---\n# Atlas\n\n## Launch\n\n- [ ] Send the proposal P2 #atlas >2026-10-08 @due(2026-10-10)\n- [ ] Book venue P1 @due(2026-10-04)\n- [x] Draft agenda @due(2026-10-05) @done(2026-10-06)\n- [x] Old thing ticked without a day\n- [ ] Call Priya about budget #atlas/finance\n  - [ ] Nested sub task p3\n- [ ] Review slides >2026-10-09\n- [ ] Planned last week >2026-10-01\n- [ ] Planned last week with a later deadline >2026-10-01 @due(2026-10-20)\n\n## Later\n\n1. [ ] Numbered task due today @due(2026-10-08)\n2) [ ] Numbered with a bracket >someday\n- [ ] Parked idea >Someday P1\n* [ ] Star bullet, no dates\n+ [ ] Plus bullet (see #ops) due far @due(2026-11-07)\n- [ ] Exactly thirty days out @due(2026-11-07)\n- [ ] Thirty one days out @due(2026-11-08)\n\n```\n- [ ] inside a code block @due(2026-10-08)\n```\n\n~~~\n- [ ] inside a tilde block\n~~~\n\n- [ ] \n- [ ]   \n- not a task\n- [] missing space\n> - [ ] Quoted task P2\n"
+  },
+  {
+   "path": "Work/Meetings/Weekly sync.md",
+   "raw": "---\nid: sync02\ntype: note\ntags:\n  - meeting\n---\n- **When:** today\n\n## Action items\n\n- [ ] Priya: send numbers @due(2026-10-12) #atlas\n- [ ] Me: follow up P3 >2026-10-11\n- [X] Capital X counts as done @done(2026-10-08)\n- [ ] Sunday of this week >2026-10-11 @due(2026-10-12)\n- [ ] Monday of this week >2026-10-05\n- [ ] Sunday before >2026-10-04\n"
+  },
+  {
+   "path": "Daily/2026-10-08.md",
+   "raw": "---\nid: day08\ntype: daily\n---\n## Top 3 for Thursday\n\n- [ ] Daily top item P1\n- [ ] Daily with tag #atlas\n\n## Log\n\n- [x] Logged and done @done(2026-10-07)\n\n<!-- canvas -->\n<!-- card id=c1 x=0 y=0 w=280 h=170 -->\n- [ ] Task on a canvas card @due(2026-10-09)\n<!-- /card -->\n"
+  },
+  {
+   "path": "Daily/2026-10-07.md",
+   "raw": "---\ntype: daily\n---\n- [ ] Yesterday's leftover\n- [x] Done yesterday @done(2026-10-07)\n"
+  },
+  {
+   "path": "No frontmatter.md",
+   "raw": "Plain note.\n\n- [ ] Task in a note with no frontmatter P2 #Ops\n- [ ] Unicode task: café ☕ @due(2026-10-08)\n- [ ] Has P1 inside words like MP1 and P12 but no priority\n- [ ] Tag after text#nottag and (#real)\n- [ ] Two priorities P3 P1 keeps the first\n- [ ] Not dates: >2026-1-5 @due(tomorrow) >tomorrow\n"
+  },
+  {
+   "path": "Templates/Meeting notes.md",
+   "raw": "---\nid: tpl01\n---\n## Action items\n\n- [ ] Template task that must be left out @due(2026-10-08)\n"
+  },
+  {
+   "path": "Personal/Trip.md",
+   "raw": "---\nid: trip03\ntitle: Trip to Lisbon\n---\n## To book\n\n- [ ] Train tickets @due(2026-10-08) P2\n- [ ] Dinner on Saturday >2026-10-10\n- [ ] Someday maybe >someday @due(2026-12-01)\n"
+  }
+ ],
+ "queries": [
+  [
+   "open",
+   "#atlas"
+  ],
+  [
+   "open",
+   "p2"
+  ],
+  [
+   "open",
+   "p1"
+  ],
+  [
+   "open",
+   "priya"
+  ],
+  [
+   "open",
+   "#atlas p2"
+  ],
+  [
+   "open",
+   "lisbon"
+  ],
+  [
+   "open",
+   "#ops"
+  ],
+  [
+   "logbook",
+   ""
+  ],
+  [
+   "today",
+   "#atlas"
+  ]
+ ],
+ "expected": {
+  "tasks": [
+   {
+    "key": "Work/Project Atlas.md:9",
+    "text": "Send the proposal #atlas",
+    "done": false,
+    "priority": "P2",
+    "tags": [
+     "atlas"
+    ],
+    "planned": "2026-10-08",
+    "someday": false,
+    "due": "2026-10-10",
+    "done_on": null,
+    "heading": "Launch",
+    "overdue": false,
+    "in_today": true
+   },
+   {
+    "key": "Work/Project Atlas.md:10",
+    "text": "Book venue",
+    "done": false,
+    "priority": "P1",
+    "tags": [],
+    "planned": null,
+    "someday": false,
+    "due": "2026-10-04",
+    "done_on": null,
+    "heading": "Launch",
+    "overdue": true,
+    "in_today": true
+   },
+   {
+    "key": "Work/Project Atlas.md:11",
+    "text": "Draft agenda",
+    "done": true,
+    "priority": null,
+    "tags": [],
+    "planned": null,
+    "someday": false,
+    "due": "2026-10-05",
+    "done_on": "2026-10-06",
+    "heading": "Launch",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "Work/Project Atlas.md:12",
+    "text": "Old thing ticked without a day",
+    "done": true,
+    "priority": null,
+    "tags": [],
+    "planned": null,
+    "someday": false,
+    "due": null,
+    "done_on": null,
+    "heading": "Launch",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "Work/Project Atlas.md:13",
+    "text": "Call Priya about budget #atlas/finance",
+    "done": false,
+    "priority": null,
+    "tags": [
+     "atlas/finance"
+    ],
+    "planned": null,
+    "someday": false,
+    "due": null,
+    "done_on": null,
+    "heading": "Launch",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "Work/Project Atlas.md:14",
+    "text": "Nested sub task",
+    "done": false,
+    "priority": "P3",
+    "tags": [],
+    "planned": null,
+    "someday": false,
+    "due": null,
+    "done_on": null,
+    "heading": "Launch",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "Work/Project Atlas.md:15",
+    "text": "Review slides",
+    "done": false,
+    "priority": null,
+    "tags": [],
+    "planned": "2026-10-09",
+    "someday": false,
+    "due": null,
+    "done_on": null,
+    "heading": "Launch",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "Work/Project Atlas.md:16",
+    "text": "Planned last week",
+    "done": false,
+    "priority": null,
+    "tags": [],
+    "planned": "2026-10-01",
+    "someday": false,
+    "due": null,
+    "done_on": null,
+    "heading": "Launch",
+    "overdue": false,
+    "in_today": true
+   },
+   {
+    "key": "Work/Project Atlas.md:17",
+    "text": "Planned last week with a later deadline",
+    "done": false,
+    "priority": null,
+    "tags": [],
+    "planned": "2026-10-01",
+    "someday": false,
+    "due": "2026-10-20",
+    "done_on": null,
+    "heading": "Launch",
+    "overdue": false,
+    "in_today": true
+   },
+   {
+    "key": "Work/Project Atlas.md:21",
+    "text": "Numbered task due today",
+    "done": false,
+    "priority": null,
+    "tags": [],
+    "planned": null,
+    "someday": false,
+    "due": "2026-10-08",
+    "done_on": null,
+    "heading": "Later",
+    "overdue": false,
+    "in_today": true
+   },
+   {
+    "key": "Work/Project Atlas.md:22",
+    "text": "Numbered with a bracket",
+    "done": false,
+    "priority": null,
+    "tags": [],
+    "planned": null,
+    "someday": true,
+    "due": null,
+    "done_on": null,
+    "heading": "Later",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "Work/Project Atlas.md:23",
+    "text": "Parked idea",
+    "done": false,
+    "priority": "P1",
+    "tags": [],
+    "planned": null,
+    "someday": true,
+    "due": null,
+    "done_on": null,
+    "heading": "Later",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "Work/Project Atlas.md:24",
+    "text": "Star bullet, no dates",
+    "done": false,
+    "priority": null,
+    "tags": [],
+    "planned": null,
+    "someday": false,
+    "due": null,
+    "done_on": null,
+    "heading": "Later",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "Work/Project Atlas.md:25",
+    "text": "Plus bullet (see #ops) due far",
+    "done": false,
+    "priority": null,
+    "tags": [
+     "ops"
+    ],
+    "planned": null,
+    "someday": false,
+    "due": "2026-11-07",
+    "done_on": null,
+    "heading": "Later",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "Work/Project Atlas.md:26",
+    "text": "Exactly thirty days out",
+    "done": false,
+    "priority": null,
+    "tags": [],
+    "planned": null,
+    "someday": false,
+    "due": "2026-11-07",
+    "done_on": null,
+    "heading": "Later",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "Work/Project Atlas.md:27",
+    "text": "Thirty one days out",
+    "done": false,
+    "priority": null,
+    "tags": [],
+    "planned": null,
+    "someday": false,
+    "due": "2026-11-08",
+    "done_on": null,
+    "heading": "Later",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "Work/Project Atlas.md:41",
+    "text": "Quoted task",
+    "done": false,
+    "priority": "P2",
+    "tags": [],
+    "planned": null,
+    "someday": false,
+    "due": null,
+    "done_on": null,
+    "heading": "Later",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "Work/Meetings/Weekly sync.md:11",
+    "text": "Priya: send numbers #atlas",
+    "done": false,
+    "priority": null,
+    "tags": [
+     "atlas"
+    ],
+    "planned": null,
+    "someday": false,
+    "due": "2026-10-12",
+    "done_on": null,
+    "heading": "Action items",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "Work/Meetings/Weekly sync.md:12",
+    "text": "Me: follow up",
+    "done": false,
+    "priority": "P3",
+    "tags": [],
+    "planned": "2026-10-11",
+    "someday": false,
+    "due": null,
+    "done_on": null,
+    "heading": "Action items",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "Work/Meetings/Weekly sync.md:13",
+    "text": "Capital X counts as done",
+    "done": true,
+    "priority": null,
+    "tags": [],
+    "planned": null,
+    "someday": false,
+    "due": null,
+    "done_on": "2026-10-08",
+    "heading": "Action items",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "Work/Meetings/Weekly sync.md:14",
+    "text": "Sunday of this week",
+    "done": false,
+    "priority": null,
+    "tags": [],
+    "planned": "2026-10-11",
+    "someday": false,
+    "due": "2026-10-12",
+    "done_on": null,
+    "heading": "Action items",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "Work/Meetings/Weekly sync.md:15",
+    "text": "Monday of this week",
+    "done": false,
+    "priority": null,
+    "tags": [],
+    "planned": "2026-10-05",
+    "someday": false,
+    "due": null,
+    "done_on": null,
+    "heading": "Action items",
+    "overdue": false,
+    "in_today": true
+   },
+   {
+    "key": "Work/Meetings/Weekly sync.md:16",
+    "text": "Sunday before",
+    "done": false,
+    "priority": null,
+    "tags": [],
+    "planned": "2026-10-04",
+    "someday": false,
+    "due": null,
+    "done_on": null,
+    "heading": "Action items",
+    "overdue": false,
+    "in_today": true
+   },
+   {
+    "key": "Daily/2026-10-08.md:7",
+    "text": "Daily top item",
+    "done": false,
+    "priority": "P1",
+    "tags": [],
+    "planned": null,
+    "someday": false,
+    "due": null,
+    "done_on": null,
+    "heading": "Top 3 for Thursday",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "Daily/2026-10-08.md:8",
+    "text": "Daily with tag #atlas",
+    "done": false,
+    "priority": null,
+    "tags": [
+     "atlas"
+    ],
+    "planned": null,
+    "someday": false,
+    "due": null,
+    "done_on": null,
+    "heading": "Top 3 for Thursday",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "Daily/2026-10-08.md:12",
+    "text": "Logged and done",
+    "done": true,
+    "priority": null,
+    "tags": [],
+    "planned": null,
+    "someday": false,
+    "due": null,
+    "done_on": "2026-10-07",
+    "heading": "Log",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "Daily/2026-10-08.md:16",
+    "text": "Task on a canvas card",
+    "done": false,
+    "priority": null,
+    "tags": [],
+    "planned": null,
+    "someday": false,
+    "due": "2026-10-09",
+    "done_on": null,
+    "heading": "",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "Daily/2026-10-07.md:4",
+    "text": "Yesterday's leftover",
+    "done": false,
+    "priority": null,
+    "tags": [],
+    "planned": null,
+    "someday": false,
+    "due": null,
+    "done_on": null,
+    "heading": "",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "Daily/2026-10-07.md:5",
+    "text": "Done yesterday",
+    "done": true,
+    "priority": null,
+    "tags": [],
+    "planned": null,
+    "someday": false,
+    "due": null,
+    "done_on": "2026-10-07",
+    "heading": "",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "No frontmatter.md:3",
+    "text": "Task in a note with no frontmatter #Ops",
+    "done": false,
+    "priority": "P2",
+    "tags": [
+     "Ops"
+    ],
+    "planned": null,
+    "someday": false,
+    "due": null,
+    "done_on": null,
+    "heading": "",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "No frontmatter.md:4",
+    "text": "Unicode task: café ☕",
+    "done": false,
+    "priority": null,
+    "tags": [],
+    "planned": null,
+    "someday": false,
+    "due": "2026-10-08",
+    "done_on": null,
+    "heading": "",
+    "overdue": false,
+    "in_today": true
+   },
+   {
+    "key": "No frontmatter.md:5",
+    "text": "Has inside words like MP1 and P12 but no priority",
+    "done": false,
+    "priority": "P1",
+    "tags": [],
+    "planned": null,
+    "someday": false,
+    "due": null,
+    "done_on": null,
+    "heading": "",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "No frontmatter.md:6",
+    "text": "Tag after text#nottag and (#real)",
+    "done": false,
+    "priority": null,
+    "tags": [
+     "real"
+    ],
+    "planned": null,
+    "someday": false,
+    "due": null,
+    "done_on": null,
+    "heading": "",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "No frontmatter.md:7",
+    "text": "Two priorities P1 keeps the first",
+    "done": false,
+    "priority": "P3",
+    "tags": [],
+    "planned": null,
+    "someday": false,
+    "due": null,
+    "done_on": null,
+    "heading": "",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "No frontmatter.md:8",
+    "text": "Not dates: >2026-1-5 @due(tomorrow) >tomorrow",
+    "done": false,
+    "priority": null,
+    "tags": [],
+    "planned": null,
+    "someday": false,
+    "due": null,
+    "done_on": null,
+    "heading": "",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "Personal/Trip.md:7",
+    "text": "Train tickets",
+    "done": false,
+    "priority": "P2",
+    "tags": [],
+    "planned": null,
+    "someday": false,
+    "due": "2026-10-08",
+    "done_on": null,
+    "heading": "To book",
+    "overdue": false,
+    "in_today": true
+   },
+   {
+    "key": "Personal/Trip.md:8",
+    "text": "Dinner on Saturday",
+    "done": false,
+    "priority": null,
+    "tags": [],
+    "planned": "2026-10-10",
+    "someday": false,
+    "due": null,
+    "done_on": null,
+    "heading": "To book",
+    "overdue": false,
+    "in_today": false
+   },
+   {
+    "key": "Personal/Trip.md:9",
+    "text": "Someday maybe",
+    "done": false,
+    "priority": null,
+    "tags": [],
+    "planned": null,
+    "someday": true,
+    "due": "2026-12-01",
+    "done_on": null,
+    "heading": "To book",
+    "overdue": false,
+    "in_today": false
+   }
+  ],
+  "lists": {
+   "today": [
+    "Work/Project Atlas.md:10",
+    "Work/Project Atlas.md:9",
+    "Personal/Trip.md:7",
+    "Work/Project Atlas.md:16",
+    "Work/Project Atlas.md:17",
+    "Work/Project Atlas.md:21",
+    "No frontmatter.md:4",
+    "Work/Meetings/Weekly sync.md:15",
+    "Work/Meetings/Weekly sync.md:16"
+   ],
+   "upcoming": [
+    "Work/Project Atlas.md:15",
+    "Personal/Trip.md:8",
+    "Work/Meetings/Weekly sync.md:12",
+    "Work/Meetings/Weekly sync.md:14"
+   ],
+   "anytime": [
+    "Work/Project Atlas.md:10",
+    "Work/Project Atlas.md:9",
+    "Personal/Trip.md:7",
+    "Work/Project Atlas.md:16",
+    "Work/Project Atlas.md:17",
+    "Work/Project Atlas.md:21",
+    "No frontmatter.md:4",
+    "Work/Meetings/Weekly sync.md:15",
+    "Work/Meetings/Weekly sync.md:16",
+    "Daily/2026-10-08.md:16",
+    "Work/Meetings/Weekly sync.md:11",
+    "Work/Project Atlas.md:25",
+    "Work/Project Atlas.md:26",
+    "Work/Project Atlas.md:27",
+    "Daily/2026-10-08.md:7",
+    "No frontmatter.md:5",
+    "Work/Project Atlas.md:41",
+    "No frontmatter.md:3",
+    "Work/Project Atlas.md:14",
+    "No frontmatter.md:7",
+    "Work/Project Atlas.md:13",
+    "Work/Project Atlas.md:24",
+    "Daily/2026-10-08.md:8",
+    "Daily/2026-10-07.md:4",
+    "No frontmatter.md:6",
+    "No frontmatter.md:8"
+   ],
+   "someday": [
+    "Personal/Trip.md:9",
+    "Work/Project Atlas.md:23",
+    "Work/Project Atlas.md:22"
+   ],
+   "logbook": [
+    "Work/Meetings/Weekly sync.md:13",
+    "Daily/2026-10-08.md:12",
+    "Daily/2026-10-07.md:5",
+    "Work/Project Atlas.md:11",
+    "Work/Project Atlas.md:12"
+   ],
+   "overdue": [
+    "Work/Project Atlas.md:10"
+   ],
+   "week": [
+    "Work/Project Atlas.md:9",
+    "Personal/Trip.md:7",
+    "Work/Project Atlas.md:21",
+    "No frontmatter.md:4",
+    "Work/Meetings/Weekly sync.md:15",
+    "Work/Project Atlas.md:15",
+    "Daily/2026-10-08.md:16",
+    "Personal/Trip.md:8",
+    "Work/Meetings/Weekly sync.md:12",
+    "Work/Meetings/Weekly sync.md:14"
+   ],
+   "month": [
+    "Work/Project Atlas.md:9",
+    "Personal/Trip.md:7",
+    "Work/Project Atlas.md:17",
+    "Work/Project Atlas.md:21",
+    "No frontmatter.md:4",
+    "Work/Project Atlas.md:15",
+    "Daily/2026-10-08.md:16",
+    "Personal/Trip.md:8",
+    "Work/Meetings/Weekly sync.md:12",
+    "Work/Meetings/Weekly sync.md:14",
+    "Work/Meetings/Weekly sync.md:11",
+    "Work/Project Atlas.md:25",
+    "Work/Project Atlas.md:26"
+   ],
+   "undated": [
+    "Daily/2026-10-08.md:7",
+    "No frontmatter.md:5",
+    "Work/Project Atlas.md:41",
+    "No frontmatter.md:3",
+    "Work/Project Atlas.md:14",
+    "No frontmatter.md:7",
+    "Work/Project Atlas.md:13",
+    "Work/Project Atlas.md:24",
+    "Daily/2026-10-08.md:8",
+    "Daily/2026-10-07.md:4",
+    "No frontmatter.md:6",
+    "No frontmatter.md:8"
+   ],
+   "open": [
+    "Work/Project Atlas.md:10",
+    "Work/Project Atlas.md:9",
+    "Personal/Trip.md:7",
+    "Work/Project Atlas.md:16",
+    "Work/Project Atlas.md:17",
+    "Work/Project Atlas.md:21",
+    "No frontmatter.md:4",
+    "Work/Meetings/Weekly sync.md:15",
+    "Work/Meetings/Weekly sync.md:16",
+    "Work/Project Atlas.md:15",
+    "Daily/2026-10-08.md:16",
+    "Personal/Trip.md:8",
+    "Work/Meetings/Weekly sync.md:12",
+    "Work/Meetings/Weekly sync.md:14",
+    "Work/Meetings/Weekly sync.md:11",
+    "Work/Project Atlas.md:25",
+    "Work/Project Atlas.md:26",
+    "Work/Project Atlas.md:27",
+    "Personal/Trip.md:9",
+    "Work/Project Atlas.md:23",
+    "Daily/2026-10-08.md:7",
+    "No frontmatter.md:5",
+    "Work/Project Atlas.md:41",
+    "No frontmatter.md:3",
+    "Work/Project Atlas.md:14",
+    "No frontmatter.md:7",
+    "Work/Project Atlas.md:13",
+    "Work/Project Atlas.md:22",
+    "Work/Project Atlas.md:24",
+    "Daily/2026-10-08.md:8",
+    "Daily/2026-10-07.md:4",
+    "No frontmatter.md:6",
+    "No frontmatter.md:8"
+   ]
+  },
+  "queries": [
+   {
+    "list": "open",
+    "query": "#atlas",
+    "keys": [
+     "Work/Project Atlas.md:9",
+     "Work/Meetings/Weekly sync.md:11",
+     "Work/Project Atlas.md:13",
+     "Daily/2026-10-08.md:8"
+    ]
+   },
+   {
+    "list": "open",
+    "query": "p2",
+    "keys": [
+     "Work/Project Atlas.md:10",
+     "Work/Project Atlas.md:9",
+     "Personal/Trip.md:7",
+     "Work/Project Atlas.md:23",
+     "Daily/2026-10-08.md:7",
+     "No frontmatter.md:5",
+     "Work/Project Atlas.md:41",
+     "No frontmatter.md:3"
+    ]
+   },
+   {
+    "list": "open",
+    "query": "p1",
+    "keys": [
+     "Work/Project Atlas.md:10",
+     "Work/Project Atlas.md:23",
+     "Daily/2026-10-08.md:7",
+     "No frontmatter.md:5"
+    ]
+   },
+   {
+    "list": "open",
+    "query": "priya",
+    "keys": [
+     "Work/Meetings/Weekly sync.md:11",
+     "Work/Project Atlas.md:13"
+    ]
+   },
+   {
+    "list": "open",
+    "query": "#atlas p2",
+    "keys": [
+     "Work/Project Atlas.md:9"
+    ]
+   },
+   {
+    "list": "open",
+    "query": "lisbon",
+    "keys": [
+     "Personal/Trip.md:7",
+     "Personal/Trip.md:8",
+     "Personal/Trip.md:9"
+    ]
+   },
+   {
+    "list": "open",
+    "query": "#ops",
+    "keys": [
+     "Work/Project Atlas.md:25",
+     "No frontmatter.md:3"
+    ]
+   },
+   {
+    "list": "logbook",
+    "query": "",
+    "keys": [
+     "Work/Meetings/Weekly sync.md:13",
+     "Daily/2026-10-08.md:12",
+     "Daily/2026-10-07.md:5",
+     "Work/Project Atlas.md:11",
+     "Work/Project Atlas.md:12"
+    ]
+   },
+   {
+    "list": "today",
+    "query": "#atlas",
+    "keys": [
+     "Work/Project Atlas.md:9"
+    ]
+   }
+  ]
+ }
+}

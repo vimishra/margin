@@ -249,6 +249,8 @@ This is the review that keeps the lists trustworthy. Open the Tasks view: ⌘⇧
 | What has no plan | No date | 9 |
 | Everything open | All open | 0 |
 
+**From a terminal or a script:** `margin-tasks` prints the same lists, for example `margin-tasks today` or `margin-tasks overdue --count`. Install it from Help → Command-Line Tool…; it goes into `~/.local/bin` and needs no password. The user guide lists every option.
+
 To see one project's tasks, group by Project. To see one topic across projects, type its `#tag` in the narrow-down box, and save it as a filter if you will want it again.
 
 ## Tasks: keys
