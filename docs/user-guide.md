@@ -10,13 +10,19 @@ This guide uses the desktop app's shortcuts. In a browser, most use ⌥ in place
 
 ## Contents
 
+The guide has two main parts, because Margin does two different jobs. **Part 1** is about notes. **Part 2** is about tasks.
+
+**Start here**
+
 - [Getting started](#getting-started)
 - [The window](#the-window)
 - [How Margin is organised, and why](#how-margin-is-organised-and-why)
+
+**[Part 1: Notes](#part-1-notes)**
+
 - [Writing](#writing)
 - [Finding things](#finding-things)
 - [Daily notes, the calendar and the canvas](#daily-notes-the-calendar-and-the-canvas)
-- [Tasks](#tasks)
 - [Quick capture and scratch notes](#quick-capture-and-scratch-notes)
 - [Meeting notes and templates](#meeting-notes-and-templates)
 - [People and 1:1s](#people-and-11s)
@@ -25,6 +31,19 @@ This guide uses the desktop app's shortcuts. In a browser, most use ⌥ in place
 - [Two notes side by side](#two-notes-side-by-side)
 - [History, trash and export](#history-trash-and-export)
 - [Importing from Obsidian](#importing-from-obsidian)
+
+**[Part 2: Tasks](#part-2-tasks)**
+
+- [Tasks](#tasks)
+  - [Details on a task](#details-on-a-task)
+  - [The Tasks view](#the-tasks-view)
+  - [Saved filters](#saved-filters)
+  - [Moving overdue tasks](#moving-overdue-tasks)
+  - [The Top 3](#the-top-3)
+  - [Tasks in the daily note](#tasks-in-the-daily-note)
+
+**[Reference](#reference)**
+
 - [Settings](#settings)
 - [Shortcuts](#shortcuts)
 - [Recommended workflows](#recommended-workflows)
@@ -141,6 +160,12 @@ Only two things are structural:
 - **Titles**, because links go by title. Two notes with the same title make a link ambiguous, so keep titles distinct.
 
 Everything else is optional.
+
+---
+
+# Part 1: Notes
+
+Everything about writing things down and finding them again: the editor, search, daily notes, capture, meetings, people, research and keeping the collection organised.
 
 ## Writing
 
@@ -328,111 +353,6 @@ On the canvas:
 
 **Calendar** shows a month. Days with a daily note have a dot. Click a day to see it; press Enter or double-click to open it. The small calendar in the sidebar opens a day's note with one click.
 
-## Tasks
-
-A task is a checkbox: `- [ ] Send the proposal`. Type `/task`, press ⌘⇧9, or write it by hand. Tasks can live in any note. To tick or untick the task the cursor is on, press ⌘↵ or click its box; with several lines selected, ⌘↵ ticks them all.
-
-Ticking a task writes the day on its line, `@done(2026-10-07)`, so the Logbook can show when it was done. Unticking takes it off again. Turn this off in Settings → General → **Record when tasks are done**.
-
-The lists work the way they do in Things 3:
-
-- A **planned day** is the day a task *starts*. Until then it waits in Upcoming; from that day on it is in Today, and it stays there until you tick it. It never becomes overdue.
-- A **due date** is a real deadline. Only a missed due date makes a task overdue.
-- **Someday** parks a task. It is kept out of Today, Upcoming and Anytime until you give it a day.
-- A **project** is a note, and an **area** is the notebook it is in. Headings in the note divide the project, as headings do in Things.
-
-### Details on a task
-
-Details are written on the task's own line, as plain text, so they stay readable in any editor:
-
-```
-- [ ] Send the proposal P2 #atlas >2026-10-08 @due(2026-10-10)
-```
-
-| Detail | Write | Meaning |
-| --- | --- | --- |
-| Priority | `P1` `P2` `P3` | High, medium, low |
-| Tags | `#atlas` | The same tags as everywhere else |
-| Planned day | `>2026-10-08` | The day you start on it; it is in Today from then on |
-| Someday | `>someday` | Parked; out of Today, Upcoming and Anytime |
-| Due date | `@due(2026-10-10)` | The deadline |
-| Done on | `@done(2026-10-07)` | Written for you when you tick the task |
-
-You do not have to type dates in full. On a task, type `>` or `@due(` and then a day in words (`fri`, `tomorrow`, `next week`, `14 oct`) and pick the suggestion; after `>`, `some` offers `someday`. The slash commands `/due`, `/plan`, `/someday` and `/p1` (or `/priority`) insert the same things.
-
-With the cursor on a task in a note, these keys change its details without typing them:
-
-| Key | Does |
-| --- | --- |
-| ⌘⌥T | Move to today: sets the planned day to today. The due date is left alone. |
-| ⌘⇧S | When: opens the calendar for the planned day, with Someday |
-| ⌘⇧D | Due date: opens the calendar |
-| ⌘⇧P | Priority: steps through P1, P2, P3 and none |
-| ⌘↵ | Tick or untick |
-
-Move to today and Priority apply to every task in a selection. The same four are in ⌘K under "Task:", and all of them can be changed in Settings → Shortcuts. In the browser version they are ⌥⇧T, ⌥⇧S, ⌥⇧D and ⌥⇧P.
-
-In the editor the details show as small labels. A due date turns red once it has passed. A planned day that is today or earlier is highlighted, because the task is in Today.
-
-### The Tasks view
-
-**Tasks** in the sidebar (⌘⇧T) gathers every checkbox from every note. Templates are left out.
-
-- **Lists** across the top: first the ones from Things, Today, Upcoming, Anytime, Someday and Logbook; then Overdue, This week, Next 30 days, No date and All open. Each shows its count (except the Logbook). Keys 1 to 9 and 0 switch between them, in that order.
-- **Narrow down** with the box: words match the task or its note's title, `#atlas` needs that tag, `p2` needs that priority or higher (P1 and P2). The tag chips below do the same with a click.
-- **From** chooses where tasks are taken from: All, Notes (leaves out tasks written in daily notes) or Daily (only those).
-- **Group by** date, project or priority. **Project** puts each note's tasks together under its notebook, in the order they are written and under their headings, with a small circle that fills as the project's tasks are ticked. Tasks in daily notes are kept together as one group, latest day first. In the Logbook, grouping by date groups by the day each task was done.
-- **Tick** a task to complete it. The checkbox in the note's file is ticked.
-- **Hover** a task for three buttons: priority, when (planned day or Someday), due date. Clicking a date label changes it too.
-- **Rescheduling:** the when and due-date buttons open a small calendar. Click a day, or type one in words (`fri`, `14 oct`, `in 3 days`) and press Enter. The arrow keys move the highlighted day, PgUp and PgDn change month, and Today, Tomorrow and Next week are one click. The when calendar also has **Someday**. **Remove** clears the date, or takes a task out of Someday.
-- **Click** a task to open its note at that line. ⌘-click opens the note to the side.
-
-With the keyboard:
-
-| Key | Does |
-| --- | --- |
-| ↑ ↓ (or K J) | Move between tasks |
-| Home, End | First and last task |
-| Space (or X) | Tick or untick |
-| ↵ | Open the task in its note; ⇧↵ opens it to the side |
-| D | Due date |
-| T | Move to today |
-| S | When: planned day or Someday |
-| P | Priority |
-| 1 to 9, 0 | Switch list |
-| / | Narrow down; ↓ or ↵ goes back to the list |
-
-How the lists are decided:
-
-- **Today:** planned for today or an earlier day, or due today or earlier.
-- **Upcoming:** planned for a day after today. A task with only a due date is not here; it is in Anytime until the day it is due.
-- **Anytime:** everything you could do now: not planned for a later day and not Someday. Today's tasks are here too.
-- **Someday:** marked `>someday`.
-- **Logbook:** ticked tasks, the most recently done first. Tasks ticked before the day was recorded come last, under "Day not recorded".
-- **Overdue:** the due date has passed. A planned day passing never makes a task overdue.
-- **This week:** due or planned between the first and last day of this week (your Week starts on setting).
-- **Next 30 days:** due or planned from today to 30 days ahead.
-- **No date:** no due date, no planned day and not Someday.
-
-The number beside Tasks in the sidebar is how many are in Today, overdue ones included.
-
-### Saved filters
-
-Under **Tasks** in the sidebar are Today, Upcoming, Anytime, Someday and Logbook, and Overdue while anything is overdue. You can add your own:
-
-1. In the Tasks view, choose a list, narrow it down (say `#atlas p2`), and pick From and Group by.
-2. Click **Save filter** and give it a name.
-
-It appears under Tasks in the sidebar with a live count. Open it and change anything, and an **Update filter** button appears to keep the change. The ⋯ button, or a right-click in the sidebar, renames or deletes it. Saved filters are kept with your settings, so they belong to this app on this computer.
-
-### Moving overdue tasks
-
-When a list contains overdue tasks, **Move all…** opens the calendar. Pick one day and every overdue task shown gets it as its new due date. Narrow the list first to move only some of them. The confirmation has an **Undo**. Tasks whose planned day has passed are not overdue, so they are not moved; they wait in Today.
-
-### Tasks in the daily note
-
-A daily note shows a **Tasks for this day** panel listing tasks from other notes that are due or planned for that date. Today's note also lists what is overdue, and, under **From earlier days**, tasks planned for an earlier day that are still open. The panel is a view: nothing is copied into the daily note's file, and ticking a task there ticks it in its own note. On a canvas day the panel starts folded in the top-left corner.
-
 ## Quick capture and scratch notes
 
 **Quick capture** (⌘⇧C, or ⌃⌥Space from any app) opens a small box. Type, press Enter, and carry on with what you were doing. Tab chooses where it goes:
@@ -557,6 +477,125 @@ It brings notes with their folders, tags and dates; images and PDFs; links betwe
 
 Callouts appear as plain quotes, embedded notes become links, and plugin features such as Dataview stay as text. Importing the same vault twice duplicates the notes.
 
+---
+
+# Part 2: Tasks
+
+Everything about deciding what to do and when: what a task is, its priority and dates, the Tasks view and its lists, saved filters and the Top 3. Tasks are written inside notes, but planning and reviewing them is a separate activity with its own view and its own keys.
+
+## Tasks
+
+A task is a checkbox: `- [ ] Send the proposal`. Type `/task`, press ⌘⇧9, or write it by hand. Tasks can live in any note. To tick or untick the task the cursor is on, press ⌘↵ or click its box; with several lines selected, ⌘↵ ticks them all.
+
+Ticking a task writes the day on its line, `@done(2026-10-07)`, so the Logbook can show when it was done. Unticking takes it off again. Turn this off in Settings → General → **Record when tasks are done**.
+
+The lists work the way they do in Things 3:
+
+- A **planned day** is the day a task *starts*. Until then it waits in Upcoming; from that day on it is in Today, and it stays there until you tick it. It never becomes overdue.
+- A **due date** is a real deadline. Only a missed due date makes a task overdue.
+- **Someday** parks a task. It is kept out of Today, Upcoming and Anytime until you give it a day.
+- A **project** is a note, and an **area** is the notebook it is in. Headings in the note divide the project, as headings do in Things.
+
+### Details on a task
+
+Details are written on the task's own line, as plain text, so they stay readable in any editor:
+
+```
+- [ ] Send the proposal P2 #atlas >2026-10-08 @due(2026-10-10)
+```
+
+| Detail | Write | Meaning |
+| --- | --- | --- |
+| Priority | `P1` `P2` `P3` | High, medium, low |
+| Tags | `#atlas` | The same tags as everywhere else |
+| Planned day | `>2026-10-08` | The day you start on it; it is in Today from then on |
+| Someday | `>someday` | Parked; out of Today, Upcoming and Anytime |
+| Due date | `@due(2026-10-10)` | The deadline |
+| Done on | `@done(2026-10-07)` | Written for you when you tick the task |
+
+You do not have to type dates in full. On a task, type `>` or `@due(` and then a day in words (`fri`, `tomorrow`, `next week`, `14 oct`) and pick the suggestion; after `>`, `some` offers `someday`. The slash commands `/due`, `/plan`, `/someday` and `/p1` (or `/priority`) insert the same things.
+
+With the cursor on a task in a note, these keys change its details without typing them:
+
+| Key | Does |
+| --- | --- |
+| ⌘⌥T | Move to today: sets the planned day to today. The due date is left alone. |
+| ⌘⇧S | When: opens the calendar for the planned day, with Someday |
+| ⌘⇧D | Due date: opens the calendar |
+| ⌘⇧P | Priority: steps through P1, P2, P3 and none |
+| ⌘↵ | Tick or untick |
+
+Move to today and Priority apply to every task in a selection. The same four are in ⌘K under "Task:", and all of them can be changed in Settings → Shortcuts. In the browser version they are ⌥⇧T, ⌥⇧S, ⌥⇧D and ⌥⇧P.
+
+In the editor the details show as small labels. A due date turns red once it has passed. A planned day that is today or earlier is highlighted, because the task is in Today.
+
+### The Tasks view
+
+**Tasks** in the sidebar (⌘⇧T) gathers every checkbox from every note. Templates are left out.
+
+- **Lists** across the top: first the ones from Things, Today, Upcoming, Anytime, Someday and Logbook; then Overdue, This week, Next 30 days, No date and All open. Each shows its count (except the Logbook). Keys 1 to 9 and 0 switch between them, in that order.
+- **Narrow down** with the box: words match the task or its note's title, `#atlas` needs that tag, `p2` needs that priority or higher (P1 and P2). The tag chips below do the same with a click.
+- **From** chooses where tasks are taken from: All, Notes (leaves out tasks written in daily notes) or Daily (only those).
+- **Group by** date, project or priority. **Project** puts each note's tasks together under its notebook, in the order they are written and under their headings, with a small circle that fills as the project's tasks are ticked. Tasks in daily notes are kept together as one group, latest day first. In the Logbook, grouping by date groups by the day each task was done.
+- **Tick** a task to complete it. The checkbox in the note's file is ticked.
+- **Hover** a task for three buttons: priority, when (planned day or Someday), due date. Clicking a date label changes it too.
+- **Rescheduling:** the when and due-date buttons open a small calendar. Click a day, or type one in words (`fri`, `14 oct`, `in 3 days`) and press Enter. The arrow keys move the highlighted day, PgUp and PgDn change month, and Today, Tomorrow and Next week are one click. The when calendar also has **Someday**. **Remove** clears the date, or takes a task out of Someday.
+- **Click** a task to open its note at that line. ⌘-click opens the note to the side.
+
+With the keyboard:
+
+| Key | Does |
+| --- | --- |
+| ↑ ↓ (or K J) | Move between tasks |
+| Home, End | First and last task |
+| Space (or X) | Tick or untick |
+| ↵ | Open the task in its note; ⇧↵ opens it to the side |
+| D | Due date |
+| T | Move to today |
+| S | When: planned day or Someday |
+| P | Priority |
+| 1 to 9, 0 | Switch list |
+| / | Narrow down; ↓ or ↵ goes back to the list |
+
+How the lists are decided:
+
+- **Today:** planned for today or an earlier day, or due today or earlier.
+- **Upcoming:** planned for a day after today. A task with only a due date is not here; it is in Anytime until the day it is due.
+- **Anytime:** everything you could do now: not planned for a later day and not Someday. Today's tasks are here too.
+- **Someday:** marked `>someday`.
+- **Logbook:** ticked tasks, the most recently done first. Tasks ticked before the day was recorded come last, under "Day not recorded".
+- **Overdue:** the due date has passed. A planned day passing never makes a task overdue.
+- **This week:** due or planned between the first and last day of this week (your Week starts on setting).
+- **Next 30 days:** due or planned from today to 30 days ahead.
+- **No date:** no due date, no planned day and not Someday.
+
+The number beside Tasks in the sidebar is how many are in Today, overdue ones included.
+
+### Saved filters
+
+Under **Tasks** in the sidebar are Today, Upcoming, Anytime, Someday and Logbook, and Overdue while anything is overdue. You can add your own:
+
+1. In the Tasks view, choose a list, narrow it down (say `#atlas p2`), and pick From and Group by.
+2. Click **Save filter** and give it a name.
+
+It appears under Tasks in the sidebar with a live count. Open it and change anything, and an **Update filter** button appears to keep the change. The ⋯ button, or a right-click in the sidebar, renames or deletes it. Saved filters are kept with your settings, so they belong to this app on this computer.
+
+### Moving overdue tasks
+
+When a list contains overdue tasks, **Move all…** opens the calendar. Pick one day and every overdue task shown gets it as its new due date. Narrow the list first to move only some of them. The confirmation has an **Undo**. Tasks whose planned day has passed are not overdue, so they are not moved; they wait in Today.
+
+### The Top 3
+
+The Top 3 is the short checklist at the top of each daily note: the few things that would make the day a success. Its items are tasks like any other. What is left unticked moves into the next day's Top 3 when that note is created; see [Meeting notes and templates](#meeting-notes-and-templates) for the details and the setting that turns this off.
+
+### Tasks in the daily note
+
+A daily note shows a **Tasks for this day** panel listing tasks from other notes that are due or planned for that date. Today's note also lists what is overdue, and, under **From earlier days**, tasks planned for an earlier day that are still open. The panel is a view: nothing is copied into the daily note's file, and ticking a task there ticks it in its own note. On a canvas day the panel starts folded in the top-left corner.
+
+---
+
+# Reference
+
 ## Settings
 
 ⌘, opens Settings. A search box at the top finds any setting or shortcut by name.
@@ -625,16 +664,25 @@ On Windows and Linux, ⌘ is Ctrl and ⌥ is Alt.
 
 ## Recommended workflows
 
-The full routine is in its own document: **[Theory of operations](operations.md)**. It says exactly what to do every morning, in every meeting and 1:1, at the end of the day, every week and every month, with the keys for each step. Open it from **Help → Theory of Operations**, or type "routine" in ⌘K.
+The full routine is in its own document: **[Theory of operations](operations.md)**. Like this guide it has two parts, one for notes and one for tasks, and each says exactly what to do every morning, during the day, in every meeting, at the end of the day, every week and every month, with the keys for each step. Open it from **Help → Theory of Operations**, or type "routine" in ⌘K.
 
-In short:
+In short, for notes:
 
-- **Morning:** open the journal (⌘J), read today's task panel, clear anything overdue, and settle the Top 3.
-- **During the day:** capture with ⌘⇧C; write anything that needs doing as a task.
-- **Meetings:** ⌘⇧M as it starts, link the people and the project, write actions as tasks.
-- **End of day:** tick what is done and read down the Log once.
-- **Weekly:** clear Overdue, plan from Upcoming and Anytime, empty Scratch.
-- **Monthly:** review Someday, read the Logbook, tidy tags and notebooks, back up.
+- **Morning:** open the journal (⌘J) and glance at yesterday's Log.
+- **During the day:** capture with ⌘⇧C; link people and projects as you write.
+- **Meetings:** ⌘⇧M as it starts, link who and what, bullets under Notes, then Decisions.
+- **End of day:** read down today's Log once.
+- **Weekly:** skim the week, refresh people notes, empty Scratch.
+- **Monthly:** tidy tags, notebooks and templates; back up.
+
+And for tasks:
+
+- **Morning:** read today's task panel, clear anything overdue, settle the Top 3.
+- **During the day:** write anything that needs doing as a task; tick things as you finish.
+- **Meetings:** write each action as a task, with a due date if one was agreed.
+- **End of day:** tick what is done and leave the rest.
+- **Weekly:** clear Overdue, plan from Upcoming and Anytime, catch undated tasks.
+- **Monthly:** review Someday, read the Logbook, close finished projects.
 
 ### Research and learning
 

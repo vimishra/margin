@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.8.1 (2026-10-08)
+
+### Changed
+
+- **The documentation is split into notes and tasks.** The theory of operations now has a Part 1 for notes and a Part 2 for tasks, each with its own morning, daily, meeting, weekly and monthly routine, and a one-table overview of how the two fit into a day. The user guide is grouped the same way, with everything about tasks together in Part 2. No change to the app itself.
+
 ## 1.8.0 (2026-10-08)
 
 ### Added

@@ -45,14 +45,18 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 <p>You can open this guide from inside the app: <strong>Help → User Guide</strong> in the menu bar, the <strong>User guide</strong> button in the shortcuts window (press <code>?</code>), or type &quot;guide&quot; in ⌘K. The <a href="design.html">design guide</a>, which explains how Margin is built, is in the same places.</p>
 <p>This guide uses the desktop app's shortcuts. In a browser, most use ⌥ in place of ⌘ (see <a href="#shortcuts">Shortcuts</a>). Every shortcut can be changed in Settings.</p>
 <h2 id="contents">Contents</h2>
+<p>The guide has two main parts, because Margin does two different jobs. <strong>Part 1</strong> is about notes. <strong>Part 2</strong> is about tasks.</p>
+<p><strong>Start here</strong></p>
 <ul>
 <li><a href="#getting-started">Getting started</a></li>
 <li><a href="#the-window">The window</a></li>
 <li><a href="#how-margin-is-organised-and-why">How Margin is organised, and why</a></li>
+</ul>
+<p><strong><a href="#part-1-notes">Part 1: Notes</a></strong></p>
+<ul>
 <li><a href="#writing">Writing</a></li>
 <li><a href="#finding-things">Finding things</a></li>
 <li><a href="#daily-notes-the-calendar-and-the-canvas">Daily notes, the calendar and the canvas</a></li>
-<li><a href="#tasks">Tasks</a></li>
 <li><a href="#quick-capture-and-scratch-notes">Quick capture and scratch notes</a></li>
 <li><a href="#meeting-notes-and-templates">Meeting notes and templates</a></li>
 <li><a href="#people-and-11s">People and 1:1s</a></li>
@@ -61,6 +65,22 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 <li><a href="#two-notes-side-by-side">Two notes side by side</a></li>
 <li><a href="#history-trash-and-export">History, trash and export</a></li>
 <li><a href="#importing-from-obsidian">Importing from Obsidian</a></li>
+</ul>
+<p><strong><a href="#part-2-tasks">Part 2: Tasks</a></strong></p>
+<ul>
+<li><a href="#tasks">Tasks</a>
+<ul>
+<li><a href="#details-on-a-task">Details on a task</a></li>
+<li><a href="#the-tasks-view">The Tasks view</a></li>
+<li><a href="#saved-filters">Saved filters</a></li>
+<li><a href="#moving-overdue-tasks">Moving overdue tasks</a></li>
+<li><a href="#the-top-3">The Top 3</a></li>
+<li><a href="#tasks-in-the-daily-note">Tasks in the daily note</a></li>
+</ul>
+</li>
+</ul>
+<p><strong><a href="#reference">Reference</a></strong></p>
+<ul>
 <li><a href="#settings">Settings</a></li>
 <li><a href="#shortcuts">Shortcuts</a></li>
 <li><a href="#recommended-workflows">Recommended workflows</a></li>
@@ -215,6 +235,9 @@ npm run app
 <li><strong>Titles</strong>, because links go by title. Two notes with the same title make a link ambiguous, so keep titles distinct.</li>
 </ul>
 <p>Everything else is optional.</p>
+<hr>
+<h1 id="part-1-notes">Part 1: Notes</h1>
+<p>Everything about writing things down and finding them again: the editor, search, daily notes, capture, meetings, people, research and keeping the collection organised.</p>
 <h2 id="writing">Writing</h2>
 <h3 id="live-preview">Live preview</h3>
 <p>Notes render as you type. The line your cursor is on shows its markdown; every other line shows the result. So <code>**bold**</code> becomes <strong>bold</strong> when you move off the line.</p>
@@ -452,6 +475,133 @@ npm run app
 <li>A day that also has a canvas shows a <strong>Canvas</strong> button. The journal shows only the page side.</li>
 </ul>
 <p><strong>Calendar</strong> shows a month. Days with a daily note have a dot. Click a day to see it; press Enter or double-click to open it. The small calendar in the sidebar opens a day's note with one click.</p>
+<h2 id="quick-capture-and-scratch-notes">Quick capture and scratch notes</h2>
+<p><strong>Quick capture</strong> (⌘⇧C, or ⌃⌥Space from any app) opens a small box. Type, press Enter, and carry on with what you were doing. Tab chooses where it goes:</p>
+<ul>
+<li><strong>Today's note:</strong> a timestamped line, or a card if today is on the canvas.</li>
+<li><strong>Scratch:</strong> a new temporary note.</li>
+<li><strong>Inbox:</strong> a new note in the Inbox notebook.</li>
+<li><strong>A note…:</strong> added to a note you choose, as a new bullet. The first time, press Enter or click to search for the note; you can also pick a heading to add it under. Margin remembers the note and heading, so next time it is Tab and Enter. ⌥↓ chooses a different note.</li>
+</ul>
+<p>The destination the box opens with is still the one set in Settings, so the usual capture is unchanged. Anything you type as a task (<code>- [ ] …</code>) is kept as a task, in today's note as well as in a chosen note.</p>
+<p><strong>Scratch notes</strong> (⌘⌥N) are for things you need for a few days. They expire after a week and move to the trash. Each one shows how long it has left, with buttons to extend it or <strong>Keep</strong> it as a normal note.</p>
+<h2 id="meeting-notes-and-templates">Meeting notes and templates</h2>
+<p><strong>New meeting note</strong> (⌘⇧M) asks for the meeting's name, then:</p>
+<ul>
+<li>creates the note in <code>Meetings/2026/Oct/</code></li>
+<li>fills in the meeting template and tags it <code>#meeting</code></li>
+<li>adds a timestamped link to it in today's daily note</li>
+</ul>
+<p><strong>Templates</strong> are ordinary notes in the <code>Templates</code> notebook. Edit one like any note. To use one, choose <strong>New → From a template…</strong>, or type <code>/template</code> in a note.</p>
+<p>Templates can contain placeholders that are filled in when the note is made:</p>
+<div class="table"><table><thead>
+<tr>
+<th>Placeholder</th>
+<th>Becomes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>{{date}}</code></td>
+<td>2026-10-06</td>
+</tr>
+<tr>
+<td><code>{{time}}</code></td>
+<td>16:54, or 4:54 PM (your Time format setting)</td>
+</tr>
+<tr>
+<td><code>{{day}}</code></td>
+<td>Tuesday</td>
+</tr>
+<tr>
+<td><code>{{title}}</code></td>
+<td>The note's or meeting's name</td>
+</tr>
+<tr>
+<td><code>{{date:ddd, Do MMM}}</code></td>
+<td>Tue, 6th Oct</td>
+</tr>
+<tr>
+<td><code>{{time:h:mmA}}</code></td>
+<td>4:54PM</td>
+</tr>
+</tbody>
+</table></div><p><strong>Daily notes</strong> start from the note called <code>Daily</code> in the Templates notebook. Margin creates it the first time a daily note is needed, with a &quot;Top 3&quot; checklist and a &quot;Log&quot; section. Edit it like any note to change what each day starts with; empty it for blank daily notes. Because it is a note, it travels with your notes folder to another computer.</p>
+<ul>
+<li><strong>The Top 3 carries forward.</strong> When today's note is created, anything left unticked in the last day's Top 3 is moved into today's, with anything nested under it. Ticked items, and ones you struck through, stay where they were. An item written without a checkbox is carried too, and becomes a checkbox so it can be ticked. If today's note already exists, run &quot;Move unfinished Top 3 to today&quot; from ⌘K. Turn the automatic move off in Settings → Daily notes.</li>
+<li>Placeholders are filled in for the day the note is for, so a note for next Tuesday says Tuesday.</li>
+<li>Tags on the <code>Daily</code> note are given to each new daily note.</li>
+<li>The template is applied when a daily note is first created, whichever way that happens: Today, the calendar, the journal, quick capture, or a link such as <code>[[tomorrow]]</code>.</li>
+<li>Daily notes that already exist are not changed. To add the template to one, type <code>/template</code> in it.</li>
+<li>If you typed a template into Settings → Daily notes before, it is still used as long as there is no <code>Daily</code> note.</li>
+</ul>
+<p>The format letters are the same as Obsidian's: <code>YYYY</code>, <code>MMMM</code>, <code>MMM</code>, <code>MM</code>, <code>Do</code>, <code>DD</code>, <code>dddd</code>, <code>ddd</code>, <code>HH</code>, <code>h</code>, <code>mm</code>, <code>A</code>.</p>
+<h2 id="people-and-11s">People and 1:1s</h2>
+<p><strong>New person note</strong> (in the New menu, or ⌘K → &quot;New person note&quot;) asks for a name and creates one note for that person in the <code>People</code> notebook. The note holds every 1:1 with them:</p>
+<pre><code>## Next time
+- things to raise
+
+## Meetings
+### Tue, 6th Oct 2026
+- notes
+**Actions**
+- [ ] …
+
+## About
+</code></pre>
+<ul>
+<li><strong>Between meetings:</strong> add to <em>Next time</em>. Quick capture can do it without opening the note: choose <strong>A note…</strong>, pick the person and the <em>Next time</em> heading once, and it is remembered.</li>
+<li><strong>When the meeting starts:</strong> ⌘K → &quot;Add today's meeting entry&quot;. A new dated heading is added at the top of <em>Meetings</em>, newest first.</li>
+<li><strong>Actions</strong> are tasks, so they show in the Tasks view. Give them a due date with <code>@due(fri)</code>.</li>
+</ul>
+<p>The layout comes from the <code>Person</code> template in the Templates notebook, which is created the first time you use the command. Edit it to change what new person notes start with. The notebook is set in Settings → Templates &amp; meetings.</p>
+<h2 id="research-notes">Research notes</h2>
+<p>A research note keeps a source and your thinking about it together. <strong>New → Research note</strong> asks for a link and fetches the page's title.</p>
+<p>Each one has a source link, a status (Unread, Reading, Done), and sections for a summary, quotes and your notes. Paste screenshots and PDFs straight in.</p>
+<p><strong>Research</strong> in the sidebar lists them, filtered by status. Home shows what you are reading.</p>
+<h2 id="organising">Organising</h2>
+<p>For what each of these is for, see <a href="#how-margin-is-organised-and-why">How Margin is organised, and why</a>. This section is the how-to.</p>
+<ul>
+<li><strong>Notebooks</strong> are folders, and can be nested. Right-click one to add a note, add a notebook inside it, rename or delete it. Drag a note from a list onto a notebook to move it.</li>
+<li><strong>Tags:</strong> add them under the title, or write <code>#tag</code> in the text. Click a tag to see everything with it. ⌘T adds a tag to the note you are in: the tags you already use are listed and narrow as you type, Enter picks the highlighted one, and a name that does not exist yet is offered as a new tag. Several words separated by spaces add several tags. Every tag has its own colour, chosen automatically from its name, and keeps it everywhere: under the title, in the text, in the sidebar and in the Tasks view. Nested tags such as <code>work/atlas</code> share the colour of their first part.</li>
+<li><strong>Notebook tags:</strong> right-click a notebook and choose <strong>Tags for notes here…</strong> to give it tags, such as <code>#meeting</code> for Meetings.
+<ul>
+<li>A note created in the notebook, or moved into it, gets those tags written into the note itself, alongside the ones you add by hand.</li>
+<li>Notebooks inside it inherit them.</li>
+<li>When you set the tags, Margin offers to add them to the notes already there, and tells you how many.</li>
+<li>Moving a note out does not remove the tags; remove them by hand if they no longer apply.</li>
+<li>The notebook's page shows its tags under the title.</li>
+</ul>
+</li>
+<li><strong>Pin</strong> a note (the pin button) to keep it in the sidebar and on Home.</li>
+<li><strong>Move</strong> a note with ⌥M, or by clicking its notebook name above the title.</li>
+</ul>
+<p>Lists of notes can be filtered (press <code>/</code>) and sorted. ↑ and ↓ move through a list; Enter opens.</p>
+<h2 id="two-notes-side-by-side">Two notes side by side</h2>
+<p>Open a second note beside the first:</p>
+<ul>
+<li><strong>⌘-click</strong> or <strong>⌥-click</strong> a note anywhere: a link, a tab, a list row, a backlink.</li>
+<li><strong>Right-click</strong> a note → Open to the side.</li>
+<li><strong>⌥↵</strong> on a result in ⌘K.</li>
+<li><strong>⌘⌥\</strong> opens the current note to the side, or closes the side pane.</li>
+</ul>
+<p>Each pane has its own tabs. The pane you last clicked is the active one, marked with a coloured line along the top; search, jump to heading, list shortcuts and ⌘W apply to it. Drag the divider to resize; double-click it for equal halves.</p>
+<h2 id="history-trash-and-export">History, trash and export</h2>
+<p><strong>Version history</strong> (⌥V) keeps a snapshot for every five minutes of editing. Pick a version to see what changed, then <strong>Restore this version</strong>.</p>
+<p><strong>Deleting</strong> a note moves it to the <code>.trash</code> folder inside your notes folder. A message offers Undo for a few seconds.</p>
+<p><strong>Export</strong> (the download button on a note):</p>
+<ul>
+<li><strong>Markdown</strong>, <strong>Web page (.html)</strong> and <strong>Word (.doc)</strong> save a file.</li>
+<li><strong>PDF</strong> saves directly in the desktop app; in a browser it opens the print dialog.</li>
+<li><strong>Copy for Google Docs</strong> copies the formatted note; paste it into a new document.</li>
+</ul>
+<h2 id="importing-from-obsidian">Importing from Obsidian</h2>
+<p><strong>Settings → Files &amp; data → Import…</strong> copies an Obsidian vault into your notes folder. Your Obsidian folder is not changed.</p>
+<p>It brings notes with their folders, tags and dates; images and PDFs; links between notes; and canvases. Notes named like <code>2025-03-04</code> become daily notes.</p>
+<p>Callouts appear as plain quotes, embedded notes become links, and plugin features such as Dataview stay as text. Importing the same vault twice duplicates the notes.</p>
+<hr>
+<h1 id="part-2-tasks">Part 2: Tasks</h1>
+<p>Everything about deciding what to do and when: what a task is, its priority and dates, the Tasks view and its lists, saved filters and the Top 3. Tasks are written inside notes, but planning and reviewing them is a separate activity with its own view and its own keys.</p>
 <h2 id="tasks">Tasks</h2>
 <p>A task is a checkbox: <code>- [ ] Send the proposal</code>. Type <code>/task</code>, press ⌘⇧9, or write it by hand. Tasks can live in any note. To tick or untick the task the cursor is on, press ⌘↵ or click its box; with several lines selected, ⌘↵ ticks them all.</p>
 <p>Ticking a task writes the day on its line, <code>@done(2026-10-07)</code>, so the Logbook can show when it was done. Unticking takes it off again. Turn this off in Settings → General → <strong>Record when tasks are done</strong>.</p>
@@ -620,132 +770,12 @@ npm run app
 <p>It appears under Tasks in the sidebar with a live count. Open it and change anything, and an <strong>Update filter</strong> button appears to keep the change. The ⋯ button, or a right-click in the sidebar, renames or deletes it. Saved filters are kept with your settings, so they belong to this app on this computer.</p>
 <h3 id="moving-overdue-tasks">Moving overdue tasks</h3>
 <p>When a list contains overdue tasks, <strong>Move all…</strong> opens the calendar. Pick one day and every overdue task shown gets it as its new due date. Narrow the list first to move only some of them. The confirmation has an <strong>Undo</strong>. Tasks whose planned day has passed are not overdue, so they are not moved; they wait in Today.</p>
+<h3 id="the-top-3">The Top 3</h3>
+<p>The Top 3 is the short checklist at the top of each daily note: the few things that would make the day a success. Its items are tasks like any other. What is left unticked moves into the next day's Top 3 when that note is created; see <a href="#meeting-notes-and-templates">Meeting notes and templates</a> for the details and the setting that turns this off.</p>
 <h3 id="tasks-in-the-daily-note">Tasks in the daily note</h3>
 <p>A daily note shows a <strong>Tasks for this day</strong> panel listing tasks from other notes that are due or planned for that date. Today's note also lists what is overdue, and, under <strong>From earlier days</strong>, tasks planned for an earlier day that are still open. The panel is a view: nothing is copied into the daily note's file, and ticking a task there ticks it in its own note. On a canvas day the panel starts folded in the top-left corner.</p>
-<h2 id="quick-capture-and-scratch-notes">Quick capture and scratch notes</h2>
-<p><strong>Quick capture</strong> (⌘⇧C, or ⌃⌥Space from any app) opens a small box. Type, press Enter, and carry on with what you were doing. Tab chooses where it goes:</p>
-<ul>
-<li><strong>Today's note:</strong> a timestamped line, or a card if today is on the canvas.</li>
-<li><strong>Scratch:</strong> a new temporary note.</li>
-<li><strong>Inbox:</strong> a new note in the Inbox notebook.</li>
-<li><strong>A note…:</strong> added to a note you choose, as a new bullet. The first time, press Enter or click to search for the note; you can also pick a heading to add it under. Margin remembers the note and heading, so next time it is Tab and Enter. ⌥↓ chooses a different note.</li>
-</ul>
-<p>The destination the box opens with is still the one set in Settings, so the usual capture is unchanged. Anything you type as a task (<code>- [ ] …</code>) is kept as a task, in today's note as well as in a chosen note.</p>
-<p><strong>Scratch notes</strong> (⌘⌥N) are for things you need for a few days. They expire after a week and move to the trash. Each one shows how long it has left, with buttons to extend it or <strong>Keep</strong> it as a normal note.</p>
-<h2 id="meeting-notes-and-templates">Meeting notes and templates</h2>
-<p><strong>New meeting note</strong> (⌘⇧M) asks for the meeting's name, then:</p>
-<ul>
-<li>creates the note in <code>Meetings/2026/Oct/</code></li>
-<li>fills in the meeting template and tags it <code>#meeting</code></li>
-<li>adds a timestamped link to it in today's daily note</li>
-</ul>
-<p><strong>Templates</strong> are ordinary notes in the <code>Templates</code> notebook. Edit one like any note. To use one, choose <strong>New → From a template…</strong>, or type <code>/template</code> in a note.</p>
-<p>Templates can contain placeholders that are filled in when the note is made:</p>
-<div class="table"><table><thead>
-<tr>
-<th>Placeholder</th>
-<th>Becomes</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>{{date}}</code></td>
-<td>2026-10-06</td>
-</tr>
-<tr>
-<td><code>{{time}}</code></td>
-<td>16:54, or 4:54 PM (your Time format setting)</td>
-</tr>
-<tr>
-<td><code>{{day}}</code></td>
-<td>Tuesday</td>
-</tr>
-<tr>
-<td><code>{{title}}</code></td>
-<td>The note's or meeting's name</td>
-</tr>
-<tr>
-<td><code>{{date:ddd, Do MMM}}</code></td>
-<td>Tue, 6th Oct</td>
-</tr>
-<tr>
-<td><code>{{time:h:mmA}}</code></td>
-<td>4:54PM</td>
-</tr>
-</tbody>
-</table></div><p><strong>Daily notes</strong> start from the note called <code>Daily</code> in the Templates notebook. Margin creates it the first time a daily note is needed, with a &quot;Top 3&quot; checklist and a &quot;Log&quot; section. Edit it like any note to change what each day starts with; empty it for blank daily notes. Because it is a note, it travels with your notes folder to another computer.</p>
-<ul>
-<li><strong>The Top 3 carries forward.</strong> When today's note is created, anything left unticked in the last day's Top 3 is moved into today's, with anything nested under it. Ticked items, and ones you struck through, stay where they were. An item written without a checkbox is carried too, and becomes a checkbox so it can be ticked. If today's note already exists, run &quot;Move unfinished Top 3 to today&quot; from ⌘K. Turn the automatic move off in Settings → Daily notes.</li>
-<li>Placeholders are filled in for the day the note is for, so a note for next Tuesday says Tuesday.</li>
-<li>Tags on the <code>Daily</code> note are given to each new daily note.</li>
-<li>The template is applied when a daily note is first created, whichever way that happens: Today, the calendar, the journal, quick capture, or a link such as <code>[[tomorrow]]</code>.</li>
-<li>Daily notes that already exist are not changed. To add the template to one, type <code>/template</code> in it.</li>
-<li>If you typed a template into Settings → Daily notes before, it is still used as long as there is no <code>Daily</code> note.</li>
-</ul>
-<p>The format letters are the same as Obsidian's: <code>YYYY</code>, <code>MMMM</code>, <code>MMM</code>, <code>MM</code>, <code>Do</code>, <code>DD</code>, <code>dddd</code>, <code>ddd</code>, <code>HH</code>, <code>h</code>, <code>mm</code>, <code>A</code>.</p>
-<h2 id="people-and-11s">People and 1:1s</h2>
-<p><strong>New person note</strong> (in the New menu, or ⌘K → &quot;New person note&quot;) asks for a name and creates one note for that person in the <code>People</code> notebook. The note holds every 1:1 with them:</p>
-<pre><code>## Next time
-- things to raise
-
-## Meetings
-### Tue, 6th Oct 2026
-- notes
-**Actions**
-- [ ] …
-
-## About
-</code></pre>
-<ul>
-<li><strong>Between meetings:</strong> add to <em>Next time</em>. Quick capture can do it without opening the note: choose <strong>A note…</strong>, pick the person and the <em>Next time</em> heading once, and it is remembered.</li>
-<li><strong>When the meeting starts:</strong> ⌘K → &quot;Add today's meeting entry&quot;. A new dated heading is added at the top of <em>Meetings</em>, newest first.</li>
-<li><strong>Actions</strong> are tasks, so they show in the Tasks view. Give them a due date with <code>@due(fri)</code>.</li>
-</ul>
-<p>The layout comes from the <code>Person</code> template in the Templates notebook, which is created the first time you use the command. Edit it to change what new person notes start with. The notebook is set in Settings → Templates &amp; meetings.</p>
-<h2 id="research-notes">Research notes</h2>
-<p>A research note keeps a source and your thinking about it together. <strong>New → Research note</strong> asks for a link and fetches the page's title.</p>
-<p>Each one has a source link, a status (Unread, Reading, Done), and sections for a summary, quotes and your notes. Paste screenshots and PDFs straight in.</p>
-<p><strong>Research</strong> in the sidebar lists them, filtered by status. Home shows what you are reading.</p>
-<h2 id="organising">Organising</h2>
-<p>For what each of these is for, see <a href="#how-margin-is-organised-and-why">How Margin is organised, and why</a>. This section is the how-to.</p>
-<ul>
-<li><strong>Notebooks</strong> are folders, and can be nested. Right-click one to add a note, add a notebook inside it, rename or delete it. Drag a note from a list onto a notebook to move it.</li>
-<li><strong>Tags:</strong> add them under the title, or write <code>#tag</code> in the text. Click a tag to see everything with it. ⌘T adds a tag to the note you are in: the tags you already use are listed and narrow as you type, Enter picks the highlighted one, and a name that does not exist yet is offered as a new tag. Several words separated by spaces add several tags. Every tag has its own colour, chosen automatically from its name, and keeps it everywhere: under the title, in the text, in the sidebar and in the Tasks view. Nested tags such as <code>work/atlas</code> share the colour of their first part.</li>
-<li><strong>Notebook tags:</strong> right-click a notebook and choose <strong>Tags for notes here…</strong> to give it tags, such as <code>#meeting</code> for Meetings.
-<ul>
-<li>A note created in the notebook, or moved into it, gets those tags written into the note itself, alongside the ones you add by hand.</li>
-<li>Notebooks inside it inherit them.</li>
-<li>When you set the tags, Margin offers to add them to the notes already there, and tells you how many.</li>
-<li>Moving a note out does not remove the tags; remove them by hand if they no longer apply.</li>
-<li>The notebook's page shows its tags under the title.</li>
-</ul>
-</li>
-<li><strong>Pin</strong> a note (the pin button) to keep it in the sidebar and on Home.</li>
-<li><strong>Move</strong> a note with ⌥M, or by clicking its notebook name above the title.</li>
-</ul>
-<p>Lists of notes can be filtered (press <code>/</code>) and sorted. ↑ and ↓ move through a list; Enter opens.</p>
-<h2 id="two-notes-side-by-side">Two notes side by side</h2>
-<p>Open a second note beside the first:</p>
-<ul>
-<li><strong>⌘-click</strong> or <strong>⌥-click</strong> a note anywhere: a link, a tab, a list row, a backlink.</li>
-<li><strong>Right-click</strong> a note → Open to the side.</li>
-<li><strong>⌥↵</strong> on a result in ⌘K.</li>
-<li><strong>⌘⌥\</strong> opens the current note to the side, or closes the side pane.</li>
-</ul>
-<p>Each pane has its own tabs. The pane you last clicked is the active one, marked with a coloured line along the top; search, jump to heading, list shortcuts and ⌘W apply to it. Drag the divider to resize; double-click it for equal halves.</p>
-<h2 id="history-trash-and-export">History, trash and export</h2>
-<p><strong>Version history</strong> (⌥V) keeps a snapshot for every five minutes of editing. Pick a version to see what changed, then <strong>Restore this version</strong>.</p>
-<p><strong>Deleting</strong> a note moves it to the <code>.trash</code> folder inside your notes folder. A message offers Undo for a few seconds.</p>
-<p><strong>Export</strong> (the download button on a note):</p>
-<ul>
-<li><strong>Markdown</strong>, <strong>Web page (.html)</strong> and <strong>Word (.doc)</strong> save a file.</li>
-<li><strong>PDF</strong> saves directly in the desktop app; in a browser it opens the print dialog.</li>
-<li><strong>Copy for Google Docs</strong> copies the formatted note; paste it into a new document.</li>
-</ul>
-<h2 id="importing-from-obsidian">Importing from Obsidian</h2>
-<p><strong>Settings → Files &amp; data → Import…</strong> copies an Obsidian vault into your notes folder. Your Obsidian folder is not changed.</p>
-<p>It brings notes with their folders, tags and dates; images and PDFs; links between notes; and canvases. Notes named like <code>2025-03-04</code> become daily notes.</p>
-<p>Callouts appear as plain quotes, embedded notes become links, and plugin features such as Dataview stay as text. Importing the same vault twice duplicates the notes.</p>
+<hr>
+<h1 id="reference">Reference</h1>
 <h2 id="settings">Settings</h2>
 <p>⌘, opens Settings. A search box at the top finds any setting or shortcut by name.</p>
 <div class="table"><table><thead>
@@ -992,15 +1022,24 @@ npm run app
 </tbody>
 </table></div><p>On Windows and Linux, ⌘ is Ctrl and ⌥ is Alt.</p>
 <h2 id="recommended-workflows">Recommended workflows</h2>
-<p>The full routine is in its own document: <strong><a href="operations.html">Theory of operations</a></strong>. It says exactly what to do every morning, in every meeting and 1:1, at the end of the day, every week and every month, with the keys for each step. Open it from <strong>Help → Theory of Operations</strong>, or type &quot;routine&quot; in ⌘K.</p>
-<p>In short:</p>
+<p>The full routine is in its own document: <strong><a href="operations.html">Theory of operations</a></strong>. Like this guide it has two parts, one for notes and one for tasks, and each says exactly what to do every morning, during the day, in every meeting, at the end of the day, every week and every month, with the keys for each step. Open it from <strong>Help → Theory of Operations</strong>, or type &quot;routine&quot; in ⌘K.</p>
+<p>In short, for notes:</p>
 <ul>
-<li><strong>Morning:</strong> open the journal (⌘J), read today's task panel, clear anything overdue, and settle the Top 3.</li>
-<li><strong>During the day:</strong> capture with ⌘⇧C; write anything that needs doing as a task.</li>
-<li><strong>Meetings:</strong> ⌘⇧M as it starts, link the people and the project, write actions as tasks.</li>
-<li><strong>End of day:</strong> tick what is done and read down the Log once.</li>
-<li><strong>Weekly:</strong> clear Overdue, plan from Upcoming and Anytime, empty Scratch.</li>
-<li><strong>Monthly:</strong> review Someday, read the Logbook, tidy tags and notebooks, back up.</li>
+<li><strong>Morning:</strong> open the journal (⌘J) and glance at yesterday's Log.</li>
+<li><strong>During the day:</strong> capture with ⌘⇧C; link people and projects as you write.</li>
+<li><strong>Meetings:</strong> ⌘⇧M as it starts, link who and what, bullets under Notes, then Decisions.</li>
+<li><strong>End of day:</strong> read down today's Log once.</li>
+<li><strong>Weekly:</strong> skim the week, refresh people notes, empty Scratch.</li>
+<li><strong>Monthly:</strong> tidy tags, notebooks and templates; back up.</li>
+</ul>
+<p>And for tasks:</p>
+<ul>
+<li><strong>Morning:</strong> read today's task panel, clear anything overdue, settle the Top 3.</li>
+<li><strong>During the day:</strong> write anything that needs doing as a task; tick things as you finish.</li>
+<li><strong>Meetings:</strong> write each action as a task, with a due date if one was agreed.</li>
+<li><strong>End of day:</strong> tick what is done and leave the rest.</li>
+<li><strong>Weekly:</strong> clear Overdue, plan from Upcoming and Anytime, catch undated tasks.</li>
+<li><strong>Monthly:</strong> review Someday, read the Logbook, close finished projects.</li>
 </ul>
 <h3 id="research-and-learning">Research and learning</h3>
 <ol>
