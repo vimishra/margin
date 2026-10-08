@@ -1,4 +1,5 @@
 // Turns the markdown guides in docs/ into standalone HTML pages: `npm run docs`.
+// The pages follow the theme chosen in the app (see the script in the template below), not only the system's.
 import MarkdownIt from 'markdown-it'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -25,8 +26,8 @@ md.renderer.rules.table_open = () => '<div class="table"><table>'
 md.renderer.rules.table_close = () => '</table></div>'
 
 const css = `
-:root{--bg:#fff;--text:#1f1e1b;--muted:#6b6862;--line:#e6e3dd;--soft:#f6f5f2;--accent:#4a4ac4;--code:#b0452a}
-@media (prefers-color-scheme:dark){:root{--bg:#1a1a19;--text:#ecebe7;--muted:#a09e97;--line:#2f2f2c;--soft:#232321;--accent:#a6a6ff;--code:#f0987c}}
+:root{--bg:#fff;--text:#15171a;--muted:#6a6e74;--line:#e4e6e9;--soft:#f5f6f8;--accent:#255fb3;--code:#c2410c;color-scheme:light}
+:root[data-theme=dark]{--bg:#282828;--text:#f2f2f2;--muted:#a3a3a6;--line:#3a3b3d;--soft:#313133;--accent:#7fb2f5;--code:#f0987c;color-scheme:dark}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
 main{max-width:820px;margin:0 auto;padding:56px 28px 120px}
@@ -70,6 +71,21 @@ for (const file of pages) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${title}</title>
 <link rel="icon" href="images/icon.png">
+<script>
+// Follow the theme chosen in Margin (light, dark or match the system). Opened as a plain file, follow the system.
+(function () {
+  var dark = matchMedia('(prefers-color-scheme: dark)')
+  function apply() {
+    var t = 'system'
+    try { t = JSON.parse(localStorage.getItem('margin.theme') || '"system"') } catch (e) {}
+    document.documentElement.dataset.theme = t === 'dark' || (t !== 'light' && dark.matches) ? 'dark' : 'light'
+  }
+  apply()
+  // Keep up if the theme is changed in the app, or the system switches, while the guide is open.
+  addEventListener('storage', apply)
+  dark.addEventListener('change', apply)
+})()
+</script>
 <style>${css}</style>
 </head>
 <body>

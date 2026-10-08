@@ -5,6 +5,7 @@
   --doc-font: var(--font);
   --doc-size: 16px;
   --doc-weight: 400;
+  --ui-weight: 400;
   --list-indent: 28px;
   --bullet-marker: 1.05em;
   --task-marker: calc(15px + 0.6em);
@@ -144,6 +145,7 @@ body,
 body {
   margin: 0;
   font: 14px/1.45 var(--font);
+  font-weight: var(--ui-weight);
   color: var(--text);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
@@ -4797,4 +4799,15 @@ button.chip.tag:hover,
 .tw-sort:hover {
   background: var(--active);
   color: var(--text);
+}
+
+/* The task panel inside a note is part of the page: its tasks use the note's own font, size and weight. */
+.doc .day-tasks .task-text,
+.day-tasks-float .day-tasks .task-text {
+  font-family: var(--doc-font);
+  font-size: var(--doc-size);
+  font-weight: var(--doc-weight);
+}
+.doc .day-tasks .task-pri {
+  font-family: var(--font);
 }

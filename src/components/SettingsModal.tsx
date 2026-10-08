@@ -420,7 +420,7 @@ export function SettingsModal() {
                 <Row label="Text size">
                   <Stepper value={s.fontSize} min={12} max={24} unit="px" onChange={set('fontSize')} />
                 </Row>
-                <Row label="Text weight" hint="400 is regular, 700 is bold. In-between values need a variable font, such as the system default or Inter.">
+                <Row label="Text weight" hint="400 is regular, 700 is bold. In-between values need a variable font, such as the system default or Inter. The sidebar, lists and task panels follow the same weight, up to 540.">
                   <div className="slider">
                     <input type="range" min={300} max={700} step={10} value={s.fontWeight} aria-label="Text weight" onChange={(e) => setSetting('fontWeight', Number(e.target.value))} />
                     <output>{s.fontWeight}</output>

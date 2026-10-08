@@ -2,6 +2,14 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.8.2 (2026-10-08)
+
+### Fixed
+
+- The **Text weight** setting now applies to the whole app (sidebar, lists, the Tasks view), not only to the text of notes, so the two no longer look mismatched.
+- Tasks in the **Tasks for this day** panel are shown in the note's own font, size and weight, so they read like the rest of the page.
+- The help guides follow the theme chosen in Margin. They used to follow the system's light or dark setting, so a light app could open a dark guide. Their colours now match the app's palette too.
+
 ## 1.8.1 (2026-10-08)
 
 ### Changed

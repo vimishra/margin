@@ -1485,6 +1485,9 @@ export function applyAppearance() {
   root.style.setProperty('--mono', fontCss(codeFont, true))
   root.style.setProperty('--doc-size', `${fontSize}px`)
   root.style.setProperty('--doc-weight', String(fontWeight))
+  // The rest of the app (sidebar, lists, task panels) follows the same weight, so notes and the UI around them match.
+  // It stops short of bold so headings and selected items in the UI still stand out.
+  root.style.setProperty('--ui-weight', String(Math.min(fontWeight, 540)))
   root.style.setProperty('--list-indent', `${get().settings.listIndent ?? 28}px`)
   root.style.setProperty('--list-guide', get().settings.indentGuides === false ? 'transparent' : 'var(--border-strong)')
   // Bullets and list numbers take the Heading 2 colour when one is set.
