@@ -2,10 +2,11 @@ import { create } from 'zustand'
 import type { ReactNode } from 'react'
 import { api } from './api'
 import { shortLinks } from './lib/shortlinks'
+import { addToTop3, takeUnfinishedTop3 } from './lib/top3'
 import { desktop } from './desktop'
 import type { Note, NotePatch, NoteType, Route } from './types'
 import { appendCard } from './lib/canvas'
-import { clock, displayTitle, isYmd, local, today, parseYmd, ymd } from './lib/util'
+import { clock, displayTitle, isYmd, local, today, parseYmd, ymd, dailyLabel } from './lib/util'
 import { rewriteTask, shortDate, withDetails, type SavedTaskView, type Task, type TaskView } from './lib/tasks'
 
 export interface Toast {
@@ -120,6 +121,8 @@ export interface Settings {
   meetingsSubfolder: string
   /** Add a link to each new meeting note in today's daily note. */
   meetingLink: boolean
+  /** When today's note is created, move the unticked items of the last day's Top 3 into it. */
+  carryTop3: boolean
   /** Show go/name and b/123 as links. */
   shortLinks: boolean
   /** Task filters saved from the Tasks view; they show under Tasks in the sidebar. */
@@ -169,6 +172,7 @@ export const DEFAULT_SETTINGS: Settings = {
   meetingsFolder: 'Meetings',
   meetingsSubfolder: 'YYYY/MMM',
   meetingLink: true,
+  carryTop3: true,
   shortLinks: true,
   taskViews: [],
   logCompletion: true,
@@ -696,7 +700,7 @@ export function findDaily(date: string): Note | undefined {
 /** What a new daily note starts with until the "Daily" template note is edited. */
 export const DAILY_TEMPLATE = `## Top 3 for {{day}}
 
-1. 
+- [ ] 
 
 ## Log
 
@@ -711,10 +715,41 @@ export function ensureDaily(date: string): Promise<Note | null> {
   // Two requests for the same new day (or for the template) must not create it twice.
   let making = makingDaily.get(date)
   if (!making) {
-    making = createDaily(date).finally(() => makingDaily.delete(date))
+    making = createDaily(date)
+      .then((note) => {
+        // A new day starts with whatever was left unticked in the last day's Top 3.
+        if (note && date === today() && get().settings.carryTop3 !== false) carryTop3(note.id)
+        return note
+      })
+      .finally(() => makingDaily.delete(date))
     makingDaily.set(date, making)
   }
   return making
+}
+
+/**
+ * Move the unfinished Top 3 items of the most recent earlier daily note into this one.
+ * Called when today's note is created, and by the command of the same name.
+ */
+export function carryTop3(targetId?: string, announce = false) {
+  const target = targetId ? get().notes[targetId] : findDaily(today())
+  if (!target) return void (announce && toast("Open today's note first"))
+  const earlier = Object.values(get().notes)
+    .filter((n) => n.type === 'daily' && isYmd(n.title) && n.title < target.title)
+    .sort((a, b) => b.title.localeCompare(a.title))[0]
+  const taken = earlier ? takeUnfinishedTop3(earlier.content) : { items: [], rest: '' }
+  if (!earlier || !taken.items.length) return void (announce && toast('Nothing unfinished in the last Top 3'))
+  const before = { from: earlier.content, to: target.content }
+  updateNote(earlier.id, { content: taken.rest })
+  updateNote(target.id, { content: addToTop3(target.content, taken.items) })
+  const n = taken.items.length
+  toast(`Moved ${n} unfinished Top 3 item${n === 1 ? '' : 's'} from ${dailyLabel(earlier.title)}`, {
+    label: 'Undo',
+    run: () => {
+      updateNote(earlier.id, { content: before.from })
+      updateNote(target.id, { content: before.to })
+    },
+  })
 }
 
 let makingTemplate: Promise<Note | null> | null = null
@@ -862,7 +897,9 @@ async function addToDaily(body: string, withTime: boolean): Promise<Note | null>
   if (current.view === 'canvas') content = appendCard(current.content, body)
   else {
     const [head, ...rest] = body.split('\n')
-    const entry = [`- ${withTime ? `**${timeNow()}** : ` : ''}${head}`, ...rest.map((l) => '  ' + l)].join('\n')
+    // Something typed as a task ("- [ ] call Sam") goes in as that task, not as a timestamped line.
+    const first = /^\s*[-*+]\s+\[[ xX]\]\s+\S/.test(head) ? head.trim() : `- ${withTime ? `**${timeNow()}** : ` : ''}${head}`
+    const entry = [first, ...rest.map((l) => '  ' + l)].join('\n')
     const idx = current.content.indexOf('\n\n<!-- canvas -->')
     const page = idx < 0 ? current.content : current.content.slice(0, idx)
     const tail = idx < 0 ? '' : current.content.slice(idx)

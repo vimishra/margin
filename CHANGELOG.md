@@ -2,6 +2,20 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.8.0 (2026-10-08)
+
+### Added
+
+- **Task shortcuts in a note:** with the cursor on a task, ⌘⌥T plans it for today (the due date is left alone), ⌘⇧S and ⌘⇧D open the calendar for the planned day and the due date, and ⌘⇧P steps the priority through P1, P2, P3 and none.
+- **The Top 3 carries forward:** when today's note is created, what was left unticked in the last day's Top 3 moves into today's. "Move unfinished Top 3 to today" in ⌘K does the same on demand, and a setting turns the automatic move off.
+- **T** in the Tasks view plans the highlighted task for today.
+- **Theory of operations:** a new guide with the routine to follow every morning, meeting, day, week and month. Open it from Help → Theory of Operations.
+
+### Changed
+
+- A task typed into quick capture (`- [ ] …`) is added to today's note as that task, instead of as a timestamped line containing it.
+- The built-in daily template's Top 3 is now a checklist. A `Daily` template note you already have is not changed.
+
 ## 1.7.0 (2026-10-07)
 
 ### Added

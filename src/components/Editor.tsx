@@ -26,10 +26,10 @@ import { search, searchKeymap } from '@codemirror/search'
 import { tags as t } from '@lezer/highlight'
 import { uploadAsMarkdown } from '../api'
 import { linkHref } from '../lib/markdown'
-import { fillTemplate, templates, timeNow, toast, useStore } from '../store'
+import { fillTemplate, openDatePicker, templates, timeNow, toast, useStore } from '../store'
 import { tagCounts } from '../lib/links'
 import { parseDatePhrase } from '../lib/dates'
-import { TASK_LINE } from '../lib/tasks'
+import { TASK_LINE, parseTaskText, withDetails } from '../lib/tasks'
 import { dailyLabel, isYmd, longDate, today, tagHue } from '../lib/util'
 import { livePreview } from './livePreview'
 import { cellsFromClipboard, serializeTable, tableFromCells } from './tableWidget'
@@ -46,6 +46,8 @@ export interface EditorHandle {
   toggleList(kind: ListKind): void
   /** Tick or untick the task under the cursor. */
   toggleDone(): void
+  /** Change a detail of the task under the cursor: its priority, due date or planned day, or plan it for today. */
+  taskEdit(kind: 'priority' | 'due' | 'when' | 'today'): void
   scrollToLine(line: number): void
   /** Select a range of text and bring it to the middle of the view. */
   reveal(from: number, to: number): void
@@ -584,6 +586,55 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
     },
     wrap(before, after, fallback) {
       if (viewRef.current) wrapSelection(viewRef.current, before, after, fallback)
+    },
+    taskEdit(kind) {
+      const view = viewRef.current
+      if (!view) return
+      /** Rewrite the details of the task on a line; false if the line is not a task. */
+      const rewrite = (lineNo: number, change: (raw: string) => string) => {
+        const line = view.state.doc.line(lineNo)
+        const m = TASK_LINE.exec(line.text)
+        if (!m) return false
+        const from = line.from + m[1].length + 1 + m[3].length
+        const next = change(m[4])
+        if (next !== m[4]) view.dispatch({ changes: { from, to: line.to, insert: next }, userEvent: 'input' })
+        return true
+      }
+      const sel = view.state.selection.main
+      const first = view.state.doc.lineAt(sel.from).number
+      const last = view.state.doc.lineAt(sel.to).number
+      if (kind === 'today' || kind === 'priority') {
+        // These apply to every task in the selection. Priority steps P1, P2, P3, none.
+        let any = false
+        for (let n = first; n <= last; n++) {
+          const done = rewrite(n, (raw) => {
+            if (kind === 'today') return withDetails(raw, { scheduled: today() })
+            const p = parseTaskText(raw).priority
+            return withDetails(raw, { priority: p === 0 ? 3 : p - 1 })
+          })
+          any = any || done
+        }
+        if (!any) toast('The cursor is not on a task')
+        return
+      }
+      const head = view.state.doc.lineAt(sel.head)
+      const m = TASK_LINE.exec(head.text)
+      if (!m) return void toast('The cursor is not on a task')
+      const now = parseTaskText(m[4])
+      const planning = kind === 'when'
+      // The calendar opens just under the cursor.
+      const at = view.coordsAtPos(sel.head) ?? view.contentDOM.getBoundingClientRect()
+      const anchor = { getBoundingClientRect: () => ({ left: at.left, right: at.left, top: at.top, bottom: at.bottom }) } as unknown as EventTarget
+      openDatePicker({ currentTarget: anchor }, {
+        title: planning ? 'When' : 'Due date',
+        value: planning ? now.scheduled : now.due,
+        removeLabel: !planning ? 'Remove due date' : now.someday ? 'Take out of Someday' : 'Remove planned day',
+        someday: planning ? (now.someday ? 'on' : 'off') : undefined,
+        onPick: (date) => {
+          rewrite(head.number, (raw) => withDetails(raw, planning ? (date === 'someday' ? { someday: true } : { scheduled: date }) : { due: date }))
+          view.focus()
+        },
+      })
     },
     toggleDone() {
       if (viewRef.current && !toggleDone(viewRef.current, useStore.getState().settings.logCompletion)) toast('The cursor is not on a task')

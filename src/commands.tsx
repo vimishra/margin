@@ -43,14 +43,14 @@ import {
   User,
   CalendarPlus,
 } from 'lucide-react'
-import { addTag, closeAllTabs, closeOtherTabs, duplicateNote, renameNote, toast, askPageWidth, closeSide, createFolder, currentNote, openSide, swapPanes, importFromObsidian, newMeeting, newPerson, addMeetingEntry, deleteNote, go, newNote, openDaily, setPref, ui, updateNote, useStore } from './store'
+import { addTag, closeAllTabs, closeOtherTabs, duplicateNote, renameNote, toast, askPageWidth, closeSide, createFolder, currentNote, openSide, swapPanes, importFromObsidian, carryTop3, newMeeting, newPerson, addMeetingEntry, deleteNote, go, newNote, openDaily, setPref, ui, updateNote, useStore } from './store'
 import { exportHtml, exportMarkdown, exportPdf, exportWord } from './lib/export'
 import { ALT, MOD } from './lib/util'
 import { SHORTCUT_DEFS, hint } from './shortcuts'
 import { desktop, fileManager } from './desktop'
 
 /** Opens one of the guides: a window of its own in the desktop app, a new tab in a browser. */
-export const openGuide = (page: 'user-guide' | 'design') => void window.open(`/docs/${page}.html`, '_blank')
+export const openGuide = (page: 'user-guide' | 'design' | 'operations') => void window.open(`/docs/${page}.html`, '_blank')
 
 export interface Command {
   id: string
@@ -87,6 +87,7 @@ export function commands(): Command[] {
     { id: 'home', label: 'Go to Home', icon: i(Home), hint: `${ALT}H`, run: () => go({ name: 'home' }) },
     { id: 'journal', label: 'Go to Journal', icon: i(BookOpenText), keywords: 'daily notes scroll roam all days', run: () => go({ name: 'journal' }) },
     { id: 'calendar', label: 'Go to Calendar', icon: i(CalendarDays), hint: `${ALT}L`, run: () => go({ name: 'calendar' }) },
+    { id: 'carryTop3', label: 'Move unfinished Top 3 to today', icon: i(CalendarCheck), keywords: 'carry forward roll over yesterday daily', run: () => carryTop3(undefined, true) },
     { id: 'tasks', label: 'Go to Tasks', icon: i(ListChecks), keywords: 'action items todo due overdue', run: () => go({ name: 'tasks' }) },
     { id: 'all', label: 'Go to All notes', icon: i(Files), hint: `${ALT}A`, run: () => go({ name: 'all' }) },
     { id: 'goscratch', label: 'Go to Scratch', icon: i(Hourglass), run: () => go({ name: 'scratch' }) },
@@ -105,6 +106,10 @@ export function commands(): Command[] {
       { id: 'bullet', label: 'Bulleted list', icon: i(List), keywords: 'unordered bullets', run: () => format('bullet') },
       { id: 'numbered', label: 'Numbered list', icon: i(ListOrdered), keywords: 'ordered numbers', run: () => format('numbered') },
       { id: 'task', label: 'Task list', icon: i(ListChecks), keywords: 'todo checkbox', run: () => format('task') },
+      { id: 'taskToday', label: 'Task: move to today', icon: i(CalendarCheck), keywords: 'plan schedule when today', run: () => format('taskToday') },
+      { id: 'taskWhen', label: 'Task: when…', icon: i(CalendarDays), keywords: 'plan schedule planned day someday reschedule', run: () => format('taskWhen') },
+      { id: 'taskDue', label: 'Task: due date…', icon: i(CalendarDays), keywords: 'deadline', run: () => format('taskDue') },
+      { id: 'taskPriority', label: 'Task: change priority', icon: i(ListChecks), keywords: 'p1 p2 p3 importance', run: () => format('taskPriority') },
       { id: 'done', label: 'Tick or untick this task', icon: i(ListChecks), keywords: 'complete done check toggle finish', run: () => format('done') },
       { id: 'mode', label: s.mode === 'read' ? 'Switch to writing' : 'Switch to reading', icon: i(BookOpen), hint: `${MOD}E`, keywords: 'preview edit', run: toggleMode },
       { id: 'view', label: note.view === 'canvas' ? 'Show page' : 'Show canvas', icon: i(LayoutDashboard), keywords: 'board', run: () => updateNote(note.id, { view: note.view === 'canvas' ? '' : 'canvas' }) },
@@ -143,6 +148,7 @@ export function commands(): Command[] {
     { id: 'import', label: 'Import from Obsidian…', icon: i(Download), keywords: 'migrate vault', run: () => void importFromObsidian() },
     { id: 'help', label: 'Keyboard shortcuts', icon: i(Keyboard), hint: '?', run: () => ui({ help: true }) },
     { id: 'userGuide', label: 'Help: User guide', icon: i(BookOpen), keywords: 'manual documentation docs how to', run: () => openGuide('user-guide') },
+    { id: 'operationsGuide', label: 'Help: Theory of operations (daily, weekly and monthly routine)', icon: i(BookOpen), keywords: 'workflow routine how to use morning meeting week month habits', run: () => openGuide('operations') },
     { id: 'designGuide', label: 'Help: Design guide', icon: i(Workflow), keywords: 'architecture documentation docs development', run: () => openGuide('design') },
   )
   // Show each command's current shortcut, which may have been changed in settings.

@@ -617,6 +617,9 @@ export function SettingsModal() {
                 <Row label="Daily notes notebook" hint="New daily notes are saved here as YYYY-MM-DD.md. Existing ones stay where they are.">
                   <Text value={s.dailyFolder} onChange={set('dailyFolder')} />
                 </Row>
+                <Row label="Carry the Top 3 forward" hint="When today's note is created, the items left unticked in the last day's Top 3 are moved into it. Ticked items stay where they were.">
+                  <Toggle label="Carry the Top 3 forward" value={s.carryTop3} onChange={set('carryTop3')} />
+                </Row>
                 <Row label="Template for new daily notes" hint="New daily notes start from the note called “Daily” in the Templates notebook; edit that note to change them. It is created for you the first time it is needed and travels with your notes. Text in this box is only used if there is no such note." stack>
                   <textarea
                     key={s.dailyTemplate}

@@ -272,6 +272,7 @@ export function TasksView({ view }: { view?: string }) {
         else if (!task) return
         else if (e.key === ' ' || e.key === 'x') (e.preventDefault(), updateTask(task, { done: !task.done }))
         else if (e.key === 'Enter') (e.preventDefault(), e.shiftKey ? openSideAt(task.noteId, task.raw) : openNoteAt(task.noteId, task.raw, []))
+        else if (e.key === 't') (e.preventDefault(), updateTask(task, { raw: withDetails(task.raw, { scheduled: now }) }))
         else if (e.key === 'd') (e.preventDefault(), pickDate(rowEl(), task, 'due'))
         else if (e.key === 's') (e.preventDefault(), pickDate(rowEl(), task, 'scheduled'))
         else if (e.key === 'p') (e.preventDefault(), openMenu({ currentTarget: rowEl(), clientX: 0, clientY: 0, type: 'key', preventDefault() {} }, priorityMenu(task)))
@@ -418,7 +419,7 @@ export function TasksView({ view }: { view?: string }) {
         </div>
         {rows.length > 0 && (
           <p className="tasks-keys">
-            <kbd>↑</kbd><kbd>↓</kbd> move · <kbd>Space</kbd> tick · <kbd>↵</kbd> open · <kbd>D</kbd> due · <kbd>S</kbd> when · <kbd>P</kbd> priority · <kbd>/</kbd> narrow down
+            <kbd>↑</kbd><kbd>↓</kbd> move · <kbd>Space</kbd> tick · <kbd>↵</kbd> open · <kbd>T</kbd> today · <kbd>D</kbd> due · <kbd>S</kbd> when · <kbd>P</kbd> priority · <kbd>/</kbd> narrow down
           </p>
         )}
       </div>

@@ -205,6 +205,7 @@ function buildMenu() {
       role: 'help',
       submenu: [
         { label: 'User Guide', click: () => openDoc('user-guide') },
+        { label: 'Theory of Operations', click: () => openDoc('operations') },
         { label: 'Design Guide', click: () => openDoc('design') },
         { type: 'separator' },
         cmd('Keyboard Shortcuts', 'help'),

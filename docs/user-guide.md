@@ -360,6 +360,18 @@ Details are written on the task's own line, as plain text, so they stay readable
 
 You do not have to type dates in full. On a task, type `>` or `@due(` and then a day in words (`fri`, `tomorrow`, `next week`, `14 oct`) and pick the suggestion; after `>`, `some` offers `someday`. The slash commands `/due`, `/plan`, `/someday` and `/p1` (or `/priority`) insert the same things.
 
+With the cursor on a task in a note, these keys change its details without typing them:
+
+| Key | Does |
+| --- | --- |
+| ⌘⌥T | Move to today: sets the planned day to today. The due date is left alone. |
+| ⌘⇧S | When: opens the calendar for the planned day, with Someday |
+| ⌘⇧D | Due date: opens the calendar |
+| ⌘⇧P | Priority: steps through P1, P2, P3 and none |
+| ⌘↵ | Tick or untick |
+
+Move to today and Priority apply to every task in a selection. The same four are in ⌘K under "Task:", and all of them can be changed in Settings → Shortcuts. In the browser version they are ⌥⇧T, ⌥⇧S, ⌥⇧D and ⌥⇧P.
+
 In the editor the details show as small labels. A due date turns red once it has passed. A planned day that is today or earlier is highlighted, because the task is in Today.
 
 ### The Tasks view
@@ -384,6 +396,7 @@ With the keyboard:
 | Space (or X) | Tick or untick |
 | ↵ | Open the task in its note; ⇧↵ opens it to the side |
 | D | Due date |
+| T | Move to today |
 | S | When: planned day or Someday |
 | P | Priority |
 | 1 to 9, 0 | Switch list |
@@ -429,7 +442,7 @@ A daily note shows a **Tasks for this day** panel listing tasks from other notes
 - **Inbox:** a new note in the Inbox notebook.
 - **A note…:** added to a note you choose, as a new bullet. The first time, press Enter or click to search for the note; you can also pick a heading to add it under. Margin remembers the note and heading, so next time it is Tab and Enter. ⌥↓ chooses a different note.
 
-The destination the box opens with is still the one set in Settings, so the usual capture is unchanged. Anything you type as a task (`- [ ] …`) is kept as a task.
+The destination the box opens with is still the one set in Settings, so the usual capture is unchanged. Anything you type as a task (`- [ ] …`) is kept as a task, in today's note as well as in a chosen note.
 
 **Scratch notes** (⌘⌥N) are for things you need for a few days. They expire after a week and move to the trash. Each one shows how long it has left, with buttons to extend it or **Keep** it as a normal note.
 
@@ -454,8 +467,9 @@ Templates can contain placeholders that are filled in when the note is made:
 | `{{date:ddd, Do MMM}}` | Tue, 6th Oct |
 | `{{time:h:mmA}}` | 4:54PM |
 
-**Daily notes** start from the note called `Daily` in the Templates notebook. Margin creates it the first time a daily note is needed, with a "Top 3" list and a "Log" section. Edit it like any note to change what each day starts with; empty it for blank daily notes. Because it is a note, it travels with your notes folder to another computer.
+**Daily notes** start from the note called `Daily` in the Templates notebook. Margin creates it the first time a daily note is needed, with a "Top 3" checklist and a "Log" section. Edit it like any note to change what each day starts with; empty it for blank daily notes. Because it is a note, it travels with your notes folder to another computer.
 
+- **The Top 3 carries forward.** When today's note is created, anything left unticked in the last day's Top 3 is moved into today's, with anything nested under it. Ticked items, and ones you struck through, stay where they were. An item written without a checkbox is carried too, and becomes a checkbox so it can be ticked. If today's note already exists, run "Move unfinished Top 3 to today" from ⌘K. Turn the automatic move off in Settings → Daily notes.
 - Placeholders are filled in for the day the note is for, so a note for next Tuesday says Tuesday.
 - Tags on the `Daily` note are given to each new daily note.
 - The template is applied when a daily note is first created, whichever way that happens: Today, the calendar, the journal, quick capture, or a link such as `[[tomorrow]]`.
@@ -611,32 +625,16 @@ On Windows and Linux, ⌘ is Ctrl and ⌥ is Alt.
 
 ## Recommended workflows
 
-These are habits that keep notes useful without much upkeep. None of them need any setup.
+The full routine is in its own document: **[Theory of operations](operations.md)**. It says exactly what to do every morning, in every meeting and 1:1, at the end of the day, every week and every month, with the keys for each step. Open it from **Help → Theory of Operations**, or type "routine" in ⌘K.
 
-### A working day
+In short:
 
-1. **Open today's note** (⌘D) in the morning. Jot the plan as a few cards or lines.
-2. **Capture, don't file.** When something comes up, ⌘⇧C and type it. It lands in today's note with the time. Decide where it belongs later, or never.
-3. **Start meetings with ⌘⇧M.** The note is named, filed and linked from today.
-4. **Link as you write.** Type `[[` and the project or person's name. You do not need to organise further: each note's backlinks show everything that mentions it.
-5. **Use scratch for throwaway things:** a phone number, a draft message, a command to run. It deletes itself.
-
-### Meetings
-
-1. ⌘⇧M as the meeting starts, type its name, press Enter.
-2. During the meeting, write only bullets under **Notes**.
-3. In the last two minutes, fill in **Decisions** and **Action items**. Write actions as `- [ ] Name: what`.
-4. Add `[[Project]]` anywhere in the note. The project's backlinks become the meeting history.
-
-To find a meeting later: ⌘K and its name, `#meeting` for all of them, or the daily note for that day.
-
-### 1:1s
-
-1. Make one note per person with **New person note**. Pin the people you meet every week.
-2. When something comes up, quick-capture it to their *Next time* list.
-3. At the meeting, add today's entry, work through *Next time*, and write actions as tasks with a due date.
-4. In group meetings, write `[[Their name]]`. Their note's backlinks then list every meeting where they came up.
-5. Check **Tasks → Upcoming** on Monday and **Today** every morning; Today includes anything overdue.
+- **Morning:** open the journal (⌘J), read today's task panel, clear anything overdue, and settle the Top 3.
+- **During the day:** capture with ⌘⇧C; write anything that needs doing as a task.
+- **Meetings:** ⌘⇧M as it starts, link the people and the project, write actions as tasks.
+- **End of day:** tick what is done and read down the Log once.
+- **Weekly:** clear Overdue, plan from Upcoming and Anytime, empty Scratch.
+- **Monthly:** review Someday, read the Logbook, tidy tags and notebooks, back up.
 
 ### Research and learning
 
@@ -644,13 +642,6 @@ To find a meeting later: ⌘K and its name, `#meeting` for all of them, or the d
 2. While reading, paste quotes under **Quotes** and write your own reaction under **My notes**, in your own words.
 3. When an idea is worth keeping on its own, give it a note and link back with `[[`.
 4. Set the status to Done. The Research list shows what is still open.
-
-### A weekly tidy (ten minutes)
-
-- Skim the week in **Calendar**. Move anything lasting out of daily notes into its own note.
-- Open **Scratch** and press Keep on anything worth keeping.
-- Check **Research** for things marked Reading.
-- Pin what you will need next week; unpin what you are done with.
 
 ## Where your notes live
 

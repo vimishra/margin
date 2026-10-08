@@ -139,6 +139,9 @@ export function HelpModal() {
           <button className="btn ghost sm" onClick={() => openGuide('user-guide')}>
             <BookOpen size={15} /> User guide
           </button>
+          <button className="btn ghost sm" onClick={() => openGuide('operations')}>
+            <BookOpen size={15} /> Routine
+          </button>
           <button className="btn ghost sm" onClick={() => openGuide('design')}>
             <Workflow size={15} /> Design guide
           </button>
