@@ -1,6 +1,6 @@
 # Margin product specification
 
-This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.10.1.
+This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.10.2.
 
 It is written to be handed to a developer or a coding tool. Where a detail is a free choice for the implementer, it says so; everything else is a requirement.
 
@@ -809,7 +809,7 @@ Every action below can be reassigned or cleared in Settings → Shortcuts, which
 
 - Single window; a second launch focuses the existing one.
 - Window size and position are remembered.
-- **Menu bar:** App (about, settings, quit), File (new items, choose notes folder, show notes folder, close tab, close window), Edit (standard), View (sidebar, side panel, mode, zoom, full screen, reload, developer tools), Go (back, forward, each view, tabs), Window, Help (User Guide, Theory of Operations, Design Guide, Keyboard Shortcuts, Command-Line Tool…). Menu items show the user's current shortcuts; the keys themselves are handled by the page so they can be customised, and an action triggered by both within 300 ms runs once.
+- **Menu bar:** App (about, settings, quit), File (new items, choose notes folder, show notes folder, close tab, close window), Edit (standard), View (sidebar, side panel, mode, zoom, full screen, reload, developer tools), Go (back, forward, each view, tabs), Window, Help (User Guide, Theory of Operations, Design Guide, Printable Guides…, Keyboard Shortcuts, Command-Line Tool…). Menu items show the user's current shortcuts; the keys themselves are handled by the page so they can be customised, and an action triggered by both within 300 ms runs once.
 - **Right-click in a note:** spelling suggestions, Cut, Copy, Paste, Paste as Plain Text, Look Up, "Search Notes for…", and Format, Paragraph and Insert submenus. On a link: Open, Open to the Side, Copy Link. On an image: Copy Image.
 - **Choosing a notes folder** saves the choice and restarts the app on it; nothing is moved.
 - **PDF export** saves directly to a chosen file.
@@ -818,6 +818,7 @@ Every action below can be reassigned or cleared in Settings → Shortcuts, which
 - **Global hotkey** Ctrl+Alt+Space opens quick capture.
 - **Installed fonts** are listed for the font picker.
 - **Packaging:** a `.dmg` for Apple silicon, signed ad hoc (no Apple developer account); unsigned builds require `xattr -cr` once after installing. Versioned releases with a changelog.
+- **Printable Guides…** opens a folder shipped inside the app holding each guide (user guide, theory of operations, design guide, specification) as a PDF and as a standalone HTML page. The installer's window shows the same folder, named Documentation, beside the app.
 - **Command-Line Tool…** shows where the bundled tool is and can link it into `~/.local/bin/margin-tasks`, a folder the user owns, so no administrator rights are needed. It replaces an older link of its own but never a real file.
 
 ## 19. Command-line tool

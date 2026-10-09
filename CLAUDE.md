@@ -11,9 +11,10 @@ npm run app        # build, then open the desktop app (what the owner uses day t
 npm run dev        # browser at http://localhost:4321 with reload on change
 npm run typecheck  # tsc --noEmit; run after every change
 npm run docs       # regenerate docs/*.html from docs/*.md
+npm run docs:pdf   # the same, then HTML and PDF copies into build/Documentation/ for the installer
 npm run test:tasks # the task rules, checked in the app's code and in the Python command-line tool
 npm run app:dist   # installers into release/ (only when asked)
-npx electron-builder --mac dmg --arm64   # the Apple-silicon installer used for releases
+npx vite build && npm run docs:pdf && npx electron-builder --mac dmg --arm64   # the Apple-silicon installer used for releases
 ```
 
 Changes under `server/` or `electron/` need a restart; `src/` reloads in `npm run dev`. The desktop app serves the built `dist/`, so it needs `npm run app` again to pick anything up.
@@ -57,6 +58,7 @@ The owner's real notes (work meetings) are in `~/Documents/Vault`, set as `vault
 - Widgets that replace text (link pills, math, tables, images) hide anything decorated underneath; search and similar features must account for that.
 - On macOS, the menu-bar name and Dock icon of the unpackaged app come from `node_modules/electron`; `scripts/brand-dev-app.mjs` handles the name, `app.dock.setIcon` the icon.
 - The preview's typing tool does not open CodeMirror's completion popup. To test completions, get the view from `document.querySelector('.cm-content').cmTile.view` and dispatch changes with `userEvent: 'input.type'`.
+- A smoke test of the packaged app is answered by the owner's own running Margin (port 43117) unless the packaged one gets its own profile: start it with `--user-data-dir=<scratch dir>` and read the port from its output.
 - Native menus cannot be clicked from tests. Verify their logic by emitting the event in a scratch Electron script, and say plainly what was not exercised.
 
 ## Working agreements with the owner

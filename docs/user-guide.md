@@ -6,6 +6,8 @@ Margin is a note-taking app for people who keep a lot of notes: work, meetings, 
 
 You can open this guide from inside the app: **Help → User Guide** in the menu bar, the **User guide** button in the shortcuts window (press `?`), or type "guide" in ⌘K. The [design guide](design.md), which explains how Margin is built, is in the same places.
 
+To print a guide, choose **Help → Printable Guides…**. It opens a folder with each guide as a PDF and as a web page. The same folder, named **Documentation**, is in the installer's window beside the app.
+
 This guide uses the desktop app's shortcuts. In a browser, most use ⌥ in place of ⌘ (see [Shortcuts](#shortcuts)). Every shortcut can be changed in Settings.
 
 ## What Margin can do

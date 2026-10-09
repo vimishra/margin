@@ -78,6 +78,17 @@ function openDoc(page) {
 
 // The task lister for the terminal ships inside the app. This shows where it is and can link it into
 // ~/.local/bin as "margin-tasks": a folder the user owns, so no password is needed.
+// The folder of HTML and PDF copies of the guides, for printing. It ships inside the app (and in the installer's window).
+async function printableGuides() {
+  const dir = app.isPackaged ? path.join(process.resourcesPath, 'Documentation') : path.join(here, '..', 'build', 'Documentation')
+  if (!fs.existsSync(dir)) {
+    dialog.showMessageBox(win, { type: 'info', message: 'The printable guides are not here', detail: 'They come with the installed app. When running from the source folder, make them with: npm run docs:pdf' })
+    return
+  }
+  const failed = await shell.openPath(dir)
+  if (failed) dialog.showMessageBox(win, { type: 'error', message: 'Could not open the guides folder', detail: failed })
+}
+
 async function commandLineTool() {
   const script = app.isPackaged ? path.join(process.resourcesPath, 'tools', 'margin_tasks.py') : path.join(here, '..', 'tools', 'margin_tasks.py')
   if (!fs.existsSync(script)) return void dialog.showMessageBox(win, { type: 'warning', message: 'The command-line tool is missing from this copy of Margin.', detail: script })
@@ -263,6 +274,7 @@ function buildMenu() {
         { label: 'User Guide', click: () => openDoc('user-guide') },
         { label: 'Theory of Operations', click: () => openDoc('operations') },
         { label: 'Design Guide', click: () => openDoc('design') },
+        { label: 'Printable Guides…', click: () => printableGuides() },
         { type: 'separator' },
         cmd('Keyboard Shortcuts', 'help'),
         { type: 'separator' },

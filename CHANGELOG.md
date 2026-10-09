@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.10.2 (2026-10-09)
+
+### Added
+
+- **Printable guides:** the installer window now has a **Documentation** folder with an HTML and a PDF copy of the user guide, the theory of operations, the design guide and the specification. The same folder ships inside the app: **Help → Printable Guides…** opens it.
+
 ## 1.10.1 (2026-10-09)
 
 ### Changed

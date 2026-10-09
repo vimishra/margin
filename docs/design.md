@@ -56,6 +56,8 @@ These settle most design questions. When two of them pull apart, the earlier one
 | `lists.ts` | Nesting, renumbering and moving list items |
 | `isearch.ts` | Incremental search and smart line-start |
 
+**Printable guides.** `npm run docs:pdf` (`scripts/docs-pdf.mjs`, run by Electron) prints each `docs/*.html` page to a PDF and puts an HTML and a PDF copy of every guide in `build/Documentation/`, which is generated and not checked in. The installer shows that folder in its window (`build.dmg.contents` in `package.json`) and the app carries it in `Resources/Documentation`, which Help → Printable Guides… opens. It must be run before `electron-builder`, which stops if the folder is missing.
+
 **Command-line tool** (`tools/margin_tasks.py`). A single Python file, standard library only, that lists tasks by reading the notes folder directly. It never writes. It re-implements the task rules of `lib/tasks.ts`, and `tests/task-cases.json` holds cases that both must satisfy (`npm run test:tasks`). It is packaged into the app's `Resources/tools`, and Help → Command-Line Tool… links it into `~/.local/bin` as `margin-tasks`: a folder the user owns, so the app never needs administrator rights.
 
 **Desktop shell** (`electron/`). Starts the server inside the app, opens a window on it, and adds what a browser cannot: a menu bar, a native right-click menu, a folder picker, direct PDF saving and a global hotkey. `preload.cjs` is the narrow bridge the page uses to reach those.

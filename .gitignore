@@ -1,6 +1,8 @@
 node_modules
 dist
 release
+# Printable guides for the installer, made by `npm run docs:pdf`
+build/Documentation
 .DS_Store
 
 # Your notes. They live beside the code by default but are not part of it.

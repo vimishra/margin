@@ -1,7 +1,7 @@
 {
   "name": "margin-notes",
   "private": true,
-  "version": "1.10.1",
+  "version": "1.10.2",
   "type": "module",
   "description": "Margin — a fast, local-first markdown note-taking app",
   "scripts": {
@@ -12,8 +12,9 @@
     "typecheck": "tsc --noEmit",
     "app": "vite build && node scripts/brand-dev-app.mjs && electron .",
     "app:pack": "vite build && electron-builder --dir",
-    "app:dist": "vite build && electron-builder",
+    "app:dist": "vite build && npm run docs:pdf && electron-builder",
     "docs": "node scripts/build-docs.mjs",
+    "docs:pdf": "node scripts/build-docs.mjs && electron scripts/docs-pdf.mjs",
     "test:tasks": "node scripts/task-fixtures.mjs --check && python3 tools/test_margin_tasks.py"
   },
   "dependencies": {
@@ -70,6 +71,10 @@
       {
         "from": "tools/margin_tasks.py",
         "to": "tools/margin_tasks.py"
+      },
+      {
+        "from": "build/Documentation",
+        "to": "Documentation"
       }
     ],
     "directories": {
@@ -82,6 +87,30 @@
       "target": [
         "dmg",
         "zip"
+      ]
+    },
+    "dmg": {
+      "window": {
+        "width": 540,
+        "height": 520
+      },
+      "contents": [
+        {
+          "x": 130,
+          "y": 190
+        },
+        {
+          "x": 410,
+          "y": 190,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 270,
+          "y": 380,
+          "type": "dir",
+          "path": "build/Documentation"
+        }
       ]
     },
     "linux": {
