@@ -2,6 +2,15 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.9.1 (2026-10-09)
+
+### Changed
+
+- The user guide now opens with **What Margin can do**: every feature in one page, grouped by area, each linking to its section.
+- `AGENTS.md` is in the repository as a link to `CLAUDE.md`, so other coding agents read the same project instructions.
+
+No change to the app itself.
+
 ## 1.9.0 (2026-10-08)
 
 ### Added

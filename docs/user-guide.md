@@ -8,6 +8,77 @@ You can open this guide from inside the app: **Help → User Guide** in the menu
 
 This guide uses the desktop app's shortcuts. In a browser, most use ⌥ in place of ⌘ (see [Shortcuts](#shortcuts)). Every shortcut can be changed in Settings.
 
+## What Margin can do
+
+Everything the app does, at a glance. Each heading links to the section that explains it.
+
+**[Writing](#writing)**
+
+- Markdown that shows as you type: headings, bold, lists and links look finished, and the raw text appears only on the line you are editing
+- Tables you edit in place, with sorting, and paste from and copy to Google Sheets or Excel
+- Math formulas, code blocks with syntax colouring, and images and PDFs shown in the note
+- Slash commands (`/`) to insert any kind of block, a date, or a template
+- Lists that nest, renumber and move with the keyboard, and wrap neatly
+- A source mode for the raw markdown, and a read mode with nothing to edit
+
+**[Linking and finding](#finding-things)**
+
+- Links between notes with `[[`, completed as you type, including dates such as `[[next friday]]`
+- Backlinks, unlinked mentions and outgoing links beside every note
+- One search box (⌘K) for notes, text inside notes, tags, dates and every command
+- Search inside the note you are in (⌃S), and jump to any heading (⌘⇧O)
+- Company short links such as `go/name` and `b/1234567`, clickable as they stand
+
+**[Daily notes](#daily-notes-the-calendar-and-the-canvas)**
+
+- A note for each day, created when you open it, from a template you control
+- A journal that shows all your days as one continuous, editable page
+- A month calendar, and a small one in the sidebar
+- A canvas side to any note: an endless board of cards you can connect
+
+**[Capturing](#quick-capture-and-scratch-notes)**
+
+- Quick capture from anywhere, even from another app, into today's note, a scratch note, the inbox, or a note and heading you choose
+- Scratch notes that remove themselves after a week
+- Research notes for articles, with a source link and a reading status
+
+**[Meetings and people](#meeting-notes-and-templates)**
+
+- Meeting notes in one keystroke: named, filed by month and linked from the day
+- One running note for each person, for 1:1s, with a list of things to raise next time
+- Templates for anything, with dates and times filled in
+
+**[Organising](#organising)**
+
+- Notebooks (folders) that can be nested, and tags with automatic colours
+- Tags a notebook gives to every note placed in it
+- Pinned notes, recent notes, and a home page
+- Two notes side by side, tabs, and back and forward
+
+**[Tasks](#tasks)**
+
+- Any checkbox in any note is a task, with an optional priority, planned day, due date and tags
+- A Tasks view that gathers them all: Today, Upcoming, Anytime, Someday, Logbook, Overdue and more
+- Filters by words, tag and priority; grouping by date, project or priority; and filters you save to the sidebar
+- Today's tasks and anything overdue shown at the top of the daily note
+- A Top 3 for each day, whose unfinished items move to the next day
+- Keys for everything: tick, plan for today, set dates and priority, in a note or in the Tasks view
+- [A command-line tool](#tasks-from-the-command-line), `margin-tasks`, for scripts
+
+**[Your files, kept safe](#history-trash-and-export)**
+
+- Every note is a plain markdown file in a folder you choose; no account and no database
+- Version history for every note, and a trash for anything deleted
+- Export to Markdown, HTML, PDF and Word
+- [Import from Obsidian](#importing-from-obsidian), with links, images and canvases
+
+**[Making it yours](#settings)**
+
+- Light and dark themes and a choice of accent colours
+- Any installed font, with text size, weight, line spacing and page width
+- Colours and sizes for each heading level, bold and italic
+- Every shortcut can be changed, and sidebar sections can be hidden
+
 ## Contents
 
 The guide has two main parts, because Margin does two different jobs. **Part 1** is about notes. **Part 2** is about tasks.
