@@ -63,7 +63,8 @@ The owner's real notes (work meetings) are in `~/Documents/Vault`, set as `vault
 
 - Commit and push only when asked. End commit messages with the `Co-Authored-By` line.
 - Build and publish an installer only when asked ("deploy" means: commit, push, bump the version, add a `CHANGELOG.md` entry, build the Apple-silicon `.dmg`, smoke-test it against a scratch folder, and publish a GitHub release). `.github/workflows/mac-build.yml` can also build the `.dmg` on demand from the Actions tab.
-- Work done from another computer arrives as a `claude/...` branch on GitHub, not on `main`; fetch and check for one when asked to sync.
+- Work done from another computer, or by another coding agent, arrives as a branch on GitHub named after the tool (`claude/...`, `codex/...`), not on `main`; fetch and check for one when asked to sync.
+- `AGENTS.md` is a link to this file, so every agent reads the same instructions. Edit this file; never replace the link with a copy.
 - After changing behaviour, update `docs/user-guide.md` and run `npm run docs`.
 - Report in plain language what changed, what was tested and how, and what was not tested.
 - Preferences already reflected in defaults: day-first typed dates, meeting notes filed as `Meetings/YYYY/MMM`, attachments folder configurable (they use `Assets`).
