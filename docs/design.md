@@ -1,6 +1,6 @@
 # Margin design and development flow
 
-This document explains how Margin is built, why it is built that way, and the recommended way to change it. Read it before making a non-trivial change. For how to use the app, see the [user guide](user-guide.md); for the day-to-day routine it is built around, see the [theory of operations](operations.md).
+This document explains how Margin is built, why it is built that way, and the recommended way to change it. Read it before making a non-trivial change. For how to use the app, see the [user guide](user-guide.md); for the day-to-day routine it is built around, see the [theory of operations](operations.md). A full, implementation-neutral description of what the app must do is in the [product specification](specification.md).
 
 ## Contents
 

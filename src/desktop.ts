@@ -13,6 +13,9 @@ export interface DesktopBridge {
   chooseFolder?(title: string): Promise<string | null>
   /** Action id → accelerator, shown next to the menu bar items. */
   setShortcuts?(map: Record<string, string>): void
+  /** The system's accent colour as "#rrggbb", or null where there is none. */
+  accentColor?(): Promise<string | null>
+  onAccent?(handler: (color: string | null) => void): () => void
 }
 
 declare global {

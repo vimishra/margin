@@ -751,7 +751,7 @@ Two settings live inside the app and cannot be read from outside it. If you rena
 | Section | What is there |
 | --- | --- |
 | General | Start page, where new notes go, which sidebar sections to show, week start, sidebar calendar, time format, how typed dates are read, tabs |
-| Appearance | Theme, accent colour, note font and code font (any installed font), text size and weight, line spacing, list indent, indent guides, image border, page width |
+| Appearance | Theme, accent colour (in the desktop app the first choice, System, follows the accent colour set in macOS System Settings), note font and code font (any installed font), text size and weight, line spacing, list indent, indent guides, image border, page width |
 | Text styles | Colour and size for Heading 1–5, bold and italic, with a separate colour for the light and dark themes |
 | Editor | Default mode, toolbar, spell check, auto-closing brackets, image pasting, line numbers, side panel |
 | Daily notes | Canvas or page, the daily notebook, a template for new days |

@@ -2,6 +2,22 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.10.0 (2026-10-09)
+
+### Changed
+
+- **Typography and spacing:** larger interface text (15 px), taller sidebar rows, medium-weight labels, softer text in the dark theme, more margin around notes and more room in task rows.
+- **One type scale:** text across the app now uses a small set of sizes (11, 12, 13, 14, 15, 17, 24 and 28 px) and three weights (regular, medium, semibold; bold for titles), instead of the many in-between values that had built up. Spacing snaps to a 4 px grid, and buttons share one height and corner radius.
+- **Closer to a Mac app:** the arrow cursor over buttons and rows (the pointing hand only over links in notes), half-point dividing lines on Retina screens, lighter hover shading, system-style letter-spacing with evenly spaced digits in counts and dates, and selections and coloured icons that go quiet when the window is not in front.
+- The side panel's section headings (Backlinks, Outline and the rest) are plain again: bold, with a dividing line between sections; only the small icon beside each heading takes the accent colour. Backlinks and unlinked mentions are plain rows with space between them, shaded on hover, instead of bordered cards.
+- The open tab is easier to spot: a bold title on a slightly darker background, while the other tabs are dimmer.
+- The main sidebar entries (Home, Today, Journal, Calendar, All notes, Tasks, Research, Scratch) and notebooks have coloured icons, like the task lists. Note icons are coloured by kind (note, daily, research, scratch, canvas) in the sidebar, tabs, lists and search.
+
+### Added
+
+- **System accent colour** (desktop app): Settings → Appearance → Accent has a new first choice that follows the accent colour chosen in macOS System Settings, and changes with it.
+- **Product specification** (`docs/specification.md`): a complete, implementation-neutral description of the app, with every feature, rule, setting and shortcut, written so it could be rebuilt from scratch.
+
 ## 1.9.1 (2026-10-09)
 
 ### Changed

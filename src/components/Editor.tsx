@@ -68,10 +68,10 @@ interface Props {
 
 const highlight = HighlightStyle.define([
   { tag: t.heading1, fontSize: 'var(--h1-size)', color: 'var(--h1-color)', fontWeight: '700', letterSpacing: '-0.015em' },
-  { tag: t.heading2, fontSize: 'var(--h2-size)', color: 'var(--h2-color)', fontWeight: '680', letterSpacing: '-0.01em' },
-  { tag: t.heading3, fontSize: 'var(--h3-size)', color: 'var(--h3-color)', fontWeight: '650' },
-  { tag: t.heading4, fontSize: 'var(--h4-size)', color: 'var(--h4-color)', fontWeight: '650' },
-  { tag: [t.heading5, t.heading6], fontSize: 'var(--h5-size)', color: 'var(--h5-color)', fontWeight: '650' },
+  { tag: t.heading2, fontSize: 'var(--h2-size)', color: 'var(--h2-color)', fontWeight: '700', letterSpacing: '-0.012em' },
+  { tag: t.heading3, fontSize: 'var(--h3-size)', color: 'var(--h3-color)', fontWeight: '600' },
+  { tag: t.heading4, fontSize: 'var(--h4-size)', color: 'var(--h4-color)', fontWeight: '600' },
+  { tag: [t.heading5, t.heading6], fontSize: 'var(--h5-size)', color: 'var(--h5-color)', fontWeight: '600' },
   { tag: t.strong, fontWeight: '700', fontSize: 'var(--bold-size)', color: 'var(--bold-color)' },
   { tag: t.emphasis, fontStyle: 'italic', fontSize: 'var(--italic-size)', color: 'var(--italic-color)' },
   { tag: t.strikethrough, textDecoration: 'line-through', color: 'var(--text-3)' },

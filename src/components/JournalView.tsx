@@ -120,7 +120,7 @@ export function JournalView() {
   return (
     <div className="note journal">
       <div className="note-scroll" ref={scroller} onScroll={loadMore}>
-        <div className="doc" style={{ maxWidth: width ? Math.round(width * charWidth(mode === 'source', settings)) + 112 : 'none' }}>
+        <div className="doc" style={{ maxWidth: width ? Math.round(width * charWidth(mode === 'source', settings)) + 144 : 'none' }}>
           <header className="journal-head">
             <BookOpenText size={18} />
             <h1>Journal</h1>

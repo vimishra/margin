@@ -2,6 +2,7 @@ import { createContext, useContext, useState } from 'react'
 import { CalendarDays, Check, Moon, Sun, Search, LayoutTemplate, FolderCog, Keyboard, Palette, PenLine, RotateCcw, Settings2, SlidersHorizontal, Type, X, Zap } from 'lucide-react'
 import {
   ACCENTS,
+  systemAccent,
   SIDEBAR_SECTIONS,
   lightenForDark,
   styleColor,
@@ -406,8 +407,15 @@ export function SettingsModal() {
                 </Row>
                 <Row label="Accent colour">
                   <div className="swatches">
-                    {ACCENTS.map(([id, label, color]) => (
-                      <button key={id} title={label} aria-label={label} className={cx('accent-dot', s.accent === id && 'on')} style={{ background: color }} onClick={() => setSetting('accent', id)} />
+                    {ACCENTS.filter(([id]) => id !== 'system' || systemAccent).map(([id, label, color]) => (
+                      <button
+                        key={id}
+                        title={id === 'system' ? 'System: the accent colour chosen in your computer\'s settings' : label}
+                        aria-label={label}
+                        className={cx('accent-dot', s.accent === id && 'on', id === 'system' && 'system')}
+                        style={{ background: id === 'system' ? systemAccent || undefined : color }}
+                        onClick={() => setSetting('accent', id)}
+                      />
                     ))}
                   </div>
                 </Row>

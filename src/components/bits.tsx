@@ -3,11 +3,12 @@ import type { Note } from '../types'
 import { deleteNote, duplicateNote, openSide, ui, updateNote, type MenuItem } from '../store'
 
 export function NoteIcon({ note, size = 16 }: { note: Note; size?: number }) {
-  if (note.type === 'daily') return <CalendarDays size={size} />
-  if (note.type === 'article') return <BookMarked size={size} />
-  if (note.type === 'scratch') return <Hourglass size={size} />
-  if (note.view === 'canvas') return <LayoutDashboard size={size} />
-  return <FileText size={size} />
+  // Each kind of note has its own icon and colour, the same wherever a note is listed.
+  if (note.type === 'daily') return <CalendarDays size={size} className="note-icon ni-daily" />
+  if (note.type === 'article') return <BookMarked size={size} className="note-icon ni-article" />
+  if (note.type === 'scratch') return <Hourglass size={size} className="note-icon ni-scratch" />
+  if (note.view === 'canvas') return <LayoutDashboard size={size} className="note-icon ni-canvas" />
+  return <FileText size={size} className="note-icon ni-note" />
 }
 
 export function noteMenu(note: Note): MenuItem[] {

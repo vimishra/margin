@@ -2,7 +2,7 @@
 
 A local-first markdown note-taking app: an Electron desktop app and a browser app from one codebase. Every note is a plain `.md` file in a folder; there is no database. Repo: https://github.com/vimishra/margin (private, branch `main`).
 
-Read `docs/design.md` before a non-trivial change: it has the architecture, data flow, file format and a "where to change what" table. `docs/user-guide.md` describes every feature as the user sees it.
+`docs/specification.md` is the full product specification (what the app must do, independent of this code); keep it current when behaviour changes. Read `docs/design.md` before a non-trivial change: it has the architecture, data flow, file format and a "where to change what" table. `docs/user-guide.md` describes every feature as the user sees it.
 
 ## Commands
 

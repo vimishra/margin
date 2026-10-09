@@ -196,6 +196,8 @@ export const SIDEBAR_SECTIONS: [string, string][] = [
 
 /** id, name, swatch colour */
 export const ACCENTS: [string, string, string][] = [
+  // The colour chosen in the computer's own settings. Only offered in the desktop app, which can read it.
+  ['system', 'System', ''],
   ['sky', 'Blue', '#255fb3'],
   ['indigo', 'Indigo', '#5b5bd6'],
   ['blue', 'Bright blue', '#2b72d9'],
@@ -1473,11 +1475,26 @@ export function styleColor(style: TextStyle, dark: boolean): string {
   return style.darkColor || (style.color ? lightenForDark(style.color) : '')
 }
 
+/** The computer's own accent colour, when the desktop app can tell us. */
+export let systemAccent: string | null = null
+if (desktop?.accentColor) {
+  const take = (color: string | null) => {
+    systemAccent = color
+    applyAppearance()
+    useStore.setState({ settings: { ...get().settings } })
+  }
+  void desktop.accentColor().then(take)
+  desktop.onAccent?.(take)
+}
+
 export function applyAppearance() {
   shortLinks.on = get().settings.shortLinks !== false
   const { accent, font, codeFont, fontSize, fontWeight, lineHeight, styles } = get().settings
   const root = document.documentElement
   root.dataset.accent = accent
+  // "System" takes the colour from the computer's settings; every other accent is defined in the stylesheet.
+  if (accent === 'system' && systemAccent) root.style.setProperty('--accent', systemAccent)
+  else root.style.removeProperty('--accent')
   const dark = root.dataset.theme === 'dark'
   root.dataset.imageBorder = get().settings.imageBorder || 'hairline'
   root.dataset.tableWidth = get().settings.tableWidth || 'fit'
@@ -1488,6 +1505,8 @@ export function applyAppearance() {
   // The rest of the app (sidebar, lists, task panels) follows the same weight, so notes and the UI around them match.
   // It stops short of bold so headings and selected items in the UI still stand out.
   root.style.setProperty('--ui-weight', String(Math.min(fontWeight, 540)))
+  // Labels (navigation, tabs, panel titles) never drop below medium: small text in a thin weight looks spindly, most of all on a dark background.
+  root.style.setProperty('--label-weight', String(Math.max(500, Math.min(fontWeight, 560))))
   root.style.setProperty('--list-indent', `${get().settings.listIndent ?? 28}px`)
   root.style.setProperty('--list-guide', get().settings.indentGuides === false ? 'transparent' : 'var(--border-strong)')
   // Bullets and list numbers take the Heading 2 colour when one is set.

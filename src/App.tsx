@@ -158,6 +158,11 @@ export default function App() {
       else window.dispatchEvent(new CustomEvent('margin:format', { detail: action.kind }))
     })
     syncDesktopMenu()
+    // Mac apps quieten their selections when the window is not in front.
+    const onFocus = () => document.documentElement.classList.toggle('window-inactive', !document.hasFocus())
+    window.addEventListener('focus', onFocus)
+    window.addEventListener('blur', onFocus)
+    onFocus()
     return () => {
       window.removeEventListener('keydown', onKey, true)
       window.removeEventListener('mousedown', onMouse, true)
@@ -165,6 +170,8 @@ export default function App() {
       off?.()
       offContext?.()
       window.removeEventListener('margin:action', onAction)
+      window.removeEventListener('focus', onFocus)
+      window.removeEventListener('blur', onFocus)
     }
   }, [])
 

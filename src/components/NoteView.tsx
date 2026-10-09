@@ -513,7 +513,7 @@ export function NoteView({ note, slot = 'main' }: { note: Note; slot?: 'main' | 
           </>
         ) : (
           <div className="note-scroll" ref={scroller}>
-            <div className="doc" style={{ maxWidth: width ? Math.round(width * charWidth(mode === 'source', settings)) + 112 : 'none' }}>
+            <div className="doc" style={{ maxWidth: width ? Math.round(width * charWidth(mode === 'source', settings)) + 144 : 'none' }}>
               {isDaily ? (
                 <div className="daily-head">
                   <div className="daily-nav">

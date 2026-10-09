@@ -98,7 +98,7 @@ const LIST_ICONS: Record<string, React.ReactNode> = {
 
 function NavItem({ icon, label, count, active, hint, onClick }: { icon: React.ReactNode; label: string; count?: number; active?: boolean; hint?: string; onClick: () => void }) {
   return (
-    <button className={cx('nav-item', active && 'active')} onClick={onClick} title={hint}>
+    <button className={cx('nav-item', active && 'active')} data-nav={label.toLowerCase().replace(/\s+/g, '-')} onClick={onClick} title={hint}>
       <span className="nav-icon">{icon}</span>
       <span className="nav-label">{label}</span>
       {count !== undefined && count > 0 && <span className="count">{count}</span>}

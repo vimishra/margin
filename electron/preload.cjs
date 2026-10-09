@@ -21,4 +21,11 @@ contextBridge.exposeInMainWorld('marginDesktop', {
   chooseFolder: (title) => ipcRenderer.invoke('folder:choose', title),
   savePdf: (name) => ipcRenderer.invoke('pdf:save', name),
   setShortcuts: (map) => ipcRenderer.send('shortcuts:set', map),
+  /** The accent colour from the system's settings ("#rrggbb"), and a way to hear when it changes. */
+  accentColor: () => ipcRenderer.invoke('accent:get'),
+  onAccent: (handler) => {
+    const listener = (_event, color) => handler(color)
+    ipcRenderer.on('accent', listener)
+    return () => ipcRenderer.removeListener('accent', listener)
+  },
 })

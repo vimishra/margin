@@ -1,6 +1,6 @@
 // Desktop shell: runs the same file-backed server as `npm start` inside the app
 // and shows it in a native window with a menu, standard shortcuts and a notes-folder picker.
-import { app, BrowserWindow, Menu, clipboard, dialog, globalShortcut, ipcMain, session, shell } from 'electron'
+import { app, BrowserWindow, Menu, clipboard, dialog, globalShortcut, ipcMain, session, shell, systemPreferences } from 'electron'
 import fs from 'node:fs'
 import net from 'node:net'
 import os from 'node:os'
@@ -444,6 +444,17 @@ if (!app.requestSingleInstanceLock()) {
       const result = await dialog.showOpenDialog(win, { title: String(title || 'Choose a folder'), properties: ['openDirectory'], buttonLabel: 'Choose' })
       return result.canceled ? null : result.filePaths[0] || null
     })
+    // The accent colour chosen in the system's own settings, as "#rrggbb", for the "System" accent.
+    const systemAccent = () => {
+      try {
+        const c = systemPreferences.getAccentColor?.()
+        return c ? '#' + c.slice(0, 6) : null
+      } catch {
+        return null
+      }
+    }
+    ipcMain.handle('accent:get', () => systemAccent())
+    systemPreferences.on?.('accent-color-changed', () => win?.webContents.send('accent', systemAccent()))
     ipcMain.handle('vault:choose', () => chooseVault())
     ipcMain.handle('vault:reveal', () => shell.openPath(vault))
     ipcMain.handle('vault:reveal-file', (_e, rel) => {
