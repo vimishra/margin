@@ -259,7 +259,8 @@ interface State {
   /** Set when a note is opened from a search result, so it can scroll to the match. */
   /** The day being written in while the journal is open; it is the current note for commands. */
   journalNote: string | null
-  jump: { id: string; query: string; terms: string[]; pane?: 'main' | 'side' } | null
+  /** Where to go in a note that is about to open. `caret` leaves the cursor at the end of the text found, instead of selecting it. */
+  jump: { id: string; query: string; terms: string[]; pane?: 'main' | 'side'; caret?: boolean } | null
   settings: Settings
   historyFor: string | null
   /** Image shown enlarged over the page. */
@@ -460,14 +461,14 @@ export function openFromClick(e: { metaKey: boolean; altKey: boolean; ctrlKey: b
 }
 
 /** Open a note and scroll to where the search text first appears in it. */
-export function openNoteAt(id: string, query: string, terms: string[]) {
-  set({ jump: { id, query, terms } })
+export function openNoteAt(id: string, query: string, terms: string[], caret = false) {
+  set({ jump: { id, query, terms, caret } })
   openNote(id)
 }
 
 /** The same, in the side pane. */
-export function openSideAt(id: string, query: string) {
-  set({ jump: { id, query, terms: [], pane: 'side' } })
+export function openSideAt(id: string, query: string, caret = false) {
+  set({ jump: { id, query, terms: [], pane: 'side', caret } })
   openSide(id)
 }
 
@@ -1089,7 +1090,7 @@ export function addMeetingEntry(id: string) {
   if (start < 0) lines.push(...(lines[lines.length - 1]?.trim() ? [''] : []), '## Meetings', '', ...entry)
   else lines.splice(start + 1, 0, '', ...entry.slice(0, -1))
   updateNote(id, { content: lines.join('\n') + tail })
-  set({ jump: { id, query: `### ${title}`, terms: [] } })
+  set({ jump: { id, query: `### ${title}`, terms: [], caret: true } })
 }
 
 /** Add text to a chosen note: at the end of the section under `heading`, or at the end of the page. */

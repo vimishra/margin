@@ -1,6 +1,6 @@
 # Margin product specification
 
-This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.10.0.
+This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.10.1.
 
 It is written to be handed to a developer or a coding tool. Where a detail is a free choice for the implementer, it says so; everything else is a requirement.
 
@@ -363,7 +363,7 @@ One palette, opened by ⌘K, does three jobs.
 
 The palette has further modes with the same look: move a note to a notebook (with "create notebook"), choose a template, jump to a heading, and choose a tag.
 
-**Jumping to a place in a note** (from search or the Tasks view) selects the text, scrolls it to the middle, repeats the scroll a few times over the first second while images and tables settle, and flashes the line for about 1.5 seconds. It works in either pane.
+**Jumping to a place in a note** (from search or the Tasks view): a search result selects the text found; a task, or a meeting entry just added, puts the cursor at the end of its line with nothing selected, so a stray key cannot replace the line. Either way the editor scrolls it to the middle, repeats the scroll a few times over the first second while images and tables settle, and flashes the line for about 1.5 seconds. It works in either pane.
 
 **Commands** cover every action in the app: create (note, canvas, scratch, meeting, person, research, from template, notebook), go to (each view), on the current note (side, swap, jump to heading, search, formatting, headings, lists, task actions, mode, page or canvas, rename, duplicate, add tag, copy link, reveal file, close tab, close others, close all, pin, history, move, export as Markdown, HTML, PDF, Word, delete), and app (page width, sidebar, side panel, theme, settings, import, help pages, keyboard shortcuts).
 
@@ -790,9 +790,9 @@ Every action below can be reassigned or cleared in Settings → Shortcuts, which
 | --- | --- | --- |
 | Page | `#ffffff` | `#282828` |
 | Sidebar | `#f9f9fb` | `#282828`, with a darker dividing line |
-| Text | `#15171a` | `#e4e4e5` |
-| Secondary text | `#3c3e41` | `#c2c2c4` |
-| Muted text | `#8e9093`, `#b7b8ba` | `#8a8a8c`, `#69696b` |
+| Text | `#15171a` | `#ededee` |
+| Secondary text | `#3c3e41` | `#c8c8ca` |
+| Muted text | `#8e9093`, `#b7b8ba` | `#98989b`, `#69696b` |
 | Borders | `#ebecee`, `#d3d5d8` | `#1f2021`, `#4a4b4d` |
 | Selected row | about `#dfe1e7` | about `#393b3d` |
 | Default accent | `#255fb3` | `#5b9df0` |

@@ -621,7 +621,7 @@ With the keyboard:
 | ↑ ↓ (or K J) | Move between tasks |
 | Home, End | First and last task |
 | Space (or X) | Tick or untick |
-| ↵ | Open the task in its note; ⇧↵ opens it to the side |
+| ↵ | Open the task in its note, with the cursor at the end of the task's line; ⇧↵ opens it to the side |
 | D | Due date |
 | T | Move to today |
 | S | When: planned day or Someday |

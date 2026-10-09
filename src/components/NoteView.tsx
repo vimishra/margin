@@ -346,6 +346,7 @@ export function NoteView({ note, slot = 'main' }: { note: Note; slot?: 'main' | 
   const jump = useStore((s) => s.jump)
   useEffect(() => {
     if (!jump || jump.id !== note.id || (jump.pane && jump.pane !== slot)) return
+    const caret = !!jump.caret
     useStore.setState({ jump: null })
     if (isCanvas) return
     const lower = page.toLowerCase()
@@ -364,7 +365,7 @@ export function NoteView({ note, slot = 'main' }: { note: Note; slot?: 'main' | 
     const needle = page.slice(at, at + length)
     // A short delay rather than the next frame: frames do not run while the window is hidden.
     setTimeout(() => {
-      if (editor.current) return editor.current.reveal(at, at + length)
+      if (editor.current) return editor.current.reveal(caret ? at + length : at, at + length)
       // Read-only view: find the same text in the rendered page and select it.
       const root = scroller.current?.querySelector('.reading')
       if (!root) return

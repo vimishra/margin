@@ -36,8 +36,9 @@ export function TaskRow({ task, note, showNote = true, active = false, onHover }
   const html = useMemo(() => renderInline(task.text), [task.text])
   const open = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('a')) return
-    if (e.metaKey || e.altKey || e.ctrlKey) openSideAt(note.id, task.raw)
-    else openNoteAt(note.id, task.raw, [])
+    // Land with the cursor at the end of the task, not with the line selected, so a stray key cannot wipe it.
+    if (e.metaKey || e.altKey || e.ctrlKey) openSideAt(note.id, task.raw, true)
+    else openNoteAt(note.id, task.raw, [], true)
   }
   const late = (d?: string) => !task.done && !!d && d < now
   return (
@@ -271,7 +272,7 @@ export function TasksView({ view }: { view?: string }) {
         else if (e.key === 'End') move(rows.length - 1)
         else if (!task) return
         else if (e.key === ' ' || e.key === 'x') (e.preventDefault(), updateTask(task, { done: !task.done }))
-        else if (e.key === 'Enter') (e.preventDefault(), e.shiftKey ? openSideAt(task.noteId, task.raw) : openNoteAt(task.noteId, task.raw, []))
+        else if (e.key === 'Enter') (e.preventDefault(), e.shiftKey ? openSideAt(task.noteId, task.raw, true) : openNoteAt(task.noteId, task.raw, [], true))
         else if (e.key === 't') (e.preventDefault(), updateTask(task, { raw: withDetails(task.raw, { scheduled: now }) }))
         else if (e.key === 'd') (e.preventDefault(), pickDate(rowEl(), task, 'due'))
         else if (e.key === 's') (e.preventDefault(), pickDate(rowEl(), task, 'scheduled'))

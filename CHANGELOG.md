@@ -2,6 +2,16 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.10.1 (2026-10-09)
+
+### Changed
+
+- Dark theme: text is a little brighter (main text, secondary text and the grey used for hints and counts), for easier reading without the glare of pure white.
+
+### Fixed
+
+- Opening a task from the Tasks view (or the panel under a daily note) no longer selects the whole line, where the next key pressed would replace it. The cursor now lands at the end of the task, ready to type. The same goes for a meeting entry just added to a person's note.
+
 ## 1.10.0 (2026-10-09)
 
 ### Changed
