@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.11.1 (2026-10-12)
+
+### Changed
+
+- The Mac build on GitHub (Actions → Build Mac app) names each run after the branch it was built from, and puts the version in the download's name and on the run's page, so you can tell which version a build contains.
+
 ## 1.11.0 (2026-10-12)
 
 ### Added
