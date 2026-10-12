@@ -89,6 +89,7 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 <p><strong><a href="#quick-capture-and-scratch-notes">Capturing</a></strong></p>
 <ul>
 <li>Quick capture from anywhere, even from another app, into today's note, a scratch note, the inbox, or a note and heading you choose</li>
+<li>Quick task: capture a task with its dates, priority and tags, with suggestions as you type, into the Inbox or today's note</li>
 <li>Scratch notes that remove themselves after a week</li>
 <li>Research notes for articles, with a source link and a reading status</li>
 </ul>
@@ -570,6 +571,44 @@ npm run app
 <li><strong>A note…:</strong> added to a note you choose, as a new bullet. The first time, press Enter or click to search for the note; you can also pick a heading to add it under. Margin remembers the note and heading, so next time it is Tab and Enter. ⌥↓ chooses a different note.</li>
 </ul>
 <p>The destination the box opens with is still the one set in Settings, so the usual capture is unchanged. Anything you type as a task (<code>- [ ] …</code>) is kept as a task, in today's note as well as in a chosen note.</p>
+<h3 id="quick-task">Quick task</h3>
+<p><strong>Quick task</strong> (⌘⌥C, or ⌃⌥T from any app) opens the same box ready for a task. The <strong>Note / Task</strong> switch at the top changes between the two, and so do their shortcuts while the box is open; what you have typed comes along.</p>
+<p>Type the task with its details, as you would on a task line in a note, and the same suggestions appear:</p>
+<div class="table"><table><thead>
+<tr>
+<th>Type</th>
+<th>Suggests</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&gt;</code> and a day in words (<code>&gt;fri</code>, <code>&gt;next week</code>), or <code>&gt;some</code></td>
+<td>When: the planned day, or Someday</td>
+</tr>
+<tr>
+<td><code>@due(</code> and a day in words</td>
+<td>The due date</td>
+</tr>
+<tr>
+<td><code>P</code> after a space</td>
+<td>P1, P2, P3</td>
+</tr>
+<tr>
+<td><code>#</code></td>
+<td>Your tags</td>
+</tr>
+<tr>
+<td><code>[[</code></td>
+<td>A note to link</td>
+</tr>
+</tbody>
+</table></div><p>You do not have to pick a suggestion: when the task is saved, <code>&gt;fri</code> and <code>@due(next week)</code> are turned into the dates they mean. The line under the box shows what Margin understood (When Tomorrow, Due Fri 16 Oct, P2, #atlas) before you save.</p>
+<ul>
+<li><strong>Enter</strong> saves the task and closes the box. <strong>⇧Enter</strong> saves it and keeps the box open for the next one.</li>
+<li><strong>Tab</strong> chooses where it goes: <strong>Inbox</strong> (the default, a note called <em>Tasks</em> in your Inbox notebook, made the first time) or <strong>Today's note</strong> (added like any capture: at the end of the page, or as a card when today is on the canvas). Settings → Capture &amp; scratch → <strong>Quick task saves to</strong> sets the one it opens with.</li>
+<li>Esc closes a suggestion list first, then the box.</li>
+</ul>
+<p>Tasks in the Inbox's Tasks note show in the Tasks view like any other: group by Project to see them together under the Inbox notebook, then move or plan them.</p>
 <p><strong>Scratch notes</strong> (⌘⌥N) are for things you need for a few days. They expire after a week and move to the trash. Each one shows how long it has left, with buttons to extend it or <strong>Keep</strong> it as a normal note.</p>
 <h2 id="meeting-notes-and-templates">Meeting notes and templates</h2>
 <p><strong>New meeting note</strong> (⌘⇧M) asks for the meeting's name, then:</p>
@@ -689,7 +728,7 @@ npm run app
 <h1 id="part-2-tasks">Part 2: Tasks</h1>
 <p>Everything about deciding what to do and when: what a task is, its priority and dates, the Tasks view and its lists, saved filters and the Top 3. Tasks are written inside notes, but planning and reviewing them is a separate activity with its own view and its own keys.</p>
 <h2 id="tasks">Tasks</h2>
-<p>A task is a checkbox: <code>- [ ] Send the proposal</code>. Type <code>/task</code>, press ⌘⇧9, or write it by hand. Tasks can live in any note. To tick or untick the task the cursor is on, press ⌘↵ or click its box; with several lines selected, ⌘↵ ticks them all.</p>
+<p>A task is a checkbox: <code>- [ ] Send the proposal</code>. Type <code>/task</code>, press ⌘⇧9, or write it by hand, or capture one from anywhere with <strong>Quick task</strong> (⌘⌥C; see <a href="#quick-task">Quick task</a>). Tasks can live in any note. To tick or untick the task the cursor is on, press ⌘↵ or click its box; with several lines selected, ⌘↵ ticks them all.</p>
 <p>Ticking a task writes the day on its line, <code>@done(2026-10-07)</code>, so the Logbook can show when it was done. Unticking takes it off again. Turn this off in Settings → General → <strong>Record when tasks are done</strong>.</p>
 <p>The lists work the way they do in Things 3:</p>
 <ul>
@@ -1096,6 +1135,16 @@ margin-tasks open --no-due --notebook Work --paths
 <tr>
 <td>Quick capture from any app</td>
 <td>⌃⌥Space</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Quick task</td>
+<td>⌘⌥C</td>
+<td>⌥⇧C</td>
+</tr>
+<tr>
+<td>Quick task from any app</td>
+<td>⌃⌥T</td>
 <td>—</td>
 </tr>
 <tr>

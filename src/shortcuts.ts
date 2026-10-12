@@ -33,6 +33,7 @@ export const SHORTCUT_DEFS: ShortcutDef[] = [
   { id: 'closeTab', label: 'Close tab', group: 'Navigate', web: 'Alt+W', desktop: 'Mod+W' },
   { id: 'new', label: 'New note', group: 'Create', web: 'Alt+N', desktop: 'Mod+N' },
   { id: 'capture', label: 'Quick capture', group: 'Create', web: 'Alt+C', desktop: 'Mod+Shift+C' },
+  { id: 'captureTask', label: 'Quick task (capture a task)', group: 'Create', web: 'Alt+Shift+C', desktop: 'Mod+Alt+C' },
   { id: 'scratch', label: 'New scratch note', group: 'Create', web: 'Alt+S', desktop: 'Mod+Alt+N' },
   { id: 'canvas', label: 'New canvas', group: 'Create', web: '', desktop: 'Mod+Shift+N' },
   { id: 'meeting', label: 'New meeting note', group: 'Create', web: 'Alt+T', desktop: 'Mod+Shift+M' },

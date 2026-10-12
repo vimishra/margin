@@ -267,6 +267,10 @@ Each canvas card is markdown too.
 <td><code>lib/tasks.ts</code>; the view itself in <code>components/TasksView.tsx</code>. Make the same change in <code>tools/margin_tasks.py</code>, re-record the cases with <code>node scripts/task-fixtures.mjs --write</code>, and run <code>npm run test:tasks</code>.</td>
 </tr>
 <tr>
+<td>Quick capture and Quick task</td>
+<td><code>QuickCapture</code> in <code>components/Overlays.tsx</code>; the one-line task editor in <code>components/TaskCapture.tsx</code>, its suggestions in <code>captureCompletions</code> (<code>Editor.tsx</code>), dates in words in <code>resolveTaskWords</code> (<code>lib/tasks.ts</code>), saving in <code>captureTask</code> (<code>store.ts</code>)</td>
+</tr>
+<tr>
 <td>Slash commands, link completion</td>
 <td><code>slashCommands</code> and <code>completions</code> in <code>components/Editor.tsx</code></td>
 </tr>

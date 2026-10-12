@@ -2,6 +2,14 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.11.0 (2026-10-12)
+
+### Added
+
+- **Quick task:** ⌘⌥C, or ⌃⌥T from any app, opens the capture box ready for a task. Type it with its details and the same suggestions as on a task line appear: `>` and `@due(` for dates, `P` for priority, `#` for tags, `[[` for links. Dates typed in words (`>fri`, `@due(next week)`) are turned into dates on save, so suggestions need not be picked, and the line under the box shows what was understood.
+- Quick task saves to the Inbox, a note called *Tasks* in the Inbox notebook (made the first time), or to today's note; Tab switches. ⇧Enter saves and keeps the box open for the next task. Settings → Capture & scratch → **Quick task saves to** sets the default.
+- A **Note / Task** switch at the top of the capture box. Either capture shortcut switches while the box is open, keeping what was typed.
+
 ## 1.10.2 (2026-10-09)
 
 ### Added

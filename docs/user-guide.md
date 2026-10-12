@@ -41,6 +41,7 @@ Everything the app does, at a glance. Each heading links to the section that exp
 **[Capturing](#quick-capture-and-scratch-notes)**
 
 - Quick capture from anywhere, even from another app, into today's note, a scratch note, the inbox, or a note and heading you choose
+- Quick task: capture a task with its dates, priority and tags, with suggestions as you type, into the Inbox or today's note
 - Scratch notes that remove themselves after a week
 - Research notes for articles, with a source link and a reading status
 
@@ -438,6 +439,28 @@ On the canvas:
 
 The destination the box opens with is still the one set in Settings, so the usual capture is unchanged. Anything you type as a task (`- [ ] …`) is kept as a task, in today's note as well as in a chosen note.
 
+### Quick task
+
+**Quick task** (⌘⌥C, or ⌃⌥T from any app) opens the same box ready for a task. The **Note / Task** switch at the top changes between the two, and so do their shortcuts while the box is open; what you have typed comes along.
+
+Type the task with its details, as you would on a task line in a note, and the same suggestions appear:
+
+| Type | Suggests |
+| --- | --- |
+| `>` and a day in words (`>fri`, `>next week`), or `>some` | When: the planned day, or Someday |
+| `@due(` and a day in words | The due date |
+| `P` after a space | P1, P2, P3 |
+| `#` | Your tags |
+| `[[` | A note to link |
+
+You do not have to pick a suggestion: when the task is saved, `>fri` and `@due(next week)` are turned into the dates they mean. The line under the box shows what Margin understood (When Tomorrow, Due Fri 16 Oct, P2, #atlas) before you save.
+
+- **Enter** saves the task and closes the box. **⇧Enter** saves it and keeps the box open for the next one.
+- **Tab** chooses where it goes: **Inbox** (the default, a note called *Tasks* in your Inbox notebook, made the first time) or **Today's note** (added like any capture: at the end of the page, or as a card when today is on the canvas). Settings → Capture & scratch → **Quick task saves to** sets the one it opens with.
+- Esc closes a suggestion list first, then the box.
+
+Tasks in the Inbox's Tasks note show in the Tasks view like any other: group by Project to see them together under the Inbox notebook, then move or plan them.
+
 **Scratch notes** (⌘⌥N) are for things you need for a few days. They expire after a week and move to the trash. Each one shows how long it has left, with buttons to extend it or **Keep** it as a normal note.
 
 ## Meeting notes and templates
@@ -559,7 +582,7 @@ Everything about deciding what to do and when: what a task is, its priority and 
 
 ## Tasks
 
-A task is a checkbox: `- [ ] Send the proposal`. Type `/task`, press ⌘⇧9, or write it by hand. Tasks can live in any note. To tick or untick the task the cursor is on, press ⌘↵ or click its box; with several lines selected, ⌘↵ ticks them all.
+A task is a checkbox: `- [ ] Send the proposal`. Type `/task`, press ⌘⇧9, or write it by hand, or capture one from anywhere with **Quick task** (⌘⌥C; see [Quick task](#quick-task)). Tasks can live in any note. To tick or untick the task the cursor is on, press ⌘↵ or click its box; with several lines selected, ⌘↵ ticks them all.
 
 Ticking a task writes the day on its line, `@done(2026-10-07)`, so the Logbook can show when it was done. Unticking takes it off again. Turn this off in Settings → General → **Record when tasks are done**.
 
@@ -783,6 +806,8 @@ These are the defaults. Change any of them in Settings → Shortcuts.
 | New canvas | ⌘⇧N | — |
 | Quick capture | ⌘⇧C | ⌥C |
 | Quick capture from any app | ⌃⌥Space | — |
+| Quick task | ⌘⌥C | ⌥⇧C |
+| Quick task from any app | ⌃⌥T | — |
 | Today's daily note | ⌘D | ⌥D |
 | Home | ⌘⇧H | ⌥H |
 | Calendar | ⌘⇧L | ⌥L |

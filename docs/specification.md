@@ -453,6 +453,15 @@ A small box with a text area and a destination selector. Enter saves, ⇧Enter a
 
 The default destination and whether to add the time are settings. In the desktop app a global hotkey opens capture from any application.
 
+**Quick task.** The same box can be opened for a task (its own shortcut and global hotkey). A Note / Task switch at the top changes between the two; the shortcuts of either do the same while the box is open, and the text typed so far is kept.
+
+- One line of the editor: a pasted line break becomes a space. The details are marked as labels as they are typed, as on a task line in a note.
+- Suggestions: `>` or `@due(` with a phrase offer dates as in [section 12.2](#122-entering-details) (`>some` offers someday); `P` after a space offers P1, P2, P3; `#` offers tags; `[[` offers notes. No slash commands.
+- A line under the text shows the details read from it (when or Someday, due date, priority, tags), with dates typed in words already turned into dates.
+- On save, a date phrase after `>` (the longest run of up to three words that reads as a date, or `someday`) and inside `@due(…)` is replaced by the date; anything that is not a date is left as typed. The task is saved as `- [ ] <text>`.
+- Destinations, cycled with Tab: **Inbox** (default): appended as the last line of the note titled `Tasks` in the Inbox notebook, which is created when it does not exist; **Today's note**: added as a capture to today's daily note (a task line, no timestamp; a card when today is a canvas).
+- Enter saves and closes; ⇧Enter saves and clears the box for another task; Esc closes an open suggestion list, otherwise the box.
+
 ### 11.2 Templates
 
 - A template is any note in the Templates notebook.
@@ -692,6 +701,7 @@ A settings window with a search box that finds any setting or shortcut by name, 
 | People notebook | name | `People` |
 | Capture goes to | Today's note, Scratch, Inbox | Today's note |
 | Add the time to captures | on, off | on |
+| Quick task saves to | Inbox (Tasks note), Today's note | Inbox |
 | Scratch notes expire after | days | 7 |
 | Scratch notebook | name | `Scratch` |
 | Notes folder | path (desktop: picker; restarts the app) | see section 3.1 |
@@ -728,6 +738,7 @@ Every action below can be reassigned or cleared in Settings → Shortcuts, which
 | Close other tabs, Close all tabs | none | none |
 | New note | Mod+N | Alt+N |
 | Quick capture | Mod+Shift+C | Alt+C |
+| Quick task | Mod+Alt+C | Alt+Shift+C |
 | New scratch note | Mod+Alt+N | Alt+S |
 | New canvas | Mod+Shift+N | none |
 | New meeting note | Mod+Shift+M | Alt+T |
@@ -780,6 +791,7 @@ Every action below can be reassigned or cleared in Settings → Shortcuts, which
 | Canvas | Double-click, N, Enter, Esc, ⌫, scroll, Mod+scroll | See section 10 |
 | Quick capture | Enter, Shift+Enter, Tab, Alt+↓, Esc | See section 11.1 |
 | Desktop, any app | Ctrl+Alt+Space | Quick capture |
+| Desktop, any app | Ctrl+Alt+T | Quick task |
 
 ## 17. Appearance
 
@@ -815,7 +827,7 @@ Every action below can be reassigned or cleared in Settings → Shortcuts, which
 - **PDF export** saves directly to a chosen file.
 - **Web links** open in the default browser; only the app's own pages load in app windows.
 - **Help pages** open in a separate window that is reused.
-- **Global hotkey** Ctrl+Alt+Space opens quick capture.
+- **Global hotkeys** Ctrl+Alt+Space opens quick capture, Ctrl+Alt+T quick task.
 - **Installed fonts** are listed for the font picker.
 - **Packaging:** a `.dmg` for Apple silicon, signed ad hoc (no Apple developer account); unsigned builds require `xattr -cr` once after installing. Versioned releases with a changelog.
 - **Printable Guides…** opens a folder shipped inside the app holding each guide (user guide, theory of operations, design guide, specification) as a PDF and as a standalone HTML page. The installer's window shows the same folder, named Documentation, beside the app.
@@ -886,6 +898,7 @@ A build meets this specification when all of these hold.
 - Daily notes are created from the Daily template with placeholders filled for their own date.
 - The journal shows all days, editable, loading more on scroll.
 - Quick capture reaches all four destinations, and a typed task stays a task.
+- Quick task offers dates, priorities and tags as it is typed, turns typed date words into dates on save, and reaches the Inbox's Tasks note and today's note.
 - Meeting and person notes are created as in sections 11.3 and 11.4.
 - Backlinks, unlinked mentions (with Link) and outgoing links are correct.
 - Two panes work, with commands going to the active one.

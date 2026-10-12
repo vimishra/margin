@@ -1,11 +1,14 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { BookOpen, Check, Workflow, X } from 'lucide-react'
-import { captureText, captureToNote, dismissToast, ui, useStore, type CaptureTarget } from '../store'
+import { INBOX_TASKS_TITLE, captureTask, captureText, captureToNote, dismissToast, ui, useStore, type CaptureTarget, type TaskCaptureTarget } from '../store'
+import { TaskInput, type TaskInputHandle } from './TaskCapture'
+import { parseTaskText, priorityLabel, PRIORITIES, resolveTaskWords, shortDate } from '../lib/tasks'
+import { actionFor, eventCombo, hint } from '../shortcuts'
 import type { Note } from '../types'
 import { headings } from '../lib/markdown'
 import { splitContent } from '../lib/canvas'
 import { openGuide, shortcutGroups } from '../commands'
-import { MOD, cx, displayTitle, local } from '../lib/util'
+import { MOD, cx, displayTitle, local, today } from '../lib/util'
 
 export function Toasts() {
   const toasts = useStore((s) => s.toasts)
@@ -174,9 +177,55 @@ const TARGETS: [CaptureTarget, string, string][] = [
   ['note', 'A note…', 'Added to a note you choose, under a heading if you like'],
 ]
 
+/** What has been typed, kept when switching between the note and the task box. */
+let carried = ''
+
+/** The quick capture box, for a note or for a task. Its own shortcuts switch between the two while it is open. */
 export function QuickCapture() {
+  const kind = useStore((s) => s.capture)
+  return kind === 'task' ? <TaskCapture /> : <NoteCapture />
+}
+
+/** Note / Task, at the top of the capture box. */
+function CaptureKind({ kind, text }: { kind: 'note' | 'task'; text: string }) {
+  const to = (k: 'note' | 'task') => {
+    if (k === kind) return
+    carried = text
+    ui({ capture: k })
+  }
+  return (
+    <div className="capture-kind seg sm">
+      <button className={cx(kind === 'note' && 'on')} title={`Capture a note  ${hint('capture')}`} onClick={() => to('note')}>
+        Note
+      </button>
+      <button className={cx(kind === 'task' && 'on')} title={`Capture a task  ${hint('captureTask')}`} onClick={() => to('task')}>
+        Task
+      </button>
+    </div>
+  )
+}
+
+/** Pressing the shortcut of the other kind of capture while the box is open switches to it, keeping the text. */
+function switchKeys(e: React.KeyboardEvent, kind: 'note' | 'task', text: string) {
+  const combo = eventCombo(e.nativeEvent)
+  const id = combo && actionFor(combo)
+  if (id !== 'capture' && id !== 'captureTask') return
+  e.preventDefault()
+  e.stopPropagation()
+  const next = id === 'capture' ? 'note' : 'task'
+  if (next !== kind) {
+    carried = text
+    ui({ capture: next })
+  }
+}
+
+function NoteCapture() {
   const notes = useStore((s) => s.notes)
-  const [text, setText] = useState('')
+  const [text, setText] = useState(() => {
+    const t = carried
+    carried = ''
+    return t
+  })
   const [target, setTarget] = useState<CaptureTarget>(() => useStore.getState().settings.captureTarget)
   // The note chosen last time is offered again, so a regular destination takes no extra steps.
   const [dest, setDest] = useState(() => local.get<{ id: string; heading: string }>('captureNote', { id: '', heading: '' }))
@@ -195,6 +244,8 @@ export function QuickCapture() {
       .slice(0, 6)
   }, [notes, find])
   const choosing = target === 'note' && (picking || !chosen)
+  // Text carried over from the task box: the cursor goes after it.
+  useEffect(() => area.current?.setSelectionRange(area.current.value.length, area.current.value.length), [])
 
   const close = () => ui({ capture: false })
   const save = () => {
@@ -213,7 +264,8 @@ export function QuickCapture() {
   }
   return (
     <div className="overlay top" onMouseDown={close}>
-      <div className="modal capture" onMouseDown={(e) => e.stopPropagation()}>
+      <div className="modal capture" onMouseDown={(e) => e.stopPropagation()} onKeyDown={(e) => switchKeys(e, 'note', text)}>
+        <CaptureKind kind="note" text={text} />
         <textarea
           ref={area}
           autoFocus
@@ -298,6 +350,88 @@ export function QuickCapture() {
             <kbd>Tab</kbd> destination · {target === 'note' && chosen ? <><kbd>⌥↓</kbd> change · </> : null}<kbd>↵</kbd> save
           </span>
           <button className="btn primary" onClick={save} title={`${MOD}↵`}>
+            Save
+          </button>
+        </footer>
+      </div>
+    </div>
+  )
+}
+
+const TASK_TARGETS: [TaskCaptureTarget, string, string][] = [
+  ['inbox', 'Inbox', `Added to the ${INBOX_TASKS_TITLE} note in the Inbox notebook`],
+  ['daily', "Today's note", 'Added to today’s daily note'],
+]
+
+/**
+ * The capture box for a task. It is saved as "- [ ] …" with dates typed in words turned into dates,
+ * to the Inbox's Tasks note or today's daily note.
+ */
+function TaskCapture() {
+  const dayFirst = useStore((s) => s.settings.dayFirst)
+  const inbox = useStore((s) => s.settings.inboxFolder)
+  const [target, setTarget] = useState<TaskCaptureTarget>(() => useStore.getState().settings.captureTaskTarget)
+  const [initial] = useState(() => {
+    const t = carried
+    carried = ''
+    return t
+  })
+  const [text, setText] = useState(initial)
+  const [saved, setSaved] = useState(0)
+  const input = useRef<TaskInputHandle>(null)
+  const task = useMemo(() => parseTaskText(resolveTaskWords(text, dayFirst)), [text, dayFirst])
+
+  const close = () => ui({ capture: false })
+  const save = (again: boolean) => {
+    if (!text.trim()) return again || close()
+    void captureTask(resolveTaskWords(text, dayFirst), target)
+    if (!again) return close()
+    // Shift+Enter: ready for the next one.
+    input.current?.clear()
+    setSaved((n) => n + 1)
+  }
+  const cycle = (back: boolean) => {
+    const i = TASK_TARGETS.findIndex(([t]) => t === target)
+    setTarget(TASK_TARGETS[(i + (back ? TASK_TARGETS.length - 1 : 1)) % TASK_TARGETS.length][0])
+  }
+  return (
+    <div className="overlay top" onMouseDown={close}>
+      <div className="modal capture" onMouseDown={(e) => e.stopPropagation()} onKeyDown={(e) => switchKeys(e, 'task', text)}>
+        <CaptureKind kind="task" text={text} />
+        <div className="capture-task">
+          <TaskInput ref={input} initial={initial} onChange={setText} onSubmit={save} onCancel={close} onTab={cycle} />
+        </div>
+        <div className="capture-reads">
+          {text.trim() ? (
+            <>
+              {task.someday && <span className="task-chip someday">Someday</span>}
+              {task.scheduled && <span className={cx('task-chip', task.scheduled <= today() && 'now')}>When {shortDate(task.scheduled)}</span>}
+              {task.due && <span className={cx('task-chip', task.due < today() && 'late', task.due === today() && 'now')}>Due {shortDate(task.due)}</span>}
+              {task.priority > 0 && <span className="task-chip">{priorityLabel(task.priority)} · {PRIORITIES[task.priority]}</span>}
+              {task.tags.map((tag) => (
+                <span key={tag} className="task-chip">#{tag}</span>
+              ))}
+              {!task.someday && !task.scheduled && !task.due && !task.priority && !task.tags.length && <span className="capture-tip">No details: it goes to Anytime.</span>}
+            </>
+          ) : (
+            <span className="capture-tip">
+              <kbd>&gt;</kbd> when · <kbd>@due(</kbd> deadline · <kbd>P</kbd> priority · <kbd>#</kbd> tag · <kbd>[[</kbd> link
+              {saved > 0 && ` · ${saved} saved`}
+            </span>
+          )}
+        </div>
+        <footer>
+          <div className="seg sm">
+            {TASK_TARGETS.map(([t, label, title]) => (
+              <button key={t} className={cx(target === t && 'on')} title={t === 'inbox' ? title.replace('Inbox notebook', `${inbox} notebook`) : title} onClick={() => (setTarget(t), input.current?.focus())}>
+                {label}
+              </button>
+            ))}
+          </div>
+          <span className="capture-hint">
+            <kbd>Tab</kbd> destination · <kbd>⇧↵</kbd> save, add another · <kbd>↵</kbd> save
+          </span>
+          <button className="btn primary" onClick={() => save(false)}>
             Save
           </button>
         </footer>

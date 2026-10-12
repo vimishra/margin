@@ -570,6 +570,15 @@ Each canvas card is markdown too.
 </tr>
 </tbody>
 </table></div><p>The default destination and whether to add the time are settings. In the desktop app a global hotkey opens capture from any application.</p>
+<p><strong>Quick task.</strong> The same box can be opened for a task (its own shortcut and global hotkey). A Note / Task switch at the top changes between the two; the shortcuts of either do the same while the box is open, and the text typed so far is kept.</p>
+<ul>
+<li>One line of the editor: a pasted line break becomes a space. The details are marked as labels as they are typed, as on a task line in a note.</li>
+<li>Suggestions: <code>&gt;</code> or <code>@due(</code> with a phrase offer dates as in <a href="#122-entering-details">section 12.2</a> (<code>&gt;some</code> offers someday); <code>P</code> after a space offers P1, P2, P3; <code>#</code> offers tags; <code>[[</code> offers notes. No slash commands.</li>
+<li>A line under the text shows the details read from it (when or Someday, due date, priority, tags), with dates typed in words already turned into dates.</li>
+<li>On save, a date phrase after <code>&gt;</code> (the longest run of up to three words that reads as a date, or <code>someday</code>) and inside <code>@due(…)</code> is replaced by the date; anything that is not a date is left as typed. The task is saved as <code>- [ ] &lt;text&gt;</code>.</li>
+<li>Destinations, cycled with Tab: <strong>Inbox</strong> (default): appended as the last line of the note titled <code>Tasks</code> in the Inbox notebook, which is created when it does not exist; <strong>Today's note</strong>: added as a capture to today's daily note (a task line, no timestamp; a card when today is a canvas).</li>
+<li>Enter saves and closes; ⇧Enter saves and clears the box for another task; Esc closes an open suggestion list, otherwise the box.</li>
+</ul>
 <h3 id="112-templates">11.2 Templates</h3>
 <ul>
 <li>A template is any note in the Templates notebook.</li>
@@ -1001,6 +1010,11 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <td>on</td>
 </tr>
 <tr>
+<td>Quick task saves to</td>
+<td>Inbox (Tasks note), Today's note</td>
+<td>Inbox</td>
+</tr>
+<tr>
 <td>Scratch notes expire after</td>
 <td>days</td>
 <td>7</td>
@@ -1118,6 +1132,11 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <td>Quick capture</td>
 <td>Mod+Shift+C</td>
 <td>Alt+C</td>
+</tr>
+<tr>
+<td>Quick task</td>
+<td>Mod+Alt+C</td>
+<td>Alt+Shift+C</td>
 </tr>
 <tr>
 <td>New scratch note</td>
@@ -1364,6 +1383,11 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <td>Ctrl+Alt+Space</td>
 <td>Quick capture</td>
 </tr>
+<tr>
+<td>Desktop, any app</td>
+<td>Ctrl+Alt+T</td>
+<td>Quick task</td>
+</tr>
 </tbody>
 </table></div><h2 id="17-appearance">17. Appearance</h2>
 <ul>
@@ -1446,7 +1470,7 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <li><strong>PDF export</strong> saves directly to a chosen file.</li>
 <li><strong>Web links</strong> open in the default browser; only the app's own pages load in app windows.</li>
 <li><strong>Help pages</strong> open in a separate window that is reused.</li>
-<li><strong>Global hotkey</strong> Ctrl+Alt+Space opens quick capture.</li>
+<li><strong>Global hotkeys</strong> Ctrl+Alt+Space opens quick capture, Ctrl+Alt+T quick task.</li>
 <li><strong>Installed fonts</strong> are listed for the font picker.</li>
 <li><strong>Packaging:</strong> a <code>.dmg</code> for Apple silicon, signed ad hoc (no Apple developer account); unsigned builds require <code>xattr -cr</code> once after installing. Versioned releases with a changelog.</li>
 <li><strong>Printable Guides…</strong> opens a folder shipped inside the app holding each guide (user guide, theory of operations, design guide, specification) as a PDF and as a standalone HTML page. The installer's window shows the same folder, named Documentation, beside the app.</li>
@@ -1553,6 +1577,7 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <li>Daily notes are created from the Daily template with placeholders filled for their own date.</li>
 <li>The journal shows all days, editable, loading more on scroll.</li>
 <li>Quick capture reaches all four destinations, and a typed task stays a task.</li>
+<li>Quick task offers dates, priorities and tags as it is typed, turns typed date words into dates on save, and reaches the Inbox's Tasks note and today's note.</li>
 <li>Meeting and person notes are created as in sections 11.3 and 11.4.</li>
 <li>Backlinks, unlinked mentions (with Link) and outgoing links are correct.</li>
 <li>Two panes work, with commands going to the active one.</li>

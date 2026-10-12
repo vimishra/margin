@@ -75,7 +75,8 @@ export function commands(): Command[] {
   const i = (El: typeof Home) => <El size={16} />
   const list: Command[] = [
     { id: 'new', label: 'New note', icon: i(FilePlus2), hint: `${ALT}N`, keywords: 'create page', run: () => newNote('note') },
-    { id: 'capture', label: 'Quick capture', icon: i(Zap), hint: `${ALT}C`, keywords: 'jot inbox', run: () => ui({ capture: true }) },
+    { id: 'capture', label: 'Quick capture', icon: i(Zap), hint: `${ALT}C`, keywords: 'jot inbox', run: () => ui({ capture: 'note' }) },
+    { id: 'captureTask', label: 'Quick task', icon: i(ListChecks), keywords: 'capture todo add task inbox things quick entry', run: () => ui({ capture: 'task' }) },
     { id: 'daily', label: "Open today's daily note", icon: i(CalendarCheck), hint: `${ALT}D`, keywords: 'journal today', run: () => openDaily() },
     { id: 'scratch', label: 'New scratch note', icon: i(Hourglass), hint: `${ALT}S`, keywords: 'temporary expire', run: () => newNote('scratch') },
     { id: 'canvas', label: 'New canvas', icon: i(LayoutDashboard), keywords: 'board whiteboard', run: () => newNote('canvas') },

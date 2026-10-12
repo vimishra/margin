@@ -6,6 +6,7 @@
 // only a missed deadline makes it overdue.
 import type { Note } from '../types'
 import { addDays, parseYmd, today } from './util'
+import { parseDatePhrase } from './dates'
 
 export interface Task {
   noteId: string
@@ -69,6 +70,28 @@ export function withDetails(raw: string, patch: { priority?: number; scheduled?:
   const due = patch.due === undefined ? now.due : patch.due
   const planned = someday ? '>someday' : scheduled ? `>${scheduled}` : ''
   return [now.text, priorityLabel(priority), planned, due ? `@due(${due})` : '', now.completed ? `@done(${now.completed})` : ''].filter(Boolean).join(' ')
+}
+
+/**
+ * Dates typed in words, turned into the dates they mean: ">fri" becomes ">2026-10-16" and
+ * "@due(next week)" becomes "@due(2026-10-19)". ">" takes up to three words, the longest that reads as a date.
+ * Anything that is not a date is left as typed. Used when a task is captured, so suggestions need not be picked.
+ */
+export function resolveTaskWords(raw: string, dayFirst = true): string {
+  const out = raw.replace(/@due\(([^)]*)\)/g, (m, words: string) => {
+    const date = parseDatePhrase(words.trim(), dayFirst)
+    return date ? `@due(${date})` : m
+  })
+  return out.replace(/(^|\s)>(\S+(?:[ \t]+(?![>@])\S+){0,2})/g, (m, lead: string, words: string) => {
+    // Where each of the (up to three) words ends, so the longest that reads as a date can be cut off.
+    const ends = [...words.matchAll(/\S+/g)].map((w) => w.index! + w[0].length)
+    for (let n = ends.length; n > 0; n--) {
+      const phrase = words.slice(0, ends[n - 1])
+      const date = /^someday$/i.test(phrase) ? 'someday' : parseDatePhrase(phrase, dayFirst)
+      if (date) return `${lead}>${date}${words.slice(ends[n - 1])}`
+    }
+    return m
+  })
 }
 
 /** The task's text with "@done(date)" added at the end, or taken away. Nothing else on the line moves. */

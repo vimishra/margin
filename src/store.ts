@@ -40,6 +40,9 @@ interface AskOptions {
 export type Mode = 'edit' | 'source' | 'read'
 export type Theme = 'system' | 'light' | 'dark'
 export type CaptureTarget = 'daily' | 'scratch' | 'inbox' | 'note'
+export type TaskCaptureTarget = 'inbox' | 'daily'
+/** The note in the Inbox notebook that captured tasks are added to, made the first time it is needed. */
+export const INBOX_TASKS_TITLE = 'Tasks'
 
 export type StyleKey = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'bold' | 'italic'
 export interface TextStyle {
@@ -112,6 +115,8 @@ export interface Settings {
   dailyFolder: string
   dailyTemplate: string
   captureTarget: CaptureTarget
+  /** Where the task capture box saves a task: a list in the Inbox notebook, or today's daily note. */
+  captureTaskTarget: TaskCaptureTarget
   captureTime: boolean
   scratchDays: number
   scratchFolder: string
@@ -165,6 +170,7 @@ export const DEFAULT_SETTINGS: Settings = {
   dailyFolder: 'Daily',
   dailyTemplate: '',
   captureTarget: 'daily',
+  captureTaskTarget: 'inbox',
   captureTime: true,
   scratchDays: 7,
   scratchFolder: 'Scratch',
@@ -243,7 +249,8 @@ interface State {
   theme: Theme
   dirty: boolean
   palette: PaletteState
-  capture: boolean
+  /** The quick capture box: closed, or open for a note or for a task. */
+  capture: false | 'note' | 'task'
   help: boolean
   prefs: boolean
   /** Note shown in the second pane beside the main view, if any. */
@@ -1096,15 +1103,48 @@ export function addMeetingEntry(id: string) {
 /** Add text to a chosen note: at the end of the section under `heading`, or at the end of the page. */
 export function captureToNote(text: string, id: string, heading: string) {
   const note = get().notes[id]
+  const at = note ? appendToNote(note, text, heading) : null
+  if (!note || at == null) return
+  local.set('captureNote', { id, heading })
+  const where = heading && at >= 0 ? `${displayTitle(note)} › ${heading}` : displayTitle(note)
+  toast(`Added to ${where}`, { label: 'Open', run: () => openNote(id) })
+}
+
+/**
+ * Save one task from the task capture box: to the Tasks note in the Inbox notebook, or to today's daily note.
+ * `raw` is the task as typed, after the checkbox; dates typed in words should already be resolved.
+ */
+export async function captureTask(raw: string, target: TaskCaptureTarget) {
+  const task = raw.trim().replace(/\s+/g, ' ')
+  if (!task) return
+  const line = `- [ ] ${task}`
+  if (target === 'daily') {
+    const note = await addToDaily(line, false)
+    if (note) toast("Task added to today's note", { label: 'Open', run: () => openNote(note.id) })
+    return
+  }
+  const folder = get().settings.inboxFolder
+  const existing = Object.values(get().notes).find((n) => n.folder === folder && n.title === INBOX_TASKS_TITLE && n.type !== 'scratch')
+  const note = existing ?? (await createNote({ title: INBOX_TASKS_TITLE, folder, content: '' }, false))
+  if (!note) return
+  appendToNote(get().notes[note.id] ?? note, line, '')
+  toast(`Task added to ${folder} › ${INBOX_TASKS_TITLE}`, { label: 'Open', run: () => openNote(note.id) })
+}
+
+/** Add text as a list item to a note, under `heading` or at the end of the page. Where it went: the line, or -1 for the end. Null when there was nothing to add. */
+function appendToNote(note: Note, text: string, heading: string): number | null {
+  const id = note.id
   const body = text.trim()
-  if (!note || !body) return
+  if (!body) return null
   const [head, ...rest] = body.split('\n')
   // Already a list item or a task: keep it as typed.
   const entry = [/^\s*([-*+]|\d+[.)])\s/.test(head) ? head : `- ${head}`, ...rest.map((l) => '  ' + l)]
   const idx = note.content.indexOf('\n\n<!-- canvas -->')
   const page = idx < 0 ? note.content : note.content.slice(0, idx)
   const tail = idx < 0 ? '' : note.content.slice(idx)
-  const lines = page.replace(/\n+$/, '').split('\n')
+  const kept = page.replace(/\n+$/, '')
+  // An empty note gets the entry as its first line, not after a blank one.
+  const lines = kept ? kept.split('\n') : []
   const { at } = heading ? sectionEnd(lines, heading) : { at: -1 }
   if (at < 0) lines.push(...entry)
   else {
@@ -1113,9 +1153,7 @@ export function captureToNote(text: string, id: string, heading: string) {
     else lines.splice(at, 0, ...entry)
   }
   updateNote(id, { content: (lines.join('\n').trim() ? lines.join('\n') + '\n' : '') + tail })
-  local.set('captureNote', { id, heading })
-  const where = heading && at >= 0 ? `${displayTitle(note)} › ${heading}` : displayTitle(note)
-  toast(`Added to ${where}`, { label: 'Open', run: () => openNote(id) })
+  return at
 }
 
 // ---------- tasks ----------

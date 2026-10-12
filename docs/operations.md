@@ -199,7 +199,7 @@ Most tasks need none of these. A task with no dates is in Anytime: something you
 
 - **You finish something:** tick it where you see it: ⌘↵ on its line, or its checkbox in the panel.
 - **You decide to do something today that was not planned:** cursor on the task, ⌘⌥T.
-- **Something new needs doing:** write it as a task straight away, in the note you are in or through ⌘⇧C.
+- **Something new needs doing:** write it as a task straight away, in the note you are in, or with Quick task (⌘⌥C, or ⌃⌥T from another app). It lands in the Inbox; sort it at the end of the day.
 - **A task turns out not to be for now:** ⌘⇧S and pick a later day, or Someday.
 
 ## Tasks: in a meeting
@@ -217,6 +217,7 @@ In a 1:1, write actions the same way under that day's entry in the person's note
 1. **Tick what you finished,** in the Top 3 and in the panel.
 2. **Leave unfinished Top 3 items alone.** They move into tomorrow's note when it is created.
 3. **Leave everything else alone too.** A planned task you did not get to stays in Today tomorrow.
+4. **Empty the Inbox.** Open the Tasks note in the Inbox notebook, where Quick task puts things: give each task a day or Someday, or move it into its project's note. Anything you cannot decide on can wait for the weekly review.
 
 ## Tasks: every week
 
@@ -254,6 +255,8 @@ This is the review that keeps the lists trustworthy. Open the Tasks view: ⌘⇧
 To see one project's tasks, group by Project. To see one topic across projects, type its `#tag` in the narrow-down box, and save it as a filter if you will want it again.
 
 ## Tasks: keys
+
+From anywhere: Quick task, ⌘⌥C (⌃⌥T from another app).
 
 With the cursor on a task in a note:
 

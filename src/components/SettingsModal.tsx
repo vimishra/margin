@@ -648,6 +648,9 @@ export function SettingsModal() {
                 <Row label="Quick capture saves to" hint="The destination selected when quick capture opens. Tab switches it for one capture.">
                   <Select value={s.captureTarget} onChange={set('captureTarget')} options={[['daily', "Today's daily note"], ['scratch', 'A new scratch note'], ['inbox', 'A new note in the Inbox']]} />
                 </Row>
+                <Row label="Quick task saves to" hint="Where a task from the capture box goes: the Tasks note in the Inbox notebook (made the first time), or today's daily note. Tab switches it for one task.">
+                  <Select value={s.captureTaskTarget} onChange={set('captureTaskTarget')} options={[['inbox', `The Tasks note in ${s.inboxFolder}`], ['daily', "Today's daily note"]]} />
+                </Row>
                 <Row label="Timestamp captures" hint="Start page captures in the daily note with the time, like 14:05.">
                   <Toggle label="Timestamp captures" value={s.captureTime} onChange={set('captureTime')} />
                 </Row>

@@ -171,7 +171,7 @@ async function chooseVault() {
 let accelerators = {
   search: 'CmdOrCtrl+K', back: 'CmdOrCtrl+[', forward: 'CmdOrCtrl+]', home: 'CmdOrCtrl+Shift+H', daily: 'CmdOrCtrl+D',
   calendar: 'CmdOrCtrl+Shift+L', all: 'CmdOrCtrl+Shift+A', prevTab: 'CmdOrCtrl+Shift+[', nextTab: 'CmdOrCtrl+Shift+]',
-  closeTab: 'CmdOrCtrl+W', new: 'CmdOrCtrl+N', capture: 'CmdOrCtrl+Shift+C', scratch: 'CmdOrCtrl+Alt+N',
+  closeTab: 'CmdOrCtrl+W', new: 'CmdOrCtrl+N', capture: 'CmdOrCtrl+Shift+C', captureTask: 'CmdOrCtrl+Alt+C', scratch: 'CmdOrCtrl+Alt+N',
   canvas: 'CmdOrCtrl+Shift+N', meeting: 'CmdOrCtrl+Shift+M', expdf: 'CmdOrCtrl+P', prefs: 'CmdOrCtrl+,', tasks: 'CmdOrCtrl+Shift+T', journal: 'CmdOrCtrl+J',
   h1: 'CmdOrCtrl+1', h2: 'CmdOrCtrl+2', h3: 'CmdOrCtrl+3', h4: 'CmdOrCtrl+4', h5: 'CmdOrCtrl+5', mdlink: 'CmdOrCtrl+L',
 }
@@ -212,6 +212,7 @@ function buildMenu() {
         cmd('New Notebook', 'folder'),
         { type: 'separator' },
         cmd('Quick Capture', 'capture'),
+        cmd('Quick Task', 'captureTask'),
         { type: 'separator' },
         cmd('Export as PDF…', 'expdf'),
         cmd('Export as Markdown', 'exmd'),
@@ -489,8 +490,9 @@ if (!app.requestSingleInstanceLock()) {
     if (isMac && !app.isPackaged && fs.existsSync(iconPath)) app.dock.setIcon(iconPath)
     buildMenu()
     createWindow()
-    // Capture a thought from any app.
+    // Capture a thought, or a task, from any app.
     globalShortcut.register('Control+Alt+Space', () => send('capture'))
+    globalShortcut.register('Control+Alt+T', () => send('captureTask'))
 
     app.on('activate', () => (win ? win.show() : createWindow()))
   })

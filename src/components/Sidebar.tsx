@@ -259,7 +259,7 @@ export function Sidebar() {
         >
           <ChevronDown size={15} />
         </button>
-        <button className="btn icon" title={`Quick capture  ${hint('capture')}`} onClick={() => ui({ capture: true })}>
+        <button className="btn icon" title={`Quick capture  ${hint('capture')}`} onClick={() => ui({ capture: 'note' })}>
           <Zap size={15} />
         </button>
       </div>
