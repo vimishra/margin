@@ -2,6 +2,13 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.15.0 (2026-10-12)
+
+### Added
+
+- **Meeting actions under their project:** with the Tasks view grouped by Project, the tasks of a meeting note that links `[[Organization]]` are listed under Organization, after its own tasks, under "From" and the meeting's name. A task anywhere else joins a project by linking it on its own line. Nothing is moved; ticking one ticks it in its own note, and the project's progress circle counts them.
+- Projects are ordinary notes outside the notebooks Margin manages (Daily, Meetings, Inbox, Templates, Scratch) and People, so a meeting that links only a person keeps its tasks under its own name.
+
 ## 1.14.1 (2026-10-12)
 
 ### Added

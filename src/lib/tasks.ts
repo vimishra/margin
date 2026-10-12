@@ -9,6 +9,7 @@
 import type { Note } from '../types'
 import { addDays, parseYmd, today } from './util'
 import { parseDatePhrase } from './dates'
+import { outgoing, resolver } from './links'
 
 export interface Task {
   noteId: string
@@ -288,6 +289,53 @@ export function matchesFilter(t: Task, filter: TaskFilter, weekStart: number, no
     default:
       return true
   }
+}
+
+/** The notebooks that matter for telling projects apart: the ones the app files into, and People. */
+export interface ProjectFolders {
+  dailyFolder: string
+  meetingsFolder: string
+  peopleFolder: string
+  templatesFolder: string
+  scratchFolder: string
+  inboxFolder: string
+}
+
+/** Whether a notebook is `folder` or a notebook inside it, compared as macOS compares folder names. */
+const within = (notebook: string, folder: string) => !!notebookKey(folder) && (notebookKey(notebook) === notebookKey(folder) || notebookKey(notebook).startsWith(notebookKey(folder) + '/'))
+
+/**
+ * A project, as in Things: an ordinary note outside the notebooks the app manages (daily notes, meetings, the
+ * Inbox, templates, scratch) and outside People. "Work/Organization" is a project; a meeting note is not.
+ */
+export function isProjectNote(note: Note, f: ProjectFolders): boolean {
+  if (note.type !== 'note') return false
+  return ![f.dailyFolder, f.meetingsFolder, f.peopleFolder, f.templatesFolder, f.scratchFolder, f.inboxFolder].some((x) => within(note.folder, x))
+}
+
+const LINK = /\[\[([^\]\n|#]+)(?:#[^\]\n|]*)?(?:\|[^\]\n]*)?\]\]/g
+
+/**
+ * The projects a task is shown under when the Tasks view is grouped by project, as note ids:
+ * - in a project note: that project;
+ * - linking a project on its own line ("- [ ] Send the deck [[Organization]]"): the projects it links;
+ * - in a meeting note that links projects anywhere: those projects, so a meeting's actions show with its project;
+ * - otherwise its own note.
+ * Nothing in the notes changes; this only decides where a task is listed.
+ */
+export function projectsOf(t: Task, notes: Record<string, Note>, f: ProjectFolders): string[] {
+  const own = notes[t.noteId]
+  if (!own) return []
+  if (isProjectNote(own, f)) return [own.id]
+  const find = resolver(notes)
+  const projects = (titles: string[]) => [...new Set(titles.map((x) => find(x)).filter((id): id is string => !!id && id !== own.id && isProjectNote(notes[id], f)))]
+  const onLine = projects([...t.raw.matchAll(LINK)].map((m) => m[1]))
+  if (onLine.length) return onLine
+  if (own.type === 'note' && within(own.folder, f.meetingsFolder)) {
+    const linked = projects(outgoing(own))
+    if (linked.length) return linked
+  }
+  return [own.id]
 }
 
 /** Which notes tasks are taken from: everywhere, ordinary notes only, or daily notes only. */

@@ -4,7 +4,7 @@ import type { Note } from '../types'
 import { deleteTaskView, go, openDatePicker, openFromClick, openMenu, openNoteAt, openSideAt, renameTaskView, rescheduleTasks, saveTaskView, ensureInboxNote, inboxNotebook, moveTasksToNote, ui, updateTask, updateTaskView, useStore, type MenuItem } from '../store'
 import { hint } from '../shortcuts'
 import { renderInline } from '../lib/markdown'
-import { PRIORITIES, TASK_FILTERS, TASK_SOURCES, allTasks, byUrgency, isCarried, isOn, isOverdue, isToday, nextDate, priorityLabel, sameNotebook, selectTasks, shortDate, tasksOf, weekRange, withDetails, type Task, type TaskFilter, type TaskGroup, type TaskSource, type TaskView } from '../lib/tasks'
+import { PRIORITIES, TASK_FILTERS, TASK_SOURCES, allTasks, byUrgency, isCarried, isOn, isOverdue, isToday, nextDate, priorityLabel, projectsOf, sameNotebook, selectTasks, shortDate, weekRange, withDetails, type ProjectFolders, type Task, type TaskFilter, type TaskGroup, type TaskSource, type TaskView } from '../lib/tasks'
 import { addDays, cx, displayTitle, firstWeekday, local, today, tagStyle } from '../lib/util'
 
 const weekStartOf = (setting: string) => (setting === 'sunday' ? 0 : setting === 'monday' ? 1 : firstWeekday())
@@ -144,6 +144,48 @@ function Progress({ done, total }: { done: number; total: number }) {
   return <span className="task-progress" title={`${done} of ${total} done`} style={{ '--share': `${Math.round(share * 360)}deg` } as React.CSSProperties} />
 }
 
+/**
+ * Group by project, as in Things: each project note's tasks under its notebook (the area), in the order they are
+ * written and under their headings, followed by the tasks from meeting notes (and lines) that link the project.
+ * Daily-note tasks that link no project are kept together. The progress circle counts every task listed there.
+ */
+function projectGroups(shown: Task[], all: Task[], notes: Record<string, Note>, folders: ProjectFolders): [string, Group][] {
+  const progress = new Map<string, [number, number]>()
+  for (const t of all)
+    for (const id of projectsOf(t, notes, folders)) {
+      const p = progress.get(id) ?? [0, 0]
+      p[1]++
+      if (t.done) p[0]++
+      progress.set(id, p)
+    }
+  const map = new Map<string, Group>()
+  for (const t of shown)
+    for (const id of projectsOf(t, notes, folders)) {
+      const home = notes[id]
+      if (!home) continue
+      const daily = home.type === 'daily'
+      const key = daily ? '2' : `1${(home.folder || '').toLowerCase()}\u0000${displayTitle(home).toLowerCase()}\u0000${id}`
+      let entry = map.get(key)
+      if (!entry) {
+        entry = daily ? { label: 'Daily notes', tasks: [] } : { label: displayTitle(home), tasks: [], noteId: id, area: home.folder, progress: progress.get(id) }
+        map.set(key, entry)
+      }
+      entry.tasks.push(t)
+    }
+  for (const g of map.values()) {
+    const own = (t: Task) => t.noteId === g.noteId
+    // Its own tasks first, in written order; then the linked ones, latest note first. Daily notes: latest day first.
+    const created = (t: Task) => notes[t.noteId]?.created ?? ''
+    g.tasks.sort((a, b) =>
+      g.noteId
+        ? Number(own(b)) - Number(own(a)) || created(b).localeCompare(created(a)) || a.noteId.localeCompare(b.noteId) || a.line - b.line
+        : notes[b.noteId].title.localeCompare(notes[a.noteId].title) || a.line - b.line,
+    )
+    g.sub = (t: Task) => (!g.noteId ? displayTitle(notes[t.noteId]) : own(t) ? t.heading : `From ${displayTitle(notes[t.noteId])}`)
+  }
+  return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]))
+}
+
 export function TasksView({ view }: { view?: string }) {
   const notes = useStore((s) => s.notes)
   const settings = useStore((s) => s.settings)
@@ -203,40 +245,32 @@ export function TasksView({ view }: { view?: string }) {
   }, [tasks, notes, filter, source, weekStart, now])
 
   const groups = useMemo(() => {
+    if (group === 'note') return projectGroups(shown, tasks, notes, settings)
     const weekEnd = weekRange(now, weekStart)[1]
     const map = new Map<string, Group>()
     for (const t of shown) {
-      const note = notes[t.noteId]
-      if (!note) continue
-      // A project is a note, shown under its notebook (the area). Daily notes are kept together as one group.
-      const daily = note.type === 'daily'
       const [key, label] =
         group === 'date' ? dateBucket(t, now, weekEnd)
-        : group === 'note' ? (daily ? ['2', 'Daily notes'] : [`1${(note.folder || '').toLowerCase()}\u0000${displayTitle(note).toLowerCase()}\u0000${t.noteId}`, displayTitle(note)])
         : group === 'priority' ? [String(3 - t.priority), t.priority ? `${priorityLabel(t.priority)} · ${PRIORITIES[t.priority]} priority` : 'No priority']
         : ['', '']
-      let entry = map.get(key)
-      if (!entry) {
-        entry = { label, tasks: [] }
-        if (group === 'note' && !daily) {
-          const all = tasksOf(note)
-          Object.assign(entry, { noteId: t.noteId, area: note.folder, progress: [all.filter((x) => x.done).length, all.length] })
-        }
-        map.set(key, entry)
-      }
+      const entry = map.get(key) ?? { label, tasks: [] }
       entry.tasks.push(t)
+      map.set(key, entry)
     }
-    // Inside a project, tasks keep the order they are written in, under their headings; daily notes go latest first.
-    if (group === 'note')
-      for (const g of map.values()) {
-        g.tasks.sort((a, b) => (g.noteId ? 0 : notes[b.noteId].title.localeCompare(notes[a.noteId].title)) || (a.noteId === b.noteId ? a.line - b.line : 0))
-        g.sub = (t: Task) => (g.noteId ? t.heading : displayTitle(notes[t.noteId]))
-      }
     return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]))
-  }, [shown, group, notes, now, weekStart])
+  }, [shown, group, notes, now, weekStart, tasks, settings])
 
-  // The tasks in the order they are drawn, for moving through them with the keyboard.
+  // The tasks in the order they are drawn, for moving through them with the keyboard. A task can be listed
+  // under two projects, so a row is known by its place, counted from the start of its group.
   const rows = useMemo(() => groups.flatMap(([key, g]) => (closed[key] ? [] : g.tasks)), [groups, closed])
+  const starts = useMemo(() => {
+    let n = 0
+    return groups.map(([key, g]) => {
+      const start = n
+      if (!closed[key]) n += g.tasks.length
+      return start
+    })
+  }, [groups, closed])
   const [active, setActive] = useState(0)
   const at = Math.min(active, rows.length - 1)
   useEffect(() => setActive(0), [filter, query, source, group, view])
@@ -421,7 +455,7 @@ export function TasksView({ view }: { view?: string }) {
                     : 'Nothing in this list.'}
             </p>
           )}
-          {groups.map(([key, g]) => {
+          {groups.map(([key, g], gi) => {
             const isClosed = closed[key]
             return (
               <section key={key} className={cx('task-group', g.label === 'Overdue' && 'late')}>
@@ -448,7 +482,7 @@ export function TasksView({ view }: { view?: string }) {
                 )}
                 {!isClosed &&
                   g.tasks.map((t, n) => {
-                    const i = rows.indexOf(t)
+                    const i = starts[gi] + n
                     const sub = g.sub?.(t)
                     return (
                       notes[t.noteId] && (

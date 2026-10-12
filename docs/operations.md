@@ -209,7 +209,7 @@ Most tasks need none of these. A task with no dates is in Anytime, something you
 2. **In the last two minutes,** go down your own actions:
    - if a deadline was agreed, set it: ⌘⇧D
    - if it has to start on a particular day, set that: ⌘⇧S
-3. **Afterwards, do nothing.** Your actions appear in Today or Upcoming on their own, and the task still sits in the meeting note where the context is.
+3. **Afterwards, do nothing.** Your actions appear in Today or Upcoming on their own, and the task still sits in the meeting note where the context is. Because the meeting links `[[Project]]`, its actions also show under that project when the Tasks view is grouped by Project; there is no need to move them.
 
 In a 1:1, write actions the same way under that day's entry in the person's note.
 

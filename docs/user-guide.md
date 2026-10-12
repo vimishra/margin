@@ -592,7 +592,8 @@ The lists work the way they do in Things 3:
 - A **due date** is a real deadline. Only a missed due date makes a task overdue.
 - **Someday** parks a task. It is kept out of Today, Upcoming and Anytime until you give it a day.
 - The **Inbox** holds what you have captured but not decided on: tasks in the Inbox note with no planned day. They stay out of Anytime until you give them a day or Someday, or move them into a project's note.
-- A **project** is a note, and an **area** is the notebook it is in. Headings in the note divide the project, as headings do in Things.
+- A **project** is a note, and an **area** is the notebook it is in: a project called Organization is the note `Work/Organization`. Headings in the note divide the project, as headings do in Things. Notes in the notebooks Margin manages (Daily, Meetings, Inbox, Templates, Scratch) and in People are not projects.
+- A meeting's actions belong to its project without being moved: a meeting note that links `[[Organization]]` lists its tasks under Organization when the Tasks view is grouped by project. A task anywhere else can do the same by linking the project on its own line: `- [ ] Ring the recruiter [[Organization]]`.
 
 ### Details on a task
 
@@ -634,7 +635,7 @@ In the editor the details show as small labels. A due date turns red once it has
 - **Lists** across the top: first the ones from Things, Inbox, Today, Upcoming, Anytime, Someday and Logbook; then Overdue, This week, Next 30 days, No date and All open. Each shows its count (except the Logbook). Keys 1 to 6 pick the Things lists in that order; 7 is Overdue, 8 This week, 9 No date and 0 All open.
 - **Narrow down** with the box: words match the task or its note's title, `#atlas` needs that tag, `p2` needs that priority or higher (P1 and P2). The tag chips below do the same with a click.
 - **From** chooses where tasks are taken from: All, Notes (leaves out tasks written in daily notes) or Daily (only those).
-- **Group by** date, project or priority. **Project** puts each note's tasks together under its notebook, in the order they are written and under their headings, with a small circle that fills as the project's tasks are ticked. Tasks in daily notes are kept together as one group, latest day first. In the Logbook, grouping by date groups by the day each task was done.
+- **Group by** date, project or priority. **Project** puts each project's tasks together under its notebook, in the order they are written and under their headings, with a small circle that fills as the project's tasks are ticked. After them come the tasks that belong to the project but live elsewhere, each under "From" and the note they are in: the actions of meetings that link the project, and any task whose line links it. Ticking one ticks it in its own note; nothing is moved. Tasks in daily notes that link no project are kept together as one group, latest day first; a meeting that links no project keeps its tasks under its own name. In the Logbook, grouping by date groups by the day each task was done.
 - **Tick** a task to complete it. The checkbox in the note's file is ticked.
 - **Hover** a task for four buttons: priority, when (planned day or Someday), due date, and move to another note. Clicking a date label changes it too.
 - **Rescheduling:** the when and due-date buttons open a small calendar. Click a day, or type one in words (`fri`, `14 oct`, `in 3 days`) and press Enter. The arrow keys move the highlighted day, PgUp and PgDn change month, and Today, Tomorrow and Next week are one click. The when calendar also has **Someday**. **Remove** clears the date, or takes a task out of Someday.

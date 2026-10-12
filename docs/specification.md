@@ -601,11 +601,20 @@ Consequences that must hold: a planned day passing never makes a task overdue, i
 - A row of chips, one per list in the order of the table above, each with its count (none for the Logbook). Keys: 1 Inbox, 2 Today, 3 Upcoming, 4 Anytime, 5 Someday, 6 Logbook, 7 Overdue, 8 This week, 9 No date, 0 All open; Next 30 days has none.
 - A narrow-down box: words must all appear in the task text or its note's title; `#tag` requires that tag or a nested one; `p1`, `p2`, `p3` require that priority or higher. Tag chips below it toggle a tag.
 - **From:** All, Notes (not daily notes), Daily (only daily notes).
-- **Group by:** Date (Overdue, Today, Tomorrow, Later this week, Later, No date, Someday; in the Logbook, by done date, latest first, with "Day not recorded" last), Project (each note's tasks together under its notebook, in written order under their headings, with a progress circle; daily notes kept as one group), Priority, None. Groups fold.
+- **Group by:** Date (Overdue, Today, Tomorrow, Later this week, Later, No date, Someday; in the Logbook, by done date, latest first, with "Day not recorded" last), Project (see below), Priority, None. Groups fold.
 - **A row** shows a checkbox, a yellow star when the task is also in Today (in every list but Today and Overdue, as Things marks Today's to-dos in Anytime and projects), the priority badge, the task text rendered as inline markdown, date labels, and the note and heading it comes from. On hover: buttons for priority, when, due date, and move to another note. Clicking the row opens its note at that line; ⌘-click opens it to the side at that line.
 - **Move to another note:** opens the palette listing notes (not scratch notes or templates, most recently edited first, with their notebook), filtered as you type. Choosing one removes the task's line, with the indented lines under it, from its note and adds them at the end of the chosen note's page, at the left margin with the lines under it keeping their indent relative to it. A message offers Undo, which restores both notes if neither has changed since.
 - **Bulk move:** when overdue tasks are shown, "Move all…" opens the date picker and gives each a new due date, with Undo.
 - **Keys** on the highlighted row: ↑ ↓ (J K), Home, End, Space or X to tick, T for today, S for when, D for due, P for priority, M to move to another note, Enter to open, ⇧Enter to open to the side, `/` to focus the box (↓ or Enter returns to the list). After a menu or picker closes, focus returns to the list. A line at the bottom lists the keys.
+
+**Group by Project.** A *project* is an ordinary note (not daily, research or scratch) outside the Daily, Meetings, Inbox, Templates, Scratch and People notebooks and the notebooks inside them. Each task is listed under:
+
+1. its own note, when that note is a project;
+2. otherwise, the projects linked (`[[Title]]`) on the task's own line, if any;
+3. otherwise, when its note is in the Meetings notebook, the projects that note links anywhere;
+4. otherwise, its own note; daily notes that come to this are gathered into one "Daily notes" group, latest day first.
+
+A task can so be listed under several projects. A project's group shows the notebook, the title, the count of tasks shown and a progress circle (ticked over all tasks listed under it, including linked ones). Inside it, its own tasks come first in written order under their headings, then the linked ones under "From <note>", latest note first. Nothing in any note changes. The command-line tool's `--group note` groups by each task's own note.
 
 ### 12.6 Saved filters
 
