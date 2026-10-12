@@ -99,8 +99,9 @@
   --active: rgba(190, 205, 225, 0.115);
   --border: #1f2021;
   --border-strong: #4a4b4d;
-  --text: #ededee;
-  --text-2: #c8c8ca;
+  /* Almost white, as Things 3 draws text in its dark theme: easier to read than grey. */
+  --text: #f8f8f9;
+  --text-2: #d8d8da;
   --text-3: #98989b;
   --text-4: #69696b;
   --accent: #8787f2;

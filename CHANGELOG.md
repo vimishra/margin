@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.15.1 (2026-10-12)
+
+### Changed
+
+- **Dark theme text is almost white** (`#f8f8f9`, secondary text `#d8d8da`), as in Things 3, for easier reading. The guides' dark theme follows.
+
 ## 1.15.0 (2026-10-12)
 
 ### Added

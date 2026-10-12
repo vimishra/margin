@@ -806,8 +806,8 @@ Every action below can be reassigned or cleared in Settings → Shortcuts, which
 | --- | --- | --- |
 | Page | `#ffffff` | `#282828` |
 | Sidebar | `#f9f9fb` | `#282828`, with a darker dividing line |
-| Text | `#15171a` | `#ededee` |
-| Secondary text | `#3c3e41` | `#c8c8ca` |
+| Text | `#15171a` | `#f8f8f9` (almost white) |
+| Secondary text | `#3c3e41` | `#d8d8da` |
 | Muted text | `#8e9093`, `#b7b8ba` | `#98989b`, `#69696b` |
 | Borders | `#ebecee`, `#d3d5d8` | `#1f2021`, `#4a4b4d` |
 | Selected row | about `#dfe1e7` | about `#393b3d` |
