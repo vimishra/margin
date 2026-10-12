@@ -357,7 +357,7 @@ One palette, opened by ⌘K, does three jobs.
 - **Words:** full-text search over titles and content, with a snippet. Opening a result scrolls to the first match and flashes that line.
 - **`#tag`:** notes with that tag.
 - **A date phrase:** that day's daily note first.
-- **Command names:** matching commands rank above notes.
+- **Command names:** matching commands rank above notes. Every list of the Tasks view is a command named "Tasks: <list>" (Inbox, Today, …, All open), with that list's icon and colour, and so is every saved filter ("Tasks: <name>"); each opens that list.
 - **`>`:** commands only.
 - **⌥↵** opens the selected note in the side pane. **⌘↵** creates a note named with the typed text.
 
@@ -365,7 +365,7 @@ The palette has further modes with the same look: move a note to a notebook (wit
 
 **Jumping to a place in a note** (from search or the Tasks view): a search result selects the text found; a task, or a meeting entry just added, puts the cursor at the end of its line with nothing selected, so a stray key cannot replace the line. Either way the editor scrolls it to the middle, repeats the scroll a few times over the first second while images and tables settle, and flashes the line for about 1.5 seconds. It works in either pane.
 
-**Commands** cover every action in the app: create (note, canvas, scratch, meeting, person, research, from template, notebook), go to (each view), on the current note (side, swap, jump to heading, search, formatting, headings, lists, task actions, mode, page or canvas, rename, duplicate, add tag, copy link, reveal file, close tab, close others, close all, pin, history, move, export as Markdown, HTML, PDF, Word, delete), and app (page width, sidebar, side panel, theme, settings, import, help pages, keyboard shortcuts).
+**Commands** cover every action in the app: create (note, canvas, scratch, meeting, person, research, from template, notebook), go to (each view, each task list and saved filter), on the current note (side, swap, jump to heading, search, formatting, headings, lists, task actions, mode, page or canvas, rename, duplicate, add tag, copy link, reveal file, close tab, close others, close all, pin, history, move, export as Markdown, HTML, PDF, Word, delete), and app (page width, sidebar, side panel, theme, settings, import, help pages, keyboard shortcuts).
 
 ## 8. Kinds of note
 
@@ -819,14 +819,14 @@ Every action below can be reassigned or cleared in Settings → Shortcuts, which
 - **Native behaviour:** the cursor is the arrow over every control and only becomes the pointing hand over links inside notes. Dividing lines are 1 px, or 0.5 px on high-density screens with a slightly stronger colour. Hover shading is faint (about 5% tint). When the window is not the front window, the selected sidebar row and tab fall back to the hover tint, coloured icons desaturate and the primary button dims. Menus and dialogs appear with a short (0.12 s) fade and slight scale, disabled when the system asks for reduced motion.
 - **Typography:** the system font by default. Interface text uses one scale of sizes (11, 12, 13, 14, 15, 17, 24, 28 px) and the weights 400, 500, 600 and 700 only; letter-spacing is slightly tight (-0.006em) and tightens further on large titles, small capital labels are spaced out, and digits in the interface are tabular. Note text keeps the font's own spacing and digits. Spacing is in multiples of 4 px; buttons are 30 px tall (26 px small) with a 7 px radius. Interface text is 15 px; sidebar rows are 34 px tall (30 px for the lists under Tasks); labels in the sidebar, tabs and panels are at least medium weight (500). Note text is 16 px at 1.7 line height, with headings sized as a percentage of body text. The note column has 72 px of side margin.
 - **Page width** is measured in characters of the chosen font, so "90" means 90 average characters per line.
-- **Help pages** follow the app's theme, not only the system's.
+- **Help pages** follow the app's theme, not only the system's. Each page has its own find bar: ⌘F (Ctrl+F) opens it at the top right; matches are highlighted as you type, ignoring case, with "n of m" or "No matches"; the first match below the top of the window is current; Enter and ⇧Enter (or ⌘G and ⌘⇧G) move between matches, wrapping; Esc closes it and removes the highlighting. It is part of the page, so it also works in a browser and in the printable HTML copies, and it is hidden when printing.
 - A simple logo: a rounded square with a page-and-margin mark, used as the app icon.
 
 ## 18. Desktop shell
 
 - Single window; a second launch focuses the existing one.
 - Window size and position are remembered.
-- **Menu bar:** App (about, settings, quit), File (new items, choose notes folder, show notes folder, close tab, close window), Edit (standard), View (sidebar, side panel, mode, zoom, full screen, reload, developer tools), Go (back, forward, each view, tabs), Window, Help (User Guide, Theory of Operations, Design Guide, Printable Guides…, Keyboard Shortcuts, Command-Line Tool…). Menu items show the user's current shortcuts; the keys themselves are handled by the page so they can be customised, and an action triggered by both within 300 ms runs once.
+- **Menu bar:** App (about, settings, quit), File (new items, choose notes folder, show notes folder, close tab, close window), Edit (standard), View (sidebar, side panel, mode, zoom, full screen, reload, developer tools), Go (back, forward, each view, tabs), Window, Help (User Guide, Theory of Operations, Design Guide, Find in Guide, Printable Guides…, Keyboard Shortcuts, Command-Line Tool…). Find in Guide shows ⌘F but does not take the key, which in a note belongs to the note's search; it opens the guide window's find bar, opening the user guide first if no guide is open. Menu items show the user's current shortcuts; the keys themselves are handled by the page so they can be customised, and an action triggered by both within 300 ms runs once.
 - **Right-click in a note:** spelling suggestions, Cut, Copy, Paste, Paste as Plain Text, Look Up, "Search Notes for…", and Format, Paragraph and Insert submenus. On a link: Open, Open to the Side, Copy Link. On an image: Copy Image.
 - **Choosing a notes folder** saves the choice and restarts the app on it; nothing is moved.
 - **PDF export** saves directly to a chosen file.

@@ -49,6 +49,18 @@ tr:last-child td{border-bottom:none}
 th{background:var(--soft);font-weight:620;color:var(--muted);font-size:.92em}
 blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--line);color:var(--muted)}
 @media print{main{padding:0}h2{break-after:avoid}pre,.table,img{break-inside:avoid}}
+.find{position:fixed;top:12px;right:16px;z-index:10;display:flex;align-items:center;gap:4px;padding:5px 5px 5px 12px;background:var(--bg);border:1px solid var(--line);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.14);font-size:14px}
+.find[hidden]{display:none}
+.find input{width:220px;border:none;outline:none;background:none;color:inherit;font:inherit}
+.find-count{min-width:5.5em;text-align:right;color:var(--muted);font-size:13px;white-space:nowrap}
+.find-count.none{color:#d23d5f}
+.find button{border:none;background:none;color:var(--muted);font:inherit;width:28px;height:26px;border-radius:6px;cursor:default}
+.find button:hover{background:var(--soft);color:var(--text)}
+mark.find-hit{background:#ffe680;color:inherit;border-radius:2px}
+mark.find-hit.current{background:#ffab2e}
+:root[data-theme=dark] mark.find-hit{background:#6b5a1a}
+:root[data-theme=dark] mark.find-hit.current{background:#b5761a}
+@media print{.find{display:none}mark.find-hit{background:none}}
 </style>
 </head>
 <body>
@@ -267,6 +279,10 @@ Each canvas card is markdown too.
 <td><code>lib/tasks.ts</code>; the view itself in <code>components/TasksView.tsx</code>. Make the same change in <code>tools/margin_tasks.py</code>, re-record the cases with <code>node scripts/task-fixtures.mjs --write</code>, and run <code>npm run test:tasks</code>.</td>
 </tr>
 <tr>
+<td>The guides' HTML pages, their find bar (⌘F)</td>
+<td><code>scripts/build-docs.mjs</code> (<code>npm run docs</code>): the page template, its styles and the find script; Help → Find in Guide in <code>electron/main.mjs</code> calls <code>window.marginFind</code></td>
+</tr>
+<tr>
 <td>Quick capture and Quick task</td>
 <td><code>QuickCapture</code> in <code>components/Overlays.tsx</code>; the one-line task editor in <code>components/TaskCapture.tsx</code>, its suggestions in <code>captureCompletions</code> (<code>Editor.tsx</code>), dates in words in <code>resolveTaskWords</code> (<code>lib/tasks.ts</code>), saving in <code>captureTask</code> (<code>store.ts</code>)</td>
 </tr>
@@ -338,5 +354,108 @@ git push
 </ul>
 
 </main>
+<div class="find" id="find" hidden role="search">
+<input type="text" placeholder="Find in this guide" aria-label="Find in this guide" spellcheck="false">
+<span class="find-count" aria-live="polite"></span>
+<button type="button" data-step="-1" title="Previous  ⇧↵">↑</button>
+<button type="button" data-step="1" title="Next  ↵">↓</button>
+<button type="button" data-close title="Close  Esc">✕</button>
+</div>
+<script>
+(function () {
+  var bar = document.getElementById('find'), input = bar.querySelector('input'), count = bar.querySelector('.find-count')
+  var main = document.querySelector('main'), hits = [], at = -1, timer = 0
+  function clear() {
+    var parents = []
+    hits.forEach(function (m) {
+      var p = m.parentNode
+      if (!p) return
+      p.replaceChild(document.createTextNode(m.textContent), m)
+      if (parents.indexOf(p) < 0) parents.push(p)
+    })
+    parents.forEach(function (p) { p.normalize() })
+    hits = []
+    at = -1
+  }
+  function find(query) {
+    clear()
+    var q = query.trim().toLowerCase()
+    if (!q) return show()
+    var walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (n) { return n.parentNode.closest('script,style') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT },
+    })
+    var nodes = []
+    while (walker.nextNode()) nodes.push(walker.currentNode)
+    nodes.forEach(function (node) {
+      var text = node.nodeValue, lower = text.toLowerCase(), from = 0, i = lower.indexOf(q)
+      if (i < 0 || hits.length > 2000) return
+      var frag = document.createDocumentFragment()
+      while (i >= 0) {
+        frag.appendChild(document.createTextNode(text.slice(from, i)))
+        var mark = document.createElement('mark')
+        mark.className = 'find-hit'
+        mark.textContent = text.slice(i, i + q.length)
+        frag.appendChild(mark)
+        hits.push(mark)
+        from = i + q.length
+        i = lower.indexOf(q, from)
+      }
+      frag.appendChild(document.createTextNode(text.slice(from)))
+      node.parentNode.replaceChild(frag, node)
+    })
+    // Start from the first match below the top of the window, so finding does not jump back to the start.
+    var below = hits.findIndex(function (m) { return m.getBoundingClientRect().top >= 0 })
+    move(below < 0 ? 0 : below, true)
+  }
+  function move(to, absolute) {
+    if (!hits.length) return show()
+    if (at >= 0) hits[at].classList.remove('current')
+    at = absolute ? to : (at + to + hits.length) % hits.length
+    hits[at].classList.add('current')
+    hits[at].scrollIntoView({ block: 'center' })
+    show()
+  }
+  function show() {
+    var typed = input.value.trim()
+    count.textContent = !typed ? '' : hits.length ? (at + 1) + ' of ' + hits.length : 'No matches'
+    count.classList.toggle('none', !!typed && !hits.length)
+  }
+  function open() {
+    bar.hidden = false
+    input.focus()
+    input.select()
+    if (input.value.trim() && !hits.length) find(input.value)
+  }
+  function close() {
+    bar.hidden = true
+    clear()
+    show()
+  }
+  window.marginFind = open
+  addEventListener('keydown', function (e) {
+    var mod = e.metaKey || e.ctrlKey
+    if (mod && !e.altKey && e.key.toLowerCase() === 'f') { e.preventDefault(); open() }
+    else if (mod && e.key.toLowerCase() === 'g' && hits.length) { e.preventDefault(); move(e.shiftKey ? -1 : 1) }
+    else if (e.key === 'Escape' && !bar.hidden) { e.preventDefault(); close() }
+  })
+  input.addEventListener('input', function () {
+    clearTimeout(timer)
+    timer = setTimeout(function () { find(input.value) }, 120)
+  })
+  input.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return
+    e.preventDefault()
+    clearTimeout(timer)
+    if (!hits.length) find(input.value)
+    else move(e.shiftKey ? -1 : 1)
+  })
+  bar.addEventListener('click', function (e) {
+    var b = e.target.closest('button')
+    if (!b) return
+    if (b.hasAttribute('data-close')) close()
+    else { move(Number(b.dataset.step)); input.focus() }
+  })
+})()
+</script>
 </body>
 </html>

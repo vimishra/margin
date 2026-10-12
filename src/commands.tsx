@@ -22,6 +22,7 @@ import {
   Search,
   List,
   ListChecks,
+  Filter,
   ListOrdered,
   LayoutTemplate,
   Users,
@@ -48,6 +49,8 @@ import { exportHtml, exportMarkdown, exportPdf, exportWord } from './lib/export'
 import { ALT, MOD } from './lib/util'
 import { SHORTCUT_DEFS, hint } from './shortcuts'
 import { desktop, fileManager } from './desktop'
+import { TASK_FILTERS } from './lib/tasks'
+import { listColor, listIcon } from './components/listIcons'
 
 /** Opens one of the guides: a window of its own in the desktop app, a new tab in a browser. */
 export const openGuide = (page: 'user-guide' | 'design' | 'operations') => void window.open(`/docs/${page}.html`, '_blank')
@@ -90,6 +93,21 @@ export function commands(): Command[] {
     { id: 'calendar', label: 'Go to Calendar', icon: i(CalendarDays), hint: `${ALT}L`, run: () => go({ name: 'calendar' }) },
     { id: 'carryTop3', label: 'Move unfinished Top 3 to today', icon: i(CalendarCheck), keywords: 'carry forward roll over yesterday daily', run: () => carryTop3(undefined, true) },
     { id: 'tasks', label: 'Go to Tasks', icon: i(ListChecks), keywords: 'action items todo due overdue', run: () => go({ name: 'tasks' }) },
+    // Every list in the Tasks view, and every saved filter, so ⌘K can open them by name: "inbox", "upcoming".
+    ...TASK_FILTERS.map(([f, label, title]): Command => ({
+      id: `tasks:${f}`,
+      label: `Tasks: ${label}`,
+      icon: <span className="list-tint" style={{ color: listColor(f) }}>{listIcon(f, 16) ?? i(ListChecks)}</span>,
+      keywords: `go to list task ${title.toLowerCase()}${f === 'done' ? ' done finished completed' : f === 'undated' ? ' undated' : ''}`,
+      run: () => go({ name: 'tasks', view: f === 'open' ? undefined : f }),
+    })),
+    ...s.settings.taskViews.map((v): Command => ({
+      id: `tasks:s:${v.id}`,
+      label: `Tasks: ${v.name}`,
+      icon: i(Filter),
+      keywords: 'go to list task saved filter',
+      run: () => go({ name: 'tasks', view: `s:${v.id}` }),
+    })),
     { id: 'all', label: 'Go to All notes', icon: i(Files), hint: `${ALT}A`, run: () => go({ name: 'all' }) },
     { id: 'goscratch', label: 'Go to Scratch', icon: i(Hourglass), run: () => go({ name: 'scratch' }) },
     { id: 'research', label: 'Go to Research', icon: i(BookMarked), hint: `${ALT}R`, run: () => go({ name: 'research' }) },

@@ -6,6 +6,8 @@ Margin is a note-taking app for people who keep a lot of notes: work, meetings, 
 
 You can open this guide from inside the app: **Help → User Guide** in the menu bar, the **User guide** button in the shortcuts window (press `?`), or type "guide" in ⌘K. The [design guide](design.md), which explains how Margin is built, is in the same places.
 
+To search a guide, press **⌘F**: a small bar opens at the top right and highlights every match as you type. **Enter** goes to the next match and **⇧Enter** to the previous one (⌘G and ⌘⇧G do the same), and **Esc** closes the bar. **Help → Find in Guide** does the same from the menu bar.
+
 To print a guide, choose **Help → Printable Guides…**. It opens a folder with each guide as a PDF and as a web page. The same folder, named **Documentation**, is in the installer's window beside the app.
 
 This guide uses the desktop app's shortcuts. In a browser, most use ⌥ in place of ⌘ (see [Shortcuts](#shortcuts)). Every shortcut can be changed in Settings.
@@ -360,6 +362,7 @@ In the desktop app, right-clicking in a note offers spelling suggestions, Cut, C
 - **`#tag`:** only notes with that tag.
 - **A date:** `today`, `tomorrow`, `friday`, `next monday`, `last friday`, `06/10`, `6 oct`, `in 3 days`. The first result is that day's daily note.
 - **A command:** type what you want to do. `rename`, `delete`, `duplicate`, `close other`, `add tag`, `copy link`, `export`. A matching command appears at the top; press Enter.
+- **A task list:** `inbox`, `today`, `upcoming`, `anytime`, `someday`, `logbook`, `overdue` and the others, or the name of a saved filter. **Tasks: Inbox** and the rest appear at the top; Enter opens that list.
 - **`>`:** commands only.
 - **⌥↵** opens the selected note in the side pane. **⌘↵** creates a note named with what you typed.
 

@@ -76,6 +76,19 @@ function openDoc(page) {
   docWin.loadURL(url)
 }
 
+/** Open the find bar of the guide window, opening the user guide first if no guide is open. */
+function findInGuide() {
+  const run = () => docWin?.webContents.executeJavaScript('window.marginFind && window.marginFind()').catch(() => {})
+  if (docWin && !docWin.isDestroyed()) {
+    docWin.show()
+    docWin.focus()
+    run()
+  } else {
+    openDoc('user-guide')
+    docWin.webContents.once('did-finish-load', run)
+  }
+}
+
 // The task lister for the terminal ships inside the app. This shows where it is and can link it into
 // ~/.local/bin as "margin-tasks": a folder the user owns, so no password is needed.
 // The folder of HTML and PDF copies of the guides, for printing. It ships inside the app (and in the installer's window).
@@ -275,6 +288,8 @@ function buildMenu() {
         { label: 'User Guide', click: () => openDoc('user-guide') },
         { label: 'Theory of Operations', click: () => openDoc('operations') },
         { label: 'Design Guide', click: () => openDoc('design') },
+        // ⌘F is shown but not taken: in a note it belongs to the note's own search. The guide window handles it in the page.
+        { label: 'Find in Guide', accelerator: 'CmdOrCtrl+F', registerAccelerator: false, click: () => findInGuide() },
         { label: 'Printable Guides…', click: () => printableGuides() },
         { type: 'separator' },
         cmd('Keyboard Shortcuts', 'help'),

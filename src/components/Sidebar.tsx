@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { listIcon } from './listIcons'
 import {
   BookMarked,
   CalendarCheck,
@@ -19,12 +20,6 @@ import {
   User,
   ListChecks,
   BookOpenText,
-  Star,
-  Inbox,
-  Layers,
-  Archive,
-  BookCheck,
-  Flag,
   Filter,
   LayoutDashboard,
   Moon,
@@ -87,16 +82,6 @@ function buildTree(folders: string[]): TreeNode[] {
   return roots
 }
 
-/** The lists under Tasks, each with the kind of icon and colour Things gives it. */
-const LIST_ICONS: Record<string, React.ReactNode> = {
-  inbox: <Inbox size={13} />,
-  today: <Star size={13} fill="currentColor" />,
-  upcoming: <CalendarDays size={13} />,
-  anytime: <Layers size={13} />,
-  someday: <Archive size={13} />,
-  done: <BookCheck size={13} />,
-  overdue: <Flag size={13} fill="currentColor" />,
-}
 
 function NavItem({ icon, label, count, active, hint, onClick }: { icon: React.ReactNode; label: string; count?: number; active?: boolean; hint?: string; onClick: () => void }) {
   return (
@@ -296,7 +281,7 @@ export function Sidebar() {
                     ])
                   }
                 >
-                  <span className={cx('nav-icon', !v.savedId && `list-${v.id}`)}>{v.savedId ? <Filter size={13} /> : LIST_ICONS[v.id] ?? <i className="nav-dot" />}</span>
+                  <span className={cx('nav-icon', !v.savedId && `list-${v.id}`)}>{v.savedId ? <Filter size={13} /> : listIcon(v.id) ?? <i className="nav-dot" />}</span>
                   <span className="nav-label">{v.label}</span>
                   {v.count > 0 && <span className="count">{v.count}</span>}
                 </button>

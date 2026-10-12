@@ -2,6 +2,13 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.13.0 (2026-10-12)
+
+### Added
+
+- **Find in the guides:** ⌘F in the user guide, theory of operations, design guide or specification opens a small find bar. Matches are highlighted as you type; Enter and ⇧Enter move between them, Esc closes. Also Help → Find in Guide, and it works in the printable HTML copies.
+- **Task lists in ⌘K:** type `inbox`, `today`, `upcoming`, `anytime`, `someday`, `logbook` and so on, or a saved filter's name, and "Tasks: Inbox" (and the rest) opens that list.
+
 ## 1.12.0 (2026-10-12)
 
 The Inbox now works as it does in Things 3.
