@@ -2,6 +2,13 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.15.2 (2026-10-12)
+
+### Documentation
+
+- **Projects and areas:** the user guide explains how Things 3's areas, projects, headings and to-dos map onto notebooks, notes, headings and task lines, with a suggested layout (Work and People, plus the notebooks Margin manages) and an Archive notebook for finished projects. The notebooks advice no longer suggests the Inbox for notes.
+- The theory of operations adds "an area is a notebook, a project is a note", where new projects and a meeting's actions go, and archiving finished projects in the monthly review.
+
 ## 1.15.1 (2026-10-12)
 
 ### Changed

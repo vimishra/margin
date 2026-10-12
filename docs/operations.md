@@ -54,11 +54,12 @@ The two routines interleave. This is the order they run in; the detail for each 
 
 ## How notes work
 
-Three ideas carry this half.
+Four ideas carry this half.
 
 1. **The daily note is the front door.** Everything that happens today starts there or is linked from there: a running Log, and a link to each meeting.
 2. **Capture first, sort later.** Getting a thought down takes one keystroke. Deciding where it belongs happens once, at the end of the day.
 3. **Link, don't file.** Write `[[Project]]` or `[[Person]]` in whatever you are writing. Each note's backlinks then show everything that mentions it, so you rarely need to move a note into the "right" folder.
+4. **An area is a notebook, a project is a note.** Keep two notebooks of your own, Work and People, as Things keeps areas. Each project is one note in Work (`Work/Organization`), holding its tasks and everything else about it. Meetings that link the project have their actions listed under it in the Tasks view, so nothing needs filing. The other notebooks (Daily, Meetings, Inbox, Templates, Scratch, Assets) are Margin's own.
 
 ## Notes: every morning
 
@@ -131,7 +132,10 @@ Pick a fixed time: Friday afternoon or Monday morning.
 | What was said in a meeting | A meeting note | ⌘⇧M |
 | Something needed for a few days | A scratch note | ⌘⌥N |
 | An article or source | A research note | New → Research note |
-| Lasting knowledge about a project | The project's own note | ⌘N, then link it |
+| A new project | One note in Work | ⌘N in the Work notebook, named after the project |
+| Lasting knowledge about a project | The project's own note | ⌘K, its name |
+| Something to do | The Inbox | Quick task, ⌘⌥C |
+| A meeting's actions | The meeting note, linked to its project | Write `[[Project]]` once in the meeting |
 
 Rules of thumb:
 
@@ -242,7 +246,7 @@ This is the review that keeps the lists trustworthy. Open the Tasks view: ⌘⇧
 
 1. **Review Someday: ⌘⇧T, then 5.** For each item: give it a real day, leave it, or delete it. This list is only useful if it is short enough to read.
 2. **Read the Logbook: press 6,** grouped by date. Scan what you finished this month. It is the easiest source for a status update or a review.
-3. **Close finished projects.** Group the Tasks view by Project. A note whose tasks are all done or all stale is a project that has ended: tick or delete the leftovers.
+3. **Close finished projects.** Group the Tasks view by Project. A note whose tasks are all done or all stale is a project that has ended: tick or delete the leftovers, then move the note to an Archive notebook (⌘K → "Move to notebook"), so Work holds only live projects.
 4. **Check your saved filters.** Remove the ones you no longer open.
 
 ## Tasks: which list to look at

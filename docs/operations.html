@@ -150,11 +150,12 @@ mark.find-hit.current{background:#ffab2e}
 </table></div><hr>
 <h1 id="part-1-notes">Part 1: Notes</h1>
 <h2 id="how-notes-work">How notes work</h2>
-<p>Three ideas carry this half.</p>
+<p>Four ideas carry this half.</p>
 <ol>
 <li><strong>The daily note is the front door.</strong> Everything that happens today starts there or is linked from there: a running Log, and a link to each meeting.</li>
 <li><strong>Capture first, sort later.</strong> Getting a thought down takes one keystroke. Deciding where it belongs happens once, at the end of the day.</li>
 <li><strong>Link, don't file.</strong> Write <code>[[Project]]</code> or <code>[[Person]]</code> in whatever you are writing. Each note's backlinks then show everything that mentions it, so you rarely need to move a note into the &quot;right&quot; folder.</li>
+<li><strong>An area is a notebook, a project is a note.</strong> Keep two notebooks of your own, Work and People, as Things keeps areas. Each project is one note in Work (<code>Work/Organization</code>), holding its tasks and everything else about it. Meetings that link the project have their actions listed under it in the Tasks view, so nothing needs filing. The other notebooks (Daily, Meetings, Inbox, Templates, Scratch, Assets) are Margin's own.</li>
 </ol>
 <h2 id="notes-every-morning">Notes: every morning</h2>
 <ol>
@@ -252,9 +253,24 @@ mark.find-hit.current{background:#ffab2e}
 <td>New → Research note</td>
 </tr>
 <tr>
+<td>A new project</td>
+<td>One note in Work</td>
+<td>⌘N in the Work notebook, named after the project</td>
+</tr>
+<tr>
 <td>Lasting knowledge about a project</td>
 <td>The project's own note</td>
-<td>⌘N, then link it</td>
+<td>⌘K, its name</td>
+</tr>
+<tr>
+<td>Something to do</td>
+<td>The Inbox</td>
+<td>Quick task, ⌘⌥C</td>
+</tr>
+<tr>
+<td>A meeting's actions</td>
+<td>The meeting note, linked to its project</td>
+<td>Write <code>[[Project]]</code> once in the meeting</td>
 </tr>
 </tbody>
 </table></div><p>Rules of thumb:</p>
@@ -436,7 +452,7 @@ mark.find-hit.current{background:#ffab2e}
 <ol>
 <li><strong>Review Someday: ⌘⇧T, then 5.</strong> For each item: give it a real day, leave it, or delete it. This list is only useful if it is short enough to read.</li>
 <li><strong>Read the Logbook: press 6,</strong> grouped by date. Scan what you finished this month. It is the easiest source for a status update or a review.</li>
-<li><strong>Close finished projects.</strong> Group the Tasks view by Project. A note whose tasks are all done or all stale is a project that has ended: tick or delete the leftovers.</li>
+<li><strong>Close finished projects.</strong> Group the Tasks view by Project. A note whose tasks are all done or all stale is a project that has ended: tick or delete the leftovers, then move the note to an Archive notebook (⌘K → &quot;Move to notebook&quot;), so Work holds only live projects.</li>
 <li><strong>Check your saved filters.</strong> Remove the ones you no longer open.</li>
 </ol>
 <h2 id="tasks-which-list-to-look-at">Tasks: which list to look at</h2>

@@ -244,17 +244,97 @@ npm run app
 <p><strong>What they are good for.</strong></p>
 <ul>
 <li>Separating areas of your life that rarely mix: Work, Personal, Learning.</li>
-<li>Keeping generated notes out of the way: Daily, Meetings, Scratch and Templates are notebooks Margin files things into for you.</li>
+<li>Keeping generated notes out of the way: Daily, Meetings, Inbox, Templates, Scratch and Assets are notebooks Margin files things into for you (see the table below).</li>
 <li>Scoping a list. Clicking a notebook shows only what is in it.</li>
 </ul>
 <p><strong>What they are bad at.</strong> A note can only be in one notebook, but most notes belong to several topics. A meeting about the Atlas project with a vendor is &quot;Meetings&quot;, &quot;Atlas&quot; and &quot;Vendors&quot; all at once. Trying to express that with folders leads to deep trees and time lost deciding where things go.</p>
 <p><strong>How to use them well.</strong></p>
 <ul>
-<li>Keep to a handful, by broad area. Five to seven is plenty for most people.</li>
+<li>Keep to very few, one per area of your life, as Things has areas. For most people <strong>Work</strong> and <strong>People</strong> are enough; add <strong>Personal</strong> if you want a second area.</li>
+<li>Make each project one note inside its area: <code>Work/Organization</code>, <code>Work/Atlas</code>. See <a href="#projects-and-areas">Projects and areas</a>.</li>
 <li>Avoid nesting more than one level, except where Margin does it for you (Meetings by year and month).</li>
-<li>If you cannot decide where a note goes, leave it at the top level or in the Inbox. It is still found by search, links and tags.</li>
-<li>Use tags and links for topics, projects and people.</li>
+<li>If you cannot decide where a note goes, leave it at the top level, or write it in today's note. It is still found by search, links and tags. (The Inbox notebook is for tasks, not notes.)</li>
+<li>Use tags and links for topics; use links for projects and people.</li>
 </ul>
+<p>The notebooks Margin manages. You do not need to open or organise these; Margin creates them and files into them:</p>
+<div class="table"><table><thead>
+<tr>
+<th>Notebook</th>
+<th>What goes there</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Daily</td>
+<td>One note per day, made by ⌘D or the journal</td>
+</tr>
+<tr>
+<td>Meetings</td>
+<td>Meeting notes, filed as Meetings/2026/Oct</td>
+</tr>
+<tr>
+<td>Inbox</td>
+<td>The Inbox note, where Quick task puts tasks</td>
+</tr>
+<tr>
+<td>Templates</td>
+<td>The daily and meeting templates, and your own</td>
+</tr>
+<tr>
+<td>Scratch</td>
+<td>Notes that remove themselves after a while</td>
+</tr>
+<tr>
+<td>Assets</td>
+<td>Pasted images and attached files (the name is a setting)</td>
+</tr>
+</tbody>
+</table></div><p>So a simple notes folder looks like this:</p>
+<pre><code>Work/        one note per project: Organization, Atlas, …
+People/      one note per person, for 1:1s
+Archive/     finished projects (optional)
+Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
+</code></pre>
+<h3 id="projects-and-areas">Projects and areas</h3>
+<p>Margin follows Things 3 here, with notes instead of a separate task database:</p>
+<div class="table"><table><thead>
+<tr>
+<th>Things 3</th>
+<th>Margin</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Area, such as Work</td>
+<td>A notebook: <code>Work</code></td>
+</tr>
+<tr>
+<td>Project, such as Organization</td>
+<td>A note in that notebook: <code>Work/Organization</code></td>
+</tr>
+<tr>
+<td>Heading inside a project</td>
+<td>A <code>##</code> heading inside the note</td>
+</tr>
+<tr>
+<td>To-do</td>
+<td>A <code>- [ ] …</code> line in the note</td>
+</tr>
+<tr>
+<td>Notes on a to-do</td>
+<td>Lines indented under the task</td>
+</tr>
+<tr>
+<td>Inbox</td>
+<td>The <em>Inbox</em> note in the Inbox notebook</td>
+</tr>
+<tr>
+<td>Completing a project</td>
+<td>Tick its last tasks, then move the note to an <strong>Archive</strong> notebook</td>
+</tr>
+</tbody>
+</table></div><p>A project note is more than a task list: decisions, links and background go in the same note, around the tasks.</p>
+<p>Not every note is a project. Daily notes, meeting notes, the Inbox, templates, scratch notes and notes in <strong>People</strong> are not. A meeting's actions still belong to its project: when a meeting note links <code>[[Organization]]</code>, its tasks are listed under Organization in the Tasks view (grouped by Project), after Organization's own tasks, under &quot;From&quot; and the meeting's name. They stay in the meeting note, where the context is; ticking one there or in the Tasks view is the same thing. A task in any other note, such as today's, joins a project by linking it on its own line: <code>- [ ] Ring the recruiter [[Organization]]</code>. To move a task into the project note for good, press <strong>M</strong> on it in the Tasks view.</p>
 <h3 id="tags-and-links">Tags and links</h3>
 <p><strong>Tags</strong> answer &quot;what kind of note is this?&quot; or &quot;what state is it in?&quot;: <code>#meeting</code>, <code>#idea</code>, <code>#question</code>, <code>#todo</code>. They cut across notebooks, and a note can carry several.</p>
 <p><strong>Links</strong> answer &quot;what is this about?&quot;. Writing <code>[[Atlas]]</code> in a meeting note connects the two, and the Atlas note's backlinks then list every note that mentions it. This is what replaces deep folder trees: you do not file the meeting under Atlas, you mention Atlas in it.</p>
