@@ -354,9 +354,9 @@ export function SettingsModal() {
                   <Select value={s.startPage} onChange={set('startPage')} options={[['home', 'Home'], ['today', "Today's daily note"], ['last', 'The note I had open last']]} />
                 </Row>
                 <Row label="New notes go to" hint="Where a new note is created when you press New note.">
-                  <Select value={s.newNoteFolder} onChange={set('newNoteFolder')} options={[['current', 'The notebook I am in'], ['root', 'Top level, no notebook'], ['inbox', 'The Inbox notebook']]} />
+                  <Select value={s.newNoteFolder} onChange={set('newNoteFolder')} options={[['current', 'The notebook I am in'], ['root', 'Top level, no notebook']]} />
                 </Row>
-                <Row label="Inbox notebook" hint="Used for quick captures and, if chosen above, new notes. Tasks in it with no planned day make the Inbox list in Tasks, and stay out of Anytime until you decide on them.">
+                <Row label="Inbox notebook" hint="Holds the Inbox note, where Quick task adds tasks. Its tasks with no planned day make the Inbox list in Tasks, and stay out of Anytime until you decide on them.">
                   <Text value={s.inboxFolder} onChange={set('inboxFolder')} />
                 </Row>
                 <Row label="Week starts on" hint="For the calendar.">
@@ -645,13 +645,7 @@ export function SettingsModal() {
             {show('capture') && (
               <div className="set-section">
                 {searching && <h4 className="set-section-title">Capture &amp; scratch</h4>}
-                <Row label="Quick capture saves to" hint="The destination selected when quick capture opens. Tab switches it for one capture.">
-                  <Select value={s.captureTarget} onChange={set('captureTarget')} options={[['daily', "Today's daily note"], ['scratch', 'A new scratch note'], ['inbox', 'A new note in the Inbox']]} />
-                </Row>
-                <Row label="Quick task saves to" hint="Where a task from the capture box goes: the Tasks note in the Inbox notebook (made the first time), or today's daily note. Tab switches it for one task.">
-                  <Select value={s.captureTaskTarget} onChange={set('captureTaskTarget')} options={[['inbox', `The Tasks note in ${s.inboxFolder}`], ['daily', "Today's daily note"]]} />
-                </Row>
-                <Row label="Timestamp captures" hint="Start page captures in the daily note with the time, like 14:05.">
+                <Row label="Timestamp captures" hint="Quick captures, which go into today's note, start with the time, like 14:05.">
                   <Toggle label="Timestamp captures" value={s.captureTime} onChange={set('captureTime')} />
                 </Row>
                 <Row label="Scratch notes expire after" hint="Applies to new scratch notes. Expired notes move to the trash folder.">

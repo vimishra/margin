@@ -21,7 +21,7 @@ import re
 import sys
 from typing import Dict, Iterable, List, Optional, Tuple
 
-VERSION = "1.1"
+VERSION = "1.2"
 
 # ---------------------------------------------------------------- parsing (mirrors src/lib/tasks.ts)
 
@@ -39,7 +39,7 @@ FRONTMATTER = re.compile(r"^---\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)")
 NOTE_TYPES = ("note", "daily", "article", "scratch")
 
 LISTS = {
-    "inbox": "Captured and not yet decided on: in the Inbox notebook, with no planned day",
+    "inbox": "Captured and not yet decided on: in the Inbox note, with no planned day",
     "today": "Planned for today or earlier, or due today or earlier",
     "upcoming": "Planned for a day after today",
     "anytime": "Everything you could do now: not planned for later, not someday, not waiting in the Inbox",
@@ -219,15 +219,18 @@ def notebook_key(folder: str) -> str:
     return "/".join(s.strip() for s in folder.split("/") if s.strip()).lower()
 
 
-def in_inbox_folder(folder: str, inbox: str) -> bool:
-    """Whether a notebook is the Inbox notebook, or a notebook inside it. "inbox" and "Inbox" are the same notebook."""
-    box, f = notebook_key(inbox), notebook_key(folder)
-    return bool(box) and (f == box or f.startswith(box + "/"))
+INBOX_NOTE_TITLE = "Inbox"
+
+
+def is_inbox_note(note: "Note", inbox: str) -> bool:
+    """Whether a note is the Inbox note: the note called Inbox in the Inbox notebook. Capitals do not matter, as on a Mac."""
+    box = notebook_key(inbox)
+    return bool(box) and notebook_key(note.folder) == box and note.title.strip().lower() == INBOX_NOTE_TITLE.lower()
 
 
 def in_inbox(t: Task, inbox: str) -> bool:
-    """Waiting in the Inbox: open, in the Inbox notebook, no planned day, not Someday. A due date does not take it out."""
-    return not t.done and in_inbox_folder(t.note.folder, inbox) and not t.planned and not t.someday
+    """Waiting in the Inbox: open, in the Inbox note, no planned day, not Someday. A due date does not take it out."""
+    return not t.done and is_inbox_note(t.note, inbox) and not t.planned and not t.someday
 
 
 def in_list(t: Task, name: str, week_start: int, now: str, inbox: str = "Inbox") -> bool:
@@ -471,7 +474,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     p.add_argument("list", nargs="?", default="today", help="which list to show (default: today); see below")
     p.add_argument("--vault", metavar="PATH", help="notes folder (default: the one Margin uses, or $MARGIN_VAULT)")
     p.add_argument("--templates", metavar="NAME", default="Templates", help="templates notebook, whose tasks are left out (default: Templates)")
-    p.add_argument("--inbox", metavar="NAME", default="Inbox", help="Inbox notebook, whose undecided tasks make the inbox list (default: Inbox)")
+    p.add_argument("--inbox", metavar="NAME", default="Inbox", help="notebook holding the Inbox note, whose undecided tasks make the inbox list (default: Inbox)")
     p.add_argument("--week-start", choices=("sunday", "monday"), help="first day of the week, for the week list")
     p.add_argument("--today", metavar="DAY", help="treat this day as today (for scripts and testing)")
 

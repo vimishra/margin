@@ -1,10 +1,10 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { Archive, BookmarkPlus, CalendarClock, CalendarDays, Check, ChevronDown, ChevronRight, Flag, FolderInput, ListChecks, MoreHorizontal, Search } from 'lucide-react'
 import type { Note } from '../types'
-import { deleteTaskView, go, openDatePicker, openFromClick, openMenu, openNoteAt, openSideAt, renameTaskView, rescheduleTasks, saveTaskView, inboxNotebook, ui, updateTask, updateTaskView, useStore, type MenuItem } from '../store'
+import { deleteTaskView, go, openDatePicker, openFromClick, openMenu, openNoteAt, openSideAt, renameTaskView, rescheduleTasks, saveTaskView, ensureInboxNote, inboxNotebook, moveTasksToNote, ui, updateTask, updateTaskView, useStore, type MenuItem } from '../store'
 import { hint } from '../shortcuts'
 import { renderInline } from '../lib/markdown'
-import { PRIORITIES, TASK_FILTERS, TASK_SOURCES, allTasks, byUrgency, isCarried, isOn, isOverdue, nextDate, priorityLabel, selectTasks, shortDate, tasksOf, weekRange, withDetails, type Task, type TaskFilter, type TaskGroup, type TaskSource, type TaskView } from '../lib/tasks'
+import { PRIORITIES, TASK_FILTERS, TASK_SOURCES, allTasks, byUrgency, isCarried, isOn, isOverdue, nextDate, priorityLabel, sameNotebook, selectTasks, shortDate, tasksOf, weekRange, withDetails, type Task, type TaskFilter, type TaskGroup, type TaskSource, type TaskView } from '../lib/tasks'
 import { addDays, cx, displayTitle, firstWeekday, local, today, tagStyle } from '../lib/util'
 
 const weekStartOf = (setting: string) => (setting === 'sunday' ? 0 : setting === 'monday' ? 1 : firstWeekday())
@@ -244,6 +244,15 @@ export function TasksView({ view }: { view?: string }) {
   const current: TaskView = { filter, query: query.trim(), source, group }
   const changed = !!saved && (saved.filter !== filter || saved.query !== query.trim() || saved.source !== source || saved.group !== group)
   const late = shown.filter((t) => isOverdue(t, now))
+  // Open tasks in the Inbox notebook's other notes, such as a Tasks note from before there was one Inbox note.
+  const strays = useMemo(
+    () => (filter === 'inbox' ? tasks.filter((t) => !t.done && !t.inInbox && notes[t.noteId] && notes[t.noteId].type !== 'scratch' && sameNotebook(notes[t.noteId].folder, settings.inboxFolder)) : []),
+    [filter, tasks, notes, settings.inboxFolder],
+  )
+  const moveStrays = async () => {
+    const inbox = await ensureInboxNote()
+    if (inbox) moveTasksToNote(strays, inbox.id)
+  }
   const moveLate = (e: React.MouseEvent) =>
     openDatePicker(e, { title: `Move ${late.length} overdue task${late.length === 1 ? '' : 's'} to`, value: now, onPick: (date) => date && rescheduleTasks(late, date) })
   const hasTag = (tag: string) => query.toLowerCase().split(/\s+/).includes('#' + tag.toLowerCase())
@@ -302,7 +311,7 @@ export function TasksView({ view }: { view?: string }) {
               {saved
                 ? `Saved filter · ${shown.length} task${shown.length === 1 ? '' : 's'}`
                 : filter === 'inbox'
-                  ? `Tasks in the “${inboxNotebook()}” notebook with no day yet · the Inbox notebook is set in Settings → General`
+                  ? `Tasks in the Inbox note (${inboxNotebook()} › Inbox) with no day yet · tasks with a day are in Today or Upcoming`
                   : `${counts.open} open${overdue ? ` · ${overdue} overdue` : ''} · every checkbox in your notes`}
             </p>
           </div>
@@ -375,6 +384,16 @@ export function TasksView({ view }: { view?: string }) {
           </div>
         )}
 
+        {filter === 'inbox' && strays.length > 0 && (
+          <div className="task-bulk">
+            <span>
+              {strays.length} open task{strays.length === 1 ? ' is' : 's are'} in other notes of the {inboxNotebook()} notebook ({[...new Set(strays.map((t) => displayTitle(notes[t.noteId])))].join(', ')}). Only the Inbox note is the Inbox.
+            </span>
+            <button className="btn sm" title="Move them to the end of the Inbox note, with Undo" onClick={() => void moveStrays()}>
+              <FolderInput size={13} /> Move them into Inbox
+            </button>
+          </div>
+        )}
         {late.length > 0 && group !== 'date' && (
           <div className="task-bulk">
             <span>
@@ -394,7 +413,7 @@ export function TasksView({ view }: { view?: string }) {
                 : filter === 'open'
                   ? 'No open tasks. Write “- [ ] something” in any note and it shows up here.'
                   : filter === 'inbox'
-                    ? `The Inbox is empty. Tasks captured with Quick task (${hint('captureTask')}), or written in the ${inboxNotebook()} notebook, wait here until you give them a day or move them into a note.`
+                    ? `The Inbox is empty. Tasks captured with Quick task (${hint('captureTask')}), or written in the Inbox note, wait here until you give them a day or move them into a note.`
                     : 'Nothing in this list.'}
             </p>
           )}

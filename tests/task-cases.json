@@ -33,7 +33,7 @@
    "raw": "---\nid: trip03\ntitle: Trip to Lisbon\n---\n## To book\n\n- [ ] Train tickets @due(2026-10-08) P2\n- [ ] Dinner on Saturday >2026-10-10\n- [ ] Someday maybe >someday @due(2026-12-01)\n"
   },
   {
-   "path": "Inbox/Tasks.md",
+   "path": "Inbox/Inbox.md",
    "raw": "---\nid: inbox-tasks\n---\n- [ ] Captured, not decided yet\n- [ ] Captured with a deadline later @due(2026-10-20)\n- [ ] Captured, due today @due(2026-10-08) #ops\n- [ ] Given a day, so out of the Inbox >2026-10-12\n- [ ] Planned for today, so out of the Inbox >2026-10-08\n- [ ] Parked, so out of the Inbox >someday\n- [x] Done from the Inbox @done(2026-10-07)\n  - [ ] Sub-task under a done one\n"
   },
   {
@@ -45,8 +45,12 @@
    "raw": "- [ ] A notebook that only starts with the same word\n"
   },
   {
-   "path": "inbox/Written in lower case.md",
-   "raw": "- [ ] In a notebook spelled in lower case\n"
+   "path": "Inbox/Tasks.md",
+   "raw": "- [ ] In another note of the Inbox notebook, so not in the Inbox\n"
+  },
+  {
+   "path": "Inboxes elsewhere/INBOX.md",
+   "raw": "- [ ] The Inbox note of another notebook, title in capitals\n"
   }
  ],
  "queries": [
@@ -682,7 +686,7 @@
     "in_inbox": false
    },
    {
-    "key": "Inbox/Tasks.md:4",
+    "key": "Inbox/Inbox.md:4",
     "text": "Captured, not decided yet",
     "done": false,
     "priority": null,
@@ -697,7 +701,7 @@
     "in_inbox": true
    },
    {
-    "key": "Inbox/Tasks.md:5",
+    "key": "Inbox/Inbox.md:5",
     "text": "Captured with a deadline later",
     "done": false,
     "priority": null,
@@ -712,7 +716,7 @@
     "in_inbox": true
    },
    {
-    "key": "Inbox/Tasks.md:6",
+    "key": "Inbox/Inbox.md:6",
     "text": "Captured, due today #ops",
     "done": false,
     "priority": null,
@@ -729,7 +733,7 @@
     "in_inbox": true
    },
    {
-    "key": "Inbox/Tasks.md:7",
+    "key": "Inbox/Inbox.md:7",
     "text": "Given a day, so out of the Inbox",
     "done": false,
     "priority": null,
@@ -744,7 +748,7 @@
     "in_inbox": false
    },
    {
-    "key": "Inbox/Tasks.md:8",
+    "key": "Inbox/Inbox.md:8",
     "text": "Planned for today, so out of the Inbox",
     "done": false,
     "priority": null,
@@ -759,7 +763,7 @@
     "in_inbox": false
    },
    {
-    "key": "Inbox/Tasks.md:9",
+    "key": "Inbox/Inbox.md:9",
     "text": "Parked, so out of the Inbox",
     "done": false,
     "priority": null,
@@ -774,7 +778,7 @@
     "in_inbox": false
    },
    {
-    "key": "Inbox/Tasks.md:10",
+    "key": "Inbox/Inbox.md:10",
     "text": "Done from the Inbox",
     "done": true,
     "priority": null,
@@ -789,7 +793,7 @@
     "in_inbox": false
    },
    {
-    "key": "Inbox/Tasks.md:11",
+    "key": "Inbox/Inbox.md:11",
     "text": "Sub-task under a done one",
     "done": false,
     "priority": null,
@@ -816,7 +820,7 @@
     "heading": "",
     "overdue": false,
     "in_today": false,
-    "in_inbox": true
+    "in_inbox": false
    },
    {
     "key": "Inboxes elsewhere/Not the inbox.md:1",
@@ -834,8 +838,8 @@
     "in_inbox": false
    },
    {
-    "key": "inbox/Written in lower case.md:1",
-    "text": "In a notebook spelled in lower case",
+    "key": "Inbox/Tasks.md:1",
+    "text": "In another note of the Inbox notebook, so not in the Inbox",
     "done": false,
     "priority": null,
     "tags": [],
@@ -846,17 +850,30 @@
     "heading": "",
     "overdue": false,
     "in_today": false,
-    "in_inbox": true
+    "in_inbox": false
+   },
+   {
+    "key": "Inboxes elsewhere/INBOX.md:1",
+    "text": "The Inbox note of another notebook, title in capitals",
+    "done": false,
+    "priority": null,
+    "tags": [],
+    "planned": null,
+    "someday": false,
+    "due": null,
+    "done_on": null,
+    "heading": "",
+    "overdue": false,
+    "in_today": false,
+    "in_inbox": false
    }
   ],
   "lists": {
    "inbox": [
-    "Inbox/Tasks.md:6",
-    "Inbox/Tasks.md:5",
-    "Inbox/Tasks.md:4",
-    "Inbox/Tasks.md:11",
-    "Inbox/Reading/Articles.md:1",
-    "inbox/Written in lower case.md:1"
+    "Inbox/Inbox.md:6",
+    "Inbox/Inbox.md:5",
+    "Inbox/Inbox.md:4",
+    "Inbox/Inbox.md:11"
    ],
    "today": [
     "Work/Project Atlas.md:10",
@@ -865,8 +882,8 @@
     "Work/Project Atlas.md:16",
     "Work/Project Atlas.md:17",
     "Work/Project Atlas.md:21",
-    "Inbox/Tasks.md:6",
-    "Inbox/Tasks.md:8",
+    "Inbox/Inbox.md:6",
+    "Inbox/Inbox.md:8",
     "No frontmatter.md:4",
     "Work/Meetings/Weekly sync.md:15",
     "Work/Meetings/Weekly sync.md:16"
@@ -876,7 +893,7 @@
     "Personal/Trip.md:8",
     "Work/Meetings/Weekly sync.md:12",
     "Work/Meetings/Weekly sync.md:14",
-    "Inbox/Tasks.md:7"
+    "Inbox/Inbox.md:7"
    ],
    "anytime": [
     "Work/Project Atlas.md:10",
@@ -885,7 +902,7 @@
     "Work/Project Atlas.md:16",
     "Work/Project Atlas.md:17",
     "Work/Project Atlas.md:21",
-    "Inbox/Tasks.md:8",
+    "Inbox/Inbox.md:8",
     "No frontmatter.md:4",
     "Work/Meetings/Weekly sync.md:15",
     "Work/Meetings/Weekly sync.md:16",
@@ -903,7 +920,10 @@
     "Work/Project Atlas.md:13",
     "Work/Project Atlas.md:24",
     "Daily/2026-10-08.md:8",
+    "Inboxes elsewhere/INBOX.md:1",
+    "Inbox/Tasks.md:1",
     "Daily/2026-10-07.md:4",
+    "Inbox/Reading/Articles.md:1",
     "No frontmatter.md:6",
     "No frontmatter.md:8",
     "Inboxes elsewhere/Not the inbox.md:1"
@@ -912,12 +932,12 @@
     "Personal/Trip.md:9",
     "Work/Project Atlas.md:23",
     "Work/Project Atlas.md:22",
-    "Inbox/Tasks.md:9"
+    "Inbox/Inbox.md:9"
    ],
    "logbook": [
     "Work/Meetings/Weekly sync.md:13",
     "Daily/2026-10-08.md:12",
-    "Inbox/Tasks.md:10",
+    "Inbox/Inbox.md:10",
     "Daily/2026-10-07.md:5",
     "Work/Project Atlas.md:11",
     "Work/Project Atlas.md:12"
@@ -929,8 +949,8 @@
     "Work/Project Atlas.md:9",
     "Personal/Trip.md:7",
     "Work/Project Atlas.md:21",
-    "Inbox/Tasks.md:6",
-    "Inbox/Tasks.md:8",
+    "Inbox/Inbox.md:6",
+    "Inbox/Inbox.md:8",
     "No frontmatter.md:4",
     "Work/Meetings/Weekly sync.md:15",
     "Work/Project Atlas.md:15",
@@ -944,17 +964,17 @@
     "Personal/Trip.md:7",
     "Work/Project Atlas.md:17",
     "Work/Project Atlas.md:21",
-    "Inbox/Tasks.md:6",
-    "Inbox/Tasks.md:8",
+    "Inbox/Inbox.md:6",
+    "Inbox/Inbox.md:8",
     "No frontmatter.md:4",
     "Work/Project Atlas.md:15",
     "Daily/2026-10-08.md:16",
     "Personal/Trip.md:8",
     "Work/Meetings/Weekly sync.md:12",
     "Work/Meetings/Weekly sync.md:14",
-    "Inbox/Tasks.md:7",
+    "Inbox/Inbox.md:7",
     "Work/Meetings/Weekly sync.md:11",
-    "Inbox/Tasks.md:5",
+    "Inbox/Inbox.md:5",
     "Work/Project Atlas.md:25",
     "Work/Project Atlas.md:26"
    ],
@@ -968,7 +988,10 @@
     "Work/Project Atlas.md:13",
     "Work/Project Atlas.md:24",
     "Daily/2026-10-08.md:8",
+    "Inboxes elsewhere/INBOX.md:1",
+    "Inbox/Tasks.md:1",
     "Daily/2026-10-07.md:4",
+    "Inbox/Reading/Articles.md:1",
     "No frontmatter.md:6",
     "No frontmatter.md:8",
     "Inboxes elsewhere/Not the inbox.md:1"
@@ -980,8 +1003,8 @@
     "Work/Project Atlas.md:16",
     "Work/Project Atlas.md:17",
     "Work/Project Atlas.md:21",
-    "Inbox/Tasks.md:6",
-    "Inbox/Tasks.md:8",
+    "Inbox/Inbox.md:6",
+    "Inbox/Inbox.md:8",
     "No frontmatter.md:4",
     "Work/Meetings/Weekly sync.md:15",
     "Work/Meetings/Weekly sync.md:16",
@@ -990,9 +1013,9 @@
     "Personal/Trip.md:8",
     "Work/Meetings/Weekly sync.md:12",
     "Work/Meetings/Weekly sync.md:14",
-    "Inbox/Tasks.md:7",
+    "Inbox/Inbox.md:7",
     "Work/Meetings/Weekly sync.md:11",
-    "Inbox/Tasks.md:5",
+    "Inbox/Inbox.md:5",
     "Work/Project Atlas.md:25",
     "Work/Project Atlas.md:26",
     "Work/Project Atlas.md:27",
@@ -1008,15 +1031,16 @@
     "Work/Project Atlas.md:22",
     "Work/Project Atlas.md:24",
     "Daily/2026-10-08.md:8",
-    "Inbox/Tasks.md:4",
-    "Inbox/Tasks.md:9",
-    "Inbox/Tasks.md:11",
+    "Inbox/Inbox.md:4",
+    "Inbox/Inbox.md:9",
+    "Inbox/Inbox.md:11",
+    "Inboxes elsewhere/INBOX.md:1",
+    "Inbox/Tasks.md:1",
     "Daily/2026-10-07.md:4",
     "Inbox/Reading/Articles.md:1",
     "No frontmatter.md:6",
     "No frontmatter.md:8",
-    "Inboxes elsewhere/Not the inbox.md:1",
-    "inbox/Written in lower case.md:1"
+    "Inboxes elsewhere/Not the inbox.md:1"
    ]
   },
   "queries": [
@@ -1082,7 +1106,7 @@
     "list": "open",
     "query": "#ops",
     "keys": [
-     "Inbox/Tasks.md:6",
+     "Inbox/Inbox.md:6",
      "Work/Project Atlas.md:25",
      "No frontmatter.md:3"
     ]
@@ -1093,7 +1117,7 @@
     "keys": [
      "Work/Meetings/Weekly sync.md:13",
      "Daily/2026-10-08.md:12",
-     "Inbox/Tasks.md:10",
+     "Inbox/Inbox.md:10",
      "Daily/2026-10-07.md:5",
      "Work/Project Atlas.md:11",
      "Work/Project Atlas.md:12"
@@ -1110,19 +1134,17 @@
     "list": "inbox",
     "query": "",
     "keys": [
-     "Inbox/Tasks.md:6",
-     "Inbox/Tasks.md:5",
-     "Inbox/Tasks.md:4",
-     "Inbox/Tasks.md:11",
-     "Inbox/Reading/Articles.md:1",
-     "inbox/Written in lower case.md:1"
+     "Inbox/Inbox.md:6",
+     "Inbox/Inbox.md:5",
+     "Inbox/Inbox.md:4",
+     "Inbox/Inbox.md:11"
     ]
    },
    {
     "list": "inbox",
     "query": "#ops",
     "keys": [
-     "Inbox/Tasks.md:6"
+     "Inbox/Inbox.md:6"
     ]
    }
   ]

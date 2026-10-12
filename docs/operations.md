@@ -90,7 +90,7 @@ Actions agreed in the meeting are tasks: see [Tasks: in a meeting](#tasks-in-a-m
 
 Keep one note per person. Create it once with ⌘K → "New person note", and pin the people you meet every week.
 
-1. **Between meetings,** whenever something comes up for that person: ⌘⇧C, press Tab until the destination is "A note…", choose their note and the "Next time" heading. Margin remembers the choice, so next time it is Tab and Enter.
+1. **Between meetings,** whenever something comes up for that person: ⌘K, type their name, and add a line under "Next time".
 2. **As the 1:1 starts,** open their note and run ⌘K → "Add today's meeting entry". A dated heading appears at the top of Meetings.
 3. **Work down "Next time".** Delete each line as you cover it, and write what was said under today's entry.
 4. **Before you close the note,** add anything that must wait to "Next time".
@@ -127,7 +127,7 @@ Pick a fixed time: Friday afternoon or Monday morning.
 | You have | Put it | How |
 | --- | --- | --- |
 | A passing thought | Today's Log | ⌘⇧C |
-| A thing to raise with a person | Their note, under Next time | ⌘⇧C → A note… |
+| A thing to raise with a person | Their note, under Next time | ⌘K, their name |
 | What was said in a meeting | A meeting note | ⌘⇧M |
 | Something needed for a few days | A scratch note | ⌘⌥N |
 | An article or source | A research note | New → Research note |
@@ -167,7 +167,7 @@ Five ideas carry this half.
    - The **planned day** is when you intend to start. Until then the task waits in Upcoming; from that day it sits in Today until you tick it. It never becomes overdue.
    - The **due date** is a real deadline. Only a missed due date is overdue.
 3. **Someday is a parking place.** A task marked Someday stays out of Today, Upcoming and Anytime until you give it a day.
-4. **The Inbox is for things you have not decided on yet.** A task captured with Quick task, or written in a note in the Inbox notebook, waits in the Inbox list and stays out of Anytime. It leaves the Inbox when you give it a day, park it in Someday, or move it into a project's note. Capturing is quick because deciding happens later, once a day.
+4. **The Inbox is for things you have not decided on yet.** It is one note, called Inbox, in the Inbox notebook. A task captured with Quick task, or written in that note, waits in the Inbox list and stays out of Anytime. It leaves the Inbox when you give it a day, park it in Someday, or move it into a project's note. Capturing is quick because deciding happens later, once a day.
 5. **The Top 3 is today's commitment.** It is a short checklist at the top of the daily note, and what you do not finish moves to the next day by itself.
 
 ## Tasks: writing one

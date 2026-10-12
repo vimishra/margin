@@ -42,8 +42,8 @@ Everything the app does, at a glance. Each heading links to the section that exp
 
 **[Capturing](#quick-capture-and-scratch-notes)**
 
-- Quick capture from anywhere, even from another app, into today's note, a scratch note, the inbox, or a note and heading you choose
-- Quick task: capture a task with its dates, priority and tags, with suggestions as you type, into the Inbox or today's note
+- Quick capture from anywhere, even from another app, into today's note
+- Quick task: capture a task with its dates, priority and tags, with suggestions as you type, into the Inbox
 - Scratch notes that remove themselves after a week
 - Research notes for articles, with a source link and a reading status
 
@@ -434,14 +434,9 @@ On the canvas:
 
 ## Quick capture and scratch notes
 
-**Quick capture** (⌘⇧C, or ⌃⌥Space from any app) opens a small box. Type, press Enter, and carry on with what you were doing. Tab chooses where it goes:
+**Quick capture** (⌘⇧C, or ⌃⌥Space from any app) opens a small box. Type, press Enter, and carry on with what you were doing. A note always goes into **today's note**: as a timestamped line (Settings → Capture & scratch → Timestamp captures), or as a card if today is on the canvas. ⇧Enter starts a new line.
 
-- **Today's note:** a timestamped line, or a card if today is on the canvas.
-- **Scratch:** a new temporary note.
-- **Inbox:** a new note in the Inbox notebook.
-- **A note…:** added to a note you choose, as a new bullet. The first time, press Enter or click to search for the note; you can also pick a heading to add it under. Margin remembers the note and heading, so next time it is Tab and Enter. ⌥↓ chooses a different note.
-
-The destination the box opens with is still the one set in Settings, so the usual capture is unchanged. Anything you type as a task (`- [ ] …`) is kept as a task, in today's note as well as in a chosen note.
+To capture a task, use **Quick task** below: tasks go to the Inbox, not to today's note.
 
 ### Quick task
 
@@ -460,13 +455,13 @@ Type the task with its details, as you would on a task line in a note, and the s
 You do not have to pick a suggestion: when the task is saved, `>fri` and `@due(next week)` are turned into the dates they mean. The line under the box shows what Margin understood (When Tomorrow, Due Fri 16 Oct, P2, #atlas) before you save.
 
 - **Enter** saves the task and closes the box. **⇧Enter** saves it and keeps the box open for the next one.
-- **Tab** chooses where it goes: **Inbox** (the default, a note called *Tasks* in your Inbox notebook, made the first time) or **Today's note** (added like any capture: at the end of the page, or as a card when today is on the canvas). Settings → Capture & scratch → **Quick task saves to** sets the one it opens with.
-- A task sent to the Inbox with no day waits in the **Inbox** list until you decide on it (see [The Inbox](#the-inbox)). If you typed a day (`>fri`) or Someday, it goes straight to Today, Upcoming or Someday instead.
+- Every task goes to the end of the **Inbox note**: the note called *Inbox* in your Inbox notebook, made the first time it is needed.
+- With no day, it waits in the **Inbox** list until you decide on it (see [The Inbox](#the-inbox)). If you typed a day (`>fri`) or Someday, it shows in Today, Upcoming or Someday instead; the line under the box tells you which before you save.
 - Esc closes a suggestion list first, then the box.
 
 Captured tasks appear in **Tasks → Inbox**, where you sort them: see [The Inbox](#the-inbox).
 
-**Scratch notes** (⌘⌥N) are for things you need for a few days. They expire after a week and move to the trash. Each one shows how long it has left, with buttons to extend it or **Keep** it as a normal note.
+**Scratch notes** (⌘⌥N, or New → Scratch note) are for things you need for a few days. They expire after a week and move to the trash. Each one shows how long it has left, with buttons to extend it or **Keep** it as a normal note.
 
 ## Meeting notes and templates
 
@@ -517,7 +512,7 @@ The format letters are the same as Obsidian's: `YYYY`, `MMMM`, `MMM`, `MM`, `Do`
 ## About
 ```
 
-- **Between meetings:** add to *Next time*. Quick capture can do it without opening the note: choose **A note…**, pick the person and the *Next time* heading once, and it is remembered.
+- **Between meetings:** add to *Next time*: ⌘K, type their name, and write the line under *Next time*.
 - **When the meeting starts:** ⌘K → "Add today's meeting entry". A new dated heading is added at the top of *Meetings*, newest first.
 - **Actions** are tasks, so they show in the Tasks view. Give them a due date with `@due(fri)`.
 
@@ -596,7 +591,7 @@ The lists work the way they do in Things 3:
 - A **planned day** is the day a task *starts*. Until then it waits in Upcoming; from that day on it is in Today, and it stays there until you tick it. It never becomes overdue.
 - A **due date** is a real deadline. Only a missed due date makes a task overdue.
 - **Someday** parks a task. It is kept out of Today, Upcoming and Anytime until you give it a day.
-- The **Inbox** holds what you have captured but not decided on: tasks in the Inbox notebook with no planned day. They stay out of Anytime until you give them a day or Someday, or move them into a project's note.
+- The **Inbox** holds what you have captured but not decided on: tasks in the Inbox note with no planned day. They stay out of Anytime until you give them a day or Someday, or move them into a project's note.
 - A **project** is a note, and an **area** is the notebook it is in. Headings in the note divide the project, as headings do in Things.
 
 ### Details on a task
@@ -663,7 +658,7 @@ With the keyboard:
 
 How the lists are decided:
 
-- **Inbox:** in the Inbox notebook (or a notebook inside it), with no planned day and not Someday. A due date does not take a task out of the Inbox, but once it is due it also shows in Today.
+- **Inbox:** in the Inbox note, with no planned day and not Someday. A due date does not take a task out of the Inbox, but once it is due it also shows in Today.
 - **Today:** planned for today or an earlier day, or due today or earlier.
 - **Upcoming:** planned for a day after today. A task with only a due date is not here; it is in Anytime until the day it is due.
 - **Anytime:** everything you could do now: not planned for a later day, not Someday, and not waiting in the Inbox. Today's tasks are here too.
@@ -678,13 +673,15 @@ The number beside Tasks in the sidebar is how many are in Today, overdue ones in
 
 ### The Inbox
 
-The Inbox is where things wait until you decide what they are, as in Things 3. A task is in it when it is in a note in the Inbox notebook (Settings → General → Inbox notebook) and has no planned day and is not Someday. Capitals do not matter, as on a Mac: a notebook called `inbox` is the Inbox notebook too. The top of the Inbox list says which notebook it reads. That covers everything Quick task saves there, and any task you write by hand in a note in that notebook.
+The Inbox is where things wait until you decide what they are, as in Things 3. It is one note: the **Inbox note**, called *Inbox*, in the Inbox notebook (Settings → General → Inbox notebook). A task is in the Inbox list when it is in that note, has no planned day and is not Someday. That covers everything Quick task saves, and any task you write there by hand. Tasks in other notes, even other notes in the Inbox notebook, are not in the Inbox. Capitals do not matter, as on a Mac.
+
+A task with a day is not in the Inbox list even though its line is in the Inbox note: it is in Today or Upcoming. If other notes in the Inbox notebook still hold open tasks (a *Tasks* note from an earlier version, say), the Inbox list offers **Move them into Inbox**, with Undo.
 
 Nothing in the Inbox shows in Anytime, so your considered lists stay clean. To clear it, open **Tasks → Inbox** (⌘⇧T, then 1) and, for each task:
 
 - **Give it a day:** S, and pick one. It moves to Today or Upcoming. T plans it for today.
 - **Park it:** S, then Someday.
-- **Put it in its project:** M, and choose the note. The task line, with any indented lines under it, moves to the end of that note; Undo in the message puts it back. A task moved out of the Inbox notebook with no day goes to Anytime.
+- **Put it in its project:** M, and choose the note. The task line, with any indented lines under it, moves to the end of that note; Undo in the message puts it back. A task moved out of the Inbox note with no day goes to Anytime.
 - **Tick it** if it is already done, or delete the line if it is not happening.
 
 The task's line stays where it is in the note unless you move it; only the lists it shows in change. The Inbox's count in the sidebar tells you when there is sorting to do.
@@ -743,7 +740,7 @@ margin-tasks upcoming
 margin-tasks logbook --done-after -7
 ```
 
-The lists are `inbox`, `today`, `upcoming`, `anytime`, `someday`, `logbook`, `overdue`, `week`, `month`, `undated`, `open`, and `all` for every task, ticked or not. If your Inbox notebook is not called Inbox, add `--inbox NAME`.
+The lists are `inbox`, `today`, `upcoming`, `anytime`, `someday`, `logbook`, `overdue`, `week`, `month`, `undated`, `open`, and `all` for every task, ticked or not. `inbox` reads the note called Inbox in the Inbox notebook; if your Inbox notebook is not called Inbox, add `--inbox NAME`.
 
 **Narrowing down.** Options combine: a task must satisfy all of them.
 
@@ -802,7 +799,7 @@ Two settings live inside the app and cannot be read from outside it. If you rena
 | Editor | Default mode, toolbar, spell check, auto-closing brackets, image pasting, line numbers, side panel |
 | Daily notes | Canvas or page, the daily notebook, a template for new days |
 | Templates & meetings | Template and meeting notebooks, how meetings are filed, the meeting template |
-| Capture & scratch | Capture destination, timestamps, scratch expiry |
+| Capture & scratch | Timestamps on captures, scratch expiry |
 | Files & data | Notes folder, attachments folder, image naming, Obsidian import, reset |
 | Shortcuts | Every shortcut; click one and press new keys |
 

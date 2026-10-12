@@ -3,8 +3,9 @@
 // "P1", "P2", "P3" is the priority (P1 highest), ">date" the day to work on it, "@due(date)" the deadline.
 // ">someday" parks a task out of the active lists, and "@done(date)" records the day it was ticked.
 // The lists follow Things: a planned day is when a task starts, so it stays in Today until it is done;
-// only a missed deadline makes it overdue. A task in the Inbox notebook with no planned day waits in the
-// Inbox list, out of Anytime, until it is given a day, Someday, or moved into a project's note.
+// only a missed deadline makes it overdue. A task in the Inbox note (the note called Inbox in the Inbox notebook)
+// with no planned day waits in the Inbox list, out of Anytime, until it is given a day, Someday, or moved into a
+// project's note.
 import type { Note } from '../types'
 import { addDays, parseYmd, today } from './util'
 import { parseDatePhrase } from './dates'
@@ -29,7 +30,7 @@ export interface Task {
   completed?: string
   /** Nearest heading above the task. */
   heading: string
-  /** In a note in the Inbox notebook (or a notebook inside it). Set by allTasks. */
+  /** In the Inbox note. Set by allTasks. */
   inInbox?: boolean
 }
 
@@ -162,22 +163,26 @@ export function tasksOf(note: Note): Task[] {
 /** A notebook path compared the way macOS compares folder names: capitals and stray spaces or slashes do not matter. */
 const notebookKey = (folder: string) => folder.split('/').map((s) => s.trim()).filter(Boolean).join('/').toLowerCase()
 
-/** Whether a note's notebook is the Inbox notebook, or a notebook inside it. "inbox" and "Inbox" are the same notebook. */
-export function inInboxFolder(folder: string, inboxFolder: string): boolean {
-  const inbox = notebookKey(inboxFolder)
-  const f = notebookKey(folder)
-  return !!inbox && (f === inbox || f.startsWith(inbox + '/'))
+/** Whether two notebook paths name the same notebook, as macOS compares folder names. */
+export const sameNotebook = (a: string, b: string) => notebookKey(a) === notebookKey(b)
+
+/** The title of the one note that is the tasks Inbox. It lives in the Inbox notebook. */
+export const INBOX_NOTE_TITLE = 'Inbox'
+
+/** Whether a note is the Inbox note: the note called Inbox in the Inbox notebook. Capitals do not matter, as on a Mac. */
+export function isInboxNote(note: Pick<Note, 'folder' | 'title'>, inboxFolder: string): boolean {
+  return !!notebookKey(inboxFolder) && notebookKey(note.folder) === notebookKey(inboxFolder) && note.title.trim().toLowerCase() === INBOX_NOTE_TITLE.toLowerCase()
 }
 
 let lastNotes: Record<string, Note> | null = null
 let lastFolder = ''
 let lastInbox = ''
 let lastAll: Task[] = []
-/** Every task in every note, except the ones in templates. Tasks in the Inbox notebook are marked `inInbox`. */
+/** Every task in every note, except the ones in templates. Tasks in the Inbox note are marked `inInbox`. */
 export function allTasks(notes: Record<string, Note>, templatesFolder: string, inboxFolder = ''): Task[] {
   if (notes === lastNotes && templatesFolder === lastFolder && inboxFolder === lastInbox) return lastAll
   lastAll = Object.values(notes).flatMap((n) =>
-    n.folder === templatesFolder ? [] : inInboxFolder(n.folder, inboxFolder) ? tasksOf(n).map((t) => ({ ...t, inInbox: true })) : tasksOf(n),
+    n.folder === templatesFolder ? [] : isInboxNote(n, inboxFolder) ? tasksOf(n).map((t) => ({ ...t, inInbox: true })) : tasksOf(n),
   )
   lastNotes = notes
   lastFolder = templatesFolder
@@ -219,7 +224,7 @@ export const isOverdue = (t: Task, now = today()) => !t.done && !!t.due && t.due
 export const isToday = (t: Task, now = today()) => !t.done && ((!!t.scheduled && t.scheduled <= now) || (!!t.due && t.due <= now))
 
 /**
- * Waiting in the Inbox: open, in the Inbox notebook, and not yet decided on (no planned day, not Someday).
+ * Waiting in the Inbox: open, in the Inbox note, and not yet decided on (no planned day, not Someday).
  * A due date does not take it out; a task due today or earlier is also in Today.
  */
 export const inInbox = (t: Task) => !t.done && !!t.inInbox && !t.scheduled && !t.someday
@@ -241,7 +246,7 @@ export type TaskFilter = 'open' | 'inbox' | 'today' | 'upcoming' | 'anytime' | '
 
 /** The lists, in the order they are shown. The first six are the ones from Things. */
 export const TASK_FILTERS: [TaskFilter, string, string][] = [
-  ['inbox', 'Inbox', 'Captured and not yet decided on: in the Inbox notebook, with no planned day'],
+  ['inbox', 'Inbox', 'Captured and not yet decided on: in the Inbox note, with no planned day'],
   ['today', 'Today', 'Planned for today or earlier, or due today or earlier'],
   ['upcoming', 'Upcoming', 'Planned for a day after today'],
   ['anytime', 'Anytime', 'Everything you could do now: not planned for later, not someday, not waiting in the Inbox'],

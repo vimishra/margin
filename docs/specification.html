@@ -556,39 +556,15 @@ Each canvas card is markdown too.
 </ul>
 <h2 id="11-capture-templates-meetings-people">11. Capture, templates, meetings, people</h2>
 <h3 id="111-quick-capture">11.1 Quick capture</h3>
-<p>A small box with a text area and a destination selector. Enter saves, ⇧Enter adds a line, Tab cycles destinations, Esc closes.</p>
-<div class="table"><table><thead>
-<tr>
-<th>Destination</th>
-<th>Result</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Today's note (default)</td>
-<td>Appended to the page as <code>- **time** : text</code>, or as a card when today is a canvas. An empty trailing bullet left by the template is replaced. Text typed as a task (<code>- [ ] …</code>) is added as that task with no timestamp.</td>
-</tr>
-<tr>
-<td>Scratch</td>
-<td>A new scratch note</td>
-</tr>
-<tr>
-<td>Inbox</td>
-<td>A new note in the Inbox notebook, titled with the first line</td>
-</tr>
-<tr>
-<td>A note…</td>
-<td>Appended as a list item to a chosen note, at the end of a chosen heading's section or the end of the page. The note and heading are remembered. ⌥↓ picks another note.</td>
-</tr>
-</tbody>
-</table></div><p>The default destination and whether to add the time are settings. In the desktop app a global hotkey opens capture from any application.</p>
+<p>A small box with a text area. Enter saves, ⇧Enter adds a line, Esc closes. There is one destination, today's daily note: the text is appended to the page as <code>- **time** : text</code> (without the time when that setting is off), or as a card when today is a canvas. An empty trailing bullet left by the template is replaced. Text typed as a task (<code>- [ ] …</code>) is added as that task with no timestamp.</p>
+<p>Whether to add the time is a setting. In the desktop app a global hotkey opens capture from any application.</p>
 <p><strong>Quick task.</strong> The same box can be opened for a task (its own shortcut and global hotkey). A Note / Task switch at the top changes between the two; the shortcuts of either do the same while the box is open, and the text typed so far is kept.</p>
 <ul>
 <li>One line of the editor: a pasted line break becomes a space. The details are marked as labels as they are typed, as on a task line in a note.</li>
 <li>Suggestions: <code>&gt;</code> or <code>@due(</code> with a phrase offer dates as in <a href="#122-entering-details">section 12.2</a> (<code>&gt;some</code> offers someday); <code>P</code> after a space offers P1, P2, P3; <code>#</code> offers tags; <code>[[</code> offers notes. No slash commands.</li>
 <li>A line under the text shows the details read from it (when or Someday, due date, priority, tags), with dates typed in words already turned into dates.</li>
 <li>On save, a date phrase after <code>&gt;</code> (the longest run of up to three words that reads as a date, or <code>someday</code>) and inside <code>@due(…)</code> is replaced by the date; anything that is not a date is left as typed. The task is saved as <code>- [ ] &lt;text&gt;</code>.</li>
-<li>Destinations, cycled with Tab: <strong>Inbox</strong> (default): appended as the last line of the note titled <code>Tasks</code> in the Inbox notebook, which is created when it does not exist, so that a task with no planned day lands in the Inbox list (<a href="#124-the-lists">section 12.4</a>); <strong>Today's note</strong>: added as a capture to today's daily note (a task line, no timestamp; a card when today is a canvas).</li>
+<li>One destination: appended as the last line of the <strong>Inbox note</strong>, the note titled <code>Inbox</code> in the Inbox notebook, which is created empty when it does not exist. A task with no planned day is then in the Inbox list (<a href="#124-the-lists">section 12.4</a>); one with a day or Someday is in that list instead, and the line under the text says which before saving.</li>
 <li>Enter saves and closes; ⇧Enter saves and clears the box for another task; Esc closes an open suggestion list, otherwise the box.</li>
 </ul>
 <h3 id="112-templates">11.2 Templates</h3>
@@ -724,7 +700,7 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <tbody>
 <tr>
 <td>Inbox</td>
-<td>Not done, in a note in the Inbox notebook or a notebook inside it, no planned day, not Someday</td>
+<td>Not done, in the Inbox note, no planned day, not Someday</td>
 </tr>
 <tr>
 <td>Today</td>
@@ -767,8 +743,8 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <td>Not done</td>
 </tr>
 </tbody>
-</table></div><p>&quot;The Inbox notebook&quot; is the notebook named by the Inbox notebook setting (default <code>Inbox</code>), compared ignoring capitals and stray spaces, as macOS compares folder names; a notebook whose name only begins with the same word is not inside it. A note created in or moved into a notebook whose name differs from an existing one only in capitals goes into the existing one, under its spelling.</p>
-<p>Consequences that must hold: a planned day passing never makes a task overdue, it stays in Today until ticked; a task with only a future due date is in Anytime, unless it is in the Inbox; an Inbox task leaves the Inbox when it is given a planned day or Someday, or moved to a note outside the Inbox notebook, and nothing else is needed; an Inbox task due on or before <code>now</code> is in both the Inbox and Today; Today's tasks are also in Anytime; a Someday task with a due date appears in Today once that date arrives.</p>
+</table></div><p>&quot;The Inbox note&quot; is the note titled <code>Inbox</code> in the notebook named by the Inbox notebook setting (default <code>Inbox</code>), both compared ignoring capitals and stray spaces, as macOS compares folder names. Other notes in that notebook, and notebooks inside it, are not the Inbox. When other notes in the Inbox notebook hold open tasks, the Inbox list offers to move them all into the Inbox note (as Move to another note does, with one Undo). A note created in or moved into a notebook whose name differs from an existing one only in capitals goes into the existing one, under its spelling.</p>
+<p>Consequences that must hold: a planned day passing never makes a task overdue, it stays in Today until ticked; a task with only a future due date is in Anytime, unless it is in the Inbox; an Inbox task leaves the Inbox when it is given a planned day or Someday, or moved to another note, and nothing else is needed; an Inbox task due on or before <code>now</code> is in both the Inbox and Today; Today's tasks are also in Anytime; a Someday task with a due date appears in Today once that date arrives.</p>
 <p><strong>Order.</strong> Lists sort by the day a task next needs attention: a passed due date first; otherwise the earlier of its planned day (a passed planned day counts as today) and its due date; undated last. Then higher priority, then note, then position in the note. The Logbook sorts by done date, latest first, with undated last.</p>
 <h3 id="125-the-tasks-view">12.5 The Tasks view</h3>
 <ul>
@@ -834,7 +810,7 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 </tr>
 <tr>
 <td>New notes go to</td>
-<td>Current notebook, top level, Inbox</td>
+<td>Current notebook, top level</td>
 <td>Current</td>
 </tr>
 <tr>
@@ -1018,19 +994,9 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <td><code>People</code></td>
 </tr>
 <tr>
-<td>Capture goes to</td>
-<td>Today's note, Scratch, Inbox</td>
-<td>Today's note</td>
-</tr>
-<tr>
 <td>Add the time to captures</td>
 <td>on, off</td>
 <td>on</td>
-</tr>
-<tr>
-<td>Quick task saves to</td>
-<td>Inbox (Tasks note), Today's note</td>
-<td>Inbox</td>
 </tr>
 <tr>
 <td>Scratch notes expire after</td>
@@ -1599,8 +1565,8 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <ul>
 <li>Daily notes are created from the Daily template with placeholders filled for their own date.</li>
 <li>The journal shows all days, editable, loading more on scroll.</li>
-<li>Quick capture reaches all four destinations, and a typed task stays a task.</li>
-<li>Quick task offers dates, priorities and tags as it is typed, turns typed date words into dates on save, and reaches the Inbox's Tasks note and today's note.</li>
+<li>Quick capture adds to today's note, and a typed task stays a task.</li>
+<li>Quick task offers dates, priorities and tags as it is typed, turns typed date words into dates on save, and adds to the Inbox note.</li>
 <li>Meeting and person notes are created as in sections 11.3 and 11.4.</li>
 <li>Backlinks, unlinked mentions (with Link) and outgoing links are correct.</li>
 <li>Two panes work, with commands going to the active one.</li>

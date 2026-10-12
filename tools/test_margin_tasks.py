@@ -111,9 +111,9 @@ class SharedCases(unittest.TestCase):
         self.assertEqual(texts("open", "--note-tag", "meeting", "--priority", "p3"), ["Me: follow up"])
         self.assertEqual(texts("open", "--priority", "none", "--has-due", "--notebook", "Work/Meetings"), ["Sunday of this week", "Priya: send numbers #atlas"])  # planned for the 11th comes before due on the 12th
         self.assertEqual(texts("all", "--note", "lisbon", "--limit", "1"), ["Train tickets"])
-        # The Inbox notebook is a setting in the app, so the tool takes its name; another name means another inbox.
+        # The Inbox notebook is a setting in the app, so the tool takes its name; its note called Inbox is the inbox.
         self.assertEqual(texts("inbox", "--tag", "ops"), ["Captured, due today #ops"])
-        self.assertEqual(texts("inbox", "--inbox", "Inboxes elsewhere"), ["A notebook that only starts with the same word"])
+        self.assertEqual(texts("inbox", "--inbox", "Inboxes elsewhere"), ["The Inbox note of another notebook, title in capitals"])
 
     def test_other_outputs(self):
         paths = self.run_cli("overdue", "--paths").strip()

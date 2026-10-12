@@ -442,16 +442,9 @@ Every note has a second side: an unbounded board of cards.
 
 ### 11.1 Quick capture
 
-A small box with a text area and a destination selector. Enter saves, ⇧Enter adds a line, Tab cycles destinations, Esc closes.
+A small box with a text area. Enter saves, ⇧Enter adds a line, Esc closes. There is one destination, today's daily note: the text is appended to the page as `- **time** : text` (without the time when that setting is off), or as a card when today is a canvas. An empty trailing bullet left by the template is replaced. Text typed as a task (`- [ ] …`) is added as that task with no timestamp.
 
-| Destination | Result |
-| --- | --- |
-| Today's note (default) | Appended to the page as `- **time** : text`, or as a card when today is a canvas. An empty trailing bullet left by the template is replaced. Text typed as a task (`- [ ] …`) is added as that task with no timestamp. |
-| Scratch | A new scratch note |
-| Inbox | A new note in the Inbox notebook, titled with the first line |
-| A note… | Appended as a list item to a chosen note, at the end of a chosen heading's section or the end of the page. The note and heading are remembered. ⌥↓ picks another note. |
-
-The default destination and whether to add the time are settings. In the desktop app a global hotkey opens capture from any application.
+Whether to add the time is a setting. In the desktop app a global hotkey opens capture from any application.
 
 **Quick task.** The same box can be opened for a task (its own shortcut and global hotkey). A Note / Task switch at the top changes between the two; the shortcuts of either do the same while the box is open, and the text typed so far is kept.
 
@@ -459,7 +452,7 @@ The default destination and whether to add the time are settings. In the desktop
 - Suggestions: `>` or `@due(` with a phrase offer dates as in [section 12.2](#122-entering-details) (`>some` offers someday); `P` after a space offers P1, P2, P3; `#` offers tags; `[[` offers notes. No slash commands.
 - A line under the text shows the details read from it (when or Someday, due date, priority, tags), with dates typed in words already turned into dates.
 - On save, a date phrase after `>` (the longest run of up to three words that reads as a date, or `someday`) and inside `@due(…)` is replaced by the date; anything that is not a date is left as typed. The task is saved as `- [ ] <text>`.
-- Destinations, cycled with Tab: **Inbox** (default): appended as the last line of the note titled `Tasks` in the Inbox notebook, which is created when it does not exist, so that a task with no planned day lands in the Inbox list ([section 12.4](#124-the-lists)); **Today's note**: added as a capture to today's daily note (a task line, no timestamp; a card when today is a canvas).
+- One destination: appended as the last line of the **Inbox note**, the note titled `Inbox` in the Inbox notebook, which is created empty when it does not exist. A task with no planned day is then in the Inbox list ([section 12.4](#124-the-lists)); one with a day or Someday is in that list instead, and the line under the text says which before saving.
 - Enter saves and closes; ⇧Enter saves and clears the box for another task; Esc closes an open suggestion list, otherwise the box.
 
 ### 11.2 Templates
@@ -584,7 +577,7 @@ Given today's date `now`:
 
 | List | A task is in it when |
 | --- | --- |
-| Inbox | Not done, in a note in the Inbox notebook or a notebook inside it, no planned day, not Someday |
+| Inbox | Not done, in the Inbox note, no planned day, not Someday |
 | Today | Not done, and planned on or before `now`, or due on or before `now` |
 | Upcoming | Not done, and planned after `now` |
 | Anytime | Not done, not Someday, not planned after `now`, and not in the Inbox |
@@ -596,9 +589,9 @@ Given today's date `now`:
 | No date | Not done, no due date, no planned day, not Someday, not in the Inbox |
 | All open | Not done |
 
-"The Inbox notebook" is the notebook named by the Inbox notebook setting (default `Inbox`), compared ignoring capitals and stray spaces, as macOS compares folder names; a notebook whose name only begins with the same word is not inside it. A note created in or moved into a notebook whose name differs from an existing one only in capitals goes into the existing one, under its spelling.
+"The Inbox note" is the note titled `Inbox` in the notebook named by the Inbox notebook setting (default `Inbox`), both compared ignoring capitals and stray spaces, as macOS compares folder names. Other notes in that notebook, and notebooks inside it, are not the Inbox. When other notes in the Inbox notebook hold open tasks, the Inbox list offers to move them all into the Inbox note (as Move to another note does, with one Undo). A note created in or moved into a notebook whose name differs from an existing one only in capitals goes into the existing one, under its spelling.
 
-Consequences that must hold: a planned day passing never makes a task overdue, it stays in Today until ticked; a task with only a future due date is in Anytime, unless it is in the Inbox; an Inbox task leaves the Inbox when it is given a planned day or Someday, or moved to a note outside the Inbox notebook, and nothing else is needed; an Inbox task due on or before `now` is in both the Inbox and Today; Today's tasks are also in Anytime; a Someday task with a due date appears in Today once that date arrives.
+Consequences that must hold: a planned day passing never makes a task overdue, it stays in Today until ticked; a task with only a future due date is in Anytime, unless it is in the Inbox; an Inbox task leaves the Inbox when it is given a planned day or Someday, or moved to another note, and nothing else is needed; an Inbox task due on or before `now` is in both the Inbox and Today; Today's tasks are also in Anytime; a Someday task with a due date appears in Today once that date arrives.
 
 **Order.** Lists sort by the day a task next needs attention: a passed due date first; otherwise the earlier of its planned day (a passed planned day counts as today) and its due date; undated last. Then higher priority, then note, then position in the note. The Logbook sorts by done date, latest first, with undated last.
 
@@ -666,7 +659,7 @@ A settings window with a search box that finds any setting or shortcut by name, 
 | Setting | Values | Default |
 | --- | --- | --- |
 | Start page | Home, today's note, last note | Home |
-| New notes go to | Current notebook, top level, Inbox | Current |
+| New notes go to | Current notebook, top level | Current |
 | Inbox notebook | name | `Inbox` |
 | Sidebar sections shown | any of the 11 | all |
 | Week starts on | Auto, Sunday, Monday | Auto |
@@ -703,9 +696,7 @@ A settings window with a search box that finds any setting or shortcut by name, 
 | File meetings by date | date pattern, or empty | `YYYY/MMM` |
 | Link new meetings from today's note | on, off | on |
 | People notebook | name | `People` |
-| Capture goes to | Today's note, Scratch, Inbox | Today's note |
 | Add the time to captures | on, off | on |
-| Quick task saves to | Inbox (Tasks note), Today's note | Inbox |
 | Scratch notes expire after | days | 7 |
 | Scratch notebook | name | `Scratch` |
 | Notes folder | path (desktop: picker; restarts the app) | see section 3.1 |
@@ -902,8 +893,8 @@ A build meets this specification when all of these hold.
 
 - Daily notes are created from the Daily template with placeholders filled for their own date.
 - The journal shows all days, editable, loading more on scroll.
-- Quick capture reaches all four destinations, and a typed task stays a task.
-- Quick task offers dates, priorities and tags as it is typed, turns typed date words into dates on save, and reaches the Inbox's Tasks note and today's note.
+- Quick capture adds to today's note, and a typed task stays a task.
+- Quick task offers dates, priorities and tags as it is typed, turns typed date words into dates on save, and adds to the Inbox note.
 - Meeting and person notes are created as in sections 11.3 and 11.4.
 - Backlinks, unlinked mentions (with Link) and outgoing links are correct.
 - Two panes work, with commands going to the active one.

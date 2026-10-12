@@ -2,6 +2,22 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.14.0 (2026-10-12)
+
+One Inbox, for tasks.
+
+### Changed
+
+- **The tasks Inbox is one note:** the note called *Inbox* in the Inbox notebook. Its tasks with no planned day are the Inbox list; tasks in other notes of the notebook no longer count. As before, a task with a day is in Today or Upcoming rather than the Inbox.
+- **Quick task always adds to the Inbox note.** The destination choice and its setting are gone.
+- **Quick capture of a note always goes to today's note.** The Scratch, Inbox and "A note…" destinations and the "Quick capture saves to" setting are gone. Scratch notes are still made with New → Scratch note (⌘⌥N).
+- "New notes go to the Inbox notebook" is no longer offered; if it was chosen, new notes go to the notebook you are in.
+
+### Added
+
+- When other notes in the Inbox notebook still hold open tasks (such as the *Tasks* note earlier versions made), the Inbox list offers **Move them into Inbox**, with Undo.
+- Move to note can move several tasks at once, with one Undo.
+
 ## 1.13.1 (2026-10-12)
 
 ### Fixed
