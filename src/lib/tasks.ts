@@ -3,7 +3,8 @@
 // "P1", "P2", "P3" is the priority (P1 highest), ">date" the day to work on it, "@due(date)" the deadline.
 // ">someday" parks a task out of the active lists, and "@done(date)" records the day it was ticked.
 // The lists follow Things: a planned day is when a task starts, so it stays in Today until it is done;
-// only a missed deadline makes it overdue.
+// only a missed deadline makes it overdue. A task in the Inbox notebook with no planned day waits in the
+// Inbox list, out of Anytime, until it is given a day, Someday, or moved into a project's note.
 import type { Note } from '../types'
 import { addDays, parseYmd, today } from './util'
 import { parseDatePhrase } from './dates'
@@ -28,6 +29,8 @@ export interface Task {
   completed?: string
   /** Nearest heading above the task. */
   heading: string
+  /** In a note in the Inbox notebook (or a notebook inside it). Set by allTasks. */
+  inInbox?: boolean
 }
 
 export const TASK_LINE = /^(\s*(?:>\s*)*(?:[-*+]|\d+[.)])\s+\[)([ xX])(\]\s+)(.*)$/
@@ -156,15 +159,22 @@ export function tasksOf(note: Note): Task[] {
   return tasks
 }
 
+/** Whether a note's notebook is the Inbox notebook, or a notebook inside it. */
+export const inInboxFolder = (folder: string, inboxFolder: string) => !!inboxFolder && (folder === inboxFolder || folder.startsWith(inboxFolder + '/'))
+
 let lastNotes: Record<string, Note> | null = null
 let lastFolder = ''
+let lastInbox = ''
 let lastAll: Task[] = []
-/** Every task in every note, except the ones in templates. */
-export function allTasks(notes: Record<string, Note>, templatesFolder: string): Task[] {
-  if (notes === lastNotes && templatesFolder === lastFolder) return lastAll
-  lastAll = Object.values(notes).flatMap((n) => (n.folder === templatesFolder ? [] : tasksOf(n)))
+/** Every task in every note, except the ones in templates. Tasks in the Inbox notebook are marked `inInbox`. */
+export function allTasks(notes: Record<string, Note>, templatesFolder: string, inboxFolder = ''): Task[] {
+  if (notes === lastNotes && templatesFolder === lastFolder && inboxFolder === lastInbox) return lastAll
+  lastAll = Object.values(notes).flatMap((n) =>
+    n.folder === templatesFolder ? [] : inInboxFolder(n.folder, inboxFolder) ? tasksOf(n).map((t) => ({ ...t, inInbox: true })) : tasksOf(n),
+  )
   lastNotes = notes
   lastFolder = templatesFolder
+  lastInbox = inboxFolder
   return lastAll
 }
 
@@ -201,6 +211,12 @@ export const isOverdue = (t: Task, now = today()) => !t.done && !!t.due && t.due
 /** In Today: planned for today or an earlier day, or due today or earlier. */
 export const isToday = (t: Task, now = today()) => !t.done && ((!!t.scheduled && t.scheduled <= now) || (!!t.due && t.due <= now))
 
+/**
+ * Waiting in the Inbox: open, in the Inbox notebook, and not yet decided on (no planned day, not Someday).
+ * A due date does not take it out; a task due today or earlier is also in Today.
+ */
+export const inInbox = (t: Task) => !t.done && !!t.inInbox && !t.scheduled && !t.someday
+
 /** Planned for an earlier day and still not done, so carried into today. */
 export const isCarried = (t: Task, now = today()) => !t.done && !!t.scheduled && t.scheduled < now && !isOverdue(t, now) && t.due !== now
 
@@ -214,19 +230,20 @@ export function weekRange(date: string, weekStart: number): [string, string] {
   return [from, addDays(from, 6)]
 }
 
-export type TaskFilter = 'open' | 'today' | 'upcoming' | 'anytime' | 'someday' | 'week' | 'month' | 'overdue' | 'undated' | 'done'
+export type TaskFilter = 'open' | 'inbox' | 'today' | 'upcoming' | 'anytime' | 'someday' | 'week' | 'month' | 'overdue' | 'undated' | 'done'
 
-/** The lists, in the order they are shown. The first five are the ones from Things. Keys 1 to 9 and 0 pick them. */
+/** The lists, in the order they are shown. The first six are the ones from Things. */
 export const TASK_FILTERS: [TaskFilter, string, string][] = [
+  ['inbox', 'Inbox', 'Captured and not yet decided on: in the Inbox notebook, with no planned day'],
   ['today', 'Today', 'Planned for today or earlier, or due today or earlier'],
   ['upcoming', 'Upcoming', 'Planned for a day after today'],
-  ['anytime', 'Anytime', 'Everything you could do now: not planned for later and not someday'],
+  ['anytime', 'Anytime', 'Everything you could do now: not planned for later, not someday, not waiting in the Inbox'],
   ['someday', 'Someday', 'Parked for later, kept out of the other lists'],
   ['done', 'Logbook', 'Ticked tasks, most recently done first'],
   ['overdue', 'Overdue', 'Past the due date'],
   ['week', 'This week', 'Due or planned for this week'],
   ['month', 'Next 30 days', 'Due or planned from today to 30 days ahead'],
-  ['undated', 'No date', 'No due date, no planned day and not someday'],
+  ['undated', 'No date', 'No due date, no planned day, not someday and not waiting in the Inbox'],
   ['open', 'All open', 'Every task that is not ticked'],
 ]
 
@@ -238,8 +255,10 @@ export function matchesFilter(t: Task, filter: TaskFilter, weekStart: number, no
   switch (filter) {
     case 'today':
       return isToday(t, now)
+    case 'inbox':
+      return inInbox(t)
     case 'anytime':
-      return !t.someday && !(t.scheduled && t.scheduled > now)
+      return !t.someday && !(t.scheduled && t.scheduled > now) && !inInbox(t)
     case 'someday':
       return t.someday
     case 'week':
@@ -253,7 +272,7 @@ export function matchesFilter(t: Task, filter: TaskFilter, weekStart: number, no
     case 'upcoming':
       return !!t.scheduled && t.scheduled > now
     case 'undated':
-      return !taskDate(t) && !t.someday
+      return !taskDate(t) && !t.someday && !inInbox(t)
     default:
       return true
   }

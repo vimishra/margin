@@ -356,7 +356,7 @@ export function SettingsModal() {
                 <Row label="New notes go to" hint="Where a new note is created when you press New note.">
                   <Select value={s.newNoteFolder} onChange={set('newNoteFolder')} options={[['current', 'The notebook I am in'], ['root', 'Top level, no notebook'], ['inbox', 'The Inbox notebook']]} />
                 </Row>
-                <Row label="Inbox notebook" hint="Used for quick captures and, if chosen above, new notes.">
+                <Row label="Inbox notebook" hint="Used for quick captures and, if chosen above, new notes. Tasks in it with no planned day make the Inbox list in Tasks, and stay out of Anytime until you decide on them.">
                   <Text value={s.inboxFolder} onChange={set('inboxFolder')} />
                 </Row>
                 <Row label="Week starts on" hint="For the calendar.">

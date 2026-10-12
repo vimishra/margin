@@ -181,7 +181,7 @@ Top to bottom:
 2. A search button that opens the palette, showing its shortcut.
 3. **New note** button; a **New…** menu (Note, Canvas, Scratch note, Meeting note, Person note, Research note, From a template…, Notebook); a **Quick capture** button.
 4. Navigation: Home, Today, Journal, Calendar, All notes (with count), Tasks (with the Today count), Research (count), Scratch (count). Each entry's icon has its own colour, kept whether or not the entry is selected; notebook icons share one colour. Note icons are coloured by kind wherever notes are listed: ordinary notes blue, daily notes amber, research notes purple, scratch notes brown, canvas notes teal.
-5. Under Tasks: Today, Upcoming, Anytime, Someday, Logbook, and Overdue only while something is overdue, each with an icon in its own colour and a count (no count for Logbook); then the user's saved filters.
+5. Under Tasks: Inbox, Today, Upcoming, Anytime, Someday, Logbook, and Overdue only while something is overdue, each with an icon in its own colour and a count (no count for Logbook); then the user's saved filters.
 6. A small month calendar that can be folded. Days with a daily note have a dot; today is ringed; clicking a day opens its note.
 7. **Pinned** notes, alphabetical.
 8. **Recent**: the five notes opened most recently, newest first.
@@ -459,7 +459,7 @@ The default destination and whether to add the time are settings. In the desktop
 - Suggestions: `>` or `@due(` with a phrase offer dates as in [section 12.2](#122-entering-details) (`>some` offers someday); `P` after a space offers P1, P2, P3; `#` offers tags; `[[` offers notes. No slash commands.
 - A line under the text shows the details read from it (when or Someday, due date, priority, tags), with dates typed in words already turned into dates.
 - On save, a date phrase after `>` (the longest run of up to three words that reads as a date, or `someday`) and inside `@due(…)` is replaced by the date; anything that is not a date is left as typed. The task is saved as `- [ ] <text>`.
-- Destinations, cycled with Tab: **Inbox** (default): appended as the last line of the note titled `Tasks` in the Inbox notebook, which is created when it does not exist; **Today's note**: added as a capture to today's daily note (a task line, no timestamp; a card when today is a canvas).
+- Destinations, cycled with Tab: **Inbox** (default): appended as the last line of the note titled `Tasks` in the Inbox notebook, which is created when it does not exist, so that a task with no planned day lands in the Inbox list ([section 12.4](#124-the-lists)); **Today's note**: added as a capture to today's daily note (a task line, no timestamp; a card when today is a canvas).
 - Enter saves and closes; ⇧Enter saves and clears the box for another task; Esc closes an open suggestion list, otherwise the box.
 
 ### 11.2 Templates
@@ -584,31 +584,35 @@ Given today's date `now`:
 
 | List | A task is in it when |
 | --- | --- |
+| Inbox | Not done, in a note in the Inbox notebook or a notebook inside it, no planned day, not Someday |
 | Today | Not done, and planned on or before `now`, or due on or before `now` |
 | Upcoming | Not done, and planned after `now` |
-| Anytime | Not done, not Someday, and not planned after `now` |
+| Anytime | Not done, not Someday, not planned after `now`, and not in the Inbox |
 | Someday | Not done, and marked Someday |
 | Logbook | Done |
 | Overdue | Not done, and due before `now` |
 | This week | Not done, and due or planned within the current week |
 | Next 30 days | Not done, and due or planned from `now` to `now` + 30 days inclusive |
-| No date | Not done, no due date, no planned day, not Someday |
+| No date | Not done, no due date, no planned day, not Someday, not in the Inbox |
 | All open | Not done |
 
-Consequences that must hold: a planned day passing never makes a task overdue, it stays in Today until ticked; a task with only a future due date is in Anytime; Today's tasks are also in Anytime; a Someday task with a due date appears in Today once that date arrives.
+"The Inbox notebook" is the notebook named by the Inbox notebook setting (default `Inbox`); a notebook whose name only begins with the same word is not inside it.
+
+Consequences that must hold: a planned day passing never makes a task overdue, it stays in Today until ticked; a task with only a future due date is in Anytime, unless it is in the Inbox; an Inbox task leaves the Inbox when it is given a planned day or Someday, or moved to a note outside the Inbox notebook, and nothing else is needed; an Inbox task due on or before `now` is in both the Inbox and Today; Today's tasks are also in Anytime; a Someday task with a due date appears in Today once that date arrives.
 
 **Order.** Lists sort by the day a task next needs attention: a passed due date first; otherwise the earlier of its planned day (a passed planned day counts as today) and its due date; undated last. Then higher priority, then note, then position in the note. The Logbook sorts by done date, latest first, with undated last.
 
 ### 12.5 The Tasks view
 
 - A header with the open and overdue counts, and a **Save filter** button.
-- A row of chips, one per list in the order of the table above, each with its count (none for the Logbook). Keys 1 to 9 and 0 select them in order.
+- A row of chips, one per list in the order of the table above, each with its count (none for the Logbook). Keys: 1 Inbox, 2 Today, 3 Upcoming, 4 Anytime, 5 Someday, 6 Logbook, 7 Overdue, 8 This week, 9 No date, 0 All open; Next 30 days has none.
 - A narrow-down box: words must all appear in the task text or its note's title; `#tag` requires that tag or a nested one; `p1`, `p2`, `p3` require that priority or higher. Tag chips below it toggle a tag.
 - **From:** All, Notes (not daily notes), Daily (only daily notes).
 - **Group by:** Date (Overdue, Today, Tomorrow, Later this week, Later, No date, Someday; in the Logbook, by done date, latest first, with "Day not recorded" last), Project (each note's tasks together under its notebook, in written order under their headings, with a progress circle; daily notes kept as one group), Priority, None. Groups fold.
-- **A row** shows a checkbox, the priority badge, the task text rendered as inline markdown, date labels, and the note and heading it comes from. On hover: buttons for priority, when and due date. Clicking the row opens its note at that line; ⌘-click opens it to the side at that line.
+- **A row** shows a checkbox, the priority badge, the task text rendered as inline markdown, date labels, and the note and heading it comes from. On hover: buttons for priority, when, due date, and move to another note. Clicking the row opens its note at that line; ⌘-click opens it to the side at that line.
+- **Move to another note:** opens the palette listing notes (not scratch notes or templates, most recently edited first, with their notebook), filtered as you type. Choosing one removes the task's line, with the indented lines under it, from its note and adds them at the end of the chosen note's page, at the left margin with the lines under it keeping their indent relative to it. A message offers Undo, which restores both notes if neither has changed since.
 - **Bulk move:** when overdue tasks are shown, "Move all…" opens the date picker and gives each a new due date, with Undo.
-- **Keys** on the highlighted row: ↑ ↓ (J K), Home, End, Space or X to tick, T for today, S for when, D for due, P for priority, Enter to open, ⇧Enter to open to the side, `/` to focus the box (↓ or Enter returns to the list). After a menu or picker closes, focus returns to the list. A line at the bottom lists the keys.
+- **Keys** on the highlighted row: ↑ ↓ (J K), Home, End, Space or X to tick, T for today, S for when, D for due, P for priority, M to move to another note, Enter to open, ⇧Enter to open to the side, `/` to focus the box (↓ or Enter returns to the list). After a menu or picker closes, focus returns to the list. A line at the bottom lists the keys.
 
 ### 12.6 Saved filters
 
@@ -809,6 +813,7 @@ Every action below can be reassigned or cleared in Settings → Shortcuts, which
 | Selected row | about `#dfe1e7` | about `#393b3d` |
 | Default accent | `#255fb3` | `#5b9df0` |
 | Danger | `#e0345a` | `#f0577a` |
+| Inbox | `#1b89f0` | `#3d9cf3` |
 | Today / Upcoming / Anytime / Someday / Logbook | `#fed301` / `#d92f5c` / `#39a69c` / `#cbbf7f` / `#4dbc61` | `#fed402` / `#d73d67` / `#4eb0a4` / `#d1c68a` / `#4dbd61` |
 
 - **Native behaviour:** the cursor is the arrow over every control and only becomes the pointing hand over links inside notes. Dividing lines are 1 px, or 0.5 px on high-density screens with a slightly stronger colour. Hover shading is faint (about 5% tint). When the window is not the front window, the selected sidebar row and tab fall back to the hover tint, coloured icons desaturate and the primary button dims. Menus and dialogs appear with a short (0.12 s) fade and slight scale, disabled when the system asks for reduced motion.
@@ -841,13 +846,13 @@ Every action below can be reassigned or cleared in Settings → Shortcuts, which
 margin-tasks [LIST] [options]
 ```
 
-- **LIST:** `today` (default), `upcoming`, `anytime`, `someday`, `logbook` (alias `done`), `overdue`, `week`, `month`, `undated` (alias `nodate`), `open`, `all`.
+- **LIST:** `inbox`, `today` (default), `upcoming`, `anytime`, `someday`, `logbook` (alias `done`), `overdue`, `week`, `month`, `undated` (alias `nodate`), `open`, `all`.
 - **Finding the folder:** `--vault PATH`, else `$MARGIN_VAULT`, else the desktop app's saved choice, else `~/Documents/Margin`.
-- **Reading files:** skip hidden entries and the top-level attachments folder; read `id`, `title`, `type` and `tags` from frontmatter without a YAML library; leave out the Templates notebook (`--templates NAME` to change).
+- **Reading files:** skip hidden entries and the top-level attachments folder; read `id`, `title`, `type` and `tags` from frontmatter without a YAML library; leave out the Templates notebook (`--templates NAME` to change); the Inbox notebook is `Inbox` unless `--inbox NAME` is given, since the app's setting is not stored in the notes folder.
 - **Narrowing** (all must hold): `--tag TAG` (repeatable; matches nested tags), `--note-tag TAG`, `--priority p1|p2|p3|none` (that level or higher; `--exact-priority` for only that level), `--due-before|after|on DAY`, `--planned-before|after|on DAY`, `--done-before|after|on DAY`, `--has-due`, `--no-due`, `--notebook NAME` (and those inside it), `--note TEXT` (title contains), `--source all|notes|daily`, `-q TEXT` (the Tasks view's narrow-down syntax).
 - **DAY:** `YYYY-MM-DD`, `today`, `tomorrow`, `yesterday`, `+N`, `-N`, or a weekday name meaning the next one.
 - **Output:** a plain listing by default (checkbox, priority, text, dates, note and heading; colour when writing to a terminal); `--json`; `--csv`; `--paths` (`path:line: [ ] task`); `--format TEMPLATE` with the JSON field names; `--count`.
-- **JSON fields:** `text`, `done`, `priority`, `tags`, `planned`, `someday`, `due`, `done_on`, `overdue`, `in_today`, `note`, `notebook`, `note_type`, `note_tags`, `heading`, `path`, `relpath`, `line` (1-based, in the file), `raw`.
+- **JSON fields:** `text`, `done`, `priority`, `tags`, `planned`, `someday`, `due`, `done_on`, `overdue`, `in_today`, `in_inbox`, `note`, `notebook`, `note_type`, `note_tags`, `heading`, `path`, `relpath`, `line` (1-based, in the file), `raw`.
 - **Order:** `--sort urgency|due|planned|priority|note|done`, `--reverse`, `--limit N`, `--group none|date|note|notebook|priority`.
 - **Other:** `--today DAY` to pretend it is another day, `--week-start sunday|monday`, `--no-color`, `--version`, `--help`.
 - **Exit codes:** 0 on success, 1 when the folder cannot be found or read, 2 for a bad argument.
@@ -912,6 +917,7 @@ A build meets this specification when all of these hold.
 - Saved filters appear in the sidebar with live counts.
 - Unticked Top 3 items move to the next day's note when it is created.
 - The command-line tool gives the same lists as the app for the same folder and date.
+- A task captured to the Inbox with no day is in the Inbox list and not in Anytime; planning it, parking it or moving it into another note takes it out; Move to another note carries the lines under the task and can be undone.
 
 **App**
 

@@ -122,12 +122,12 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 <tr>
 <td>End of day, 2 minutes</td>
 <td>Read down today's Log once</td>
-<td>Tick what is done; leave the rest</td>
+<td>Tick what is done; empty the Inbox; leave the rest</td>
 </tr>
 <tr>
 <td>Weekly, 15 minutes</td>
 <td>Skim the week, refresh people notes, empty Scratch</td>
-<td>Clear Overdue, plan from Upcoming and Anytime, catch undated tasks</td>
+<td>Empty the Inbox, clear Overdue, plan from Upcoming and Anytime, catch undated tasks</td>
 </tr>
 <tr>
 <td>Monthly, 20 minutes</td>
@@ -303,7 +303,7 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 </table></div><hr>
 <h1 id="part-2-tasks">Part 2: Tasks</h1>
 <h2 id="how-tasks-work">How tasks work</h2>
-<p>Four ideas carry this half.</p>
+<p>Five ideas carry this half.</p>
 <ol>
 <li><strong>A task is a checkbox, and it lives where it came from.</strong> An action from a meeting stays in that meeting's note. You never copy tasks into a list; the Tasks view and today's note gather them for you.</li>
 <li><strong>A task has two dates, and they mean different things.</strong>
@@ -313,12 +313,13 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 </ul>
 </li>
 <li><strong>Someday is a parking place.</strong> A task marked Someday stays out of Today, Upcoming and Anytime until you give it a day.</li>
+<li><strong>The Inbox is for things you have not decided on yet.</strong> A task captured with Quick task, or written in a note in the Inbox notebook, waits in the Inbox list and stays out of Anytime. It leaves the Inbox when you give it a day, park it in Someday, or move it into a project's note. Capturing is quick because deciding happens later, once a day.</li>
 <li><strong>The Top 3 is today's commitment.</strong> It is a short checklist at the top of the daily note, and what you do not finish moves to the next day by itself.</li>
 </ol>
 <h2 id="tasks-writing-one">Tasks: writing one</h2>
 <ul>
 <li><strong>In a note:</strong> press ⌘⇧9 on a line, or type <code>/task</code>, or write <code>- [ ] </code> yourself.</li>
-<li><strong>From anywhere:</strong> ⌘⇧C and start the line with <code>- [ ] </code>. It goes into today's note as a task.</li>
+<li><strong>From anywhere:</strong> Quick task, ⌘⌥C (or ⌃⌥T from another app). Type the task, with <code>&gt;fri</code>, <code>@due(mon)</code>, <code>P1</code> or <code>#tag</code> if you already know them, and press Enter. With no day it goes to the Inbox; with a day it goes straight to Today or Upcoming.</li>
 </ul>
 <p>Then add only the details the task needs. With the cursor on the task:</p>
 <div class="table"><table><thead>
@@ -350,7 +351,7 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 <td>To gather tasks across notes</td>
 </tr>
 </tbody>
-</table></div><p>Most tasks need none of these. A task with no dates is in Anytime: something you could do now.</p>
+</table></div><p>Most tasks need none of these. A task with no dates is in Anytime, something you could do now, unless it is in the Inbox, where it waits for you to decide.</p>
 <h2 id="tasks-every-morning">Tasks: every morning</h2>
 <ol>
 <li><strong>Read the &quot;Tasks for this day&quot; panel</strong> at the top of today's note (⌘J or ⌘D). It lists, from every note:
@@ -361,7 +362,7 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 </ul>
 </li>
 <li><strong>Deal with each overdue task.</strong> Do one of three things: tick it, give it a new due date, or decide it is not happening and delete the line. Do not leave it overdue.</li>
-<li><strong>Look ahead: ⌘⇧T, then 2</strong> for Upcoming. If anything there needs to start today, highlight it and press <strong>T</strong>.</li>
+<li><strong>Look ahead: ⌘⇧T, then 3</strong> for Upcoming. If anything there needs to start today, highlight it and press <strong>T</strong>.</li>
 <li><strong>Settle the Top 3.</strong> In today's note, the Top 3 should hold at most three things that would make today a success. Items carried over from yesterday count. If there are more than three, push the extras to a later day: cursor on the line, ⌘⇧S, pick a day.</li>
 </ol>
 <h2 id="tasks-during-the-day">Tasks: during the day</h2>
@@ -385,17 +386,33 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 <p>In a 1:1, write actions the same way under that day's entry in the person's note.</p>
 <h2 id="tasks-end-of-the-day">Tasks: end of the day</h2>
 <ol>
-<li><strong>Tick what you finished,</strong> in the Top 3 and in the panel.</li>
-<li><strong>Leave unfinished Top 3 items alone.</strong> They move into tomorrow's note when it is created.</li>
-<li><strong>Leave everything else alone too.</strong> A planned task you did not get to stays in Today tomorrow.</li>
-<li><strong>Empty the Inbox.</strong> Open the Tasks note in the Inbox notebook, where Quick task puts things: give each task a day or Someday, or move it into its project's note. Anything you cannot decide on can wait for the weekly review.</li>
+<li>
+<p><strong>Tick what you finished,</strong> in the Top 3 and in the panel.</p>
+</li>
+<li>
+<p><strong>Leave unfinished Top 3 items alone.</strong> They move into tomorrow's note when it is created.</p>
+</li>
+<li>
+<p><strong>Leave everything else alone too.</strong> A planned task you did not get to stays in Today tomorrow.</p>
+</li>
+<li>
+<p><strong>Empty the Inbox: ⌘⇧T, then 1.</strong> For each task, decide:</p>
+<ul>
+<li>it has a day: <strong>S</strong> and pick it (<strong>T</strong> for today)</li>
+<li>it is for some day, not soon: <strong>S</strong>, then Someday</li>
+<li>it belongs to a project: <strong>M</strong> and choose the project's note</li>
+<li>it is done, or not happening: tick it, or delete the line</li>
+</ul>
+<p>Anything you cannot decide on can stay for the weekly review, but no longer than that.</p>
+</li>
 </ol>
 <h2 id="tasks-every-week">Tasks: every week</h2>
 <p>This is the review that keeps the lists trustworthy. Open the Tasks view: ⌘⇧T.</p>
 <ol>
-<li><strong>Clear what is overdue: press 6.</strong> For each task: do it, give it a new date, or delete it. To push a batch to one day, use <strong>Move all…</strong>.</li>
-<li><strong>Read what is coming: press 2</strong> for Upcoming.</li>
-<li><strong>Plan the week: press 3</strong> for Anytime, which is everything you could start now.
+<li><strong>Empty the Inbox: press 1,</strong> as at the end of a day. Nothing should be left in it after the review.</li>
+<li><strong>Clear what is overdue: press 7.</strong> For each task: do it, give it a new date, or delete it. To push a batch to one day, use <strong>Move all…</strong>.</li>
+<li><strong>Read what is coming: press 3</strong> for Upcoming.</li>
+<li><strong>Plan the week: press 4</strong> for Anytime, which is everything you could start now.
 <ul>
 <li>For each thing you intend to do this week, press S and give it a day.</li>
 <li>For each thing you are not going to do soon, press S and choose Someday.</li>
@@ -405,8 +422,8 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 </ol>
 <h2 id="tasks-every-month">Tasks: every month</h2>
 <ol>
-<li><strong>Review Someday: ⌘⇧T, then 4.</strong> For each item: give it a real day, leave it, or delete it. This list is only useful if it is short enough to read.</li>
-<li><strong>Read the Logbook: press 5,</strong> grouped by date. Scan what you finished this month. It is the easiest source for a status update or a review.</li>
+<li><strong>Review Someday: ⌘⇧T, then 5.</strong> For each item: give it a real day, leave it, or delete it. This list is only useful if it is short enough to read.</li>
+<li><strong>Read the Logbook: press 6,</strong> grouped by date. Scan what you finished this month. It is the easiest source for a status update or a review.</li>
 <li><strong>Close finished projects.</strong> Group the Tasks view by Project. A note whose tasks are all done or all stale is a project that has ended: tick or delete the leftovers.</li>
 <li><strong>Check your saved filters.</strong> Remove the ones you no longer open.</li>
 </ol>
@@ -420,34 +437,44 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 </thead>
 <tbody>
 <tr>
+<td>What you captured and have not sorted</td>
+<td>Inbox</td>
+<td>1</td>
+</tr>
+<tr>
 <td>What to do today</td>
 <td>Today</td>
-<td>1</td>
+<td>2</td>
 </tr>
 <tr>
 <td>What starts later</td>
 <td>Upcoming</td>
-<td>2</td>
+<td>3</td>
 </tr>
 <tr>
 <td>What you could start now</td>
 <td>Anytime</td>
-<td>3</td>
+<td>4</td>
 </tr>
 <tr>
 <td>What is parked</td>
 <td>Someday</td>
-<td>4</td>
+<td>5</td>
 </tr>
 <tr>
 <td>What you finished</td>
 <td>Logbook</td>
-<td>5</td>
+<td>6</td>
 </tr>
 <tr>
 <td>What you missed</td>
 <td>Overdue</td>
-<td>6</td>
+<td>7</td>
+</tr>
+<tr>
+<td>What is on this week</td>
+<td>This week</td>
+<td>8</td>
 </tr>
 <tr>
 <td>What has no plan</td>
@@ -460,7 +487,7 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 <td>0</td>
 </tr>
 </tbody>
-</table></div><p><strong>From a terminal or a script:</strong> <code>margin-tasks</code> prints the same lists, for example <code>margin-tasks today</code> or <code>margin-tasks overdue --count</code>. Install it from Help → Command-Line Tool…; it goes into <code>~/.local/bin</code> and needs no password. The user guide lists every option.</p>
+</table></div><p><strong>From a terminal or a script:</strong> <code>margin-tasks</code> prints the same lists, for example <code>margin-tasks today</code>, <code>margin-tasks inbox</code> or <code>margin-tasks overdue --count</code>. Install it from Help → Command-Line Tool…; it goes into <code>~/.local/bin</code> and needs no password. The user guide lists every option.</p>
 <p>To see one project's tasks, group by Project. To see one topic across projects, type its <code>#tag</code> in the narrow-down box, and save it as a filter if you will want it again.</p>
 <h2 id="tasks-keys">Tasks: keys</h2>
 <p>From anywhere: Quick task, ⌘⌥C (⌃⌥T from another app).</p>
@@ -528,6 +555,10 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 <tr>
 <td>Priority</td>
 <td>P</td>
+</tr>
+<tr>
+<td>Move it into another note (a project)</td>
+<td>M</td>
 </tr>
 <tr>
 <td>Open it in its note</td>

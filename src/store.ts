@@ -7,7 +7,7 @@ import { desktop } from './desktop'
 import type { Note, NotePatch, NoteType, Route } from './types'
 import { appendCard } from './lib/canvas'
 import { clock, displayTitle, isYmd, local, today, parseYmd, ymd, dailyLabel } from './lib/util'
-import { rewriteTask, shortDate, withDetails, type SavedTaskView, type Task, type TaskView } from './lib/tasks'
+import { TASK_LINE, rewriteTask, shortDate, withDetails, type SavedTaskView, type Task, type TaskView } from './lib/tasks'
 
 export interface Toast {
   id: number
@@ -226,7 +226,7 @@ export function fontCss(family: string, mono = false): string {
   return `"${family.replace(/["\\]/g, '')}", ${fallback}`
 }
 
-export type PaletteState = null | { mode: 'search' | 'move' | 'template' | 'outline' | 'tag'; noteId?: string; query?: string }
+export type PaletteState = null | { mode: 'search' | 'move' | 'template' | 'outline' | 'tag' | 'moveTask'; noteId?: string; query?: string; task?: Task }
 
 interface State {
   loaded: boolean
@@ -1131,14 +1131,17 @@ export async function captureTask(raw: string, target: TaskCaptureTarget) {
   toast(`Task added to ${folder} › ${INBOX_TASKS_TITLE}`, { label: 'Open', run: () => openNote(note.id) })
 }
 
-/** Add text as a list item to a note, under `heading` or at the end of the page. Where it went: the line, or -1 for the end. Null when there was nothing to add. */
-function appendToNote(note: Note, text: string, heading: string): number | null {
+/**
+ * Add text as a list item to a note, under `heading` or at the end of the page. With `asIs`, the lines go in
+ * exactly as given. Where it went: the line, or -1 for the end. Null when there was nothing to add.
+ */
+function appendToNote(note: Note, text: string, heading: string, asIs = false): number | null {
   const id = note.id
-  const body = text.trim()
-  if (!body) return null
+  const body = asIs ? text.replace(/\n+$/, '') : text.trim()
+  if (!body.trim()) return null
   const [head, ...rest] = body.split('\n')
   // Already a list item or a task: keep it as typed.
-  const entry = [/^\s*([-*+]|\d+[.)])\s/.test(head) ? head : `- ${head}`, ...rest.map((l) => '  ' + l)]
+  const entry = asIs ? body.split('\n') : [/^\s*([-*+]|\d+[.)])\s/.test(head) ? head : `- ${head}`, ...rest.map((l) => '  ' + l)]
   const idx = note.content.indexOf('\n\n<!-- canvas -->')
   const page = idx < 0 ? note.content : note.content.slice(0, idx)
   const tail = idx < 0 ? '' : note.content.slice(idx)
@@ -1185,6 +1188,40 @@ export function deleteTaskView(id: string) {
   const route = get().route
   if (route.name === 'tasks' && route.view === `s:${id}`) go({ name: 'tasks' })
   toast(`Removed the filter “${view.name}”`, { label: 'Undo', run: () => setSetting('taskViews', [...get().settings.taskViews, view]) })
+}
+
+/**
+ * Move a task into another note, as Things moves a to-do into a project: its line, and the indented lines
+ * under it (notes, sub-tasks), are taken out of its note and added at the end of the other one's page.
+ */
+export function moveTaskToNote(task: Task, targetId: string) {
+  const s = get()
+  const source = s.notes[task.noteId]
+  const target = s.notes[targetId]
+  if (!source || !target || source.id === target.id) return
+  const lines = source.content.split('\n')
+  const m = TASK_LINE.exec(lines[task.line] ?? '')
+  if (!m || m[4] !== task.raw) return toast('That task has changed since this list was drawn. Try again.')
+  const indent = /^\s*/.exec(lines[task.line])![0].length
+  let end = task.line + 1
+  while (end < lines.length && lines[end].trim() && /^\s*/.exec(lines[end])![0].length > indent) end++
+  // Written at the left edge in the new note; the lines under it keep their indent relative to it.
+  const block = lines.slice(task.line, end).map((l) => l.slice(Math.min(indent, /^\s*/.exec(l)![0].length)))
+  const before = { source: source.content, target: target.content }
+  lines.splice(task.line, end - task.line)
+  updateNote(source.id, { content: lines.join('\n') })
+  appendToNote(get().notes[target.id] ?? target, block.join('\n'), '', true)
+  const after = { source: get().notes[source.id]?.content, target: get().notes[target.id]?.content }
+  toast(`Moved to ${displayTitle(target)}`, {
+    label: 'Undo',
+    run: () => {
+      // Only put things back if neither note has been changed since.
+      const now = get().notes
+      if (now[source.id]?.content !== after.source || now[target.id]?.content !== after.target) return toast('Those notes have changed since; nothing was undone.')
+      updateNote(source.id, { content: before.source })
+      updateNote(target.id, { content: before.target })
+    },
+  })
 }
 
 /** Move several tasks to one day. For each, the date that made it late is the one changed. */

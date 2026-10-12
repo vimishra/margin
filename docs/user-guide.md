@@ -61,7 +61,8 @@ Everything the app does, at a glance. Each heading links to the section that exp
 **[Tasks](#tasks)**
 
 - Any checkbox in any note is a task, with an optional priority, planned day, due date and tags
-- A Tasks view that gathers them all: Today, Upcoming, Anytime, Someday, Logbook, Overdue and more
+- A Tasks view that gathers them all: Inbox, Today, Upcoming, Anytime, Someday, Logbook, Overdue and more
+- An Inbox, as in Things: captured tasks wait there until you give them a day or move them into a project
 - Filters by words, tag and priority; grouping by date, project or priority; and filters you save to the sidebar
 - Today's tasks and anything overdue shown at the top of the daily note
 - A Top 3 for each day, whose unfinished items move to the next day
@@ -457,9 +458,10 @@ You do not have to pick a suggestion: when the task is saved, `>fri` and `@due(n
 
 - **Enter** saves the task and closes the box. **⇧Enter** saves it and keeps the box open for the next one.
 - **Tab** chooses where it goes: **Inbox** (the default, a note called *Tasks* in your Inbox notebook, made the first time) or **Today's note** (added like any capture: at the end of the page, or as a card when today is on the canvas). Settings → Capture & scratch → **Quick task saves to** sets the one it opens with.
+- A task sent to the Inbox with no day waits in the **Inbox** list until you decide on it (see [The Inbox](#the-inbox)). If you typed a day (`>fri`) or Someday, it goes straight to Today, Upcoming or Someday instead.
 - Esc closes a suggestion list first, then the box.
 
-Tasks in the Inbox's Tasks note show in the Tasks view like any other: group by Project to see them together under the Inbox notebook, then move or plan them.
+Captured tasks appear in **Tasks → Inbox**, where you sort them: see [The Inbox](#the-inbox).
 
 **Scratch notes** (⌘⌥N) are for things you need for a few days. They expire after a week and move to the trash. Each one shows how long it has left, with buttons to extend it or **Keep** it as a normal note.
 
@@ -591,6 +593,7 @@ The lists work the way they do in Things 3:
 - A **planned day** is the day a task *starts*. Until then it waits in Upcoming; from that day on it is in Today, and it stays there until you tick it. It never becomes overdue.
 - A **due date** is a real deadline. Only a missed due date makes a task overdue.
 - **Someday** parks a task. It is kept out of Today, Upcoming and Anytime until you give it a day.
+- The **Inbox** holds what you have captured but not decided on: tasks in the Inbox notebook with no planned day. They stay out of Anytime until you give them a day or Someday, or move them into a project's note.
 - A **project** is a note, and an **area** is the notebook it is in. Headings in the note divide the project, as headings do in Things.
 
 ### Details on a task
@@ -630,12 +633,12 @@ In the editor the details show as small labels. A due date turns red once it has
 
 **Tasks** in the sidebar (⌘⇧T) gathers every checkbox from every note. Templates are left out.
 
-- **Lists** across the top: first the ones from Things, Today, Upcoming, Anytime, Someday and Logbook; then Overdue, This week, Next 30 days, No date and All open. Each shows its count (except the Logbook). Keys 1 to 9 and 0 switch between them, in that order.
+- **Lists** across the top: first the ones from Things, Inbox, Today, Upcoming, Anytime, Someday and Logbook; then Overdue, This week, Next 30 days, No date and All open. Each shows its count (except the Logbook). Keys 1 to 6 pick the Things lists in that order; 7 is Overdue, 8 This week, 9 No date and 0 All open.
 - **Narrow down** with the box: words match the task or its note's title, `#atlas` needs that tag, `p2` needs that priority or higher (P1 and P2). The tag chips below do the same with a click.
 - **From** chooses where tasks are taken from: All, Notes (leaves out tasks written in daily notes) or Daily (only those).
 - **Group by** date, project or priority. **Project** puts each note's tasks together under its notebook, in the order they are written and under their headings, with a small circle that fills as the project's tasks are ticked. Tasks in daily notes are kept together as one group, latest day first. In the Logbook, grouping by date groups by the day each task was done.
 - **Tick** a task to complete it. The checkbox in the note's file is ticked.
-- **Hover** a task for three buttons: priority, when (planned day or Someday), due date. Clicking a date label changes it too.
+- **Hover** a task for four buttons: priority, when (planned day or Someday), due date, and move to another note. Clicking a date label changes it too.
 - **Rescheduling:** the when and due-date buttons open a small calendar. Click a day, or type one in words (`fri`, `14 oct`, `in 3 days`) and press Enter. The arrow keys move the highlighted day, PgUp and PgDn change month, and Today, Tomorrow and Next week are one click. The when calendar also has **Someday**. **Remove** clears the date, or takes a task out of Someday.
 - **Click** a task to open its note at that line. ⌘-click opens the note to the side.
 
@@ -651,26 +654,41 @@ With the keyboard:
 | T | Move to today |
 | S | When: planned day or Someday |
 | P | Priority |
+| M | Move to another note (a project) |
 | 1 to 9, 0 | Switch list |
 | / | Narrow down; ↓ or ↵ goes back to the list |
 
 How the lists are decided:
 
+- **Inbox:** in the Inbox notebook (or a notebook inside it), with no planned day and not Someday. A due date does not take a task out of the Inbox, but once it is due it also shows in Today.
 - **Today:** planned for today or an earlier day, or due today or earlier.
 - **Upcoming:** planned for a day after today. A task with only a due date is not here; it is in Anytime until the day it is due.
-- **Anytime:** everything you could do now: not planned for a later day and not Someday. Today's tasks are here too.
+- **Anytime:** everything you could do now: not planned for a later day, not Someday, and not waiting in the Inbox. Today's tasks are here too.
 - **Someday:** marked `>someday`.
 - **Logbook:** ticked tasks, the most recently done first. Tasks ticked before the day was recorded come last, under "Day not recorded".
 - **Overdue:** the due date has passed. A planned day passing never makes a task overdue.
 - **This week:** due or planned between the first and last day of this week (your Week starts on setting).
 - **Next 30 days:** due or planned from today to 30 days ahead.
-- **No date:** no due date, no planned day and not Someday.
+- **No date:** no due date, no planned day, not Someday and not waiting in the Inbox.
 
 The number beside Tasks in the sidebar is how many are in Today, overdue ones included.
 
+### The Inbox
+
+The Inbox is where things wait until you decide what they are, as in Things 3. A task is in it when it is in a note in the Inbox notebook (Settings → General → Inbox notebook) and has no planned day and is not Someday. That covers everything Quick task saves there, and any task you write by hand in a note in that notebook.
+
+Nothing in the Inbox shows in Anytime, so your considered lists stay clean. To clear it, open **Tasks → Inbox** (⌘⇧T, then 1) and, for each task:
+
+- **Give it a day:** S, and pick one. It moves to Today or Upcoming. T plans it for today.
+- **Park it:** S, then Someday.
+- **Put it in its project:** M, and choose the note. The task line, with any indented lines under it, moves to the end of that note; Undo in the message puts it back. A task moved out of the Inbox notebook with no day goes to Anytime.
+- **Tick it** if it is already done, or delete the line if it is not happening.
+
+The task's line stays where it is in the note unless you move it; only the lists it shows in change. The Inbox's count in the sidebar tells you when there is sorting to do.
+
 ### Saved filters
 
-Under **Tasks** in the sidebar are Today, Upcoming, Anytime, Someday and Logbook, and Overdue while anything is overdue. You can add your own:
+Under **Tasks** in the sidebar are Inbox, Today, Upcoming, Anytime, Someday and Logbook, and Overdue while anything is overdue. You can add your own:
 
 1. In the Tasks view, choose a list, narrow it down (say `#atlas p2`), and pick From and Group by.
 2. Click **Save filter** and give it a name.
@@ -722,7 +740,7 @@ margin-tasks upcoming
 margin-tasks logbook --done-after -7
 ```
 
-The lists are `today`, `upcoming`, `anytime`, `someday`, `logbook`, `overdue`, `week`, `month`, `undated`, `open`, and `all` for every task, ticked or not.
+The lists are `inbox`, `today`, `upcoming`, `anytime`, `someday`, `logbook`, `overdue`, `week`, `month`, `undated`, `open`, and `all` for every task, ticked or not. If your Inbox notebook is not called Inbox, add `--inbox NAME`.
 
 **Narrowing down.** Options combine: a task must satisfy all of them.
 
@@ -855,7 +873,7 @@ And for tasks:
 - **Morning:** read today's task panel, clear anything overdue, settle the Top 3.
 - **During the day:** write anything that needs doing as a task; tick things as you finish.
 - **Meetings:** write each action as a task, with a due date if one was agreed.
-- **End of day:** tick what is done and leave the rest.
+- **End of day:** tick what is done, empty the Inbox, and leave the rest.
 - **Weekly:** clear Overdue, plan from Upcoming and Anytime, catch undated tasks.
 - **Monthly:** review Someday, read the Logbook, close finished projects.
 

@@ -411,7 +411,7 @@ function TaskCapture() {
               {task.tags.map((tag) => (
                 <span key={tag} className="task-chip">#{tag}</span>
               ))}
-              {!task.someday && !task.scheduled && !task.due && !task.priority && !task.tags.length && <span className="capture-tip">No details: it goes to Anytime.</span>}
+              {!task.someday && !task.scheduled && !task.due && !task.priority && !task.tags.length && <span className="capture-tip">{target === 'inbox' ? 'No day yet: it waits in the Inbox until you decide.' : 'No details: it goes to Anytime.'}</span>}
             </>
           ) : (
             <span className="capture-tip">

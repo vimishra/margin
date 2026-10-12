@@ -1,7 +1,8 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
-import { Archive, BookmarkPlus, CalendarClock, CalendarDays, Check, ChevronDown, ChevronRight, Flag, ListChecks, MoreHorizontal, Search } from 'lucide-react'
+import { Archive, BookmarkPlus, CalendarClock, CalendarDays, Check, ChevronDown, ChevronRight, Flag, FolderInput, ListChecks, MoreHorizontal, Search } from 'lucide-react'
 import type { Note } from '../types'
-import { deleteTaskView, go, openDatePicker, openFromClick, openMenu, openNoteAt, openSideAt, renameTaskView, rescheduleTasks, saveTaskView, updateTask, updateTaskView, useStore, type MenuItem } from '../store'
+import { deleteTaskView, go, openDatePicker, openFromClick, openMenu, openNoteAt, openSideAt, renameTaskView, rescheduleTasks, saveTaskView, ui, updateTask, updateTaskView, useStore, type MenuItem } from '../store'
+import { hint } from '../shortcuts'
 import { renderInline } from '../lib/markdown'
 import { PRIORITIES, TASK_FILTERS, TASK_SOURCES, allTasks, byUrgency, isCarried, isOn, isOverdue, nextDate, priorityLabel, selectTasks, shortDate, tasksOf, weekRange, withDetails, type Task, type TaskFilter, type TaskGroup, type TaskSource, type TaskView } from '../lib/tasks'
 import { addDays, cx, displayTitle, firstWeekday, local, today, tagStyle } from '../lib/util'
@@ -14,6 +15,13 @@ const GROUPS: [TaskGroup, string][] = [
   ['priority', 'Priority'],
   ['none', 'None'],
 ]
+
+/** Keys for the lists: 1 to 6 are the Things lists in order, then Overdue, This week, No date, and 0 for All open. */
+const LIST_KEYS: Record<string, TaskFilter> = { '1': 'inbox', '2': 'today', '3': 'upcoming', '4': 'anytime', '5': 'someday', '6': 'done', '7': 'overdue', '8': 'week', '9': 'undated', '0': 'open' }
+const keyOf = (f: TaskFilter) => Object.keys(LIST_KEYS).find((k) => LIST_KEYS[k] === f)
+
+/** Choose a note to move a task into, as Things moves a to-do into a project. */
+const moveToNote = (task: Task) => ui({ palette: { mode: 'moveTask', task } })
 
 /** Open the calendar for a task's due date or planned day, under the element given. The planned day can also be Someday. */
 function pickDate(anchor: Element, task: Task, field: 'due' | 'scheduled') {
@@ -92,6 +100,9 @@ export function TaskRow({ task, note, showNote = true, active = false, onHover }
         <button className={cx('icon-btn sm', task.due && 'active')} title="Due date" onClick={(e) => (e.stopPropagation(), pickDate(e.currentTarget, task, 'due'))}>
           <CalendarDays size={14} />
         </button>
+        <button className="icon-btn sm" title="Move to another note (a project)" onClick={(e) => (e.stopPropagation(), moveToNote(task))}>
+          <FolderInput size={14} />
+        </button>
       </div>
     </div>
   )
@@ -150,7 +161,7 @@ export function TasksView({ view }: { view?: string }) {
   const wasSaved = useRef(!!saved)
   useEffect(() => root.current?.focus(), [])
   // After a menu or the calendar closes, the keyboard goes back to the list.
-  const overlay = useStore((s) => !!(s.menu || s.datePick || s.asking))
+  const overlay = useStore((s) => !!(s.menu || s.datePick || s.asking || s.palette))
   useEffect(() => {
     if (!overlay && (document.activeElement === document.body || !document.activeElement)) root.current?.focus()
   }, [overlay])
@@ -175,7 +186,7 @@ export function TasksView({ view }: { view?: string }) {
     setClosed({})
   }, [view])
 
-  const tasks = useMemo(() => allTasks(notes, settings.templatesFolder), [notes, settings.templatesFolder])
+  const tasks = useMemo(() => allTasks(notes, settings.templatesFolder, settings.inboxFolder), [notes, settings.templatesFolder, settings.inboxFolder])
   const counts = useMemo(
     () => Object.fromEntries(TASK_FILTERS.map(([f]) => [f, selectTasks(tasks, notes, { filter: f, query: '', source }, weekStart, now).length])),
     [tasks, notes, source, weekStart, now],
@@ -265,7 +276,7 @@ export function TasksView({ view }: { view?: string }) {
         if ((e.target as HTMLElement).closest('button, a, select, input') && (e.key === 'Enter' || e.key === ' ')) return
         if (!plain) return
         if (e.key === '/') (e.preventDefault(), input.current?.focus())
-        else if (/^[0-9]$/.test(e.key)) pick(TASK_FILTERS[(Number(e.key) + 9) % 10][0])
+        else if (LIST_KEYS[e.key]) pick(LIST_KEYS[e.key])
         else if (e.key === 'ArrowDown' || e.key === 'j') move(at + 1)
         else if (e.key === 'ArrowUp' || e.key === 'k') move(at - 1)
         else if (e.key === 'Home') move(0)
@@ -276,6 +287,7 @@ export function TasksView({ view }: { view?: string }) {
         else if (e.key === 't') (e.preventDefault(), updateTask(task, { raw: withDetails(task.raw, { scheduled: now }) }))
         else if (e.key === 'd') (e.preventDefault(), pickDate(rowEl(), task, 'due'))
         else if (e.key === 's') (e.preventDefault(), pickDate(rowEl(), task, 'scheduled'))
+        else if (e.key === 'm') (e.preventDefault(), moveToNote(task))
         else if (e.key === 'p') (e.preventDefault(), openMenu({ currentTarget: rowEl(), clientX: 0, clientY: 0, type: 'key', preventDefault() {} }, priorityMenu(task)))
       }}
     >
@@ -320,7 +332,7 @@ export function TasksView({ view }: { view?: string }) {
 
         <div className="task-filters">
           {TASK_FILTERS.map(([f, label, title], i) => (
-            <button key={f} className={cx('chip', filter === f && 'active', f === 'overdue' && counts.overdue > 0 && 'warn', i === 5 && 'after-gap')} title={`${title}  (${(i + 1) % 10})`} onClick={() => pick(f)}>
+            <button key={f} className={cx('chip', filter === f && 'active', f === 'overdue' && counts.overdue > 0 && 'warn', i === 6 && 'after-gap')} title={keyOf(f) ? `${title}  (${keyOf(f)})` : title} onClick={() => pick(f)}>
               {label} {f !== 'done' && <span className="count">{counts[f]}</span>}
             </button>
           ))}
@@ -373,7 +385,13 @@ export function TasksView({ view }: { view?: string }) {
         <div className="task-groups">
           {shown.length === 0 && (
             <p className="list-empty">
-              {query.trim() ? `No task here matches “${query.trim()}”.` : filter === 'open' ? 'No open tasks. Write “- [ ] something” in any note and it shows up here.' : 'Nothing in this list.'}
+              {query.trim()
+                ? `No task here matches “${query.trim()}”.`
+                : filter === 'open'
+                  ? 'No open tasks. Write “- [ ] something” in any note and it shows up here.'
+                  : filter === 'inbox'
+                    ? `The Inbox is empty. Tasks captured with Quick task (${hint('captureTask')}), or written in the ${settings.inboxFolder} notebook, wait here until you give them a day or move them into a note.`
+                    : 'Nothing in this list.'}
             </p>
           )}
           {groups.map(([key, g]) => {
@@ -420,7 +438,7 @@ export function TasksView({ view }: { view?: string }) {
         </div>
         {rows.length > 0 && (
           <p className="tasks-keys">
-            <kbd>↑</kbd><kbd>↓</kbd> move · <kbd>Space</kbd> tick · <kbd>↵</kbd> open · <kbd>T</kbd> today · <kbd>D</kbd> due · <kbd>S</kbd> when · <kbd>P</kbd> priority · <kbd>/</kbd> narrow down
+            <kbd>↑</kbd><kbd>↓</kbd> move · <kbd>Space</kbd> tick · <kbd>↵</kbd> open · <kbd>T</kbd> today · <kbd>D</kbd> due · <kbd>S</kbd> when · <kbd>P</kbd> priority · <kbd>M</kbd> move to note · <kbd>/</kbd> narrow down
           </p>
         )}
       </div>
@@ -435,20 +453,21 @@ export function TasksView({ view }: { view?: string }) {
 export function DayTasks({ note, floating = false }: { note: Note; floating?: boolean }) {
   const notes = useStore((s) => s.notes)
   const templatesFolder = useStore((s) => s.settings.templatesFolder)
+  const inboxFolder = useStore((s) => s.settings.inboxFolder)
   // Over a canvas it starts folded away, so it does not cover the cards.
   const key = floating ? 'dayTasksOpenCanvas' : 'dayTasksOpen'
   const [open, setOpen] = useState(() => local.get(key, !floating))
   const date = note.title
   const now = today()
   const { due, late, carried } = useMemo(() => {
-    const elsewhere = allTasks(notes, templatesFolder).filter((t) => t.noteId !== note.id)
+    const elsewhere = allTasks(notes, templatesFolder, inboxFolder).filter((t) => t.noteId !== note.id)
     const isNow = date === now
     return {
       due: elsewhere.filter((t) => isOn(t, date)).sort((a, b) => Number(a.done) - Number(b.done) || byUrgency(a, b)),
       late: isNow ? elsewhere.filter((t) => isOverdue(t, now)).sort(byUrgency) : [],
       carried: isNow ? elsewhere.filter((t) => isCarried(t, now) && !isOn(t, now)).sort(byUrgency) : [],
     }
-  }, [notes, templatesFolder, note.id, date, now])
+  }, [notes, templatesFolder, inboxFolder, note.id, date, now])
   if (!due.length && !late.length && !carried.length) return null
   const left = due.filter((t) => !t.done).length
   return (

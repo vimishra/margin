@@ -55,8 +55,8 @@ for (const { path: rel, raw } of cases.notes) {
 }
 
 const key = (t) => `${notes[t.noteId].path}:${offsets[t.noteId] + t.line + 1}`
-const all = tasks.allTasks(notes, cases.templates)
-const LISTS = { today: 'today', upcoming: 'upcoming', anytime: 'anytime', someday: 'someday', logbook: 'done', overdue: 'overdue', week: 'week', month: 'month', undated: 'undated', open: 'open' }
+const all = tasks.allTasks(notes, cases.templates, cases.inbox)
+const LISTS = { inbox: 'inbox', today: 'today', upcoming: 'upcoming', anytime: 'anytime', someday: 'someday', logbook: 'done', overdue: 'overdue', week: 'week', month: 'month', undated: 'undated', open: 'open' }
 const select = (list, query) => tasks.selectTasks(all, notes, { filter: LISTS[list], query, source: 'all' }, cases.weekStart, cases.today).map(key)
 
 const expected = {
@@ -73,6 +73,7 @@ const expected = {
     heading: t.heading,
     overdue: tasks.isOverdue(t, cases.today),
     in_today: tasks.isToday(t, cases.today),
+    in_inbox: tasks.inInbox(t),
   })),
   lists: Object.fromEntries(Object.keys(LISTS).map((l) => [l, select(l, '')])),
   queries: cases.queries.map(([list, query]) => ({ list, query, keys: select(list, query) })),

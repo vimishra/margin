@@ -44,8 +44,8 @@ The two routines interleave. This is the order they run in; the detail for each 
 | Morning, 5 minutes | Open the journal (⌘J) and glance at yesterday's Log | Read today's task panel, clear anything overdue, settle the Top 3 |
 | During the day | Capture with ⌘⇧C; link people and projects as you write | Write anything that needs doing as a task; tick things as you finish |
 | Each meeting | ⌘⇧M, link who and what, bullets under Notes, then Decisions | Write each action as a task, with a due date if one was agreed |
-| End of day, 2 minutes | Read down today's Log once | Tick what is done; leave the rest |
-| Weekly, 15 minutes | Skim the week, refresh people notes, empty Scratch | Clear Overdue, plan from Upcoming and Anytime, catch undated tasks |
+| End of day, 2 minutes | Read down today's Log once | Tick what is done; empty the Inbox; leave the rest |
+| Weekly, 15 minutes | Skim the week, refresh people notes, empty Scratch | Empty the Inbox, clear Overdue, plan from Upcoming and Anytime, catch undated tasks |
 | Monthly, 20 minutes | Tidy tags, notebooks and templates; back up | Review Someday, read the Logbook, close finished projects |
 
 ---
@@ -160,19 +160,20 @@ Rules of thumb:
 
 ## How tasks work
 
-Four ideas carry this half.
+Five ideas carry this half.
 
 1. **A task is a checkbox, and it lives where it came from.** An action from a meeting stays in that meeting's note. You never copy tasks into a list; the Tasks view and today's note gather them for you.
 2. **A task has two dates, and they mean different things.**
    - The **planned day** is when you intend to start. Until then the task waits in Upcoming; from that day it sits in Today until you tick it. It never becomes overdue.
    - The **due date** is a real deadline. Only a missed due date is overdue.
 3. **Someday is a parking place.** A task marked Someday stays out of Today, Upcoming and Anytime until you give it a day.
-4. **The Top 3 is today's commitment.** It is a short checklist at the top of the daily note, and what you do not finish moves to the next day by itself.
+4. **The Inbox is for things you have not decided on yet.** A task captured with Quick task, or written in a note in the Inbox notebook, waits in the Inbox list and stays out of Anytime. It leaves the Inbox when you give it a day, park it in Someday, or move it into a project's note. Capturing is quick because deciding happens later, once a day.
+5. **The Top 3 is today's commitment.** It is a short checklist at the top of the daily note, and what you do not finish moves to the next day by itself.
 
 ## Tasks: writing one
 
 - **In a note:** press ⌘⇧9 on a line, or type `/task`, or write `- [ ] ` yourself.
-- **From anywhere:** ⌘⇧C and start the line with `- [ ] `. It goes into today's note as a task.
+- **From anywhere:** Quick task, ⌘⌥C (or ⌃⌥T from another app). Type the task, with `>fri`, `@due(mon)`, `P1` or `#tag` if you already know them, and press Enter. With no day it goes to the Inbox; with a day it goes straight to Today or Upcoming.
 
 Then add only the details the task needs. With the cursor on the task:
 
@@ -183,7 +184,7 @@ Then add only the details the task needs. With the cursor on the task:
 | A priority | ⌘⇧P | Only if it matters more than its neighbours |
 | A tag | type `#name` | To gather tasks across notes |
 
-Most tasks need none of these. A task with no dates is in Anytime: something you could do now.
+Most tasks need none of these. A task with no dates is in Anytime, something you could do now, unless it is in the Inbox, where it waits for you to decide.
 
 ## Tasks: every morning
 
@@ -192,7 +193,7 @@ Most tasks need none of these. A task with no dates is in Anytime: something you
    - tasks from earlier days that are still open
    - anything overdue
 2. **Deal with each overdue task.** Do one of three things: tick it, give it a new due date, or decide it is not happening and delete the line. Do not leave it overdue.
-3. **Look ahead: ⌘⇧T, then 2** for Upcoming. If anything there needs to start today, highlight it and press **T**.
+3. **Look ahead: ⌘⇧T, then 3** for Upcoming. If anything there needs to start today, highlight it and press **T**.
 4. **Settle the Top 3.** In today's note, the Top 3 should hold at most three things that would make today a success. Items carried over from yesterday count. If there are more than three, push the extras to a later day: cursor on the line, ⌘⇧S, pick a day.
 
 ## Tasks: during the day
@@ -217,23 +218,30 @@ In a 1:1, write actions the same way under that day's entry in the person's note
 1. **Tick what you finished,** in the Top 3 and in the panel.
 2. **Leave unfinished Top 3 items alone.** They move into tomorrow's note when it is created.
 3. **Leave everything else alone too.** A planned task you did not get to stays in Today tomorrow.
-4. **Empty the Inbox.** Open the Tasks note in the Inbox notebook, where Quick task puts things: give each task a day or Someday, or move it into its project's note. Anything you cannot decide on can wait for the weekly review.
+4. **Empty the Inbox: ⌘⇧T, then 1.** For each task, decide:
+   - it has a day: **S** and pick it (**T** for today)
+   - it is for some day, not soon: **S**, then Someday
+   - it belongs to a project: **M** and choose the project's note
+   - it is done, or not happening: tick it, or delete the line
+
+   Anything you cannot decide on can stay for the weekly review, but no longer than that.
 
 ## Tasks: every week
 
 This is the review that keeps the lists trustworthy. Open the Tasks view: ⌘⇧T.
 
-1. **Clear what is overdue: press 6.** For each task: do it, give it a new date, or delete it. To push a batch to one day, use **Move all…**.
-2. **Read what is coming: press 2** for Upcoming.
-3. **Plan the week: press 3** for Anytime, which is everything you could start now.
+1. **Empty the Inbox: press 1,** as at the end of a day. Nothing should be left in it after the review.
+2. **Clear what is overdue: press 7.** For each task: do it, give it a new date, or delete it. To push a batch to one day, use **Move all…**.
+3. **Read what is coming: press 3** for Upcoming.
+4. **Plan the week: press 4** for Anytime, which is everything you could start now.
    - For each thing you intend to do this week, press S and give it a day.
    - For each thing you are not going to do soon, press S and choose Someday.
-4. **Catch undated strays: press 9** for No date. Anything here has no plan: give it a day, send it to Someday, or delete it.
+5. **Catch undated strays: press 9** for No date. Anything here has no plan: give it a day, send it to Someday, or delete it.
 
 ## Tasks: every month
 
-1. **Review Someday: ⌘⇧T, then 4.** For each item: give it a real day, leave it, or delete it. This list is only useful if it is short enough to read.
-2. **Read the Logbook: press 5,** grouped by date. Scan what you finished this month. It is the easiest source for a status update or a review.
+1. **Review Someday: ⌘⇧T, then 5.** For each item: give it a real day, leave it, or delete it. This list is only useful if it is short enough to read.
+2. **Read the Logbook: press 6,** grouped by date. Scan what you finished this month. It is the easiest source for a status update or a review.
 3. **Close finished projects.** Group the Tasks view by Project. A note whose tasks are all done or all stale is a project that has ended: tick or delete the leftovers.
 4. **Check your saved filters.** Remove the ones you no longer open.
 
@@ -241,16 +249,18 @@ This is the review that keeps the lists trustworthy. Open the Tasks view: ⌘⇧
 
 | You want to know | Open | Key in the Tasks view |
 | --- | --- | --- |
-| What to do today | Today | 1 |
-| What starts later | Upcoming | 2 |
-| What you could start now | Anytime | 3 |
-| What is parked | Someday | 4 |
-| What you finished | Logbook | 5 |
-| What you missed | Overdue | 6 |
+| What you captured and have not sorted | Inbox | 1 |
+| What to do today | Today | 2 |
+| What starts later | Upcoming | 3 |
+| What you could start now | Anytime | 4 |
+| What is parked | Someday | 5 |
+| What you finished | Logbook | 6 |
+| What you missed | Overdue | 7 |
+| What is on this week | This week | 8 |
 | What has no plan | No date | 9 |
 | Everything open | All open | 0 |
 
-**From a terminal or a script:** `margin-tasks` prints the same lists, for example `margin-tasks today` or `margin-tasks overdue --count`. Install it from Help → Command-Line Tool…; it goes into `~/.local/bin` and needs no password. The user guide lists every option.
+**From a terminal or a script:** `margin-tasks` prints the same lists, for example `margin-tasks today`, `margin-tasks inbox` or `margin-tasks overdue --count`. Install it from Help → Command-Line Tool…; it goes into `~/.local/bin` and needs no password. The user guide lists every option.
 
 To see one project's tasks, group by Project. To see one topic across projects, type its `#tag` in the narrow-down box, and save it as a filter if you will want it again.
 
@@ -279,5 +289,6 @@ In the Tasks view (⌘⇧T), on the highlighted task:
 | When | S |
 | Due date | D |
 | Priority | P |
+| Move it into another note (a project) | M |
 | Open it in its note | ↵ |
 | Narrow the list | / |

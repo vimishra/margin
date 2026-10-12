@@ -2,6 +2,24 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.12.0 (2026-10-12)
+
+The Inbox now works as it does in Things 3.
+
+### Added
+
+- **Inbox list:** Tasks → Inbox, first in the Tasks view and the sidebar, with a count. It holds tasks in the Inbox notebook that have no planned day and are not Someday: everything Quick task saves there, and any task written in a note in that notebook.
+- **Move to note:** M in the Tasks view, or the new button on a task's row, moves the task (with the lines indented under it) into another note, such as a project. Undo puts it back.
+- `margin-tasks inbox` lists the Inbox from the command line; `--inbox NAME` if your Inbox notebook has another name. The JSON output has an `in_inbox` field.
+
+### Changed
+
+- Inbox tasks stay out of **Anytime** and **No date** until you decide on them: give one a day or Someday, or move it into another note, and it leaves the Inbox. A due date does not take a task out of the Inbox, but a task that is due also shows in Today.
+- List keys in the Tasks view: 1 Inbox, 2 Today, 3 Upcoming, 4 Anytime, 5 Someday, 6 Logbook, 7 Overdue, 8 This week, 9 No date, 0 All open.
+- The theory of operations guide empties the Inbox at the end of each day and at the start of the weekly review.
+
+No note is changed: tasks you already have in the Inbox notebook simply appear in the Inbox list.
+
 ## 1.11.1 (2026-10-12)
 
 ### Changed

@@ -21,7 +21,7 @@ import re
 import sys
 from typing import Dict, Iterable, List, Optional, Tuple
 
-VERSION = "1.0"
+VERSION = "1.1"
 
 # ---------------------------------------------------------------- parsing (mirrors src/lib/tasks.ts)
 
@@ -39,15 +39,16 @@ FRONTMATTER = re.compile(r"^---\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)")
 NOTE_TYPES = ("note", "daily", "article", "scratch")
 
 LISTS = {
+    "inbox": "Captured and not yet decided on: in the Inbox notebook, with no planned day",
     "today": "Planned for today or earlier, or due today or earlier",
     "upcoming": "Planned for a day after today",
-    "anytime": "Everything you could do now: not planned for later and not someday",
+    "anytime": "Everything you could do now: not planned for later, not someday, not waiting in the Inbox",
     "someday": "Parked for later, kept out of the other lists",
     "logbook": "Ticked tasks, most recently done first",
     "overdue": "Past the due date",
     "week": "Due or planned for this week",
     "month": "Due or planned from today to 30 days ahead",
-    "undated": "No due date, no planned day and not someday",
+    "undated": "No due date, no planned day, not someday and not waiting in the Inbox",
     "open": "Every task that is not ticked",
     "all": "Every task, ticked or not",
 }
@@ -213,7 +214,17 @@ def is_today(t: Task, now: str) -> bool:
     return not t.done and ((bool(t.planned) and t.planned <= now) or (bool(t.due) and t.due <= now))
 
 
-def in_list(t: Task, name: str, week_start: int, now: str) -> bool:
+def in_inbox_folder(folder: str, inbox: str) -> bool:
+    """Whether a notebook is the Inbox notebook, or a notebook inside it."""
+    return bool(inbox) and (folder == inbox or folder.startswith(inbox + "/"))
+
+
+def in_inbox(t: Task, inbox: str) -> bool:
+    """Waiting in the Inbox: open, in the Inbox notebook, no planned day, not Someday. A due date does not take it out."""
+    return not t.done and in_inbox_folder(t.note.folder, inbox) and not t.planned and not t.someday
+
+
+def in_list(t: Task, name: str, week_start: int, now: str, inbox: str = "Inbox") -> bool:
     if name == "all":
         return True
     if name == "logbook":
@@ -222,8 +233,10 @@ def in_list(t: Task, name: str, week_start: int, now: str) -> bool:
         return False
     if name == "today":
         return is_today(t, now)
+    if name == "inbox":
+        return in_inbox(t, inbox)
     if name == "anytime":
-        return not t.someday and not (t.planned and t.planned > now)
+        return not t.someday and not (t.planned and t.planned > now) and not in_inbox(t, inbox)
     if name == "someday":
         return t.someday
     if name == "week":
@@ -237,7 +250,7 @@ def in_list(t: Task, name: str, week_start: int, now: str) -> bool:
     if name == "upcoming":
         return bool(t.planned) and t.planned > now
     if name == "undated":
-        return not (t.due or t.planned) and not t.someday
+        return not (t.due or t.planned) and not t.someday and not in_inbox(t, inbox)
     return True  # open
 
 
@@ -365,7 +378,7 @@ def default_week_start() -> int:
 
 # ---------------------------------------------------------------- output
 
-def record(t: Task, now: str) -> Dict[str, object]:
+def record(t: Task, now: str, inbox: str = "Inbox") -> Dict[str, object]:
     return {
         "text": t.text,
         "done": t.done,
@@ -377,6 +390,7 @@ def record(t: Task, now: str) -> Dict[str, object]:
         "done_on": t.done_on,
         "overdue": is_overdue(t, now),
         "in_today": is_today(t, now),
+        "in_inbox": in_inbox(t, inbox),
         "note": t.note.title,
         "notebook": t.note.folder,
         "note_type": t.note.type,
@@ -451,6 +465,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     p.add_argument("list", nargs="?", default="today", help="which list to show (default: today); see below")
     p.add_argument("--vault", metavar="PATH", help="notes folder (default: the one Margin uses, or $MARGIN_VAULT)")
     p.add_argument("--templates", metavar="NAME", default="Templates", help="templates notebook, whose tasks are left out (default: Templates)")
+    p.add_argument("--inbox", metavar="NAME", default="Inbox", help="Inbox notebook, whose undecided tasks make the inbox list (default: Inbox)")
     p.add_argument("--week-start", choices=("sunday", "monday"), help="first day of the week, for the week list")
     p.add_argument("--today", metavar="DAY", help="treat this day as today (for scripts and testing)")
 
@@ -492,7 +507,7 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     notes = read_notes(find_vault(args.vault))
     tasks = [t for n in notes if n.folder != args.templates for t in n.tasks()]
-    tasks = [t for t in tasks if in_list(t, name, week_start, now)]
+    tasks = [t for t in tasks if in_list(t, name, week_start, now, args.inbox)]
 
     def day(option: Optional[str]) -> Optional[str]:
         return parse_day(option, now) if option else None
@@ -554,14 +569,14 @@ def main(argv: Optional[List[str]] = None) -> int:
     if args.count:
         print(len(tasks))
     elif args.json:
-        json.dump([record(t, now) for t in tasks], sys.stdout, indent=2, ensure_ascii=False)
+        json.dump([record(t, now, args.inbox) for t in tasks], sys.stdout, indent=2, ensure_ascii=False)
         print()
     elif args.csv:
         fields = ["done", "priority", "text", "tags", "planned", "someday", "due", "done_on", "note", "notebook", "heading", "relpath", "line"]
         w = csv.writer(sys.stdout)
         w.writerow(fields)
         for t in tasks:
-            r = record(t, now)
+            r = record(t, now, args.inbox)
             r["tags"] = " ".join(t.tags)
             w.writerow(["" if r[k] is None else r[k] for k in fields])
     elif args.paths:
@@ -570,7 +585,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     elif args.format:
         template = args.format.encode("utf-8").decode("unicode_escape") if "\\" in args.format else args.format
         for t in tasks:
-            r = {k: ("" if v is None else " ".join(v) if isinstance(v, list) else v) for k, v in record(t, now).items()}
+            r = {k: ("" if v is None else " ".join(v) if isinstance(v, list) else v) for k, v in record(t, now, args.inbox).items()}
             try:
                 print(template.format(**r))
             except KeyError as e:

@@ -109,7 +109,8 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 <p><strong><a href="#tasks">Tasks</a></strong></p>
 <ul>
 <li>Any checkbox in any note is a task, with an optional priority, planned day, due date and tags</li>
-<li>A Tasks view that gathers them all: Today, Upcoming, Anytime, Someday, Logbook, Overdue and more</li>
+<li>A Tasks view that gathers them all: Inbox, Today, Upcoming, Anytime, Someday, Logbook, Overdue and more</li>
+<li>An Inbox, as in Things: captured tasks wait there until you give them a day or move them into a project</li>
 <li>Filters by words, tag and priority; grouping by date, project or priority; and filters you save to the sidebar</li>
 <li>Today's tasks and anything overdue shown at the top of the daily note</li>
 <li>A Top 3 for each day, whose unfinished items move to the next day</li>
@@ -606,9 +607,10 @@ npm run app
 <ul>
 <li><strong>Enter</strong> saves the task and closes the box. <strong>⇧Enter</strong> saves it and keeps the box open for the next one.</li>
 <li><strong>Tab</strong> chooses where it goes: <strong>Inbox</strong> (the default, a note called <em>Tasks</em> in your Inbox notebook, made the first time) or <strong>Today's note</strong> (added like any capture: at the end of the page, or as a card when today is on the canvas). Settings → Capture &amp; scratch → <strong>Quick task saves to</strong> sets the one it opens with.</li>
+<li>A task sent to the Inbox with no day waits in the <strong>Inbox</strong> list until you decide on it (see <a href="#the-inbox">The Inbox</a>). If you typed a day (<code>&gt;fri</code>) or Someday, it goes straight to Today, Upcoming or Someday instead.</li>
 <li>Esc closes a suggestion list first, then the box.</li>
 </ul>
-<p>Tasks in the Inbox's Tasks note show in the Tasks view like any other: group by Project to see them together under the Inbox notebook, then move or plan them.</p>
+<p>Captured tasks appear in <strong>Tasks → Inbox</strong>, where you sort them: see <a href="#the-inbox">The Inbox</a>.</p>
 <p><strong>Scratch notes</strong> (⌘⌥N) are for things you need for a few days. They expire after a week and move to the trash. Each one shows how long it has left, with buttons to extend it or <strong>Keep</strong> it as a normal note.</p>
 <h2 id="meeting-notes-and-templates">Meeting notes and templates</h2>
 <p><strong>New meeting note</strong> (⌘⇧M) asks for the meeting's name, then:</p>
@@ -735,6 +737,7 @@ npm run app
 <li>A <strong>planned day</strong> is the day a task <em>starts</em>. Until then it waits in Upcoming; from that day on it is in Today, and it stays there until you tick it. It never becomes overdue.</li>
 <li>A <strong>due date</strong> is a real deadline. Only a missed due date makes a task overdue.</li>
 <li><strong>Someday</strong> parks a task. It is kept out of Today, Upcoming and Anytime until you give it a day.</li>
+<li>The <strong>Inbox</strong> holds what you have captured but not decided on: tasks in the Inbox notebook with no planned day. They stay out of Anytime until you give them a day or Someday, or move them into a project's note.</li>
 <li>A <strong>project</strong> is a note, and an <strong>area</strong> is the notebook it is in. Headings in the note divide the project, as headings do in Things.</li>
 </ul>
 <h3 id="details-on-a-task">Details on a task</h3>
@@ -815,12 +818,12 @@ npm run app
 <h3 id="the-tasks-view">The Tasks view</h3>
 <p><strong>Tasks</strong> in the sidebar (⌘⇧T) gathers every checkbox from every note. Templates are left out.</p>
 <ul>
-<li><strong>Lists</strong> across the top: first the ones from Things, Today, Upcoming, Anytime, Someday and Logbook; then Overdue, This week, Next 30 days, No date and All open. Each shows its count (except the Logbook). Keys 1 to 9 and 0 switch between them, in that order.</li>
+<li><strong>Lists</strong> across the top: first the ones from Things, Inbox, Today, Upcoming, Anytime, Someday and Logbook; then Overdue, This week, Next 30 days, No date and All open. Each shows its count (except the Logbook). Keys 1 to 6 pick the Things lists in that order; 7 is Overdue, 8 This week, 9 No date and 0 All open.</li>
 <li><strong>Narrow down</strong> with the box: words match the task or its note's title, <code>#atlas</code> needs that tag, <code>p2</code> needs that priority or higher (P1 and P2). The tag chips below do the same with a click.</li>
 <li><strong>From</strong> chooses where tasks are taken from: All, Notes (leaves out tasks written in daily notes) or Daily (only those).</li>
 <li><strong>Group by</strong> date, project or priority. <strong>Project</strong> puts each note's tasks together under its notebook, in the order they are written and under their headings, with a small circle that fills as the project's tasks are ticked. Tasks in daily notes are kept together as one group, latest day first. In the Logbook, grouping by date groups by the day each task was done.</li>
 <li><strong>Tick</strong> a task to complete it. The checkbox in the note's file is ticked.</li>
-<li><strong>Hover</strong> a task for three buttons: priority, when (planned day or Someday), due date. Clicking a date label changes it too.</li>
+<li><strong>Hover</strong> a task for four buttons: priority, when (planned day or Someday), due date, and move to another note. Clicking a date label changes it too.</li>
 <li><strong>Rescheduling:</strong> the when and due-date buttons open a small calendar. Click a day, or type one in words (<code>fri</code>, <code>14 oct</code>, <code>in 3 days</code>) and press Enter. The arrow keys move the highlighted day, PgUp and PgDn change month, and Today, Tomorrow and Next week are one click. The when calendar also has <strong>Someday</strong>. <strong>Remove</strong> clears the date, or takes a task out of Someday.</li>
 <li><strong>Click</strong> a task to open its note at that line. ⌘-click opens the note to the side.</li>
 </ul>
@@ -865,6 +868,10 @@ npm run app
 <td>Priority</td>
 </tr>
 <tr>
+<td>M</td>
+<td>Move to another note (a project)</td>
+</tr>
+<tr>
 <td>1 to 9, 0</td>
 <td>Switch list</td>
 </tr>
@@ -875,19 +882,30 @@ npm run app
 </tbody>
 </table></div><p>How the lists are decided:</p>
 <ul>
+<li><strong>Inbox:</strong> in the Inbox notebook (or a notebook inside it), with no planned day and not Someday. A due date does not take a task out of the Inbox, but once it is due it also shows in Today.</li>
 <li><strong>Today:</strong> planned for today or an earlier day, or due today or earlier.</li>
 <li><strong>Upcoming:</strong> planned for a day after today. A task with only a due date is not here; it is in Anytime until the day it is due.</li>
-<li><strong>Anytime:</strong> everything you could do now: not planned for a later day and not Someday. Today's tasks are here too.</li>
+<li><strong>Anytime:</strong> everything you could do now: not planned for a later day, not Someday, and not waiting in the Inbox. Today's tasks are here too.</li>
 <li><strong>Someday:</strong> marked <code>&gt;someday</code>.</li>
 <li><strong>Logbook:</strong> ticked tasks, the most recently done first. Tasks ticked before the day was recorded come last, under &quot;Day not recorded&quot;.</li>
 <li><strong>Overdue:</strong> the due date has passed. A planned day passing never makes a task overdue.</li>
 <li><strong>This week:</strong> due or planned between the first and last day of this week (your Week starts on setting).</li>
 <li><strong>Next 30 days:</strong> due or planned from today to 30 days ahead.</li>
-<li><strong>No date:</strong> no due date, no planned day and not Someday.</li>
+<li><strong>No date:</strong> no due date, no planned day, not Someday and not waiting in the Inbox.</li>
 </ul>
 <p>The number beside Tasks in the sidebar is how many are in Today, overdue ones included.</p>
+<h3 id="the-inbox">The Inbox</h3>
+<p>The Inbox is where things wait until you decide what they are, as in Things 3. A task is in it when it is in a note in the Inbox notebook (Settings → General → Inbox notebook) and has no planned day and is not Someday. That covers everything Quick task saves there, and any task you write by hand in a note in that notebook.</p>
+<p>Nothing in the Inbox shows in Anytime, so your considered lists stay clean. To clear it, open <strong>Tasks → Inbox</strong> (⌘⇧T, then 1) and, for each task:</p>
+<ul>
+<li><strong>Give it a day:</strong> S, and pick one. It moves to Today or Upcoming. T plans it for today.</li>
+<li><strong>Park it:</strong> S, then Someday.</li>
+<li><strong>Put it in its project:</strong> M, and choose the note. The task line, with any indented lines under it, moves to the end of that note; Undo in the message puts it back. A task moved out of the Inbox notebook with no day goes to Anytime.</li>
+<li><strong>Tick it</strong> if it is already done, or delete the line if it is not happening.</li>
+</ul>
+<p>The task's line stays where it is in the note unless you move it; only the lists it shows in change. The Inbox's count in the sidebar tells you when there is sorting to do.</p>
 <h3 id="saved-filters">Saved filters</h3>
-<p>Under <strong>Tasks</strong> in the sidebar are Today, Upcoming, Anytime, Someday and Logbook, and Overdue while anything is overdue. You can add your own:</p>
+<p>Under <strong>Tasks</strong> in the sidebar are Inbox, Today, Upcoming, Anytime, Someday and Logbook, and Overdue while anything is overdue. You can add your own:</p>
 <ol>
 <li>In the Tasks view, choose a list, narrow it down (say <code>#atlas p2</code>), and pick From and Group by.</li>
 <li>Click <strong>Save filter</strong> and give it a name.</li>
@@ -930,7 +948,7 @@ npm run app
 margin-tasks upcoming
 margin-tasks logbook --done-after -7
 </code></pre>
-<p>The lists are <code>today</code>, <code>upcoming</code>, <code>anytime</code>, <code>someday</code>, <code>logbook</code>, <code>overdue</code>, <code>week</code>, <code>month</code>, <code>undated</code>, <code>open</code>, and <code>all</code> for every task, ticked or not.</p>
+<p>The lists are <code>inbox</code>, <code>today</code>, <code>upcoming</code>, <code>anytime</code>, <code>someday</code>, <code>logbook</code>, <code>overdue</code>, <code>week</code>, <code>month</code>, <code>undated</code>, <code>open</code>, and <code>all</code> for every task, ticked or not. If your Inbox notebook is not called Inbox, add <code>--inbox NAME</code>.</p>
 <p><strong>Narrowing down.</strong> Options combine: a task must satisfy all of them.</p>
 <div class="table"><table><thead>
 <tr>
@@ -1295,7 +1313,7 @@ margin-tasks open --no-due --notebook Work --paths
 <li><strong>Morning:</strong> read today's task panel, clear anything overdue, settle the Top 3.</li>
 <li><strong>During the day:</strong> write anything that needs doing as a task; tick things as you finish.</li>
 <li><strong>Meetings:</strong> write each action as a task, with a due date if one was agreed.</li>
-<li><strong>End of day:</strong> tick what is done and leave the rest.</li>
+<li><strong>End of day:</strong> tick what is done, empty the Inbox, and leave the rest.</li>
 <li><strong>Weekly:</strong> clear Overdue, plan from Upcoming and Anytime, catch undated tasks.</li>
 <li><strong>Monthly:</strong> review Someday, read the Logbook, close finished projects.</li>
 </ul>

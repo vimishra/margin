@@ -55,6 +55,7 @@
   --shadow-md: 0 4px 14px rgba(18, 26, 42, 0.08), 0 1px 3px rgba(18, 26, 42, 0.05);
   --shadow-lg: 0 24px 60px rgba(18, 26, 42, 0.18), 0 4px 14px rgba(18, 26, 42, 0.08);
   /* The colours Things gives its lists: Today, Upcoming, Anytime, Someday, Logbook. */
+  --list-inbox: #1b89f0;
   --list-today: #fed301;
   --list-upcoming: #d92f5c;
   --list-anytime: #39a69c;
@@ -83,6 +84,7 @@
 }
 :root[data-theme='dark'] {
   /* Dark theme: measured from Things 3. One charcoal for page and sidebar, with a darker line between. */
+  --list-inbox: #3d9cf3;
   --list-today: #fed402;
   --list-upcoming: #d73d67;
   --list-anytime: #4eb0a4;
@@ -4755,6 +4757,7 @@ button.chip.tag:hover,
 }
 
 /* Things-style colours for the lists under Tasks */
+.nav-item.sub .nav-icon.list-inbox { color: var(--list-inbox); }
 .nav-item.sub .nav-icon.list-today { color: var(--list-today); }
 .nav-item.sub .nav-icon.list-upcoming { color: var(--list-upcoming); }
 .nav-item.sub .nav-icon.list-anytime { color: var(--list-anytime); }
