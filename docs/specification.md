@@ -596,7 +596,7 @@ Given today's date `now`:
 | No date | Not done, no due date, no planned day, not Someday, not in the Inbox |
 | All open | Not done |
 
-"The Inbox notebook" is the notebook named by the Inbox notebook setting (default `Inbox`); a notebook whose name only begins with the same word is not inside it.
+"The Inbox notebook" is the notebook named by the Inbox notebook setting (default `Inbox`), compared ignoring capitals and stray spaces, as macOS compares folder names; a notebook whose name only begins with the same word is not inside it. A note created in or moved into a notebook whose name differs from an existing one only in capitals goes into the existing one, under its spelling.
 
 Consequences that must hold: a planned day passing never makes a task overdue, it stays in Today until ticked; a task with only a future due date is in Anytime, unless it is in the Inbox; an Inbox task leaves the Inbox when it is given a planned day or Someday, or moved to a note outside the Inbox notebook, and nothing else is needed; an Inbox task due on or before `now` is in both the Inbox and Today; Today's tasks are also in Anytime; a Someday task with a due date appears in Today once that date arrives.
 

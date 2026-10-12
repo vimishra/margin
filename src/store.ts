@@ -625,7 +625,7 @@ export function updateNote(id: string, patch: NotePatch) {
 function context(): { folder: string } {
   const s = get()
   if (s.settings.newNoteFolder === 'root') return { folder: '' }
-  if (s.settings.newNoteFolder === 'inbox') return { folder: s.settings.inboxFolder }
+  if (s.settings.newNoteFolder === 'inbox') return { folder: inboxNotebook() }
   if (s.route.name === 'folder') return { folder: s.route.path }
   if (s.route.name === 'note') {
     const n = s.notes[s.route.id]
@@ -1111,6 +1111,15 @@ export function captureToNote(text: string, id: string, heading: string) {
 }
 
 /**
+ * The Inbox notebook as it is spelled in the notes folder: the setting names it, but a notebook that differs
+ * only in capitals or spaces ("inbox") is the same one, and new notes go into it rather than beside it.
+ */
+export function inboxNotebook(): string {
+  const wanted = get().settings.inboxFolder.split('/').map((s) => s.trim()).filter(Boolean).join('/')
+  return get().folders.find((f) => f.toLowerCase() === wanted.toLowerCase()) ?? wanted
+}
+
+/**
  * Save one task from the task capture box: to the Tasks note in the Inbox notebook, or to today's daily note.
  * `raw` is the task as typed, after the checkbox; dates typed in words should already be resolved.
  */
@@ -1123,8 +1132,8 @@ export async function captureTask(raw: string, target: TaskCaptureTarget) {
     if (note) toast("Task added to today's note", { label: 'Open', run: () => openNote(note.id) })
     return
   }
-  const folder = get().settings.inboxFolder
-  const existing = Object.values(get().notes).find((n) => n.folder === folder && n.title === INBOX_TASKS_TITLE && n.type !== 'scratch')
+  const folder = inboxNotebook()
+  const existing = Object.values(get().notes).find((n) => n.folder.toLowerCase() === folder.toLowerCase() && n.title.toLowerCase() === INBOX_TASKS_TITLE.toLowerCase() && n.type !== 'scratch')
   const note = existing ?? (await createNote({ title: INBOX_TASKS_TITLE, folder, content: '' }, false))
   if (!note) return
   appendToNote(get().notes[note.id] ?? note, line, '')
@@ -1311,8 +1320,8 @@ export async function captureText(text: string, target: CaptureTarget) {
     const note = await newNote('scratch', { title: `Scratch — ${firstLine}`, content: body })
     if (note) toast(`Scratch note saved, kept for ${get().settings.scratchDays} day${get().settings.scratchDays === 1 ? '' : 's'}`)
   } else {
-    const note = await createNote({ title: firstLine, folder: get().settings.inboxFolder, content: body }, false)
-    if (note) toast(`Saved to ${get().settings.inboxFolder}`, { label: 'Open', run: () => openNote(note.id) })
+    const note = await createNote({ title: firstLine, folder: inboxNotebook(), content: body }, false)
+    if (note) toast(`Saved to ${note.folder || inboxNotebook()}`, { label: 'Open', run: () => openNote(note.id) })
   }
 }
 

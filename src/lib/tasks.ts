@@ -159,8 +159,15 @@ export function tasksOf(note: Note): Task[] {
   return tasks
 }
 
-/** Whether a note's notebook is the Inbox notebook, or a notebook inside it. */
-export const inInboxFolder = (folder: string, inboxFolder: string) => !!inboxFolder && (folder === inboxFolder || folder.startsWith(inboxFolder + '/'))
+/** A notebook path compared the way macOS compares folder names: capitals and stray spaces or slashes do not matter. */
+const notebookKey = (folder: string) => folder.split('/').map((s) => s.trim()).filter(Boolean).join('/').toLowerCase()
+
+/** Whether a note's notebook is the Inbox notebook, or a notebook inside it. "inbox" and "Inbox" are the same notebook. */
+export function inInboxFolder(folder: string, inboxFolder: string): boolean {
+  const inbox = notebookKey(inboxFolder)
+  const f = notebookKey(folder)
+  return !!inbox && (f === inbox || f.startsWith(inbox + '/'))
+}
 
 let lastNotes: Record<string, Note> | null = null
 let lastFolder = ''

@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { Archive, BookmarkPlus, CalendarClock, CalendarDays, Check, ChevronDown, ChevronRight, Flag, FolderInput, ListChecks, MoreHorizontal, Search } from 'lucide-react'
 import type { Note } from '../types'
-import { deleteTaskView, go, openDatePicker, openFromClick, openMenu, openNoteAt, openSideAt, renameTaskView, rescheduleTasks, saveTaskView, ui, updateTask, updateTaskView, useStore, type MenuItem } from '../store'
+import { deleteTaskView, go, openDatePicker, openFromClick, openMenu, openNoteAt, openSideAt, renameTaskView, rescheduleTasks, saveTaskView, inboxNotebook, ui, updateTask, updateTaskView, useStore, type MenuItem } from '../store'
 import { hint } from '../shortcuts'
 import { renderInline } from '../lib/markdown'
 import { PRIORITIES, TASK_FILTERS, TASK_SOURCES, allTasks, byUrgency, isCarried, isOn, isOverdue, nextDate, priorityLabel, selectTasks, shortDate, tasksOf, weekRange, withDetails, type Task, type TaskFilter, type TaskGroup, type TaskSource, type TaskView } from '../lib/tasks'
@@ -299,7 +299,11 @@ export function TasksView({ view }: { view?: string }) {
           <div className="list-title">
             <h1>{saved ? saved.name : 'Tasks'}</h1>
             <p>
-              {saved ? `Saved filter · ${shown.length} task${shown.length === 1 ? '' : 's'}` : `${counts.open} open${overdue ? ` · ${overdue} overdue` : ''} · every checkbox in your notes`}
+              {saved
+                ? `Saved filter · ${shown.length} task${shown.length === 1 ? '' : 's'}`
+                : filter === 'inbox'
+                  ? `Tasks in the “${inboxNotebook()}” notebook with no day yet · the Inbox notebook is set in Settings → General`
+                  : `${counts.open} open${overdue ? ` · ${overdue} overdue` : ''} · every checkbox in your notes`}
             </p>
           </div>
           {saved ? (
@@ -390,7 +394,7 @@ export function TasksView({ view }: { view?: string }) {
                 : filter === 'open'
                   ? 'No open tasks. Write “- [ ] something” in any note and it shows up here.'
                   : filter === 'inbox'
-                    ? `The Inbox is empty. Tasks captured with Quick task (${hint('captureTask')}), or written in the ${settings.inboxFolder} notebook, wait here until you give them a day or move them into a note.`
+                    ? `The Inbox is empty. Tasks captured with Quick task (${hint('captureTask')}), or written in the ${inboxNotebook()} notebook, wait here until you give them a day or move them into a note.`
                     : 'Nothing in this list.'}
             </p>
           )}

@@ -767,7 +767,7 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <td>Not done</td>
 </tr>
 </tbody>
-</table></div><p>&quot;The Inbox notebook&quot; is the notebook named by the Inbox notebook setting (default <code>Inbox</code>); a notebook whose name only begins with the same word is not inside it.</p>
+</table></div><p>&quot;The Inbox notebook&quot; is the notebook named by the Inbox notebook setting (default <code>Inbox</code>), compared ignoring capitals and stray spaces, as macOS compares folder names; a notebook whose name only begins with the same word is not inside it. A note created in or moved into a notebook whose name differs from an existing one only in capitals goes into the existing one, under its spelling.</p>
 <p>Consequences that must hold: a planned day passing never makes a task overdue, it stays in Today until ticked; a task with only a future due date is in Anytime, unless it is in the Inbox; an Inbox task leaves the Inbox when it is given a planned day or Someday, or moved to a note outside the Inbox notebook, and nothing else is needed; an Inbox task due on or before <code>now</code> is in both the Inbox and Today; Today's tasks are also in Anytime; a Someday task with a due date appears in Today once that date arrives.</p>
 <p><strong>Order.</strong> Lists sort by the day a task next needs attention: a passed due date first; otherwise the earlier of its planned day (a passed planned day counts as today) and its due date; undated last. Then higher priority, then note, then position in the note. The Logbook sorts by done date, latest first, with undated last.</p>
 <h3 id="125-the-tasks-view">12.5 The Tasks view</h3>

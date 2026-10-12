@@ -214,9 +214,15 @@ def is_today(t: Task, now: str) -> bool:
     return not t.done and ((bool(t.planned) and t.planned <= now) or (bool(t.due) and t.due <= now))
 
 
+def notebook_key(folder: str) -> str:
+    """A notebook path compared the way macOS compares folder names: capitals and stray spaces or slashes do not matter."""
+    return "/".join(s.strip() for s in folder.split("/") if s.strip()).lower()
+
+
 def in_inbox_folder(folder: str, inbox: str) -> bool:
-    """Whether a notebook is the Inbox notebook, or a notebook inside it."""
-    return bool(inbox) and (folder == inbox or folder.startswith(inbox + "/"))
+    """Whether a notebook is the Inbox notebook, or a notebook inside it. "inbox" and "Inbox" are the same notebook."""
+    box, f = notebook_key(inbox), notebook_key(folder)
+    return bool(box) and (f == box or f.startswith(box + "/"))
 
 
 def in_inbox(t: Task, inbox: str) -> bool:

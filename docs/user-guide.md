@@ -678,7 +678,7 @@ The number beside Tasks in the sidebar is how many are in Today, overdue ones in
 
 ### The Inbox
 
-The Inbox is where things wait until you decide what they are, as in Things 3. A task is in it when it is in a note in the Inbox notebook (Settings → General → Inbox notebook) and has no planned day and is not Someday. That covers everything Quick task saves there, and any task you write by hand in a note in that notebook.
+The Inbox is where things wait until you decide what they are, as in Things 3. A task is in it when it is in a note in the Inbox notebook (Settings → General → Inbox notebook) and has no planned day and is not Someday. Capitals do not matter, as on a Mac: a notebook called `inbox` is the Inbox notebook too. The top of the Inbox list says which notebook it reads. That covers everything Quick task saves there, and any task you write by hand in a note in that notebook.
 
 Nothing in the Inbox shows in Anytime, so your considered lists stay clean. To clear it, open **Tasks → Inbox** (⌘⇧T, then 1) and, for each task:
 

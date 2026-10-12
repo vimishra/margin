@@ -2,6 +2,17 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.13.1 (2026-10-12)
+
+### Fixed
+
+- **Tasks missing from the Inbox list** when the Inbox notebook's name on disk differed from the setting only in capitals (for example `inbox` and `Inbox`). macOS treats these as one folder but Margin compared them letter for letter, so hand-written tasks never counted, and a Quick task could show for a moment and then disappear after a restart. Notebook names are now compared ignoring capitals and stray spaces, in the app and in `margin-tasks`.
+- New notes, notes moved into a notebook and new notebooks reuse the spelling of an existing folder that differs only in capitals, instead of being recorded under a second name. Quick task adds to the existing Tasks note rather than making a "Tasks 2".
+
+### Changed
+
+- The Inbox list says which notebook it reads.
+
 ## 1.13.0 (2026-10-12)
 
 ### Added

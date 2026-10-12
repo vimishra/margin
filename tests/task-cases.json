@@ -43,6 +43,10 @@
   {
    "path": "Inboxes elsewhere/Not the inbox.md",
    "raw": "- [ ] A notebook that only starts with the same word\n"
+  },
+  {
+   "path": "inbox/Written in lower case.md",
+   "raw": "- [ ] In a notebook spelled in lower case\n"
   }
  ],
  "queries": [
@@ -828,6 +832,21 @@
     "overdue": false,
     "in_today": false,
     "in_inbox": false
+   },
+   {
+    "key": "inbox/Written in lower case.md:1",
+    "text": "In a notebook spelled in lower case",
+    "done": false,
+    "priority": null,
+    "tags": [],
+    "planned": null,
+    "someday": false,
+    "due": null,
+    "done_on": null,
+    "heading": "",
+    "overdue": false,
+    "in_today": false,
+    "in_inbox": true
    }
   ],
   "lists": {
@@ -836,7 +855,8 @@
     "Inbox/Tasks.md:5",
     "Inbox/Tasks.md:4",
     "Inbox/Tasks.md:11",
-    "Inbox/Reading/Articles.md:1"
+    "Inbox/Reading/Articles.md:1",
+    "inbox/Written in lower case.md:1"
    ],
    "today": [
     "Work/Project Atlas.md:10",
@@ -995,7 +1015,8 @@
     "Inbox/Reading/Articles.md:1",
     "No frontmatter.md:6",
     "No frontmatter.md:8",
-    "Inboxes elsewhere/Not the inbox.md:1"
+    "Inboxes elsewhere/Not the inbox.md:1",
+    "inbox/Written in lower case.md:1"
    ]
   },
   "queries": [
@@ -1093,7 +1114,8 @@
      "Inbox/Tasks.md:5",
      "Inbox/Tasks.md:4",
      "Inbox/Tasks.md:11",
-     "Inbox/Reading/Articles.md:1"
+     "Inbox/Reading/Articles.md:1",
+     "inbox/Written in lower case.md:1"
     ]
    },
    {
