@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.14.1 (2026-10-12)
+
+### Added
+
+- A yellow star on tasks that are also in Today, in Anytime and the other lists (not in Today or Overdue themselves), as Things marks them.
+
 ## 1.14.0 (2026-10-12)
 
 One Inbox, for tasks.

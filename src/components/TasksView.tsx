@@ -1,10 +1,10 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
-import { Archive, BookmarkPlus, CalendarClock, CalendarDays, Check, ChevronDown, ChevronRight, Flag, FolderInput, ListChecks, MoreHorizontal, Search } from 'lucide-react'
+import { Archive, BookmarkPlus, CalendarClock, CalendarDays, Check, ChevronDown, ChevronRight, Flag, FolderInput, ListChecks, MoreHorizontal, Search, Star } from 'lucide-react'
 import type { Note } from '../types'
 import { deleteTaskView, go, openDatePicker, openFromClick, openMenu, openNoteAt, openSideAt, renameTaskView, rescheduleTasks, saveTaskView, ensureInboxNote, inboxNotebook, moveTasksToNote, ui, updateTask, updateTaskView, useStore, type MenuItem } from '../store'
 import { hint } from '../shortcuts'
 import { renderInline } from '../lib/markdown'
-import { PRIORITIES, TASK_FILTERS, TASK_SOURCES, allTasks, byUrgency, isCarried, isOn, isOverdue, nextDate, priorityLabel, sameNotebook, selectTasks, shortDate, tasksOf, weekRange, withDetails, type Task, type TaskFilter, type TaskGroup, type TaskSource, type TaskView } from '../lib/tasks'
+import { PRIORITIES, TASK_FILTERS, TASK_SOURCES, allTasks, byUrgency, isCarried, isOn, isOverdue, isToday, nextDate, priorityLabel, sameNotebook, selectTasks, shortDate, tasksOf, weekRange, withDetails, type Task, type TaskFilter, type TaskGroup, type TaskSource, type TaskView } from '../lib/tasks'
 import { addDays, cx, displayTitle, firstWeekday, local, today, tagStyle } from '../lib/util'
 
 const weekStartOf = (setting: string) => (setting === 'sunday' ? 0 : setting === 'monday' ? 1 : firstWeekday())
@@ -38,8 +38,11 @@ function pickDate(anchor: Element, task: Task, field: 'due' | 'scheduled') {
 const priorityMenu = (task: Task): MenuItem[] =>
   [3, 2, 1, 0].map((p) => ({ label: p ? `${priorityLabel(p)}  ${PRIORITIES[p]}` : 'No priority', checked: task.priority === p, onSelect: () => updateTask(task, { raw: withDetails(task.raw, { priority: p }) }) }))
 
-/** One task with its details. Used in the Tasks view and under daily notes. */
-export function TaskRow({ task, note, showNote = true, active = false, onHover }: { task: Task; note: Note; showNote?: boolean; active?: boolean; onHover?: () => void }) {
+/**
+ * One task with its details. Used in the Tasks view and under daily notes. `star` marks a task that is also in
+ * Today, as Things does in Anytime and in its projects.
+ */
+export function TaskRow({ task, note, showNote = true, active = false, star = false, onHover }: { task: Task; note: Note; showNote?: boolean; active?: boolean; star?: boolean; onHover?: () => void }) {
   const now = today()
   const html = useMemo(() => renderInline(task.text), [task.text])
   const open = (e: React.MouseEvent) => {
@@ -54,6 +57,7 @@ export function TaskRow({ task, note, showNote = true, active = false, onHover }
       <input type="checkbox" checked={task.done} title={task.done ? 'Mark as not done' : 'Mark as done'} onChange={() => updateTask(task, { done: !task.done })} />
       <div className="task-main" onClick={open} title="Open in its note">
         <span className="task-text">
+          {star && <Star size={13} fill="currentColor" className="task-star" aria-label="In Today" />}
           {task.priority > 0 && <b className="task-pri">{priorityLabel(task.priority)}</b>}
           <span dangerouslySetInnerHTML={{ __html: html }} />
         </span>
@@ -450,7 +454,7 @@ export function TasksView({ view }: { view?: string }) {
                       notes[t.noteId] && (
                         <Fragment key={`${t.noteId}:${t.line}`}>
                           {sub && sub !== g.label && (n === 0 || sub !== g.sub!(g.tasks[n - 1])) && <h5 className="task-subhead">{sub}</h5>}
-                          <TaskRow task={t} note={notes[t.noteId]} showNote={group !== 'note'} active={i === at} onHover={() => ((keyboard.current = false), i !== at && setActive(i))} />
+                          <TaskRow task={t} note={notes[t.noteId]} showNote={group !== 'note'} star={filter !== 'today' && filter !== 'overdue' && isToday(t, now)} active={i === at} onHover={() => ((keyboard.current = false), i !== at && setActive(i))} />
                         </Fragment>
                       )
                     )

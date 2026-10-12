@@ -661,7 +661,7 @@ How the lists are decided:
 - **Inbox:** in the Inbox note, with no planned day and not Someday. A due date does not take a task out of the Inbox, but once it is due it also shows in Today.
 - **Today:** planned for today or an earlier day, or due today or earlier.
 - **Upcoming:** planned for a day after today. A task with only a due date is not here; it is in Anytime until the day it is due.
-- **Anytime:** everything you could do now: not planned for a later day, not Someday, and not waiting in the Inbox. Today's tasks are here too.
+- **Anytime:** everything you could do now: not planned for a later day, not Someday, and not waiting in the Inbox. Today's tasks are here too, marked with a yellow star, as in Things. The star shows in every list except Today and Overdue, so you can see what you have already committed to today.
 - **Someday:** marked `>someday`.
 - **Logbook:** ticked tasks, the most recently done first. Tasks ticked before the day was recorded come last, under "Day not recorded".
 - **Overdue:** the due date has passed. A planned day passing never makes a task overdue.

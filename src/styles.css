@@ -4062,6 +4062,12 @@ body.resizing {
   line-height: 1.45;
   overflow-wrap: anywhere;
 }
+/* The star on a task that is also in Today, in Things' Today yellow */
+.task-star {
+  color: var(--list-today);
+  vertical-align: -1px;
+  margin-right: 5px;
+}
 .task.done .task-text {
   color: var(--text-3);
   text-decoration: line-through;
