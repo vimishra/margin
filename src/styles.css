@@ -83,7 +83,8 @@
   color-scheme: light;
 }
 :root[data-theme='dark'] {
-  /* Dark theme: measured from Things 3. One charcoal for page and sidebar, with a darker line between. */
+  /* Dark theme: near-black, darker than Things 3's charcoal (#282828) so it does not look washed out. One colour
+     for page and sidebar, with a darker line between; panels and pop-ups a step lighter. */
   --list-inbox: #3d9cf3;
   --list-today: #fed402;
   --list-upcoming: #d73d67;
@@ -91,13 +92,13 @@
   --list-someday: #d1c68a;
   --list-logbook: #4dbd61;
   --pri-2: #f0a63a;
-  --bg: #282828;
-  --bg-side: #282828;
-  --bg-raised: #323234;
-  --bg-sunken: #212122;
+  --bg: #161617;
+  --bg-side: #161617;
+  --bg-raised: #222224;
+  --bg-sunken: #111112;
   --hover: rgba(200, 215, 235, 0.05);
   --active: rgba(190, 205, 225, 0.115);
-  --border: #1f2021;
+  --border: #0c0c0d;
   --border-strong: #4a4b4d;
   /* Almost white, as Things 3 draws text in its dark theme: easier to read than grey. */
   --text: #f8f8f9;

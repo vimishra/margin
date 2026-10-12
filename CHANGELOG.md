@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.15.3 (2026-10-12)
+
+### Changed
+
+- **Darker dark theme:** the page and sidebar are near-black (`#161617`) instead of charcoal (`#282828`), with panels, pop-ups and lines moved down to match, so the dark theme no longer looks washed out. The guides' dark theme follows.
+
 ## 1.15.2 (2026-10-12)
 
 ### Documentation
