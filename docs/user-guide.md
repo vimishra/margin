@@ -6,7 +6,7 @@ Margin is a note-taking app for people who keep a lot of notes: work, meetings, 
 
 You can open this guide from inside the app: **Help → User Guide** in the menu bar, the **User guide** button in the shortcuts window (press `?`), or type "guide" in ⌘K. The [design guide](design.md), which explains how Margin is built, is in the same places.
 
-To search a guide, press **⌘F**: a small bar opens at the top right and highlights every match as you type. **Enter** goes to the next match and **⇧Enter** to the previous one (⌘G and ⌘⇧G do the same), and **Esc** closes the bar. **Help → Find in Guide** does the same from the menu bar.
+To search a guide, press **⌘F**: a small bar opens at the top right and highlights every match as you type. **Enter** goes to the next match and **⇧Enter** to the previous one (⌘G and ⌘⇧G do the same), and **Esc** closes the bar. **Edit → Find…** does the same from the menu bar while a guide is in front.
 
 To print a guide, choose **Help → Printable Guides…**. It opens a folder with each guide as a PDF and as a web page. The same folder, named **Documentation**, is in the installer's window beside the app.
 
@@ -428,7 +428,7 @@ Commands act on the note in the active pane. The ones people reach for most:
 - **Enter** jumps to the match and closes the bar. **Esc** cancels and returns to where you were.
 - Lowercase ignores case; one capital letter makes the search exact.
 
-⌘F opens find and replace.
+⌘F opens find and replace. ⌘F always finds in what is in front: in a note, this find and replace bar; in the Tasks view or a list of notes, its narrow-down box; in a guide, the guide's find bar; anywhere else, ⌘K's search. **Edit → Find…** in the menu bar does the same.
 
 ### Jump to a heading: ⌘⇧O
 
@@ -878,7 +878,7 @@ These are the defaults. Change any of them in Settings → Shortcuts.
 | Close tab | ⌘W | ⌥W |
 | Write / Read | ⌘E | ⌘E |
 | Search in note | ⌃S, ⌃R | ⌃S, ⌃R |
-| Find and replace | ⌘F | ⌘F |
+| Find in what is in front (in a note: find and replace) | ⌘F | ⌘F |
 | Jump to a heading | ⌘⇧O | ⌘⇧O |
 | Bulleted / numbered / task list | ⌘⇧8 / ⌘⇧7 / ⌘⇧9 | same |
 | Nest / un-nest list item | Tab / ⇧Tab | same |

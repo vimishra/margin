@@ -2,6 +2,13 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.15.5 (2026-10-13)
+
+### Changed
+
+- **⌘F finds in what is in front**, as in any Mac app: in a note, the find and replace bar (as before); in the Tasks view or a list of notes, its narrow-down box; in a guide, the guide's find bar; anywhere else, ⌘K's search. It used to do nothing outside notes and guides.
+- The menu item is now **Edit → Find…**, acting on the window in front. **Help → Find in Guide** is gone: it suggested that ⌘F always searched the guides.
+
 ## 1.15.4 (2026-10-13)
 
 ### Fixed

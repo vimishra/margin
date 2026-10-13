@@ -280,7 +280,7 @@ Each canvas card is markdown too.
 </tr>
 <tr>
 <td>The guides' HTML pages, their find bar (⌘F)</td>
-<td><code>scripts/build-docs.mjs</code> (<code>npm run docs</code>): the page template, its styles and the find script; Help → Find in Guide in <code>electron/main.mjs</code> calls <code>window.marginFind</code></td>
+<td><code>scripts/build-docs.mjs</code> (<code>npm run docs</code>): the page template, its styles and the find script; Edit → Find… in <code>electron/main.mjs</code> calls <code>window.marginFind</code> when a guide window is in front, and otherwise sends <code>find</code> to the main window (<code>findHere</code> in <code>App.tsx</code>)</td>
 </tr>
 <tr>
 <td>Quick capture and Quick task</td>

@@ -305,7 +305,7 @@ An Emacs-style incremental search:
 - Matches highlight as you type, with a count. The same key again goes to the next match; the backward key goes to the previous one and also starts a backward search.
 - Enter stays at the match and closes the bar. Esc returns to where the search began.
 - All lowercase ignores case; any capital makes it exact.
-- ⌘F opens ordinary find and replace.
+- ⌘F opens ordinary find and replace. Outside the editor ⌘F (and Edit → Find… in the desktop app) finds in what is in front: the Tasks view's or a list's narrow-down box gets focus with its text selected, a guide window opens its find bar, and anywhere else the palette opens for search.
 
 ### 5.13 Other editor behaviour
 
@@ -785,7 +785,7 @@ Every action below can be reassigned or cleared in Settings → Shortcuts, which
 | Editor | `[[` | Link to a note |
 | Editor | Mod+B, Mod+I | Bold, italic |
 | Editor | Mod+Shift+K | Wrap selection in a note link |
-| Editor | Mod+F | Find and replace |
+| Editor | Mod+F | Find and replace; elsewhere, find in what is in front (see section 5) |
 | Editor | Ctrl+A (Mac) | Start of text, then start of line |
 | Editor | Tab / Shift+Tab | Nest / un-nest a list item |
 | Editor | Alt+↑ / Alt+↓ | Move a line or list item |
@@ -827,7 +827,7 @@ Every action below can be reassigned or cleared in Settings → Shortcuts, which
 
 - Single window; a second launch focuses the existing one.
 - Window size and position are remembered.
-- **Menu bar:** App (about, settings, quit), File (new items, choose notes folder, show notes folder, close tab, close window), Edit (standard), View (sidebar, side panel, mode, zoom, full screen, reload, developer tools), Go (back, forward, each view, tabs), Window, Help (User Guide, Theory of Operations, Design Guide, Find in Guide, Printable Guides…, Keyboard Shortcuts, Command-Line Tool…). Find in Guide shows ⌘F but does not take the key, which in a note belongs to the note's search; it opens the guide window's find bar, opening the user guide first if no guide is open. Menu items show the user's current shortcuts; the keys themselves are handled by the page so they can be customised, and an action triggered by both within 300 ms runs once.
+- **Menu bar:** App (about, settings, quit), File (new items, choose notes folder, show notes folder, close tab, close window), Edit (standard, plus Find… ⌘F, which finds in the window in front: the note or list in the main window, or the guide in a guide window), View (sidebar, side panel, mode, zoom, full screen, reload, developer tools), Go (back, forward, each view, tabs), Window, Help (User Guide, Theory of Operations, Design Guide, Printable Guides…, Keyboard Shortcuts, Command-Line Tool…). Menu items show the user's current shortcuts; the keys themselves are handled by the page so they can be customised, and an action triggered by both within 300 ms runs once.
 - **Right-click in a note:** spelling suggestions, Cut, Copy, Paste, Paste as Plain Text, Look Up, "Search Notes for…", and Format, Paragraph and Insert submenus. On a link: Open, Open to the Side, Copy Link. On an image: Copy Image.
 - **Choosing a notes folder** saves the choice and restarts the app on it; nothing is moved.
 - **PDF export** saves directly to a chosen file.

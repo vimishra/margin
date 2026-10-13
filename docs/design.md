@@ -163,7 +163,7 @@ Beside the notes: `attachments/` (or the name chosen in settings), `.history/<id
 | How markdown looks while editing | `components/livePreview.ts` and the "live preview" part of `src/styles.css` |
 | How markdown looks when reading or exported | `lib/markdown.ts`, `lib/export.ts` |
 | What counts as a task, its details, the lists in the Tasks view | `lib/tasks.ts`; the view itself in `components/TasksView.tsx`. Make the same change in `tools/margin_tasks.py`, re-record the cases with `node scripts/task-fixtures.mjs --write`, and run `npm run test:tasks`. |
-| The guides' HTML pages, their find bar (⌘F) | `scripts/build-docs.mjs` (`npm run docs`): the page template, its styles and the find script; Help → Find in Guide in `electron/main.mjs` calls `window.marginFind` |
+| The guides' HTML pages, their find bar (⌘F) | `scripts/build-docs.mjs` (`npm run docs`): the page template, its styles and the find script; Edit → Find… in `electron/main.mjs` calls `window.marginFind` when a guide window is in front, and otherwise sends `find` to the main window (`findHere` in `App.tsx`) |
 | Quick capture and Quick task | `QuickCapture` in `components/Overlays.tsx`; the one-line task editor in `components/TaskCapture.tsx`, its suggestions in `captureCompletions` (`Editor.tsx`), dates in words in `resolveTaskWords` (`lib/tasks.ts`), saving in `captureTask` (`store.ts`) |
 | Slash commands, link completion | `slashCommands` and `completions` in `components/Editor.tsx` |
 | The menu bar or right-click menu | `electron/main.mjs` |

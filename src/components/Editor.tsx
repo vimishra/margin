@@ -22,7 +22,7 @@ import { markdown, markdownLanguage } from '@codemirror/lang-markdown'
 import { languages } from '@codemirror/language-data'
 import { HighlightStyle, indentOnInput, syntaxHighlighting } from '@codemirror/language'
 import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap, type Completion, type CompletionContext } from '@codemirror/autocomplete'
-import { search, searchKeymap } from '@codemirror/search'
+import { openSearchPanel, search, searchKeymap } from '@codemirror/search'
 import { tags as t } from '@lezer/highlight'
 import { uploadAsMarkdown } from '../api'
 import { linkHref } from '../lib/markdown'
@@ -52,6 +52,8 @@ export interface EditorHandle {
   /** Select a range of text and bring it to the middle of the view. */
   reveal(from: number, to: number): void
   upload(files: File[]): void
+  /** Open the find (and replace) bar, as ⌘F does in the editor. */
+  find(): void
 }
 
 interface Props {
@@ -649,6 +651,12 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
           view.focus()
         },
       })
+    },
+    find() {
+      const view = viewRef.current
+      if (!view) return
+      view.focus()
+      openSearchPanel(view)
     },
     toggleDone() {
       if (viewRef.current && !toggleDone(viewRef.current, useStore.getState().settings.logCompletion)) toast('The cursor is not on a task')

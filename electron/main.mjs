@@ -76,7 +76,7 @@ function openDoc(page) {
   docWin.loadURL(url)
 }
 
-/** Open the find bar of the guide window, opening the user guide first if no guide is open. */
+/** Open the find bar of the guide window (Edit → Find… while a guide is in front). */
 function findInGuide() {
   const run = () => docWin?.webContents.executeJavaScript('window.marginFind && window.marginFind()').catch(() => {})
   if (docWin && !docWin.isDestroyed()) {
@@ -241,7 +241,24 @@ function buildMenu() {
         ...(isMac ? [] : [{ type: 'separator' }, cmd('Settings…', 'prefs'), { role: 'quit' }]),
       ],
     },
-    { role: 'editMenu' },
+    {
+      label: 'Edit',
+      submenu: [
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        ...(isMac ? [{ role: 'pasteAndMatchStyle' }] : []),
+        { role: 'delete' },
+        { role: 'selectAll' },
+        { type: 'separator' },
+        // Find in whatever is in front: the note or list in the main window, or the guide in the guide window.
+        // The key itself is handled by each page (so it can be customised and reach the editor), hence not registered.
+        { label: 'Find…', accelerator: 'CmdOrCtrl+F', registerAccelerator: false, click: (_item, focused) => (focused && focused === docWin ? findInGuide() : send('find')) },
+      ],
+    },
     {
       label: 'View',
       submenu: [
@@ -288,8 +305,6 @@ function buildMenu() {
         { label: 'User Guide', click: () => openDoc('user-guide') },
         { label: 'Theory of Operations', click: () => openDoc('operations') },
         { label: 'Design Guide', click: () => openDoc('design') },
-        // ⌘F is shown but not taken: in a note it belongs to the note's own search. The guide window handles it in the page.
-        { label: 'Find in Guide', accelerator: 'CmdOrCtrl+F', registerAccelerator: false, click: () => findInGuide() },
         { label: 'Printable Guides…', click: () => printableGuides() },
         { type: 'separator' },
         cmd('Keyboard Shortcuts', 'help'),
