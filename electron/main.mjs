@@ -191,6 +191,8 @@ let accelerators = {
 
 function buildMenu() {
   const cmd = (label, id) => ({ label, accelerator: accelerators[id] || undefined, registerAccelerator: false, click: () => send(id) })
+  // A formatting command with no app-wide shortcut: sent to the note's editor, as from the right-click menu.
+  const fmt = (label, kind, accelerator) => ({ label, accelerator, registerAccelerator: false, click: () => win?.webContents.send('context-action', { type: 'format', kind }) })
   const template = [
     ...(isMac
       ? [
@@ -257,6 +259,57 @@ function buildMenu() {
         // Find in whatever is in front: the note or list in the main window, or the guide in the guide window.
         // The key itself is handled by each page (so it can be customised and reach the editor), hence not registered.
         { label: 'Find…', accelerator: 'CmdOrCtrl+F', registerAccelerator: false, click: (_item, focused) => (focused && focused === docWin ? findInGuide() : send('find')) },
+      ],
+    },
+    // Markdown formatting for the note being edited, the same commands as the right-click menu. Each goes to the
+    // editor of the active pane; with no note open it does nothing. Keys are shown, not registered: the page handles them.
+    {
+      label: 'Format',
+      submenu: [
+        fmt('Bold', 'bold', 'CmdOrCtrl+B'),
+        fmt('Italic', 'italic', 'CmdOrCtrl+I'),
+        fmt('Strikethrough', 'strike'),
+        fmt('Inline Code', 'code'),
+        { type: 'separator' },
+        {
+          label: 'Paragraph',
+          submenu: [
+            cmd('Heading 1', 'h1'),
+            cmd('Heading 2', 'h2'),
+            cmd('Heading 3', 'h3'),
+            cmd('Heading 4', 'h4'),
+            cmd('Heading 5', 'h5'),
+            { type: 'separator' },
+            cmd('Bulleted List', 'bullet'),
+            cmd('Numbered List', 'numbered'),
+            cmd('Task List', 'task'),
+            fmt('Quote', 'quote'),
+            fmt('Code Block', 'codeblock'),
+          ],
+        },
+        {
+          label: 'Insert',
+          submenu: [
+            fmt('Link to a Note', 'wikilink', 'CmdOrCtrl+Shift+K'),
+            cmd('Web Link', 'mdlink'),
+            fmt('Table', 'table'),
+            fmt('Math', 'math'),
+            fmt('Divider', 'divider'),
+            { type: 'separator' },
+            fmt("Today's Date", 'date'),
+            fmt('Current Time', 'time'),
+          ],
+        },
+        {
+          label: 'Task',
+          submenu: [
+            cmd('Tick or Untick', 'done'),
+            cmd('Move to Today', 'taskToday'),
+            cmd('When…', 'taskWhen'),
+            cmd('Due Date…', 'taskDue'),
+            cmd('Change Priority', 'taskPriority'),
+          ],
+        },
       ],
     },
     {
@@ -431,11 +484,12 @@ function createWindow() {
             format('Numbered List', 'numbered', accelerators.numbered),
             format('Task List', 'task', accelerators.task),
             format('Quote', 'quote'),
+            format('Code Block', 'codeblock'),
           ],
         },
         {
           label: 'Insert',
-          submenu: [format('Link to a Note', 'wikilink'), format('Web Link', 'link', accelerators.mdlink), format('Table', 'table'), format('Math', 'math'), format("Today's Date", 'date'), format('Current Time', 'time')],
+          submenu: [format('Link to a Note', 'wikilink', 'CmdOrCtrl+Shift+K'), format('Web Link', 'link', accelerators.mdlink), format('Table', 'table'), format('Math', 'math'), format('Divider', 'divider'), format("Today's Date", 'date'), format('Current Time', 'time')],
         },
       )
     }

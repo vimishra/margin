@@ -2,6 +2,13 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.15.6 (2026-10-13)
+
+### Added
+
+- **A Format menu in the menu bar,** with the Markdown commands for the note being edited: Bold, Italic, Strikethrough and Inline Code, then Paragraph (headings, lists, quote, code block), Insert (note link, web link, table, math, divider, date, time) and Task submenus. Shortcuts shown follow Settings → Shortcuts.
+- **Code Block** and **Divider** commands, also in the right-click menu.
+
 ## 1.15.5 (2026-10-13)
 
 ### Changed

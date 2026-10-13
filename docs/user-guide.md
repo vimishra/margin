@@ -386,9 +386,18 @@ Paste or drop an image, PDF or any file into a note. It is saved in your attachm
 - **Short links:** company short links written as plain text are clickable as they stand: `go/some-name`, `b/1234567` and `b/hotlists/1234567`. Clicking one opens `http://go/some-name` (or `http://b/…`) in your browser. The text in the note is not changed. They are recognised in the editor, read mode, canvas cards and the Tasks view, but not inside code, web addresses or existing links. Turn this off in Settings → Editor → Short links.
 - **Paste to link:** select some words and paste a web address. The words become a link to it. This does not happen inside code or an existing link.
 
-### Right-click
+### Right-click and the Format menu
 
 In the desktop app, right-clicking in a note offers spelling suggestions, Cut, Copy and Paste, Look Up, "Search Notes for…", and Format, Paragraph and Insert menus. Right-clicking a link offers Open, Open to the Side and Copy Link.
+
+The same commands are in the menu bar under **Format**, for the note you are editing:
+
+- **Bold** (⌘B), **Italic** (⌘I), **Strikethrough**, **Inline Code**
+- **Paragraph:** Heading 1 to 5, Bulleted, Numbered and Task List, Quote, Code Block
+- **Insert:** Link to a Note (⌘⇧K), Web Link, Table, Math, Divider, Today's Date, Current Time
+- **Task:** Tick or Untick, Move to Today, When…, Due Date…, Change Priority
+
+The menu shows each command's shortcut, including ones you have changed in Settings → Shortcuts. With no note open, the commands do nothing.
 
 ## Finding things
 

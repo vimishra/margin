@@ -278,6 +278,8 @@ export function applyFormat(ed: EditorHandle, kind: string) {
     h5: () => ed.prefixLines('##### '),
     mdlink: () => ed.insertLink(),
     quote: () => ed.prefixLines('> '),
+    codeblock: () => ed.wrap('```\n', '\n```', 'code'),
+    divider: () => ed.insert('\n---\n\n'),
     wikilink: () => ed.wrap('[[', ']]'),
     link: () => ed.insertLink(),
     math: () => ed.wrap('$', '$', 'x^2'),
