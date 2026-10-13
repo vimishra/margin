@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.15.4 (2026-10-13)
+
+### Fixed
+
+- **Text settings now reach the Tasks view.** Note font, Text size and Text weight (Settings → Appearance) changed notes but not the task lists, whose sizes were fixed. Task text now uses the note font and weight, and the task text, labels, checkbox and headings scale with Text size. The panel under daily notes follows it too.
+
 ## 1.15.3 (2026-10-12)
 
 ### Changed

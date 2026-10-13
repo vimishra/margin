@@ -4047,9 +4047,9 @@ body.resizing {
   background: var(--hover);
 }
 .task > input[type='checkbox'] {
-  width: 16px;
-  height: 16px;
-  margin-top: 3px;
+  width: var(--doc-size);
+  height: var(--doc-size);
+  margin-top: calc(var(--doc-size) * 0.2);
   flex: none;
   accent-color: var(--accent);
   cursor: default;
@@ -4059,10 +4059,15 @@ body.resizing {
   min-width: 0;
   cursor: default;
 }
+/* A task is a line of a note, so wherever it is listed its text follows the note font, size and weight in
+   Settings → Appearance. The labels around it are sized in proportion (12 px beside 16 px text). */
 .task-text {
   display: block;
   line-height: 1.45;
   overflow-wrap: anywhere;
+  font-family: var(--doc-font);
+  font-size: var(--doc-size);
+  font-weight: var(--doc-weight);
 }
 /* The star on a task that is also in Today, in Things' Today yellow */
 .task-star {
@@ -4076,7 +4081,8 @@ body.resizing {
   text-decoration-color: var(--text-4);
 }
 .task-pri {
-  font-size: 12px;
+  font-family: var(--font);
+  font-size: 0.75em;
   font-weight: 700;
   padding: 1px 4px;
   border-radius: 5px;
@@ -4098,6 +4104,7 @@ body.resizing {
   align-items: center;
   gap: 6px 8px;
   margin-top: 3px;
+  font-size: calc(var(--doc-size) * 0.75);
 }
 .task-meta:empty {
   display: none;
@@ -4106,12 +4113,12 @@ body.resizing {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  height: 20px;
-  padding: 0 8px;
+  height: 1.67em;
+  padding: 0 0.67em;
   border-radius: 999px;
   background: var(--hover);
   color: var(--text-2);
-  font-size: 12px;
+  font-size: 1em;
   white-space: nowrap;
 }
 .task-chip:hover {
@@ -4158,13 +4165,13 @@ body.resizing {
   opacity: 0.8;
 }
 .task-subhead {
-  margin: 10px 0 2px 26px;
-  font-size: 13px;
+  margin: 10px 0 2px calc(var(--doc-size) + 10px);
+  font-size: calc(var(--doc-size) * 0.8125);
   font-weight: 600;
   color: var(--text-2);
 }
 .task-where {
-  font-size: 12px;
+  font-size: 1em;
   color: var(--text-3);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -4848,13 +4855,6 @@ button.chip.tag:hover,
   color: var(--text);
 }
 
-/* The task panel inside a note is part of the page: its tasks use the note's own font, size and weight. */
-.doc .day-tasks .task-text,
-.day-tasks-float .day-tasks .task-text {
-  font-family: var(--doc-font);
-  font-size: var(--doc-size);
-  font-weight: var(--doc-weight);
-}
 .doc .day-tasks .task-pri {
   font-family: var(--font);
 }
@@ -5042,20 +5042,27 @@ body {
   padding: 8px 8px;
   gap: 12px;
 }
+/* Sizes follow Settings → Appearance → Text size: 15 and 13 px beside the default 16 px note text. */
 .task-text {
-  font-size: 15px;
+  font-size: calc(var(--doc-size) * 0.9375);
+}
+/* In a note's task panel the tasks are part of the page, so they take the note's full text size. */
+.doc .day-tasks .task-text,
+.day-tasks-float .day-tasks .task-text {
+  font-size: var(--doc-size);
 }
 .task-meta {
   margin-top: 4px;
   gap: 6px 10px;
+  font-size: calc(var(--doc-size) * 0.8125);
 }
 .task-where {
-  font-size: 13px;
+  font-size: 1em;
 }
 .task-chip {
-  height: 22px;
-  font-size: 13px;
-  padding: 0 8px;
+  height: 1.7em;
+  font-size: 1em;
+  padding: 0 0.62em;
 }
 .task-group {
   margin-top: 20px;
