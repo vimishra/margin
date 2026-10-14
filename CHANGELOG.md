@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.16.1 (2026-10-14)
+
+### Added
+
+- **Find in the shortcuts window.** The window that **?** opens has a find box: type to narrow the list to the shortcuts whose name or keys match. ⌘F and **Edit → Find…** go to it while the window is open; **Esc** clears it, then closes the window.
+
 ## 1.16.0 (2026-10-14)
 
 ### Changed

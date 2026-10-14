@@ -2768,6 +2768,27 @@ button.crumb:hover {
   padding: 18px 24px 26px;
   overflow-y: auto;
 }
+.help-find {
+  padding: 12px 24px 0;
+}
+.help-find input {
+  width: 100%;
+  padding: 7px 10px;
+  border: var(--hair) solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-sunken);
+  color: var(--text);
+  font: inherit;
+  outline: none;
+}
+.help-find input:focus {
+  border-color: var(--accent);
+}
+.help-none {
+  grid-column: 1 / -1;
+  color: var(--text-3);
+  padding: 12px 0;
+}
 .help h3 {
   font-size: 12px;
   font-weight: 600;

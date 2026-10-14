@@ -305,7 +305,7 @@ An Emacs-style incremental search:
 - Matches highlight as you type, with a count. The same key again goes to the next match; the backward key goes to the previous one and also starts a backward search.
 - Enter stays at the match and closes the bar. Esc returns to where the search began.
 - All lowercase ignores case; any capital makes it exact.
-- ⌘F opens ordinary find and replace. Outside the editor ⌘F (and Edit → Find… in the desktop app) finds in what is in front: the Tasks view's or a list's narrow-down box gets focus with its text selected, a guide window opens its find bar, and anywhere else the palette opens for search.
+- ⌘F opens ordinary find and replace. Outside the editor ⌘F (and Edit → Find… in the desktop app) finds in what is in front: the Tasks view's or a list's narrow-down box gets focus with its text selected, a guide window opens its find bar, the keyboard shortcuts window focuses its find box, and anywhere else the palette opens for search.
 
 ### 5.13 Other editor behaviour
 
@@ -779,7 +779,7 @@ Every action below can be reassigned or cleared in Settings → Shortcuts, which
 | Where | Key | Does |
 | --- | --- | --- |
 | Anywhere | Alt+1 to Alt+9 | Jump to that tab |
-| Anywhere, not typing | `?` | Keyboard shortcuts window |
+| Anywhere, not typing | `?` | Keyboard shortcuts window, with a find box that has focus: typing narrows the list to shortcuts whose group, name or keys contain the text (ignoring case); Esc clears it, then closes the window |
 | Anywhere (Mac) | Ctrl+[ / Ctrl+] | Back / forward, unless reassigned |
 | Editor | `/` | Slash commands |
 | Editor | `[[` | Link to a note |

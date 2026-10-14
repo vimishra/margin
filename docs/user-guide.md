@@ -437,7 +437,7 @@ Commands act on the note in the active pane. The ones people reach for most:
 - **Enter** jumps to the match and closes the bar. **Esc** cancels and returns to where you were.
 - Lowercase ignores case; one capital letter makes the search exact.
 
-⌘F opens find and replace. ⌘F always finds in what is in front: in a note, this find and replace bar; in the Tasks view or a list of notes, its narrow-down box; in a guide, the guide's find bar; anywhere else, ⌘K's search. **Edit → Find…** in the menu bar does the same.
+⌘F opens find and replace. ⌘F always finds in what is in front: in a note, this find and replace bar; in the Tasks view or a list of notes, its narrow-down box; in a guide, the guide's find bar; in the shortcuts window, its find box; anywhere else, ⌘K's search. **Edit → Find…** in the menu bar does the same.
 
 ### Jump to a heading: ⌘⇧O
 
@@ -859,6 +859,8 @@ Page width is measured in characters per line. Settings are kept per app: the de
 ## Shortcuts
 
 These are the defaults. Change any of them in Settings → Shortcuts.
+
+Press **?** (or click **Shortcuts** at the bottom of the sidebar) for a window listing every shortcut with the keys you have set. Start typing to narrow it to the ones whose name or keys match; ⌘F returns to the box, and **Esc** clears it, then closes the window.
 
 | Action | Desktop app | Browser |
 | --- | --- | --- |

@@ -29,6 +29,13 @@ let lastRun = { id: '', source: '', at: 0 }
  */
 function findHere() {
   const s = useStore.getState()
+  // The shortcuts window has its own find box.
+  const helpBox = s.help && document.querySelector<HTMLInputElement>('.modal.help .help-find input')
+  if (helpBox) {
+    helpBox.focus()
+    helpBox.select()
+    return
+  }
   if ((s.route.name === 'note' || s.route.name === 'journal') && document.querySelector('.cm-editor')) {
     window.dispatchEvent(new CustomEvent('margin:format', { detail: 'find' }))
     return
@@ -71,6 +78,11 @@ function onKey(e: KeyboardEvent) {
   const overlay = !!(s.palette || s.capture || s.help || s.prefs || s.historyFor || s.asking || s.menu || s.lightbox || s.datePick)
   const combo = eventCombo(e)
 
+  if (combo === 'Mod+F' && s.help) {
+    e.preventDefault()
+    findHere()
+    return
+  }
   if (combo) {
     let id = actionFor(combo)
     // Ctrl+[ and Ctrl+] also go back and forward on a Mac, unless they were given to something else.
@@ -100,7 +112,8 @@ function onKey(e: KeyboardEvent) {
     return
   }
   const typing = el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)
-  if (e.key === '?' && !typing) ui({ help: true })
+  // Without preventDefault the ? would land in the window's find box.
+  if (e.key === '?' && !typing) (e.preventDefault(), ui({ help: true }))
 }
 
 /** A second note beside the main view, with a divider that can be dragged to resize. */

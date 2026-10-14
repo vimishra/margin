@@ -131,9 +131,14 @@ export function AskDialog() {
 
 export function HelpModal() {
   const close = () => ui({ help: false })
+  const [query, setQuery] = useState('')
+  const q = query.trim().toLowerCase()
+  const groups = shortcutGroups()
+    .map(([group, rows]) => [group, q && !group.toLowerCase().includes(q) ? rows.filter(([keys, label]) => `${label} ${keys}`.toLowerCase().includes(q)) : rows] as const)
+    .filter(([, rows]) => rows.length)
   return (
     <div className="overlay" onMouseDown={close}>
-      <div className="modal help" tabIndex={-1} ref={(el) => el?.focus()} onMouseDown={(e) => e.stopPropagation()} onKeyDown={(e) => e.key === 'Escape' && close()}>
+      <div className="modal help" tabIndex={-1} onMouseDown={(e) => e.stopPropagation()} onKeyDown={(e) => e.key === 'Escape' && close()}>
         <header className="modal-head">
           <h2>Keyboard shortcuts</h2>
           <button className="btn ghost sm" onClick={() => openGuide('user-guide')}>
@@ -149,18 +154,30 @@ export function HelpModal() {
             <X size={16} />
           </button>
         </header>
+        <div className="help-find">
+          {/* Typing filters at once; ⌘F comes back here. Escape clears what is typed, then closes. */}
+          <input
+            autoFocus
+            value={query}
+            placeholder="Find a shortcut by name or keys…"
+            spellCheck={false}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => e.key === 'Escape' && query && (e.stopPropagation(), setQuery(''))}
+          />
+        </div>
         <div className="help-grid">
-          {shortcutGroups().map(([group, rows]) => (
+          {groups.map(([group, rows]) => (
             <section key={group}>
               <h3>{group}</h3>
               {rows.map(([keys, label]) => (
-                <div key={keys} className="help-row">
+                <div key={keys + label} className="help-row">
                   <span>{label}</span>
                   <kbd>{keys}</kbd>
                 </div>
               ))}
             </section>
           ))}
+          {!groups.length && <p className="help-none">No shortcut matches “{query.trim()}”.</p>}
         </div>
       </div>
     </div>
