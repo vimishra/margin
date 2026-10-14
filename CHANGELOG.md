@@ -2,6 +2,16 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.16.0 (2026-10-14)
+
+### Changed
+
+- **Move to note files tasks under "Open Threads".** M in the Tasks view puts the task at the end of the chosen note's `## Open Threads` section, after the tasks already there, instead of at the very end of the note, so moved tasks collect in one place. A note without the heading gets it, at the end of the page.
+
+### Added
+
+- **New note from the Move to note picker:** type a name that matches no note and choose **New note "…"**. It is made in the notebook of the project you edited last (or the one you type, as in `People/Sam`), with the Open Threads heading and the task in it.
+
 ## 1.15.6 (2026-10-13)
 
 ### Added

@@ -701,7 +701,7 @@ With the keyboard:
 | T | Move to today |
 | S | When: planned day or Someday |
 | P | Priority |
-| M | Move to another note (a project) |
+| M | Move to another note (a project), under its Open Threads heading |
 | 1 to 9, 0 | Switch list |
 | / | Narrow down; ↓ or ↵ goes back to the list |
 
@@ -730,7 +730,7 @@ Nothing in the Inbox shows in Anytime, so your considered lists stay clean. To c
 
 - **Give it a day:** S, and pick one. It moves to Today or Upcoming. T plans it for today.
 - **Park it:** S, then Someday.
-- **Put it in its project:** M, and choose the note. The task line, with any indented lines under it, moves to the end of that note; Undo in the message puts it back. A task moved out of the Inbox note with no day goes to Anytime.
+- **Put it in its project:** M, type part of the note's name, and press Enter. The task line, with any indented lines under it, goes under the note's **Open Threads** heading, after the tasks already there, so moved tasks always collect in one place. If the note has no such heading, `## Open Threads` is added at the end of the page. If no note matches what you typed, the picker offers **New note "…"**: it is made in the notebook of the project you edited last (Work, usually) with the heading and the task in it; type `People/Sam` to choose another notebook. Undo in the message puts the task back. A task moved out of the Inbox note with no day goes to Anytime.
 - **Tick it** if it is already done, or delete the line if it is not happening.
 
 The task's line stays where it is in the note unless you move it; only the lists it shows in change. The Inbox's count in the sidebar tells you when there is sorting to do.

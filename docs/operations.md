@@ -225,7 +225,7 @@ In a 1:1, write actions the same way under that day's entry in the person's note
 4. **Empty the Inbox: ⌘⇧T, then 1.** For each task, decide:
    - it has a day: **S** and pick it (**T** for today)
    - it is for some day, not soon: **S**, then Someday
-   - it belongs to a project: **M** and choose the project's note
+   - it belongs to a project: **M** and choose the project's note. It lands under the note's "Open Threads" heading, so the threads you have filed are together at the bottom of each project. Type a new name to start a new project note.
    - it is done, or not happening: tick it, or delete the line
 
    Anything you cannot decide on can stay for the weekly review, but no longer than that.

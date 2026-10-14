@@ -7,7 +7,7 @@ import { desktop } from './desktop'
 import type { Note, NotePatch, NoteType, Route } from './types'
 import { appendCard } from './lib/canvas'
 import { clock, displayTitle, isYmd, local, today, parseYmd, ymd, dailyLabel } from './lib/util'
-import { INBOX_NOTE_TITLE, TASK_LINE, isInboxNote, rewriteTask, shortDate, withDetails, type SavedTaskView, type Task, type TaskView } from './lib/tasks'
+import { INBOX_NOTE_TITLE, TASK_LINE, isInboxNote, isProjectNote, rewriteTask, shortDate, withDetails, type SavedTaskView, type Task, type TaskView } from './lib/tasks'
 
 export interface Toast {
   id: number
@@ -1131,7 +1131,7 @@ export async function captureTask(raw: string) {
  * Add text as a list item to a note, under `heading` or at the end of the page. With `asIs`, the lines go in
  * exactly as given. Where it went: the line, or -1 for the end. Null when there was nothing to add.
  */
-function appendToNote(note: Note, text: string, heading: string, asIs = false): number | null {
+function appendToNote(note: Note, text: string, heading: string, asIs = false, createHeading = false): number | null {
   const id = note.id
   const body = asIs ? text.replace(/\n+$/, '') : text.trim()
   if (!body.trim()) return null
@@ -1144,9 +1144,15 @@ function appendToNote(note: Note, text: string, heading: string, asIs = false): 
   const kept = page.replace(/\n+$/, '')
   // An empty note gets the entry as its first line, not after a blank one.
   const lines = kept ? kept.split('\n') : []
-  const { at } = heading ? sectionEnd(lines, heading) : { at: -1 }
-  if (at < 0) lines.push(...entry)
-  else {
+  const { at, start } = heading ? sectionEnd(lines, heading) : { at: -1, start: -1 }
+  if (at < 0 && heading && createHeading) {
+    // The heading is not there yet: add it at the end of the page, with the entry under it.
+    lines.push(...(lines.length && lines[lines.length - 1].trim() ? [''] : []), `## ${heading}`, '', ...entry)
+  } else if (at < 0) lines.push(...entry)
+  else if (at === start + 1) {
+    // Right under the heading: leave a blank line between them, as notes are written.
+    lines.splice(at, 0, '', ...entry)
+  } else {
     // An empty "- " left by a template is where the first entry goes.
     if (/^\s*[-*+]\s*$/.test(lines[at - 1] ?? '')) lines.splice(at - 1, 1, ...entry)
     else lines.splice(at, 0, ...entry)
@@ -1186,14 +1192,39 @@ export function deleteTaskView(id: string) {
   toast(`Removed the filter “${view.name}”`, { label: 'Undo', run: () => setSetting('taskViews', [...get().settings.taskViews, view]) })
 }
 
-/** Move a task into another note, as Things moves a to-do into a project. See moveTasksToNote. */
-export const moveTaskToNote = (task: Task, targetId: string) => moveTasksToNote([task], targetId)
+/** The heading in a note that tasks moved into it with M go under, made when it is not there. */
+export const OPEN_THREADS = 'Open Threads'
+
+/** Move a task into another note, under its Open Threads heading, as Things moves a to-do into a project. */
+export const moveTaskToNote = (task: Task, targetId: string) => moveTasksToNote([task], targetId, OPEN_THREADS)
+
+/**
+ * Where a new project note goes when it is made from the Move to note picker: a "Notebook/Title" typed in full
+ * goes there; otherwise the notebook of the project note edited most recently (Work, usually), or the top level.
+ */
+export function newProjectPlace(typed: string): { folder: string; title: string } {
+  const parts = typed.split('/').map((s) => s.trim()).filter(Boolean)
+  if (parts.length > 1) return { folder: parts.slice(0, -1).join('/'), title: parts[parts.length - 1] }
+  const s = get()
+  const recent = Object.values(s.notes)
+    .filter((n) => isProjectNote(n, s.settings))
+    .sort((a, b) => b.updated.localeCompare(a.updated))[0]
+  return { folder: recent?.folder ?? '', title: parts[0] ?? typed.trim() }
+}
+
+/** Make a new note, with its Open Threads heading, and move a task under it. */
+export async function moveTaskToNewNote(task: Task, typed: string) {
+  const { folder, title } = newProjectPlace(typed)
+  if (!title) return
+  const note = await createNote({ title, folder, content: `## ${OPEN_THREADS}\n` }, false)
+  if (note) moveTasksToNote([task], note.id, OPEN_THREADS)
+}
 
 /**
  * Move tasks into another note: each task's line, and the indented lines under it (notes, sub-tasks), are taken
  * out of its note and added, in order, at the end of the other one's page. One Undo puts everything back.
  */
-export function moveTasksToNote(tasks: Task[], targetId: string) {
+export function moveTasksToNote(tasks: Task[], targetId: string, heading = '') {
   const s = get()
   const target = s.notes[targetId]
   if (!target) return
@@ -1227,9 +1258,9 @@ export function moveTasksToNote(tasks: Task[], targetId: string) {
   }
   if (!moved) return toast('Those tasks have changed since this list was drawn. Try again.')
   before[target.id] = target.content
-  appendToNote(get().notes[target.id] ?? target, blocks.join('\n'), '', true)
+  appendToNote(get().notes[target.id] ?? target, blocks.join('\n'), heading, true, !!heading)
   const after = Object.fromEntries(Object.keys(before).map((id) => [id, get().notes[id]?.content]))
-  toast(`Moved ${moved === 1 ? 'to' : `${moved} tasks to`} ${displayTitle(target)}`, {
+  toast(`Moved ${moved === 1 ? 'to' : `${moved} tasks to`} ${displayTitle(target)}${heading ? ` › ${heading}` : ''}`, {
     label: 'Undo',
     run: () => {
       // Only put things back if none of the notes has been changed since.
