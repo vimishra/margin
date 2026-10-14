@@ -390,12 +390,14 @@ Paste or drop an image, PDF or any file into a note. It is saved in your attachm
 
 In the desktop app, right-clicking in a note offers spelling suggestions, Cut, Copy and Paste, Look Up, "Search Notes for…", and Format, Paragraph and Insert menus. Right-clicking a link offers Open, Open to the Side and Copy Link.
 
-The same commands are in the menu bar under **Format**, for the note you are editing:
+The same commands are in the menu bar under **Format**, for the note you are editing, in one list with no submenus. Lines divide it into groups:
 
 - **Bold** (⌘B), **Italic** (⌘I), **Strikethrough**, **Inline Code**
-- **Paragraph:** Heading 1 to 5, Bulleted, Numbered and Task List, Quote, Code Block
-- **Insert:** Link to a Note (⌘⇧K), Web Link, Table, Math, Divider, Today's Date, Current Time
-- **Task:** Tick or Untick, Move to Today, When…, Due Date…, Change Priority
+- Heading 1 to 5
+- Bulleted, Numbered and Task List, Quote, Code Block
+- Link to a Note (⌘⇧K), Web Link, Table, Math, Divider
+- Today's Date, Current Time
+- Tick or Untick Task, Move Task to Today, Task When…, Task Due Date…, Change Task Priority
 
 The menu shows each command's shortcut, including ones you have changed in Settings → Shortcuts. With no note open, the commands do nothing.
 

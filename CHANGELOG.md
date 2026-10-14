@@ -4,6 +4,10 @@ What changed in each released version of Margin. Installers are on the [releases
 
 ## 1.16.1 (2026-10-14)
 
+### Changed
+
+- **The Format menu is one flat list.** The Paragraph, Insert and Task submenus are gone; their commands sit directly in Format, still divided into groups by lines. The right-click menu keeps its submenus.
+
 ### Added
 
 - **Find in the shortcuts window.** The window that **?** opens has a find box: type to narrow the list to the shortcuts whose name or keys match. ⌘F and **Edit → Find…** go to it while the window is open; **Esc** clears it, then closes the window.
