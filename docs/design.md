@@ -55,6 +55,7 @@ These settle most design questions. When two of them pull apart, the earlier one
 | `tableWidget.ts` | The in-place table editor |
 | `lists.ts` | Nesting, renumbering and moving list items |
 | `isearch.ts` | Incremental search and smart line-start |
+| `folding.ts` | Folding sections and list items: what folds, the arrows, the fold commands, and remembering folds per note in local storage |
 
 **Printable guides.** `npm run docs:pdf` (`scripts/docs-pdf.mjs`, run by Electron) prints each `docs/*.html` page to a PDF and puts an HTML and a PDF copy of every guide in `build/Documentation/`, which is generated and not checked in. The installer shows that folder in its window (`build.dmg.contents` in `package.json`) and the app carries it in `Resources/Documentation`, which Help → Printable Guides… opens. It must be run before `electron-builder`, which stops if the folder is missing.
 
@@ -165,6 +166,7 @@ Beside the notes: `attachments/` (or the name chosen in settings), `.history/<id
 | What counts as a task, its details, the lists in the Tasks view | `lib/tasks.ts`; the view itself in `components/TasksView.tsx`. Make the same change in `tools/margin_tasks.py`, re-record the cases with `node scripts/task-fixtures.mjs --write`, and run `npm run test:tasks`. |
 | The guides' HTML pages, their find bar (⌘F) | `scripts/build-docs.mjs` (`npm run docs`): the page template, its styles and the find script; Edit → Find… in `electron/main.mjs` calls `window.marginFind` when a guide window is in front, and otherwise sends `find` to the main window (`findHere` in `App.tsx`) |
 | Quick capture and Quick task | `QuickCapture` in `components/Overlays.tsx`; the one-line task editor in `components/TaskCapture.tsx`, its suggestions in `captureCompletions` (`Editor.tsx`), dates in words in `resolveTaskWords` (`lib/tasks.ts`), saving in `captureTask` (`store.ts`) |
+| Folding | `components/folding.ts`; the commands go through `applyFormat` in `NoteView.tsx` to `EditorHandle.fold` |
 | Slash commands, link completion | `slashCommands` and `completions` in `components/Editor.tsx` |
 | The menu bar or right-click menu | `electron/main.mjs` |
 | Colours, spacing, fonts | The tokens at the top of `src/styles.css` |

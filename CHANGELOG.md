@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.17.0 (2026-10-15)
+
+### Added
+
+- **Folding.** A section (a heading and what is under it) or a list item with lines under it folds down to its first line. Hover and click the arrow to its left, or use **⌘'** to fold or unfold where the cursor is, **⌘⌥↑** to fold (again for the section around it) and **⌘⌥↓** to unfold. **Fold All** and **Unfold All** are in the Format menu and ⌘K. Folds are remembered for each note and never change the file; find and jumps open the fold they land in.
+
 ## 1.16.1 (2026-10-14)
 
 ### Changed

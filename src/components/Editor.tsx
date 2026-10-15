@@ -32,6 +32,7 @@ import { parseDatePhrase } from '../lib/dates'
 import { TASK_LINE, parseTaskText, withDetails } from '../lib/tasks'
 import { dailyLabel, isYmd, longDate, today, tagHue } from '../lib/util'
 import { livePreview } from './livePreview'
+import { externalChange, foldCommand, folding, foldOnlySectionsAndLists, restoreFolds } from './folding'
 import { cellsFromClipboard, serializeTable, tableFromCells } from './tableWidget'
 import { type ListKind, moveListItem, shiftListItem, toggleDone, toggleList } from './lists'
 import { syntaxTree } from '@codemirror/language'
@@ -54,6 +55,8 @@ export interface EditorHandle {
   upload(files: File[]): void
   /** Open the find (and replace) bar, as ⌘F does in the editor. */
   find(): void
+  /** Fold or unfold at the cursor, or all of the note. */
+  fold(kind: 'toggle' | 'fold' | 'unfold' | 'foldAll' | 'unfoldAll'): void
 }
 
 interface Props {
@@ -66,6 +69,8 @@ interface Props {
   spellcheck?: boolean
   autoPair?: boolean
   lineNumbers?: boolean
+  /** The note being edited, to remember what is folded in it. */
+  foldKey?: string
 }
 
 const highlight = HighlightStyle.define([
@@ -345,7 +350,7 @@ async function uploadInto(view: EditorView, files: File[], pos?: number, pasted 
   }
 }
 
-export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, onChange, onFollowLink, autoFocus, live, spellcheck, autoPair = true, lineNumbers: showLineNumbers }, ref) {
+export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, onChange, onFollowLink, autoFocus, live, spellcheck, autoPair = true, lineNumbers: showLineNumbers, foldKey }, ref) {
   const host = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
   const cb = useRef({ onChange, onFollowLink })
@@ -454,7 +459,8 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
           EditorView.contentAttributes.of({ spellcheck: spellcheck ? 'true' : 'false', autocorrect: spellcheck ? 'on' : 'off' }),
           EditorView.lineWrapping,
           flashField,
-          markdown({ base: markdownLanguage, codeLanguages: languages }),
+          markdown({ base: markdownLanguage, codeLanguages: languages, extensions: [foldOnlySectionsAndLists] }),
+          folding(foldKey),
           syntaxHighlighting(highlight),
           marks,
           isearchHighlight,
@@ -574,6 +580,7 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
       }),
     })
     viewRef.current = view
+    if (foldKey) restoreFolds(view, foldKey)
     if (autoFocus) view.focus()
     return () => view.destroy()
     // The editor is created once per mounted note; value changes are synced below.
@@ -587,7 +594,9 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
     const current = view.state.doc.toString()
     if (current !== value) {
       const head = Math.min(view.state.selection.main.head, value.length)
-      view.dispatch({ changes: { from: 0, to: current.length, insert: value }, selection: { anchor: head } })
+      // Replacing the whole text drops the folds, so fold again what was folded.
+      view.dispatch({ changes: { from: 0, to: current.length, insert: value }, selection: { anchor: head }, annotations: externalChange.of(true) })
+      if (foldKey) restoreFolds(view, foldKey)
     }
   }, [value])
 
@@ -723,6 +732,12 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
     },
     upload(files) {
       if (viewRef.current) uploadInto(viewRef.current, files)
+    },
+    fold(kind) {
+      const view = viewRef.current
+      if (!view) return
+      if (!foldCommand(view, kind) && (kind === 'toggle' || kind === 'fold')) toast('Nothing to fold here: put the cursor on a heading or a list item with lines under it')
+      view.focus()
     },
   }))
 

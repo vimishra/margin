@@ -508,6 +508,15 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 <li><strong>⌃A</strong> goes to the start of the text; pressed again, to the very start of the line.</li>
 </ul>
 <p>Nested levels show a faint guide line. The indent width and the guides are in Settings → Appearance.</p>
+<h3 id="folding">Folding</h3>
+<p>A section (a heading and everything under it, down to the next heading of the same or a higher level) or a list item with lines indented under it can be folded down to its first line. Hover over the line and click the small arrow to its left; a folded line keeps its arrow, pointing right, and shows <strong>…</strong> at its end. Click either to unfold.</p>
+<ul>
+<li><strong>⌘'</strong> folds or unfolds where the cursor is. Inside a section's text, it folds that section.</li>
+<li><strong>⌘⌥↑</strong> folds. Pressed again, it folds the next section or item out, so a few presses collapse a long note down to its main headings.</li>
+<li><strong>⌘⌥↓</strong> unfolds the fold on the cursor's line.</li>
+<li><strong>Fold All</strong> and <strong>Unfold All</strong> are in the Format menu and ⌘K. They fold every top-level section and list item.</li>
+</ul>
+<p>Folding never changes the note. It is remembered for each note on this computer, so a note opens the way you left it, and tasks in a folded section still show in the Tasks view. Find, Jump to a heading and links to a section open any fold they land in. Paragraphs, tables and code blocks do not fold, and the read-only view and exports always show everything.</p>
 <h3 id="tables">Tables</h3>
 <p>Tables are edited in place. Click a cell and type.</p>
 <ul>
@@ -560,6 +569,7 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 <li>Link to a Note (⌘⇧K), Web Link, Table, Math, Divider</li>
 <li>Today's Date, Current Time</li>
 <li>Tick or Untick Task, Move Task to Today, Task When…, Task Due Date…, Change Task Priority</li>
+<li>Fold or Unfold, Fold, Unfold, Fold All, Unfold All</li>
 </ul>
 <p>The menu shows each command's shortcut, including ones you have changed in Settings → Shortcuts. With no note open, the commands do nothing.</p>
 <h2 id="finding-things">Finding things</h2>
@@ -1349,6 +1359,16 @@ margin-tasks open --no-due --notebook Work --paths
 <tr>
 <td>Move list item</td>
 <td>⌥↑ / ⌥↓</td>
+<td>same</td>
+</tr>
+<tr>
+<td>Fold or unfold here</td>
+<td>⌘'</td>
+<td>⌘'</td>
+</tr>
+<tr>
+<td>Fold (again: the section around it) / unfold</td>
+<td>⌘⌥↑ / ⌘⌥↓</td>
 <td>same</td>
 </tr>
 <tr>

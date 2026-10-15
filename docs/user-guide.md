@@ -338,6 +338,17 @@ Type `/` at the start of a line or after a space. A menu appears; keep typing to
 
 Nested levels show a faint guide line. The indent width and the guides are in Settings → Appearance.
 
+### Folding
+
+A section (a heading and everything under it, down to the next heading of the same or a higher level) or a list item with lines indented under it can be folded down to its first line. Hover over the line and click the small arrow to its left; a folded line keeps its arrow, pointing right, and shows **…** at its end. Click either to unfold.
+
+- **⌘'** folds or unfolds where the cursor is. Inside a section's text, it folds that section.
+- **⌘⌥↑** folds. Pressed again, it folds the next section or item out, so a few presses collapse a long note down to its main headings.
+- **⌘⌥↓** unfolds the fold on the cursor's line.
+- **Fold All** and **Unfold All** are in the Format menu and ⌘K. They fold every top-level section and list item.
+
+Folding never changes the note. It is remembered for each note on this computer, so a note opens the way you left it, and tasks in a folded section still show in the Tasks view. Find, Jump to a heading and links to a section open any fold they land in. Paragraphs, tables and code blocks do not fold, and the read-only view and exports always show everything.
+
 ### Tables
 
 Tables are edited in place. Click a cell and type.
@@ -398,6 +409,7 @@ The same commands are in the menu bar under **Format**, for the note you are edi
 - Link to a Note (⌘⇧K), Web Link, Table, Math, Divider
 - Today's Date, Current Time
 - Tick or Untick Task, Move Task to Today, Task When…, Task Due Date…, Change Task Priority
+- Fold or Unfold, Fold, Unfold, Fold All, Unfold All
 
 The menu shows each command's shortcut, including ones you have changed in Settings → Shortcuts. With no note open, the commands do nothing.
 
@@ -896,6 +908,8 @@ Press **?** (or click **Shortcuts** at the bottom of the sidebar) for a window l
 | Bulleted / numbered / task list | ⌘⇧8 / ⌘⇧7 / ⌘⇧9 | same |
 | Nest / un-nest list item | Tab / ⇧Tab | same |
 | Move list item | ⌥↑ / ⌥↓ | same |
+| Fold or unfold here | ⌘' | ⌘' |
+| Fold (again: the section around it) / unfold | ⌘⌥↑ / ⌘⌥↓ | same |
 | Bold / italic | ⌘B / ⌘I | same |
 | Open to the side, or close it | ⌘⌥\\ | ⌘⌥\\ |
 | Side panel (backlinks) | ⌘. | ⌘. |

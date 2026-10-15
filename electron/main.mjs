@@ -187,6 +187,7 @@ let accelerators = {
   closeTab: 'CmdOrCtrl+W', new: 'CmdOrCtrl+N', capture: 'CmdOrCtrl+Shift+C', captureTask: 'CmdOrCtrl+Alt+C', scratch: 'CmdOrCtrl+Alt+N',
   canvas: 'CmdOrCtrl+Shift+N', meeting: 'CmdOrCtrl+Shift+M', expdf: 'CmdOrCtrl+P', prefs: 'CmdOrCtrl+,', tasks: 'CmdOrCtrl+Shift+T', journal: 'CmdOrCtrl+J',
   h1: 'CmdOrCtrl+1', h2: 'CmdOrCtrl+2', h3: 'CmdOrCtrl+3', h4: 'CmdOrCtrl+4', h5: 'CmdOrCtrl+5', mdlink: 'CmdOrCtrl+L',
+  foldToggle: "CmdOrCtrl+'", fold: 'CmdOrCtrl+Alt+Up', unfold: 'CmdOrCtrl+Alt+Down',
 }
 
 function buildMenu() {
@@ -297,6 +298,12 @@ function buildMenu() {
         cmd('Task When…', 'taskWhen'),
         cmd('Task Due Date…', 'taskDue'),
         cmd('Change Task Priority', 'taskPriority'),
+        { type: 'separator' },
+        cmd('Fold or Unfold', 'foldToggle'),
+        cmd('Fold', 'fold'),
+        cmd('Unfold', 'unfold'),
+        cmd('Fold All', 'foldAll'),
+        cmd('Unfold All', 'unfoldAll'),
       ],
     },
     {

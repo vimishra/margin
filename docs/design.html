@@ -132,6 +132,10 @@ mark.find-hit.current{background:#ffab2e}
 <td><code>isearch.ts</code></td>
 <td>Incremental search and smart line-start</td>
 </tr>
+<tr>
+<td><code>folding.ts</code></td>
+<td>Folding sections and list items: what folds, the arrows, the fold commands, and remembering folds per note in local storage</td>
+</tr>
 </tbody>
 </table></div><p><strong>Printable guides.</strong> <code>npm run docs:pdf</code> (<code>scripts/docs-pdf.mjs</code>, run by Electron) prints each <code>docs/*.html</code> page to a PDF and puts an HTML and a PDF copy of every guide in <code>build/Documentation/</code>, which is generated and not checked in. The installer shows that folder in its window (<code>build.dmg.contents</code> in <code>package.json</code>) and the app carries it in <code>Resources/Documentation</code>, which Help → Printable Guides… opens. It must be run before <code>electron-builder</code>, which stops if the folder is missing.</p>
 <p><strong>Command-line tool</strong> (<code>tools/margin_tasks.py</code>). A single Python file, standard library only, that lists tasks by reading the notes folder directly. It never writes. It re-implements the task rules of <code>lib/tasks.ts</code>, and <code>tests/task-cases.json</code> holds cases that both must satisfy (<code>npm run test:tasks</code>). It is packaged into the app's <code>Resources/tools</code>, and Help → Command-Line Tool… links it into <code>~/.local/bin</code> as <code>margin-tasks</code>: a folder the user owns, so the app never needs administrator rights.</p>
@@ -285,6 +289,10 @@ Each canvas card is markdown too.
 <tr>
 <td>Quick capture and Quick task</td>
 <td><code>QuickCapture</code> in <code>components/Overlays.tsx</code>; the one-line task editor in <code>components/TaskCapture.tsx</code>, its suggestions in <code>captureCompletions</code> (<code>Editor.tsx</code>), dates in words in <code>resolveTaskWords</code> (<code>lib/tasks.ts</code>), saving in <code>captureTask</code> (<code>store.ts</code>)</td>
+</tr>
+<tr>
+<td>Folding</td>
+<td><code>components/folding.ts</code>; the commands go through <code>applyFormat</code> in <code>NoteView.tsx</code> to <code>EditorHandle.fold</code></td>
 </tr>
 <tr>
 <td>Slash commands, link completion</td>

@@ -338,6 +338,14 @@ Each canvas card is markdown too.
 </ul>
 <h3 id="56-headings">5.6 Headings</h3>
 <p>Shortcuts set heading level 1 to 5 on the current line or each selected line. The same level again removes the heading; a different level changes it.</p>
+<h3 id="56a-folding">5.6a Folding</h3>
+<ul>
+<li>A heading folds from the end of its line to the end of its section (the last block before the next heading of the same or a higher level). A list item folds from the end of its first line to the end of the item, when it has lines under it (sub-items or indented text). Nothing else folds: paragraphs, quotes, tables and code blocks do not.</li>
+<li>A foldable line shows an arrow in the left margin on hover; a folded line always shows it, turned to point right, and ends with a &quot;…&quot; marker. Clicking either toggles the fold. The arrow takes no room in the line.</li>
+<li>Commands, all acting at the cursor in the active pane's editor: <strong>Fold or unfold here</strong> (Mod+'): unfold a fold on this line, else fold this line, else fold the closest section or item that contains it. <strong>Fold</strong> (Mod+Alt+↑): the same, except that on an already folded line it folds the closest container, so repeated presses collapse outwards. <strong>Unfold</strong> (Mod+Alt+↓): open the fold on this line. <strong>Fold all</strong>, <strong>Unfold all</strong>: no default keys. When folding hides the cursor, it moves to the end of the folded line. With nothing to fold, a message says so.</li>
+<li>Folds are never written into the note. They are kept per note in the app's local storage (<code>margin.folds</code>: the line number and text of each folded line) and restored when the note opens, by the same line or, if lines have moved, the nearest line with the same text. A change from outside the editor (the file changed on disk, a task ticked in the Tasks view) keeps the folds. A fold that would hide the cursor is not restored.</li>
+<li>Moving the cursor into a fold (find, find and replace, search in note, jump to a heading, a link to a section) opens it. Folding applies in writing and source modes and in the journal; the read-only view and exports show everything.</li>
+</ul>
 <h3 id="57-tables">5.7 Tables</h3>
 <ul>
 <li>A table renders as an editable grid. Click a cell and type; Tab and ⇧Tab move between cells and Enter moves down, both adding a row at the end.</li>
@@ -1221,6 +1229,21 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <td>none</td>
 </tr>
 <tr>
+<td>Fold or unfold here</td>
+<td>Mod+'</td>
+<td>same</td>
+</tr>
+<tr>
+<td>Fold (again: the container) / Unfold</td>
+<td>Mod+Alt+↑ / Mod+Alt+↓</td>
+<td>same</td>
+</tr>
+<tr>
+<td>Fold all, Unfold all</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
 <td>Switch writing / reading</td>
 <td>Mod+E</td>
 <td>same</td>
@@ -1466,7 +1489,7 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <ul>
 <li>Single window; a second launch focuses the existing one.</li>
 <li>Window size and position are remembered.</li>
-<li><strong>Menu bar:</strong> App (about, settings, quit), File (new items, choose notes folder, show notes folder, close tab, close window), Edit (standard, plus Find… ⌘F, which finds in the window in front: the note or list in the main window, or the guide in a guide window), Format (one flat list, no submenus, in separated groups: Bold, Italic, Strikethrough, Inline Code | Heading 1 to 5 | Bulleted, Numbered and Task List, Quote, Code Block | Link to a Note, Web Link, Table, Math, Divider | Today's Date, Current Time | Tick or Untick Task, Move Task to Today, Task When…, Task Due Date…, Change Task Priority; each acts on the active pane's editor), View (sidebar, side panel, mode, zoom, full screen, reload, developer tools), Go (back, forward, each view, tabs), Window, Help (User Guide, Theory of Operations, Design Guide, Printable Guides…, Keyboard Shortcuts, Command-Line Tool…). Menu items show the user's current shortcuts; the keys themselves are handled by the page so they can be customised, and an action triggered by both within 300 ms runs once.</li>
+<li><strong>Menu bar:</strong> App (about, settings, quit), File (new items, choose notes folder, show notes folder, close tab, close window), Edit (standard, plus Find… ⌘F, which finds in the window in front: the note or list in the main window, or the guide in a guide window), Format (one flat list, no submenus, in separated groups: Bold, Italic, Strikethrough, Inline Code | Heading 1 to 5 | Bulleted, Numbered and Task List, Quote, Code Block | Link to a Note, Web Link, Table, Math, Divider | Today's Date, Current Time | Tick or Untick Task, Move Task to Today, Task When…, Task Due Date…, Change Task Priority | Fold or Unfold, Fold, Unfold, Fold All, Unfold All; each acts on the active pane's editor), View (sidebar, side panel, mode, zoom, full screen, reload, developer tools), Go (back, forward, each view, tabs), Window, Help (User Guide, Theory of Operations, Design Guide, Printable Guides…, Keyboard Shortcuts, Command-Line Tool…). Menu items show the user's current shortcuts; the keys themselves are handled by the page so they can be customised, and an action triggered by both within 300 ms runs once.</li>
 <li><strong>Right-click in a note:</strong> spelling suggestions, Cut, Copy, Paste, Paste as Plain Text, Look Up, &quot;Search Notes for…&quot;, and Format, Paragraph and Insert submenus, the same commands as the Format menu. On a link: Open, Open to the Side, Copy Link. On an image: Copy Image.</li>
 <li><strong>Choosing a notes folder</strong> saves the choice and restarts the app on it; nothing is moved.</li>
 <li><strong>PDF export</strong> saves directly to a chosen file.</li>

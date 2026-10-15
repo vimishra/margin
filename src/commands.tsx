@@ -43,6 +43,8 @@ import {
   BookOpenText,
   User,
   CalendarPlus,
+  ChevronsDownUp,
+  ChevronsUpDown,
 } from 'lucide-react'
 import { addTag, closeAllTabs, closeOtherTabs, duplicateNote, renameNote, toast, askPageWidth, closeSide, createFolder, currentNote, openSide, swapPanes, importFromObsidian, carryTop3, newMeeting, newPerson, addMeetingEntry, deleteNote, go, newNote, openDaily, setPref, ui, updateNote, useStore } from './store'
 import { exportHtml, exportMarkdown, exportPdf, exportWord } from './lib/export'
@@ -130,6 +132,11 @@ export function commands(): Command[] {
       { id: 'taskDue', label: 'Task: due date…', icon: i(CalendarDays), keywords: 'deadline', run: () => format('taskDue') },
       { id: 'taskPriority', label: 'Task: change priority', icon: i(ListChecks), keywords: 'p1 p2 p3 importance', run: () => format('taskPriority') },
       { id: 'done', label: 'Tick or untick this task', icon: i(ListChecks), keywords: 'complete done check toggle finish', run: () => format('done') },
+      { id: 'foldToggle', label: 'Fold or unfold here', icon: i(ChevronsDownUp), keywords: 'collapse expand section heading list outline', run: () => format('foldToggle') },
+      { id: 'fold', label: 'Fold', icon: i(ChevronsDownUp), keywords: 'collapse hide section heading list', run: () => format('fold') },
+      { id: 'unfold', label: 'Unfold', icon: i(ChevronsUpDown), keywords: 'expand show section heading list', run: () => format('unfold') },
+      { id: 'foldAll', label: 'Fold all sections and lists', icon: i(ChevronsDownUp), keywords: 'collapse everything outline overview', run: () => format('foldAll') },
+      { id: 'unfoldAll', label: 'Unfold all', icon: i(ChevronsUpDown), keywords: 'expand everything show', run: () => format('unfoldAll') },
       { id: 'mode', label: s.mode === 'read' ? 'Switch to writing' : 'Switch to reading', icon: i(BookOpen), hint: `${MOD}E`, keywords: 'preview edit', run: toggleMode },
       { id: 'view', label: note.view === 'canvas' ? 'Show page' : 'Show canvas', icon: i(LayoutDashboard), keywords: 'board', run: () => updateNote(note.id, { view: note.view === 'canvas' ? '' : 'canvas' }) },
       ...(daily ? [] : [{ id: 'rename', label: 'Rename this note…', icon: i(PenLine), keywords: 'title name', run: () => void renameNote(note.id) }]),
