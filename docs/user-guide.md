@@ -340,7 +340,7 @@ Nested levels show a faint guide line. The indent width and the guides are in Se
 
 ### Folding
 
-A section (a heading and everything under it, down to the next heading of the same or a higher level) or a list item with lines indented under it can be folded down to its first line. Hover over the line and click the small arrow to its left; a folded line keeps its arrow, pointing right, and shows **…** at its end. Click either to unfold.
+A section (a heading and everything under it, down to the next heading of the same or a higher level) or a list item with lines indented under it can be folded down to its first line. Hover over the line and click the small arrow to its left; a folded line always shows a solid arrow in the accent colour, pointing right, and a tinted **…** at its end, so folded places are easy to spot. Click either to unfold.
 
 - **⌘'** folds or unfolds where the cursor is. Inside a section's text, it folds that section.
 - **⌘⌥↑** folds. Pressed again, it folds the next section or item out, so a few presses collapse a long note down to its main headings.

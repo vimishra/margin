@@ -132,7 +132,10 @@ class ToggleWidget extends WidgetType {
     el.className = this.folded ? 'cm-fold-toggle folded' : 'cm-fold-toggle'
     el.title = this.folded ? 'Unfold' : 'Fold'
     el.setAttribute('aria-hidden', 'true')
-    el.innerHTML = '<svg viewBox="0 0 16 16" width="1em" height="1em"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    // Open: a light chevron, shown on hover. Folded: a solid triangle in the accent colour, so it stands out.
+    el.innerHTML = this.folded
+      ? '<svg viewBox="0 0 16 16" width="1em" height="1em"><path d="M5.5 3.2 11.8 8l-6.3 4.8z" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>'
+      : '<svg viewBox="0 0 16 16" width="1em" height="1em"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'
     el.addEventListener('mousedown', (e) => {
       e.preventDefault()
       e.stopPropagation()

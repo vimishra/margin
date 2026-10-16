@@ -5375,10 +5375,15 @@ kbd {
   height: 14px;
 }
 .cm-fold-toggle.folded svg {
-  transform: rotate(-90deg);
+  width: 16px;
+  height: 16px;
 }
 .cm-fold-toggle.folded {
-  color: var(--text-3);
+  color: var(--accent);
+}
+.cm-fold-toggle.folded:hover {
+  color: var(--accent);
+  background: var(--accent-soft);
 }
 .editor .cm-editor .cm-fold-more {
   display: inline-block;
@@ -5386,14 +5391,14 @@ kbd {
   padding: 0 0.45em;
   line-height: 1.3;
   border-radius: 6px;
-  background: var(--bg-sunken);
-  border: var(--hair) solid var(--border);
-  color: var(--text-3);
+  background: var(--accent-soft);
+  border: var(--hair) solid transparent;
+  color: var(--accent-text);
   font-size: 0.85em;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   vertical-align: middle;
 }
 .editor .cm-editor .cm-fold-more:hover {
-  color: var(--text);
+  border-color: var(--accent);
 }

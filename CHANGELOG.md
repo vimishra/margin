@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.17.1 (2026-10-16)
+
+### Changed
+
+- **Folded lines stand out more.** The arrow on a folded heading or list item is now a solid triangle in the accent colour, and the **…** after it is tinted to match.
+
 ## 1.17.0 (2026-10-15)
 
 ### Added
