@@ -197,7 +197,8 @@ export function folding(key?: string): Extension {
       placeholderDOM(_view, onclick) {
         const el = document.createElement('span')
         el.className = 'cm-fold-more'
-        el.textContent = '…'
+        // Three round dots drawn rather than typed, so they stay bold in any font.
+        el.innerHTML = '<svg viewBox="0 0 18 6" width="1.3em" height="0.45em"><circle cx="3" cy="3" r="2.1"/><circle cx="9" cy="3" r="2.1"/><circle cx="15" cy="3" r="2.1"/></svg>'
         el.title = 'Folded: click to show'
         el.onclick = onclick
         return el

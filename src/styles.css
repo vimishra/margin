@@ -5399,6 +5399,11 @@ kbd {
   cursor: pointer;
   vertical-align: middle;
 }
+.editor .cm-editor .cm-fold-more svg {
+  display: block;
+  margin: 0.42em 0;
+  fill: currentColor;
+}
 .editor .cm-editor .cm-fold-more:hover {
   border-color: var(--accent);
 }
