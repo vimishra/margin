@@ -7,6 +7,7 @@ What changed in each released version of Margin. Installers are on the [releases
 ### Added
 
 - **Notes in Quick task.** Press **Tab** in the Quick task box to add notes under the task: context, a link, a few bullets. **⌘↵** saves. They are saved on the lines under the task, indented, so they travel with it when you move it to a note with **M**.
+- **Task notes in the Tasks view.** A task with lines indented under it shows a small notes icon. Hover it to read them, or click it (or press **N**) to show them under the task. They are read straight from the note; nothing is stored separately.
 
 ### Fixed
 

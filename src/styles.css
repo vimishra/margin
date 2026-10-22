@@ -4100,6 +4100,46 @@ body.resizing {
   font-size: var(--doc-size);
   font-weight: var(--doc-weight);
 }
+/* A task with lines under it in its note: a small button after the text shows them below the task */
+.task-notes-btn {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  margin-left: 6px;
+  padding: 1px 3px;
+  border-radius: 4px;
+  color: var(--text-3);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.task-notes-btn:hover,
+.task-notes-btn.open {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.task-notes {
+  margin: 6px 0 2px;
+  padding: 6px 10px;
+  border-left: 2px solid var(--border-strong, var(--border));
+  color: var(--text-2);
+  font-family: var(--doc-font);
+  font-size: calc(var(--doc-size) * 0.875);
+  line-height: 1.5;
+  cursor: text;
+  user-select: text;
+}
+.task-notes > :first-child {
+  margin-top: 0;
+}
+.task-notes > :last-child {
+  margin-bottom: 0;
+}
+.task-notes p,
+.task-notes ul,
+.task-notes ol {
+  margin: 0 0 0.4em;
+}
 /* The star on a task that is also in Today, in Things' Today yellow */
 .task-star {
   color: var(--list-today);

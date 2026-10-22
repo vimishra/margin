@@ -1,10 +1,10 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
-import { Archive, BookmarkPlus, CalendarClock, CalendarDays, Check, ChevronDown, ChevronRight, Flag, FolderInput, ListChecks, MoreHorizontal, Search, Star } from 'lucide-react'
+import { AlignLeft, Archive, BookmarkPlus, CalendarClock, CalendarDays, Check, ChevronDown, ChevronRight, Flag, FolderInput, ListChecks, MoreHorizontal, Search, Star } from 'lucide-react'
 import type { Note } from '../types'
 import { deleteTaskView, go, openDatePicker, openFromClick, openMenu, openNoteAt, openSideAt, renameTaskView, rescheduleTasks, saveTaskView, ensureInboxNote, inboxNotebook, moveTasksToNote, ui, updateTask, updateTaskView, useStore, type MenuItem } from '../store'
 import { hint } from '../shortcuts'
-import { renderInline } from '../lib/markdown'
-import { PRIORITIES, TASK_FILTERS, TASK_SOURCES, allTasks, byUrgency, isCarried, isOn, isOverdue, isToday, nextDate, priorityLabel, projectsOf, sameNotebook, selectTasks, shortDate, weekRange, withDetails, type ProjectFolders, type Task, type TaskFilter, type TaskGroup, type TaskSource, type TaskView } from '../lib/tasks'
+import { renderInline, renderMarkdown } from '../lib/markdown'
+import { PRIORITIES, TASK_FILTERS, TASK_LINE, TASK_SOURCES, allTasks, byUrgency, isCarried, isOn, isOverdue, isToday, nextDate, priorityLabel, projectsOf, sameNotebook, selectTasks, shortDate, weekRange, withDetails, type ProjectFolders, type Task, type TaskFilter, type TaskGroup, type TaskSource, type TaskView } from '../lib/tasks'
 import { addDays, cx, displayTitle, firstWeekday, local, today, tagStyle } from '../lib/util'
 
 const weekStartOf = (setting: string) => (setting === 'sunday' ? 0 : setting === 'monday' ? 1 : firstWeekday())
@@ -39,12 +39,34 @@ const priorityMenu = (task: Task): MenuItem[] =>
   [3, 2, 1, 0].map((p) => ({ label: p ? `${priorityLabel(p)}  ${PRIORITIES[p]}` : 'No priority', checked: task.priority === p, onSelect: () => updateTask(task, { raw: withDetails(task.raw, { priority: p }) }) }))
 
 /**
+ * A task's notes: the lines indented under it in its note, up to the first blank or less indented line, with the
+ * common indent taken off. Tasks among them are left out, as they are listed on their own. Read from the note
+ * each time, so they are whatever the note says now; nothing is stored apart from it.
+ */
+export function taskNotes(note: Note | undefined, task: Task): string {
+  if (!note) return ''
+  const lines = note.content.split('\n')
+  const indentOf = (l: string) => /^\s*/.exec(l)![0].length
+  const own = indentOf(lines[task.line] ?? '')
+  const out: string[] = []
+  for (let i = task.line + 1; i < lines.length && lines[i].trim() && indentOf(lines[i]) > own; i++) if (!TASK_LINE.test(lines[i])) out.push(lines[i])
+  const cut = Math.min(...out.map(indentOf))
+  return out.map((l) => l.slice(cut)).join('\n')
+}
+
+/**
  * One task with its details. Used in the Tasks view and under daily notes. `star` marks a task that is also in
  * Today, as Things does in Anytime and in its projects.
  */
-export function TaskRow({ task, note, showNote = true, active = false, star = false, onHover }: { task: Task; note: Note; showNote?: boolean; active?: boolean; star?: boolean; onHover?: () => void }) {
+export function TaskRow({ task, note, showNote = true, active = false, star = false, onHover, notesOpen, onToggleNotes }: { task: Task; note: Note; showNote?: boolean; active?: boolean; star?: boolean; onHover?: () => void; notesOpen?: boolean; onToggleNotes?: () => void }) {
   const now = today()
   const html = useMemo(() => renderInline(task.text), [task.text])
+  // The lines under the task, shown on request. The Tasks view keeps which are open (so N works); elsewhere the row does.
+  const notes = useMemo(() => taskNotes(note, task), [note, task])
+  const [ownOpen, setOwnOpen] = useState(false)
+  const showNotes = !!notes && (notesOpen ?? ownOpen)
+  const toggleNotes = onToggleNotes ?? (() => setOwnOpen((o) => !o))
+  const notesHtml = useMemo(() => (showNotes ? renderMarkdown(notes) : ''), [showNotes, notes])
   const open = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('a')) return
     // Land with the cursor at the end of the task, not with the line selected, so a stray key cannot wipe it.
@@ -60,6 +82,16 @@ export function TaskRow({ task, note, showNote = true, active = false, star = fa
           {star && <Star size={13} fill="currentColor" className="task-star" aria-label="In Today" />}
           {task.priority > 0 && <b className="task-pri">{priorityLabel(task.priority)}</b>}
           <span dangerouslySetInnerHTML={{ __html: html }} />
+          {notes && (
+            <button
+              className={cx('task-notes-btn', showNotes && 'open')}
+              title={`${showNotes ? 'Hide' : 'Show'} notes  N\n\n${notes.length > 300 ? notes.slice(0, 300) + '…' : notes}`}
+              aria-expanded={showNotes}
+              onClick={(e) => (e.stopPropagation(), toggleNotes())}
+            >
+              <AlignLeft size={13} />
+            </button>
+          )}
         </span>
         <span className="task-meta">
           {task.done && task.completed && (
@@ -93,6 +125,10 @@ export function TaskRow({ task, note, showNote = true, active = false, star = fa
             </span>
           )}
         </span>
+        {showNotes && (
+          // Reading the notes (or selecting text in them) does not open the note; a link in them opens as usual.
+          <div className="task-notes md" onClick={(e) => !(e.target as HTMLElement).closest('a') && e.stopPropagation()} dangerouslySetInnerHTML={{ __html: notesHtml }} />
+        )}
       </div>
       <div className="task-actions">
         <button className={cx('icon-btn sm', task.priority > 0 && 'active')} title="Priority" onClick={(e) => openMenu(e, priorityMenu(task))}>
@@ -273,6 +309,15 @@ export function TasksView({ view }: { view?: string }) {
   }, [groups, closed])
   const [active, setActive] = useState(0)
   const at = Math.min(active, rows.length - 1)
+  // Tasks whose notes are showing, by note and line.
+  const [openNotes, setOpenNotes] = useState<Set<string>>(() => new Set())
+  const notesKey = (t: Task) => `${t.noteId}:${t.line}`
+  const toggleNotes = (t: Task) =>
+    setOpenNotes((s) => {
+      const next = new Set(s)
+      if (!next.delete(notesKey(t))) next.add(notesKey(t))
+      return next
+    })
   useEffect(() => setActive(0), [filter, query, source, group, view])
   useEffect(() => {
     if (keyboard.current) root.current?.querySelector('.task.active')?.scrollIntoView({ block: 'nearest' })
@@ -335,6 +380,7 @@ export function TasksView({ view }: { view?: string }) {
         else if (e.key === 'd') (e.preventDefault(), pickDate(rowEl(), task, 'due'))
         else if (e.key === 's') (e.preventDefault(), pickDate(rowEl(), task, 'scheduled'))
         else if (e.key === 'm') (e.preventDefault(), moveToNote(task))
+        else if (e.key === 'n' && taskNotes(notes[task.noteId], task)) (e.preventDefault(), toggleNotes(task))
         else if (e.key === 'p') (e.preventDefault(), openMenu({ currentTarget: rowEl(), clientX: 0, clientY: 0, type: 'key', preventDefault() {} }, priorityMenu(task)))
       }}
     >
@@ -488,7 +534,7 @@ export function TasksView({ view }: { view?: string }) {
                       notes[t.noteId] && (
                         <Fragment key={`${t.noteId}:${t.line}`}>
                           {sub && sub !== g.label && (n === 0 || sub !== g.sub!(g.tasks[n - 1])) && <h5 className="task-subhead">{sub}</h5>}
-                          <TaskRow task={t} note={notes[t.noteId]} showNote={group !== 'note'} star={filter !== 'today' && filter !== 'overdue' && isToday(t, now)} active={i === at} onHover={() => ((keyboard.current = false), i !== at && setActive(i))} />
+                          <TaskRow task={t} note={notes[t.noteId]} showNote={group !== 'note'} star={filter !== 'today' && filter !== 'overdue' && isToday(t, now)} active={i === at} onHover={() => ((keyboard.current = false), i !== at && setActive(i))} notesOpen={openNotes.has(notesKey(t))} onToggleNotes={() => toggleNotes(t)} />
                         </Fragment>
                       )
                     )
@@ -499,7 +545,7 @@ export function TasksView({ view }: { view?: string }) {
         </div>
         {rows.length > 0 && (
           <p className="tasks-keys">
-            <kbd>↑</kbd><kbd>↓</kbd> move · <kbd>Space</kbd> tick · <kbd>↵</kbd> open · <kbd>T</kbd> today · <kbd>D</kbd> due · <kbd>S</kbd> when · <kbd>P</kbd> priority · <kbd>M</kbd> move to note · <kbd>/</kbd> narrow down
+            <kbd>↑</kbd><kbd>↓</kbd> move · <kbd>Space</kbd> tick · <kbd>↵</kbd> open · <kbd>T</kbd> today · <kbd>D</kbd> due · <kbd>S</kbd> when · <kbd>P</kbd> priority · <kbd>M</kbd> move to note · <kbd>N</kbd> notes · <kbd>/</kbd> narrow down
           </p>
         )}
       </div>

@@ -703,6 +703,7 @@ In the editor the details show as small labels. A due date turns red once it has
 - **Hover** a task for four buttons: priority, when (planned day or Someday), due date, and move to another note. Clicking a date label changes it too.
 - **Rescheduling:** the when and due-date buttons open a small calendar. Click a day, or type one in words (`fri`, `14 oct`, `in 3 days`) and press Enter. The arrow keys move the highlighted day, PgUp and PgDn change month, and Today, Tomorrow and Next week are one click. The when calendar also has **Someday**. **Remove** clears the date, or takes a task out of Someday.
 - **Click** a task to open its note at that line. ⌘-click opens the note to the side.
+- **Notes:** a task with lines indented under it in its note (context, links, bullets, such as the notes Quick task saves) shows a small notes icon after its text. Hover the icon to read them, or click it (or press **N**) to show them under the task. They are read from the note as it is, so editing them means editing those lines in the note. Sub-tasks are listed on their own and are not repeated in the notes. This also works in the task panel under daily notes.
 
 With the keyboard:
 
@@ -717,6 +718,7 @@ With the keyboard:
 | S | When: planned day or Someday |
 | P | Priority |
 | M | Move to another note (a project), under its Open Threads heading |
+| N | Show or hide the task's notes |
 | 1 to 9, 0 | Switch list |
 | / | Narrow down; ↓ or ↵ goes back to the list |
 
