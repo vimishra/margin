@@ -1118,12 +1118,15 @@ export async function ensureInboxNote(): Promise<Note | null> {
  * Save one task from the task capture box to the Inbox note. `raw` is the task as typed, after the checkbox;
  * dates typed in words should already be resolved. A task with a day goes on to Today or Upcoming from there.
  */
-export async function captureTask(raw: string) {
+export async function captureTask(raw: string, notes = '') {
   const task = raw.trim().replace(/\s+/g, ' ')
   if (!task) return
   const note = await ensureInboxNote()
   if (!note) return
-  appendToNote(get().notes[note.id] ?? note, `- [ ] ${task}`, '')
+  // Notes go on the lines under the task, indented, so they belong to it. Blank lines are left out: a blank
+  // line would end the task's block, and Move to note would then leave the notes behind.
+  const under = notes.split('\n').map((l) => l.trimEnd()).filter((l) => l.trim()).map((l) => '  ' + l)
+  appendToNote(get().notes[note.id] ?? note, [`- [ ] ${task}`, ...under].join('\n'), '', true)
   toast(`Task added to the Inbox`, { label: 'Open', run: () => openNote(note.id) })
 }
 

@@ -5,7 +5,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
 import { EditorState, type Extension } from '@codemirror/state'
 import { Decoration, type DecorationSet, EditorView, ViewPlugin, type ViewUpdate, keymap, placeholder } from '@codemirror/view'
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
-import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap } from '@codemirror/autocomplete'
+import { autocompletion, closeBrackets, closeBracketsKeymap, closeCompletion, completionKeymap } from '@codemirror/autocomplete'
 import { TASK_TOKENS } from '../lib/tasks'
 import { today } from '../lib/util'
 import { captureCompletions, marks } from './Editor'
@@ -96,6 +96,8 @@ export const TaskInput = forwardRef<TaskInputHandle, Props>(function TaskInput(p
             ...defaultKeymap,
           ]),
           EditorView.updateListener.of((u) => u.docChanged && cb.current.onChange(u.state.doc.toString())),
+          // Moving to the notes (or clicking away) closes the suggestion list.
+          EditorView.domEventHandlers({ blur: (_e, v) => void closeCompletion(v) }),
         ],
       }),
     })

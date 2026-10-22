@@ -2,6 +2,16 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.18.0 (2026-10-22)
+
+### Added
+
+- **Notes in Quick task.** Press **Tab** in the Quick task box to add notes under the task: context, a link, a few bullets. **⌘↵** saves. They are saved on the lines under the task, indented, so they travel with it when you move it to a note with **M**.
+
+### Fixed
+
+- The suggestion list in the Quick task box no longer stays open after you move out of the task line.
+
 ## 1.17.1 (2026-10-16)
 
 ### Changed

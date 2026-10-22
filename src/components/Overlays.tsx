@@ -5,7 +5,7 @@ import { TaskInput, type TaskInputHandle } from './TaskCapture'
 import { parseTaskText, priorityLabel, PRIORITIES, resolveTaskWords, shortDate } from '../lib/tasks'
 import { actionFor, eventCombo, hint } from '../shortcuts'
 import { openGuide, shortcutGroups } from '../commands'
-import { cx, today } from '../lib/util'
+import { cx, MOD, today } from '../lib/util'
 
 export function Toasts() {
   const toasts = useStore((s) => s.toasts)
@@ -280,14 +280,19 @@ function NoteCapture() {
  */
 function TaskCapture() {
   const dayFirst = useStore((s) => s.settings.dayFirst)
-  const [initial] = useState(() => {
-    const t = carried
+  // Text carried over from the note box: its first line is the task, the rest its notes.
+  const [[initial, initialNotes]] = useState(() => {
+    const [first, ...rest] = carried.replace(/^\s+/, '').split('\n')
     carried = ''
-    return t
+    return [first ?? '', rest.join('\n').trim()]
   })
   const [text, setText] = useState(initial)
+  const [notes, setNotes] = useState(initialNotes)
   const [saved, setSaved] = useState(0)
   const input = useRef<TaskInputHandle>(null)
+  const notesBox = useRef<HTMLTextAreaElement>(null)
+  const [inNotes, setInNotes] = useState(false)
+  const both = () => [text, notes].filter((s) => s.trim()).join('\n')
   const task = useMemo(() => parseTaskText(resolveTaskWords(text, dayFirst)), [text, dayFirst])
   const now = today()
   // Where the task will show once saved, as the Inbox list's rules decide.
@@ -296,18 +301,21 @@ function TaskCapture() {
   const close = () => ui({ capture: false })
   const save = (again: boolean) => {
     if (!text.trim()) return again || close()
-    void captureTask(resolveTaskWords(text, dayFirst))
+    void captureTask(resolveTaskWords(text, dayFirst), notes)
     if (!again) return close()
     // Shift+Enter: ready for the next one.
     input.current?.clear()
+    setNotes('')
     setSaved((n) => n + 1)
+    input.current?.focus()
   }
   return (
     <div className="overlay top" onMouseDown={close}>
-      <div className="modal capture" onMouseDown={(e) => e.stopPropagation()} onKeyDown={(e) => switchKeys(e, 'task', text)}>
-        <CaptureKind kind="task" text={text} />
+      <div className="modal capture" onMouseDown={(e) => e.stopPropagation()} onKeyDown={(e) => switchKeys(e, 'task', both())}>
+        <CaptureKind kind="task" text={both()} />
         <div className="capture-task">
-          <TaskInput ref={input} initial={initial} onChange={setText} onSubmit={save} onCancel={close} onTab={() => {}} />
+          {/* Tab goes down to the notes. */}
+          <TaskInput ref={input} initial={initial} onChange={setText} onSubmit={save} onCancel={close} onTab={(back) => !back && notesBox.current?.focus()} />
         </div>
         <div className="capture-reads">
           {text.trim() ? (
@@ -328,10 +336,40 @@ function TaskCapture() {
             </span>
           )}
         </div>
+        <textarea
+          ref={notesBox}
+          className="capture-notes"
+          value={notes}
+          rows={Math.min(8, Math.max(2, notes.split('\n').length))}
+          placeholder="Notes (optional): saved on the lines under the task"
+          spellCheck
+          onFocus={() => setInNotes(true)}
+          onBlur={() => setInNotes(false)}
+          onChange={(e) => setNotes(e.target.value)}
+          onKeyDown={(e) => {
+            // Enter starts a new line here; ⌘↵ saves, ⇧⌘↵ saves and starts another, ⇧Tab goes back to the task.
+            if (e.key === 'Escape') close()
+            else if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+              e.preventDefault()
+              save(e.shiftKey)
+            } else if (e.key === 'Tab' && e.shiftKey) {
+              e.preventDefault()
+              input.current?.focus()
+            }
+          }}
+        />
         <footer>
           <span className="capture-to">Saves to the Inbox note</span>
           <span className="capture-hint">
-            <kbd>⇧↵</kbd> save, add another · <kbd>↵</kbd> save
+            {inNotes ? (
+              <>
+                <kbd>⇧⇥</kbd> task · <kbd>↵</kbd> new line · <kbd>{MOD}↵</kbd> save
+              </>
+            ) : (
+              <>
+                <kbd>⇥</kbd> notes · <kbd>⇧↵</kbd> save, add another · <kbd>↵</kbd> save
+              </>
+            )}
           </span>
           <button className="btn primary" onClick={() => save(false)}>
             Save

@@ -2697,6 +2697,16 @@ button.crumb:hover {
 .capture textarea {
   padding-top: 12px;
 }
+/* The task's notes, under the task line: quieter than the task itself */
+.capture textarea.capture-notes {
+  padding: 4px 22px 8px 40px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-2);
+  background: transparent;
+  border: none;
+  outline: none;
+}
 /* The task box: one line of the editor, with the details as labels */
 .capture-task {
   padding: 14px 22px 6px;

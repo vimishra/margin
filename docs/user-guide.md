@@ -517,6 +517,7 @@ Type the task with its details, as you would on a task line in a note, and the s
 You do not have to pick a suggestion: when the task is saved, `>fri` and `@due(next week)` are turned into the dates they mean. The line under the box shows what Margin understood (When Tomorrow, Due Fri 16 Oct, P2, #atlas) before you save.
 
 - **Enter** saves the task and closes the box. **⇧Enter** saves it and keeps the box open for the next one.
+- **Tab** moves down to **Notes**, for anything that belongs with the task: context, a link, a few bullets. There, **Enter** starts a new line, **⌘↵** saves, **⇧⌘↵** saves and starts another, and **⇧Tab** goes back up to the task. The notes are saved on the lines under the task, indented, so they stay with it when you tick it or move it with **M**. Blank lines are left out, since a blank line would cut the notes off from the task.
 - Every task goes to the end of the **Inbox note**: the note called *Inbox* in your Inbox notebook, made the first time it is needed.
 - With no day, it waits in the **Inbox** list until you decide on it (see [The Inbox](#the-inbox)). If you typed a day (`>fri`) or Someday, it shows in Today, Upcoming or Someday instead; the line under the box tells you which before you save.
 - Esc closes a suggestion list first, then the box.
