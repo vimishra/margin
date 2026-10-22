@@ -48,6 +48,7 @@ const Day = memo(function Day({ note, focused, first, onFocus, handle }: { note:
             spellcheck={settings.spellcheck}
             autoPair={settings.autoPair}
             lineNumbers={settings.lineNumbers}
+            foldKey={note.id}
             value={page}
             onChange={setPage}
             onFollowLink={(target, side) => followLink(target, side)}

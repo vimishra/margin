@@ -22,6 +22,7 @@ import {
   Search,
   List,
   ListChecks,
+  Filter,
   ListOrdered,
   LayoutTemplate,
   Users,
@@ -42,12 +43,16 @@ import {
   BookOpenText,
   User,
   CalendarPlus,
+  ChevronsDownUp,
+  ChevronsUpDown,
 } from 'lucide-react'
 import { addTag, closeAllTabs, closeOtherTabs, duplicateNote, renameNote, toast, askPageWidth, closeSide, createFolder, currentNote, openSide, swapPanes, importFromObsidian, carryTop3, newMeeting, newPerson, addMeetingEntry, deleteNote, go, newNote, openDaily, setPref, ui, updateNote, useStore } from './store'
 import { exportHtml, exportMarkdown, exportPdf, exportWord } from './lib/export'
 import { ALT, MOD } from './lib/util'
 import { SHORTCUT_DEFS, hint } from './shortcuts'
 import { desktop, fileManager } from './desktop'
+import { TASK_FILTERS } from './lib/tasks'
+import { listColor, listIcon } from './components/listIcons'
 
 /** Opens one of the guides: a window of its own in the desktop app, a new tab in a browser. */
 export const openGuide = (page: 'user-guide' | 'design' | 'operations') => void window.open(`/docs/${page}.html`, '_blank')
@@ -75,7 +80,8 @@ export function commands(): Command[] {
   const i = (El: typeof Home) => <El size={16} />
   const list: Command[] = [
     { id: 'new', label: 'New note', icon: i(FilePlus2), hint: `${ALT}N`, keywords: 'create page', run: () => newNote('note') },
-    { id: 'capture', label: 'Quick capture', icon: i(Zap), hint: `${ALT}C`, keywords: 'jot inbox', run: () => ui({ capture: true }) },
+    { id: 'capture', label: 'Quick capture', icon: i(Zap), hint: `${ALT}C`, keywords: 'jot daily note today', run: () => ui({ capture: 'note' }) },
+    { id: 'captureTask', label: 'Quick task', icon: i(ListChecks), keywords: 'capture todo add task inbox things quick entry', run: () => ui({ capture: 'task' }) },
     { id: 'daily', label: "Open today's daily note", icon: i(CalendarCheck), hint: `${ALT}D`, keywords: 'journal today', run: () => openDaily() },
     { id: 'scratch', label: 'New scratch note', icon: i(Hourglass), hint: `${ALT}S`, keywords: 'temporary expire', run: () => newNote('scratch') },
     { id: 'canvas', label: 'New canvas', icon: i(LayoutDashboard), keywords: 'board whiteboard', run: () => newNote('canvas') },
@@ -89,6 +95,21 @@ export function commands(): Command[] {
     { id: 'calendar', label: 'Go to Calendar', icon: i(CalendarDays), hint: `${ALT}L`, run: () => go({ name: 'calendar' }) },
     { id: 'carryTop3', label: 'Move unfinished Top 3 to today', icon: i(CalendarCheck), keywords: 'carry forward roll over yesterday daily', run: () => carryTop3(undefined, true) },
     { id: 'tasks', label: 'Go to Tasks', icon: i(ListChecks), keywords: 'action items todo due overdue', run: () => go({ name: 'tasks' }) },
+    // Every list in the Tasks view, and every saved filter, so ⌘K can open them by name: "inbox", "upcoming".
+    ...TASK_FILTERS.map(([f, label, title]): Command => ({
+      id: `tasks:${f}`,
+      label: `Tasks: ${label}`,
+      icon: <span className="list-tint" style={{ color: listColor(f) }}>{listIcon(f, 16) ?? i(ListChecks)}</span>,
+      keywords: `go to list task ${title.toLowerCase()}${f === 'done' ? ' done finished completed' : f === 'undated' ? ' undated' : ''}`,
+      run: () => go({ name: 'tasks', view: f === 'open' ? undefined : f }),
+    })),
+    ...s.settings.taskViews.map((v): Command => ({
+      id: `tasks:s:${v.id}`,
+      label: `Tasks: ${v.name}`,
+      icon: i(Filter),
+      keywords: 'go to list task saved filter',
+      run: () => go({ name: 'tasks', view: `s:${v.id}` }),
+    })),
     { id: 'all', label: 'Go to All notes', icon: i(Files), hint: `${ALT}A`, run: () => go({ name: 'all' }) },
     { id: 'goscratch', label: 'Go to Scratch', icon: i(Hourglass), run: () => go({ name: 'scratch' }) },
     { id: 'research', label: 'Go to Research', icon: i(BookMarked), hint: `${ALT}R`, run: () => go({ name: 'research' }) },
@@ -111,6 +132,11 @@ export function commands(): Command[] {
       { id: 'taskDue', label: 'Task: due date…', icon: i(CalendarDays), keywords: 'deadline', run: () => format('taskDue') },
       { id: 'taskPriority', label: 'Task: change priority', icon: i(ListChecks), keywords: 'p1 p2 p3 importance', run: () => format('taskPriority') },
       { id: 'done', label: 'Tick or untick this task', icon: i(ListChecks), keywords: 'complete done check toggle finish', run: () => format('done') },
+      { id: 'foldToggle', label: 'Fold or unfold here', icon: i(ChevronsDownUp), keywords: 'collapse expand section heading list outline', run: () => format('foldToggle') },
+      { id: 'fold', label: 'Fold', icon: i(ChevronsDownUp), keywords: 'collapse hide section heading list', run: () => format('fold') },
+      { id: 'unfold', label: 'Unfold', icon: i(ChevronsUpDown), keywords: 'expand show section heading list', run: () => format('unfold') },
+      { id: 'foldAll', label: 'Fold all sections and lists', icon: i(ChevronsDownUp), keywords: 'collapse everything outline overview', run: () => format('foldAll') },
+      { id: 'unfoldAll', label: 'Unfold all', icon: i(ChevronsUpDown), keywords: 'expand everything show', run: () => format('unfoldAll') },
       { id: 'mode', label: s.mode === 'read' ? 'Switch to writing' : 'Switch to reading', icon: i(BookOpen), hint: `${MOD}E`, keywords: 'preview edit', run: toggleMode },
       { id: 'view', label: note.view === 'canvas' ? 'Show page' : 'Show canvas', icon: i(LayoutDashboard), keywords: 'board', run: () => updateNote(note.id, { view: note.view === 'canvas' ? '' : 'canvas' }) },
       ...(daily ? [] : [{ id: 'rename', label: 'Rename this note…', icon: i(PenLine), keywords: 'title name', run: () => void renameNote(note.id) }]),

@@ -91,6 +91,20 @@ function sanitizeFolder(folder) {
     .join('/')
 }
 
+/**
+ * The folder spelled as it already is on disk when one differs only in capitals. macOS treats "inbox" and
+ * "Inbox" as one folder, so a note written to the other spelling would land in the existing folder while
+ * being recorded under a different name until the next scan.
+ */
+function existingFolder(folder) {
+  let out = ''
+  for (const part of folder.split('/').filter(Boolean)) {
+    const want = out ? `${out}/${part}` : part
+    out = folders.find((f) => f.toLowerCase() === want.toLowerCase()) ?? want
+  }
+  return out
+}
+
 function iso(v) {
   if (!v) return undefined
   const d = new Date(v)
@@ -259,7 +273,7 @@ app.get('/api/state', h(async (_req, res) => {
 
 app.post('/api/notes', h(async (req, res) => {
   const b = req.body || {}
-  const folder = sanitizeFolder(b.folder)
+  const folder = existingFolder(sanitizeFolder(b.folder))
   const title = String(b.title || 'Untitled').trim() || 'Untitled'
   const now = new Date().toISOString()
   const rec = {
@@ -310,7 +324,7 @@ app.put('/api/notes/:id', h(async (req, res) => {
   if (typeof b.title === 'string' && b.title.trim()) rec.title = b.title.trim()
 
   const curFolder = path.posix.dirname(rec.path) === '.' ? '' : path.posix.dirname(rec.path)
-  const folder = typeof b.folder === 'string' ? sanitizeFolder(b.folder) : curFolder
+  const folder = typeof b.folder === 'string' ? existingFolder(sanitizeFolder(b.folder)) : curFolder
   if (rec.title !== oldTitle || folder !== curFolder) {
     const target = await freePath(folder, rec.title, oldPath)
     if (target !== oldPath) {
@@ -362,7 +376,7 @@ app.get('/api/notes/:id/versions/:ts', h(async (req, res) => {
 }))
 
 app.post('/api/folders', h(async (req, res) => {
-  const folder = sanitizeFolder(req.body?.path)
+  const folder = existingFolder(sanitizeFolder(req.body?.path))
   if (!folder) throw new HttpError(400, 'Folder name required')
   await fs.mkdir(abs(folder), { recursive: true })
   await scan()

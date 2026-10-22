@@ -181,7 +181,7 @@ Top to bottom:
 2. A search button that opens the palette, showing its shortcut.
 3. **New note** button; a **New…** menu (Note, Canvas, Scratch note, Meeting note, Person note, Research note, From a template…, Notebook); a **Quick capture** button.
 4. Navigation: Home, Today, Journal, Calendar, All notes (with count), Tasks (with the Today count), Research (count), Scratch (count). Each entry's icon has its own colour, kept whether or not the entry is selected; notebook icons share one colour. Note icons are coloured by kind wherever notes are listed: ordinary notes blue, daily notes amber, research notes purple, scratch notes brown, canvas notes teal.
-5. Under Tasks: Today, Upcoming, Anytime, Someday, Logbook, and Overdue only while something is overdue, each with an icon in its own colour and a count (no count for Logbook); then the user's saved filters.
+5. Under Tasks: Inbox, Today, Upcoming, Anytime, Someday, Logbook, and Overdue only while something is overdue, each with an icon in its own colour and a count (no count for Logbook); then the user's saved filters.
 6. A small month calendar that can be folded. Days with a daily note have a dot; today is ringed; clicking a day opens its note.
 7. **Pinned** notes, alphabetical.
 8. **Recent**: the five notes opened most recently, newest first.
@@ -249,6 +249,14 @@ Headings 1 to 6, bold, italic, strikethrough, inline code, fenced code blocks wi
 
 Shortcuts set heading level 1 to 5 on the current line or each selected line. The same level again removes the heading; a different level changes it.
 
+### 5.6a Folding
+
+- A heading folds from the end of its line to the end of its section (the last block before the next heading of the same or a higher level). A list item folds from the end of its first line to the end of the item, when it has lines under it (sub-items or indented text). Nothing else folds: paragraphs, quotes, tables and code blocks do not.
+- A foldable line shows an arrow in the left margin on hover; a folded line always shows it as a solid right-pointing triangle in the accent colour, and ends with a "…" marker tinted in the accent colour. Clicking either toggles the fold. The arrow takes no room in the line.
+- Commands, all acting at the cursor in the active pane's editor: **Fold or unfold here** (Mod+'): unfold a fold on this line, else fold this line, else fold the closest section or item that contains it. **Fold** (Mod+Alt+↑): the same, except that on an already folded line it folds the closest container, so repeated presses collapse outwards. **Unfold** (Mod+Alt+↓): open the fold on this line. **Fold all**, **Unfold all**: no default keys. When folding hides the cursor, it moves to the end of the folded line. With nothing to fold, a message says so.
+- Folds are never written into the note. They are kept per note in the app's local storage (`margin.folds`: the line number and text of each folded line) and restored when the note opens, by the same line or, if lines have moved, the nearest line with the same text. A change from outside the editor (the file changed on disk, a task ticked in the Tasks view) keeps the folds. A fold that would hide the cursor is not restored.
+- Moving the cursor into a fold (find, find and replace, search in note, jump to a heading, a link to a section) opens it. Folding applies in writing and source modes and in the journal; the read-only view and exports show everything.
+
 ### 5.7 Tables
 
 - A table renders as an editable grid. Click a cell and type; Tab and ⇧Tab move between cells and Enter moves down, both adding a row at the end.
@@ -305,7 +313,7 @@ An Emacs-style incremental search:
 - Matches highlight as you type, with a count. The same key again goes to the next match; the backward key goes to the previous one and also starts a backward search.
 - Enter stays at the match and closes the bar. Esc returns to where the search began.
 - All lowercase ignores case; any capital makes it exact.
-- ⌘F opens ordinary find and replace.
+- ⌘F opens ordinary find and replace. Outside the editor ⌘F (and Edit → Find… in the desktop app) finds in what is in front: the Tasks view's or a list's narrow-down box gets focus with its text selected, a guide window opens its find bar, the keyboard shortcuts window focuses its find box, and anywhere else the palette opens for search.
 
 ### 5.13 Other editor behaviour
 
@@ -357,7 +365,7 @@ One palette, opened by ⌘K, does three jobs.
 - **Words:** full-text search over titles and content, with a snippet. Opening a result scrolls to the first match and flashes that line.
 - **`#tag`:** notes with that tag.
 - **A date phrase:** that day's daily note first.
-- **Command names:** matching commands rank above notes.
+- **Command names:** matching commands rank above notes. Every list of the Tasks view is a command named "Tasks: <list>" (Inbox, Today, …, All open), with that list's icon and colour, and so is every saved filter ("Tasks: <name>"); each opens that list.
 - **`>`:** commands only.
 - **⌥↵** opens the selected note in the side pane. **⌘↵** creates a note named with the typed text.
 
@@ -365,7 +373,7 @@ The palette has further modes with the same look: move a note to a notebook (wit
 
 **Jumping to a place in a note** (from search or the Tasks view): a search result selects the text found; a task, or a meeting entry just added, puts the cursor at the end of its line with nothing selected, so a stray key cannot replace the line. Either way the editor scrolls it to the middle, repeats the scroll a few times over the first second while images and tables settle, and flashes the line for about 1.5 seconds. It works in either pane.
 
-**Commands** cover every action in the app: create (note, canvas, scratch, meeting, person, research, from template, notebook), go to (each view), on the current note (side, swap, jump to heading, search, formatting, headings, lists, task actions, mode, page or canvas, rename, duplicate, add tag, copy link, reveal file, close tab, close others, close all, pin, history, move, export as Markdown, HTML, PDF, Word, delete), and app (page width, sidebar, side panel, theme, settings, import, help pages, keyboard shortcuts).
+**Commands** cover every action in the app: create (note, canvas, scratch, meeting, person, research, from template, notebook), go to (each view, each task list and saved filter), on the current note (side, swap, jump to heading, search, formatting, headings, lists, task actions, mode, page or canvas, rename, duplicate, add tag, copy link, reveal file, close tab, close others, close all, pin, history, move, export as Markdown, HTML, PDF, Word, delete), and app (page width, sidebar, side panel, theme, settings, import, help pages, keyboard shortcuts).
 
 ## 8. Kinds of note
 
@@ -442,16 +450,19 @@ Every note has a second side: an unbounded board of cards.
 
 ### 11.1 Quick capture
 
-A small box with a text area and a destination selector. Enter saves, ⇧Enter adds a line, Tab cycles destinations, Esc closes.
+A small box with a text area. Enter saves, ⇧Enter adds a line, Esc closes. There is one destination, today's daily note: the text is appended to the page as `- **time** : text` (without the time when that setting is off), or as a card when today is a canvas. An empty trailing bullet left by the template is replaced. Text typed as a task (`- [ ] …`) is added as that task with no timestamp.
 
-| Destination | Result |
-| --- | --- |
-| Today's note (default) | Appended to the page as `- **time** : text`, or as a card when today is a canvas. An empty trailing bullet left by the template is replaced. Text typed as a task (`- [ ] …`) is added as that task with no timestamp. |
-| Scratch | A new scratch note |
-| Inbox | A new note in the Inbox notebook, titled with the first line |
-| A note… | Appended as a list item to a chosen note, at the end of a chosen heading's section or the end of the page. The note and heading are remembered. ⌥↓ picks another note. |
+Whether to add the time is a setting. In the desktop app a global hotkey opens capture from any application.
 
-The default destination and whether to add the time are settings. In the desktop app a global hotkey opens capture from any application.
+**Quick task.** The same box can be opened for a task (its own shortcut and global hotkey). A Note / Task switch at the top changes between the two; the shortcuts of either do the same while the box is open, and the text typed so far is kept.
+
+- One line of the editor: a pasted line break becomes a space. The details are marked as labels as they are typed, as on a task line in a note.
+- Suggestions: `>` or `@due(` with a phrase offer dates as in [section 12.2](#122-entering-details) (`>some` offers someday); `P` after a space offers P1, P2, P3; `#` offers tags; `[[` offers notes. No slash commands.
+- A line under the text shows the details read from it (when or Someday, due date, priority, tags), with dates typed in words already turned into dates.
+- On save, a date phrase after `>` (the longest run of up to three words that reads as a date, or `someday`) and inside `@due(…)` is replaced by the date; anything that is not a date is left as typed. The task is saved as `- [ ] <text>`.
+- **Notes**: a multi-line box under the task line (Tab from the task line, Shift+Tab back). Enter makes a new line; Mod+Enter saves, Mod+Shift+Enter saves and keeps the box open. Each non-blank line is saved under the task indented by two spaces (blank lines are dropped, so the notes stay in the task's block for Move to note). Switching from the note box carries its first line to the task and the rest to the notes; switching back joins them.
+- One destination: appended as the last line of the **Inbox note**, the note titled `Inbox` in the Inbox notebook, which is created empty when it does not exist. A task with no planned day is then in the Inbox list ([section 12.4](#124-the-lists)); one with a day or Someday is in that list instead, and the line under the text says which before saving.
+- Enter saves and closes; ⇧Enter saves and clears the box for another task; Esc closes an open suggestion list, otherwise the box.
 
 ### 11.2 Templates
 
@@ -575,31 +586,45 @@ Given today's date `now`:
 
 | List | A task is in it when |
 | --- | --- |
+| Inbox | Not done, in the Inbox note, no planned day, not Someday |
 | Today | Not done, and planned on or before `now`, or due on or before `now` |
 | Upcoming | Not done, and planned after `now` |
-| Anytime | Not done, not Someday, and not planned after `now` |
+| Anytime | Not done, not Someday, not planned after `now`, and not in the Inbox |
 | Someday | Not done, and marked Someday |
 | Logbook | Done |
 | Overdue | Not done, and due before `now` |
 | This week | Not done, and due or planned within the current week |
 | Next 30 days | Not done, and due or planned from `now` to `now` + 30 days inclusive |
-| No date | Not done, no due date, no planned day, not Someday |
+| No date | Not done, no due date, no planned day, not Someday, not in the Inbox |
 | All open | Not done |
 
-Consequences that must hold: a planned day passing never makes a task overdue, it stays in Today until ticked; a task with only a future due date is in Anytime; Today's tasks are also in Anytime; a Someday task with a due date appears in Today once that date arrives.
+"The Inbox note" is the note titled `Inbox` in the notebook named by the Inbox notebook setting (default `Inbox`), both compared ignoring capitals and stray spaces, as macOS compares folder names. Other notes in that notebook, and notebooks inside it, are not the Inbox. When other notes in the Inbox notebook hold open tasks, the Inbox list offers to move them all into the Inbox note (as Move to another note does, with one Undo). A note created in or moved into a notebook whose name differs from an existing one only in capitals goes into the existing one, under its spelling.
+
+Consequences that must hold: a planned day passing never makes a task overdue, it stays in Today until ticked; a task with only a future due date is in Anytime, unless it is in the Inbox; an Inbox task leaves the Inbox when it is given a planned day or Someday, or moved to another note, and nothing else is needed; an Inbox task due on or before `now` is in both the Inbox and Today; Today's tasks are also in Anytime; a Someday task with a due date appears in Today once that date arrives.
 
 **Order.** Lists sort by the day a task next needs attention: a passed due date first; otherwise the earlier of its planned day (a passed planned day counts as today) and its due date; undated last. Then higher priority, then note, then position in the note. The Logbook sorts by done date, latest first, with undated last.
 
 ### 12.5 The Tasks view
 
 - A header with the open and overdue counts, and a **Save filter** button.
-- A row of chips, one per list in the order of the table above, each with its count (none for the Logbook). Keys 1 to 9 and 0 select them in order.
+- A row of chips, one per list in the order of the table above, each with its count (none for the Logbook). Keys: 1 Inbox, 2 Today, 3 Upcoming, 4 Anytime, 5 Someday, 6 Logbook, 7 Overdue, 8 This week, 9 No date, 0 All open; Next 30 days has none.
 - A narrow-down box: words must all appear in the task text or its note's title; `#tag` requires that tag or a nested one; `p1`, `p2`, `p3` require that priority or higher. Tag chips below it toggle a tag.
 - **From:** All, Notes (not daily notes), Daily (only daily notes).
-- **Group by:** Date (Overdue, Today, Tomorrow, Later this week, Later, No date, Someday; in the Logbook, by done date, latest first, with "Day not recorded" last), Project (each note's tasks together under its notebook, in written order under their headings, with a progress circle; daily notes kept as one group), Priority, None. Groups fold.
-- **A row** shows a checkbox, the priority badge, the task text rendered as inline markdown, date labels, and the note and heading it comes from. On hover: buttons for priority, when and due date. Clicking the row opens its note at that line; ⌘-click opens it to the side at that line.
+- **Group by:** Date (Overdue, Today, Tomorrow, Later this week, Later, No date, Someday; in the Logbook, by done date, latest first, with "Day not recorded" last), Project (see below), Priority, None. Groups fold.
+- **A row** shows a checkbox, a yellow star when the task is also in Today (in every list but Today and Overdue, as Things marks Today's to-dos in Anytime and projects), the priority badge, the task text rendered as inline markdown, date labels, and the note and heading it comes from. On hover: buttons for priority, when, due date, and move to another note. Clicking the row opens its note at that line; ⌘-click opens it to the side at that line.
+- **Move to another note:** opens the palette listing notes (not scratch notes or templates, most recently edited first, with their notebook), filtered as you type. Choosing one removes the task's line, with the indented lines under it, from its note and adds them at the end of the section under the chosen note's `Open Threads` heading (any level, capitals ignored), after what is already there and before the next heading of the same or a higher level; when the section is empty a blank line separates heading and task. A note without that heading gets `## Open Threads` at the end of its page, after a blank line, with the task under it. The lines go in at the left margin, the lines under the task keeping their indent relative to it. When the typed text matches no note's title, a "New note" item makes a note of that name containing `## Open Threads` and the task: in the notebook typed before a slash (`People/Sam`), otherwise in the notebook of the most recently edited project note, otherwise at the top level. A message offers Undo, which restores both notes if neither has changed since. (The Inbox list's "Move them into Inbox" adds at the end of the Inbox note, with no heading.)
 - **Bulk move:** when overdue tasks are shown, "Move all…" opens the date picker and gives each a new due date, with Undo.
-- **Keys** on the highlighted row: ↑ ↓ (J K), Home, End, Space or X to tick, T for today, S for when, D for due, P for priority, Enter to open, ⇧Enter to open to the side, `/` to focus the box (↓ or Enter returns to the list). After a menu or picker closes, focus returns to the list. A line at the bottom lists the keys.
+- **Task notes**: the lines indented under a task in its note, up to the first blank or less indented line, with sub-task lines left out and the common indent removed. A task that has any shows a notes icon after its text; its tooltip shows them as written, and clicking it (or N) shows them rendered as markdown under the task, in a quieter, smaller style with a rule on the left. Clicking the notes does not open the note; links in them work. Nothing is stored: they are read from the note each time. The same applies to task rows in the panel under daily notes, where each row keeps its own open state.
+- **Keys** on the highlighted row: ↑ ↓ (J K), Home, End, Space or X to tick, T for today, S for when, D for due, P for priority, M to move to another note, N to show or hide its notes, Enter to open, ⇧Enter to open to the side, `/` to focus the box (↓ or Enter returns to the list). After a menu or picker closes, focus returns to the list. A line at the bottom lists the keys.
+
+**Group by Project.** A *project* is an ordinary note (not daily, research or scratch) outside the Daily, Meetings, Inbox, Templates, Scratch and People notebooks and the notebooks inside them. Each task is listed under:
+
+1. its own note, when that note is a project;
+2. otherwise, the projects linked (`[[Title]]`) on the task's own line, if any;
+3. otherwise, when its note is in the Meetings notebook, the projects that note links anywhere;
+4. otherwise, its own note; daily notes that come to this are gathered into one "Daily notes" group, latest day first.
+
+A task can so be listed under several projects. A project's group shows the notebook, the title, the count of tasks shown and a progress circle (ticked over all tasks listed under it, including linked ones). Inside it, its own tasks come first in written order under their headings, then the linked ones under "From <note>", latest note first. Nothing in any note changes. The command-line tool's `--group note` groups by each task's own note.
 
 ### 12.6 Saved filters
 
@@ -653,7 +678,7 @@ A settings window with a search box that finds any setting or shortcut by name, 
 | Setting | Values | Default |
 | --- | --- | --- |
 | Start page | Home, today's note, last note | Home |
-| New notes go to | Current notebook, top level, Inbox | Current |
+| New notes go to | Current notebook, top level | Current |
 | Inbox notebook | name | `Inbox` |
 | Sidebar sections shown | any of the 11 | all |
 | Week starts on | Auto, Sunday, Monday | Auto |
@@ -690,7 +715,6 @@ A settings window with a search box that finds any setting or shortcut by name, 
 | File meetings by date | date pattern, or empty | `YYYY/MMM` |
 | Link new meetings from today's note | on, off | on |
 | People notebook | name | `People` |
-| Capture goes to | Today's note, Scratch, Inbox | Today's note |
 | Add the time to captures | on, off | on |
 | Scratch notes expire after | days | 7 |
 | Scratch notebook | name | `Scratch` |
@@ -728,6 +752,7 @@ Every action below can be reassigned or cleared in Settings → Shortcuts, which
 | Close other tabs, Close all tabs | none | none |
 | New note | Mod+N | Alt+N |
 | Quick capture | Mod+Shift+C | Alt+C |
+| Quick task | Mod+Alt+C | Alt+Shift+C |
 | New scratch note | Mod+Alt+N | Alt+S |
 | New canvas | Mod+Shift+N | none |
 | New meeting note | Mod+Shift+M | Alt+T |
@@ -746,6 +771,9 @@ Every action below can be reassigned or cleared in Settings → Shortcuts, which
 | Task: due date | Mod+Shift+D | Alt+Shift+D |
 | Task: priority | Mod+Shift+P | Alt+Shift+P |
 | Move unfinished Top 3 to today | none | none |
+| Fold or unfold here | Mod+' | same |
+| Fold (again: the container) / Unfold | Mod+Alt+↑ / Mod+Alt+↓ | same |
+| Fold all, Unfold all | none | none |
 | Switch writing / reading | Mod+E | same |
 | Switch page / canvas | none | none |
 | Side panel | Mod+. | same |
@@ -764,13 +792,13 @@ Every action below can be reassigned or cleared in Settings → Shortcuts, which
 | Where | Key | Does |
 | --- | --- | --- |
 | Anywhere | Alt+1 to Alt+9 | Jump to that tab |
-| Anywhere, not typing | `?` | Keyboard shortcuts window |
+| Anywhere, not typing | `?` | Keyboard shortcuts window, with a find box that has focus: typing narrows the list to shortcuts whose group, name or keys contain the text (ignoring case); Esc clears it, then closes the window |
 | Anywhere (Mac) | Ctrl+[ / Ctrl+] | Back / forward, unless reassigned |
 | Editor | `/` | Slash commands |
 | Editor | `[[` | Link to a note |
 | Editor | Mod+B, Mod+I | Bold, italic |
 | Editor | Mod+Shift+K | Wrap selection in a note link |
-| Editor | Mod+F | Find and replace |
+| Editor | Mod+F | Find and replace; elsewhere, find in what is in front (see section 5) |
 | Editor | Ctrl+A (Mac) | Start of text, then start of line |
 | Editor | Tab / Shift+Tab | Nest / un-nest a list item |
 | Editor | Alt+↑ / Alt+↓ | Move a line or list item |
@@ -780,6 +808,7 @@ Every action below can be reassigned or cleared in Settings → Shortcuts, which
 | Canvas | Double-click, N, Enter, Esc, ⌫, scroll, Mod+scroll | See section 10 |
 | Quick capture | Enter, Shift+Enter, Tab, Alt+↓, Esc | See section 11.1 |
 | Desktop, any app | Ctrl+Alt+Space | Quick capture |
+| Desktop, any app | Ctrl+Alt+T | Quick task |
 
 ## 17. Appearance
 
@@ -788,34 +817,36 @@ Every action below can be reassigned or cleared in Settings → Shortcuts, which
 
 | | Light | Dark |
 | --- | --- | --- |
-| Page | `#ffffff` | `#282828` |
-| Sidebar | `#f9f9fb` | `#282828`, with a darker dividing line |
-| Text | `#15171a` | `#ededee` |
-| Secondary text | `#3c3e41` | `#c8c8ca` |
+| Page | `#ffffff` | `#161617` (near-black) |
+| Sidebar | `#f9f9fb` | `#161617`, with a darker dividing line |
+| Text | `#15171a` | `#f8f8f9` (almost white) |
+| Secondary text | `#3c3e41` | `#d8d8da` |
 | Muted text | `#8e9093`, `#b7b8ba` | `#98989b`, `#69696b` |
-| Borders | `#ebecee`, `#d3d5d8` | `#1f2021`, `#4a4b4d` |
+| Borders | `#ebecee`, `#d3d5d8` | `#0c0c0d`, `#4a4b4d` |
+| Panels and pop-ups | `#ffffff` | `#222224` |
 | Selected row | about `#dfe1e7` | about `#393b3d` |
 | Default accent | `#255fb3` | `#5b9df0` |
 | Danger | `#e0345a` | `#f0577a` |
+| Inbox | `#1b89f0` | `#3d9cf3` |
 | Today / Upcoming / Anytime / Someday / Logbook | `#fed301` / `#d92f5c` / `#39a69c` / `#cbbf7f` / `#4dbc61` | `#fed402` / `#d73d67` / `#4eb0a4` / `#d1c68a` / `#4dbd61` |
 
 - **Native behaviour:** the cursor is the arrow over every control and only becomes the pointing hand over links inside notes. Dividing lines are 1 px, or 0.5 px on high-density screens with a slightly stronger colour. Hover shading is faint (about 5% tint). When the window is not the front window, the selected sidebar row and tab fall back to the hover tint, coloured icons desaturate and the primary button dims. Menus and dialogs appear with a short (0.12 s) fade and slight scale, disabled when the system asks for reduced motion.
-- **Typography:** the system font by default. Interface text uses one scale of sizes (11, 12, 13, 14, 15, 17, 24, 28 px) and the weights 400, 500, 600 and 700 only; letter-spacing is slightly tight (-0.006em) and tightens further on large titles, small capital labels are spaced out, and digits in the interface are tabular. Note text keeps the font's own spacing and digits. Spacing is in multiples of 4 px; buttons are 30 px tall (26 px small) with a 7 px radius. Interface text is 15 px; sidebar rows are 34 px tall (30 px for the lists under Tasks); labels in the sidebar, tabs and panels are at least medium weight (500). Note text is 16 px at 1.7 line height, with headings sized as a percentage of body text. The note column has 72 px of side margin.
+- **Typography:** the system font by default. Interface text uses one scale of sizes (11, 12, 13, 14, 15, 17, 24, 28 px) and the weights 400, 500, 600 and 700 only; letter-spacing is slightly tight (-0.006em) and tightens further on large titles, small capital labels are spaced out, and digits in the interface are tabular. Note text keeps the font's own spacing and digits. Spacing is in multiples of 4 px; buttons are 30 px tall (26 px small) with a 7 px radius. Interface text is 15 px; sidebar rows are 34 px tall (30 px for the lists under Tasks); labels in the sidebar, tabs and panels are at least medium weight (500). Note text is 16 px by default (the Text size setting) at 1.7 line height, with headings sized as a percentage of body text. The note column has 72 px of side margin. Tasks are lines of notes, so in the Tasks view a task's text uses the note font and weight at 15/16 of the note text size, and its labels (dates, note name) 13/16; in a note's task panel the task text is the full note size. All of these follow the Text size, font and weight settings.
 - **Page width** is measured in characters of the chosen font, so "90" means 90 average characters per line.
-- **Help pages** follow the app's theme, not only the system's.
+- **Help pages** follow the app's theme, not only the system's. Each page has its own find bar: ⌘F (Ctrl+F) opens it at the top right; matches are highlighted as you type, ignoring case, with "n of m" or "No matches"; the first match below the top of the window is current; Enter and ⇧Enter (or ⌘G and ⌘⇧G) move between matches, wrapping; Esc closes it and removes the highlighting. It is part of the page, so it also works in a browser and in the printable HTML copies, and it is hidden when printing.
 - A simple logo: a rounded square with a page-and-margin mark, used as the app icon.
 
 ## 18. Desktop shell
 
 - Single window; a second launch focuses the existing one.
 - Window size and position are remembered.
-- **Menu bar:** App (about, settings, quit), File (new items, choose notes folder, show notes folder, close tab, close window), Edit (standard), View (sidebar, side panel, mode, zoom, full screen, reload, developer tools), Go (back, forward, each view, tabs), Window, Help (User Guide, Theory of Operations, Design Guide, Printable Guides…, Keyboard Shortcuts, Command-Line Tool…). Menu items show the user's current shortcuts; the keys themselves are handled by the page so they can be customised, and an action triggered by both within 300 ms runs once.
-- **Right-click in a note:** spelling suggestions, Cut, Copy, Paste, Paste as Plain Text, Look Up, "Search Notes for…", and Format, Paragraph and Insert submenus. On a link: Open, Open to the Side, Copy Link. On an image: Copy Image.
+- **Menu bar:** App (about, settings, quit), File (new items, choose notes folder, show notes folder, close tab, close window), Edit (standard, plus Find… ⌘F, which finds in the window in front: the note or list in the main window, or the guide in a guide window), Format (one flat list, no submenus, in separated groups: Bold, Italic, Strikethrough, Inline Code | Heading 1 to 5 | Bulleted, Numbered and Task List, Quote, Code Block | Link to a Note, Web Link, Table, Math, Divider | Today's Date, Current Time | Tick or Untick Task, Move Task to Today, Task When…, Task Due Date…, Change Task Priority | Fold or Unfold, Fold, Unfold, Fold All, Unfold All; each acts on the active pane's editor), View (sidebar, side panel, mode, zoom, full screen, reload, developer tools), Go (back, forward, each view, tabs), Window, Help (User Guide, Theory of Operations, Design Guide, Printable Guides…, Keyboard Shortcuts, Command-Line Tool…). Menu items show the user's current shortcuts; the keys themselves are handled by the page so they can be customised, and an action triggered by both within 300 ms runs once.
+- **Right-click in a note:** spelling suggestions, Cut, Copy, Paste, Paste as Plain Text, Look Up, "Search Notes for…", and Format, Paragraph and Insert submenus, the same commands as the Format menu. On a link: Open, Open to the Side, Copy Link. On an image: Copy Image.
 - **Choosing a notes folder** saves the choice and restarts the app on it; nothing is moved.
 - **PDF export** saves directly to a chosen file.
 - **Web links** open in the default browser; only the app's own pages load in app windows.
 - **Help pages** open in a separate window that is reused.
-- **Global hotkey** Ctrl+Alt+Space opens quick capture.
+- **Global hotkeys** Ctrl+Alt+Space opens quick capture, Ctrl+Alt+T quick task.
 - **Installed fonts** are listed for the font picker.
 - **Packaging:** a `.dmg` for Apple silicon, signed ad hoc (no Apple developer account); unsigned builds require `xattr -cr` once after installing. Versioned releases with a changelog.
 - **Printable Guides…** opens a folder shipped inside the app holding each guide (user guide, theory of operations, design guide, specification) as a PDF and as a standalone HTML page. The installer's window shows the same folder, named Documentation, beside the app.
@@ -829,13 +860,13 @@ Every action below can be reassigned or cleared in Settings → Shortcuts, which
 margin-tasks [LIST] [options]
 ```
 
-- **LIST:** `today` (default), `upcoming`, `anytime`, `someday`, `logbook` (alias `done`), `overdue`, `week`, `month`, `undated` (alias `nodate`), `open`, `all`.
+- **LIST:** `inbox`, `today` (default), `upcoming`, `anytime`, `someday`, `logbook` (alias `done`), `overdue`, `week`, `month`, `undated` (alias `nodate`), `open`, `all`.
 - **Finding the folder:** `--vault PATH`, else `$MARGIN_VAULT`, else the desktop app's saved choice, else `~/Documents/Margin`.
-- **Reading files:** skip hidden entries and the top-level attachments folder; read `id`, `title`, `type` and `tags` from frontmatter without a YAML library; leave out the Templates notebook (`--templates NAME` to change).
+- **Reading files:** skip hidden entries and the top-level attachments folder; read `id`, `title`, `type` and `tags` from frontmatter without a YAML library; leave out the Templates notebook (`--templates NAME` to change); the Inbox notebook is `Inbox` unless `--inbox NAME` is given, since the app's setting is not stored in the notes folder.
 - **Narrowing** (all must hold): `--tag TAG` (repeatable; matches nested tags), `--note-tag TAG`, `--priority p1|p2|p3|none` (that level or higher; `--exact-priority` for only that level), `--due-before|after|on DAY`, `--planned-before|after|on DAY`, `--done-before|after|on DAY`, `--has-due`, `--no-due`, `--notebook NAME` (and those inside it), `--note TEXT` (title contains), `--source all|notes|daily`, `-q TEXT` (the Tasks view's narrow-down syntax).
 - **DAY:** `YYYY-MM-DD`, `today`, `tomorrow`, `yesterday`, `+N`, `-N`, or a weekday name meaning the next one.
 - **Output:** a plain listing by default (checkbox, priority, text, dates, note and heading; colour when writing to a terminal); `--json`; `--csv`; `--paths` (`path:line: [ ] task`); `--format TEMPLATE` with the JSON field names; `--count`.
-- **JSON fields:** `text`, `done`, `priority`, `tags`, `planned`, `someday`, `due`, `done_on`, `overdue`, `in_today`, `note`, `notebook`, `note_type`, `note_tags`, `heading`, `path`, `relpath`, `line` (1-based, in the file), `raw`.
+- **JSON fields:** `text`, `done`, `priority`, `tags`, `planned`, `someday`, `due`, `done_on`, `overdue`, `in_today`, `in_inbox`, `note`, `notebook`, `note_type`, `note_tags`, `heading`, `path`, `relpath`, `line` (1-based, in the file), `raw`.
 - **Order:** `--sort urgency|due|planned|priority|note|done`, `--reverse`, `--limit N`, `--group none|date|note|notebook|priority`.
 - **Other:** `--today DAY` to pretend it is another day, `--week-start sunday|monday`, `--no-color`, `--version`, `--help`.
 - **Exit codes:** 0 on success, 1 when the folder cannot be found or read, 2 for a bad argument.
@@ -885,7 +916,8 @@ A build meets this specification when all of these hold.
 
 - Daily notes are created from the Daily template with placeholders filled for their own date.
 - The journal shows all days, editable, loading more on scroll.
-- Quick capture reaches all four destinations, and a typed task stays a task.
+- Quick capture adds to today's note, and a typed task stays a task.
+- Quick task offers dates, priorities and tags as it is typed, turns typed date words into dates on save, and adds to the Inbox note.
 - Meeting and person notes are created as in sections 11.3 and 11.4.
 - Backlinks, unlinked mentions (with Link) and outgoing links are correct.
 - Two panes work, with commands going to the active one.
@@ -899,6 +931,7 @@ A build meets this specification when all of these hold.
 - Saved filters appear in the sidebar with live counts.
 - Unticked Top 3 items move to the next day's note when it is created.
 - The command-line tool gives the same lists as the app for the same folder and date.
+- A task captured to the Inbox with no day is in the Inbox list and not in Anytime; planning it, parking it or moving it into another note takes it out; Move to another note carries the lines under the task and can be undone.
 
 **App**
 

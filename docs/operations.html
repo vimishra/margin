@@ -22,7 +22,7 @@
 </script>
 <style>
 :root{--bg:#fff;--text:#15171a;--muted:#6a6e74;--line:#e4e6e9;--soft:#f5f6f8;--accent:#255fb3;--code:#c2410c;color-scheme:light}
-:root[data-theme=dark]{--bg:#282828;--text:#f2f2f2;--muted:#a3a3a6;--line:#3a3b3d;--soft:#313133;--accent:#7fb2f5;--code:#f0987c;color-scheme:dark}
+:root[data-theme=dark]{--bg:#161617;--text:#f8f8f9;--muted:#a3a3a6;--line:#303033;--soft:#222224;--accent:#7fb2f5;--code:#f0987c;color-scheme:dark}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
 main{max-width:820px;margin:0 auto;padding:56px 28px 120px}
@@ -49,6 +49,18 @@ tr:last-child td{border-bottom:none}
 th{background:var(--soft);font-weight:620;color:var(--muted);font-size:.92em}
 blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--line);color:var(--muted)}
 @media print{main{padding:0}h2{break-after:avoid}pre,.table,img{break-inside:avoid}}
+.find{position:fixed;top:12px;right:16px;z-index:10;display:flex;align-items:center;gap:4px;padding:5px 5px 5px 12px;background:var(--bg);border:1px solid var(--line);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.14);font-size:14px}
+.find[hidden]{display:none}
+.find input{width:220px;border:none;outline:none;background:none;color:inherit;font:inherit}
+.find-count{min-width:5.5em;text-align:right;color:var(--muted);font-size:13px;white-space:nowrap}
+.find-count.none{color:#d23d5f}
+.find button{border:none;background:none;color:var(--muted);font:inherit;width:28px;height:26px;border-radius:6px;cursor:default}
+.find button:hover{background:var(--soft);color:var(--text)}
+mark.find-hit{background:#ffe680;color:inherit;border-radius:2px}
+mark.find-hit.current{background:#ffab2e}
+:root[data-theme=dark] mark.find-hit{background:#6b5a1a}
+:root[data-theme=dark] mark.find-hit.current{background:#b5761a}
+@media print{.find{display:none}mark.find-hit{background:none}}
 </style>
 </head>
 <body>
@@ -122,12 +134,12 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 <tr>
 <td>End of day, 2 minutes</td>
 <td>Read down today's Log once</td>
-<td>Tick what is done; leave the rest</td>
+<td>Tick what is done; empty the Inbox; leave the rest</td>
 </tr>
 <tr>
 <td>Weekly, 15 minutes</td>
 <td>Skim the week, refresh people notes, empty Scratch</td>
-<td>Clear Overdue, plan from Upcoming and Anytime, catch undated tasks</td>
+<td>Empty the Inbox, clear Overdue, plan from Upcoming and Anytime, catch undated tasks</td>
 </tr>
 <tr>
 <td>Monthly, 20 minutes</td>
@@ -138,11 +150,12 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 </table></div><hr>
 <h1 id="part-1-notes">Part 1: Notes</h1>
 <h2 id="how-notes-work">How notes work</h2>
-<p>Three ideas carry this half.</p>
+<p>Four ideas carry this half.</p>
 <ol>
 <li><strong>The daily note is the front door.</strong> Everything that happens today starts there or is linked from there: a running Log, and a link to each meeting.</li>
 <li><strong>Capture first, sort later.</strong> Getting a thought down takes one keystroke. Deciding where it belongs happens once, at the end of the day.</li>
 <li><strong>Link, don't file.</strong> Write <code>[[Project]]</code> or <code>[[Person]]</code> in whatever you are writing. Each note's backlinks then show everything that mentions it, so you rarely need to move a note into the &quot;right&quot; folder.</li>
+<li><strong>An area is a notebook, a project is a note.</strong> Keep two notebooks of your own, Work and People, as Things keeps areas. Each project is one note in Work (<code>Work/Organization</code>), holding its tasks and everything else about it. Meetings that link the project have their actions listed under it in the Tasks view, so nothing needs filing. The other notebooks (Daily, Meetings, Inbox, Templates, Scratch, Assets) are Margin's own.</li>
 </ol>
 <h2 id="notes-every-morning">Notes: every morning</h2>
 <ol>
@@ -171,7 +184,7 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 <h2 id="notes-every-11">Notes: every 1:1</h2>
 <p>Keep one note per person. Create it once with ⌘K → &quot;New person note&quot;, and pin the people you meet every week.</p>
 <ol>
-<li><strong>Between meetings,</strong> whenever something comes up for that person: ⌘⇧C, press Tab until the destination is &quot;A note…&quot;, choose their note and the &quot;Next time&quot; heading. Margin remembers the choice, so next time it is Tab and Enter.</li>
+<li><strong>Between meetings,</strong> whenever something comes up for that person: ⌘K, type their name, and add a line under &quot;Next time&quot;.</li>
 <li><strong>As the 1:1 starts,</strong> open their note and run ⌘K → &quot;Add today's meeting entry&quot;. A dated heading appears at the top of Meetings.</li>
 <li><strong>Work down &quot;Next time&quot;.</strong> Delete each line as you cover it, and write what was said under today's entry.</li>
 <li><strong>Before you close the note,</strong> add anything that must wait to &quot;Next time&quot;.</li>
@@ -222,7 +235,7 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 <tr>
 <td>A thing to raise with a person</td>
 <td>Their note, under Next time</td>
-<td>⌘⇧C → A note…</td>
+<td>⌘K, their name</td>
 </tr>
 <tr>
 <td>What was said in a meeting</td>
@@ -240,9 +253,24 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 <td>New → Research note</td>
 </tr>
 <tr>
+<td>A new project</td>
+<td>One note in Work</td>
+<td>⌘N in the Work notebook, named after the project</td>
+</tr>
+<tr>
 <td>Lasting knowledge about a project</td>
 <td>The project's own note</td>
-<td>⌘N, then link it</td>
+<td>⌘K, its name</td>
+</tr>
+<tr>
+<td>Something to do</td>
+<td>The Inbox</td>
+<td>Quick task, ⌘⌥C</td>
+</tr>
+<tr>
+<td>A meeting's actions</td>
+<td>The meeting note, linked to its project</td>
+<td>Write <code>[[Project]]</code> once in the meeting</td>
 </tr>
 </tbody>
 </table></div><p>Rules of thumb:</p>
@@ -303,7 +331,7 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 </table></div><hr>
 <h1 id="part-2-tasks">Part 2: Tasks</h1>
 <h2 id="how-tasks-work">How tasks work</h2>
-<p>Four ideas carry this half.</p>
+<p>Five ideas carry this half.</p>
 <ol>
 <li><strong>A task is a checkbox, and it lives where it came from.</strong> An action from a meeting stays in that meeting's note. You never copy tasks into a list; the Tasks view and today's note gather them for you.</li>
 <li><strong>A task has two dates, and they mean different things.</strong>
@@ -313,12 +341,13 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 </ul>
 </li>
 <li><strong>Someday is a parking place.</strong> A task marked Someday stays out of Today, Upcoming and Anytime until you give it a day.</li>
+<li><strong>The Inbox is for things you have not decided on yet.</strong> It is one note, called Inbox, in the Inbox notebook. A task captured with Quick task, or written in that note, waits in the Inbox list and stays out of Anytime. It leaves the Inbox when you give it a day, park it in Someday, or move it into a project's note. Capturing is quick because deciding happens later, once a day.</li>
 <li><strong>The Top 3 is today's commitment.</strong> It is a short checklist at the top of the daily note, and what you do not finish moves to the next day by itself.</li>
 </ol>
 <h2 id="tasks-writing-one">Tasks: writing one</h2>
 <ul>
 <li><strong>In a note:</strong> press ⌘⇧9 on a line, or type <code>/task</code>, or write <code>- [ ] </code> yourself.</li>
-<li><strong>From anywhere:</strong> ⌘⇧C and start the line with <code>- [ ] </code>. It goes into today's note as a task.</li>
+<li><strong>From anywhere:</strong> Quick task, ⌘⌥C (or ⌃⌥T from another app). Type the task, with <code>&gt;fri</code>, <code>@due(mon)</code>, <code>P1</code> or <code>#tag</code> if you already know them, and press Enter. With no day it goes to the Inbox; with a day it goes straight to Today or Upcoming.</li>
 </ul>
 <p>Then add only the details the task needs. With the cursor on the task:</p>
 <div class="table"><table><thead>
@@ -350,7 +379,7 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 <td>To gather tasks across notes</td>
 </tr>
 </tbody>
-</table></div><p>Most tasks need none of these. A task with no dates is in Anytime: something you could do now.</p>
+</table></div><p>Most tasks need none of these. A task with no dates is in Anytime, something you could do now, unless it is in the Inbox, where it waits for you to decide.</p>
 <h2 id="tasks-every-morning">Tasks: every morning</h2>
 <ol>
 <li><strong>Read the &quot;Tasks for this day&quot; panel</strong> at the top of today's note (⌘J or ⌘D). It lists, from every note:
@@ -361,14 +390,14 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 </ul>
 </li>
 <li><strong>Deal with each overdue task.</strong> Do one of three things: tick it, give it a new due date, or decide it is not happening and delete the line. Do not leave it overdue.</li>
-<li><strong>Look ahead: ⌘⇧T, then 2</strong> for Upcoming. If anything there needs to start today, highlight it and press <strong>T</strong>.</li>
+<li><strong>Look ahead: ⌘⇧T, then 3</strong> for Upcoming. If anything there needs to start today, highlight it and press <strong>T</strong>.</li>
 <li><strong>Settle the Top 3.</strong> In today's note, the Top 3 should hold at most three things that would make today a success. Items carried over from yesterday count. If there are more than three, push the extras to a later day: cursor on the line, ⌘⇧S, pick a day.</li>
 </ol>
 <h2 id="tasks-during-the-day">Tasks: during the day</h2>
 <ul>
 <li><strong>You finish something:</strong> tick it where you see it: ⌘↵ on its line, or its checkbox in the panel.</li>
 <li><strong>You decide to do something today that was not planned:</strong> cursor on the task, ⌘⌥T.</li>
-<li><strong>Something new needs doing:</strong> write it as a task straight away, in the note you are in or through ⌘⇧C.</li>
+<li><strong>Something new needs doing:</strong> write it as a task straight away, in the note you are in, or with Quick task (⌘⌥C, or ⌃⌥T from another app). It lands in the Inbox; sort it at the end of the day.</li>
 <li><strong>A task turns out not to be for now:</strong> ⌘⇧S and pick a later day, or Someday.</li>
 </ul>
 <h2 id="tasks-in-a-meeting">Tasks: in a meeting</h2>
@@ -380,21 +409,38 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 <li>if it has to start on a particular day, set that: ⌘⇧S</li>
 </ul>
 </li>
-<li><strong>Afterwards, do nothing.</strong> Your actions appear in Today or Upcoming on their own, and the task still sits in the meeting note where the context is.</li>
+<li><strong>Afterwards, do nothing.</strong> Your actions appear in Today or Upcoming on their own, and the task still sits in the meeting note where the context is. Because the meeting links <code>[[Project]]</code>, its actions also show under that project when the Tasks view is grouped by Project; there is no need to move them.</li>
 </ol>
 <p>In a 1:1, write actions the same way under that day's entry in the person's note.</p>
 <h2 id="tasks-end-of-the-day">Tasks: end of the day</h2>
 <ol>
-<li><strong>Tick what you finished,</strong> in the Top 3 and in the panel.</li>
-<li><strong>Leave unfinished Top 3 items alone.</strong> They move into tomorrow's note when it is created.</li>
-<li><strong>Leave everything else alone too.</strong> A planned task you did not get to stays in Today tomorrow.</li>
+<li>
+<p><strong>Tick what you finished,</strong> in the Top 3 and in the panel.</p>
+</li>
+<li>
+<p><strong>Leave unfinished Top 3 items alone.</strong> They move into tomorrow's note when it is created.</p>
+</li>
+<li>
+<p><strong>Leave everything else alone too.</strong> A planned task you did not get to stays in Today tomorrow.</p>
+</li>
+<li>
+<p><strong>Empty the Inbox: ⌘⇧T, then 1.</strong> For each task, decide:</p>
+<ul>
+<li>it has a day: <strong>S</strong> and pick it (<strong>T</strong> for today)</li>
+<li>it is for some day, not soon: <strong>S</strong>, then Someday</li>
+<li>it belongs to a project: <strong>M</strong> and choose the project's note. It lands under the note's &quot;Open Threads&quot; heading, so the threads you have filed are together at the bottom of each project. Type a new name to start a new project note.</li>
+<li>it is done, or not happening: tick it, or delete the line</li>
+</ul>
+<p>Anything you cannot decide on can stay for the weekly review, but no longer than that.</p>
+</li>
 </ol>
 <h2 id="tasks-every-week">Tasks: every week</h2>
 <p>This is the review that keeps the lists trustworthy. Open the Tasks view: ⌘⇧T.</p>
 <ol>
-<li><strong>Clear what is overdue: press 6.</strong> For each task: do it, give it a new date, or delete it. To push a batch to one day, use <strong>Move all…</strong>.</li>
-<li><strong>Read what is coming: press 2</strong> for Upcoming.</li>
-<li><strong>Plan the week: press 3</strong> for Anytime, which is everything you could start now.
+<li><strong>Empty the Inbox: press 1,</strong> as at the end of a day. Nothing should be left in it after the review.</li>
+<li><strong>Clear what is overdue: press 7.</strong> For each task: do it, give it a new date, or delete it. To push a batch to one day, use <strong>Move all…</strong>.</li>
+<li><strong>Read what is coming: press 3</strong> for Upcoming.</li>
+<li><strong>Plan the week: press 4</strong> for Anytime, which is everything you could start now.
 <ul>
 <li>For each thing you intend to do this week, press S and give it a day.</li>
 <li>For each thing you are not going to do soon, press S and choose Someday.</li>
@@ -404,9 +450,9 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 </ol>
 <h2 id="tasks-every-month">Tasks: every month</h2>
 <ol>
-<li><strong>Review Someday: ⌘⇧T, then 4.</strong> For each item: give it a real day, leave it, or delete it. This list is only useful if it is short enough to read.</li>
-<li><strong>Read the Logbook: press 5,</strong> grouped by date. Scan what you finished this month. It is the easiest source for a status update or a review.</li>
-<li><strong>Close finished projects.</strong> Group the Tasks view by Project. A note whose tasks are all done or all stale is a project that has ended: tick or delete the leftovers.</li>
+<li><strong>Review Someday: ⌘⇧T, then 5.</strong> For each item: give it a real day, leave it, or delete it. This list is only useful if it is short enough to read.</li>
+<li><strong>Read the Logbook: press 6,</strong> grouped by date. Scan what you finished this month. It is the easiest source for a status update or a review.</li>
+<li><strong>Close finished projects.</strong> Group the Tasks view by Project. A note whose tasks are all done or all stale is a project that has ended: tick or delete the leftovers, then move the note to an Archive notebook (⌘K → &quot;Move to notebook&quot;), so Work holds only live projects.</li>
 <li><strong>Check your saved filters.</strong> Remove the ones you no longer open.</li>
 </ol>
 <h2 id="tasks-which-list-to-look-at">Tasks: which list to look at</h2>
@@ -419,34 +465,44 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 </thead>
 <tbody>
 <tr>
+<td>What you captured and have not sorted</td>
+<td>Inbox</td>
+<td>1</td>
+</tr>
+<tr>
 <td>What to do today</td>
 <td>Today</td>
-<td>1</td>
+<td>2</td>
 </tr>
 <tr>
 <td>What starts later</td>
 <td>Upcoming</td>
-<td>2</td>
+<td>3</td>
 </tr>
 <tr>
 <td>What you could start now</td>
 <td>Anytime</td>
-<td>3</td>
+<td>4</td>
 </tr>
 <tr>
 <td>What is parked</td>
 <td>Someday</td>
-<td>4</td>
+<td>5</td>
 </tr>
 <tr>
 <td>What you finished</td>
 <td>Logbook</td>
-<td>5</td>
+<td>6</td>
 </tr>
 <tr>
 <td>What you missed</td>
 <td>Overdue</td>
-<td>6</td>
+<td>7</td>
+</tr>
+<tr>
+<td>What is on this week</td>
+<td>This week</td>
+<td>8</td>
 </tr>
 <tr>
 <td>What has no plan</td>
@@ -459,9 +515,10 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 <td>0</td>
 </tr>
 </tbody>
-</table></div><p><strong>From a terminal or a script:</strong> <code>margin-tasks</code> prints the same lists, for example <code>margin-tasks today</code> or <code>margin-tasks overdue --count</code>. Install it from Help → Command-Line Tool…; it goes into <code>~/.local/bin</code> and needs no password. The user guide lists every option.</p>
+</table></div><p><strong>From a terminal or a script:</strong> <code>margin-tasks</code> prints the same lists, for example <code>margin-tasks today</code>, <code>margin-tasks inbox</code> or <code>margin-tasks overdue --count</code>. Install it from Help → Command-Line Tool…; it goes into <code>~/.local/bin</code> and needs no password. The user guide lists every option.</p>
 <p>To see one project's tasks, group by Project. To see one topic across projects, type its <code>#tag</code> in the narrow-down box, and save it as a filter if you will want it again.</p>
 <h2 id="tasks-keys">Tasks: keys</h2>
+<p>From anywhere: Quick task, ⌘⌥C (⌃⌥T from another app).</p>
 <p>With the cursor on a task in a note:</p>
 <div class="table"><table><thead>
 <tr>
@@ -528,6 +585,10 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 <td>P</td>
 </tr>
 <tr>
+<td>Move it into another note (a project)</td>
+<td>M</td>
+</tr>
+<tr>
 <td>Open it in its note</td>
 <td>↵</td>
 </tr>
@@ -538,5 +599,108 @@ blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--li
 </tbody>
 </table></div>
 </main>
+<div class="find" id="find" hidden role="search">
+<input type="text" placeholder="Find in this guide" aria-label="Find in this guide" spellcheck="false">
+<span class="find-count" aria-live="polite"></span>
+<button type="button" data-step="-1" title="Previous  ⇧↵">↑</button>
+<button type="button" data-step="1" title="Next  ↵">↓</button>
+<button type="button" data-close title="Close  Esc">✕</button>
+</div>
+<script>
+(function () {
+  var bar = document.getElementById('find'), input = bar.querySelector('input'), count = bar.querySelector('.find-count')
+  var main = document.querySelector('main'), hits = [], at = -1, timer = 0
+  function clear() {
+    var parents = []
+    hits.forEach(function (m) {
+      var p = m.parentNode
+      if (!p) return
+      p.replaceChild(document.createTextNode(m.textContent), m)
+      if (parents.indexOf(p) < 0) parents.push(p)
+    })
+    parents.forEach(function (p) { p.normalize() })
+    hits = []
+    at = -1
+  }
+  function find(query) {
+    clear()
+    var q = query.trim().toLowerCase()
+    if (!q) return show()
+    var walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (n) { return n.parentNode.closest('script,style') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT },
+    })
+    var nodes = []
+    while (walker.nextNode()) nodes.push(walker.currentNode)
+    nodes.forEach(function (node) {
+      var text = node.nodeValue, lower = text.toLowerCase(), from = 0, i = lower.indexOf(q)
+      if (i < 0 || hits.length > 2000) return
+      var frag = document.createDocumentFragment()
+      while (i >= 0) {
+        frag.appendChild(document.createTextNode(text.slice(from, i)))
+        var mark = document.createElement('mark')
+        mark.className = 'find-hit'
+        mark.textContent = text.slice(i, i + q.length)
+        frag.appendChild(mark)
+        hits.push(mark)
+        from = i + q.length
+        i = lower.indexOf(q, from)
+      }
+      frag.appendChild(document.createTextNode(text.slice(from)))
+      node.parentNode.replaceChild(frag, node)
+    })
+    // Start from the first match below the top of the window, so finding does not jump back to the start.
+    var below = hits.findIndex(function (m) { return m.getBoundingClientRect().top >= 0 })
+    move(below < 0 ? 0 : below, true)
+  }
+  function move(to, absolute) {
+    if (!hits.length) return show()
+    if (at >= 0) hits[at].classList.remove('current')
+    at = absolute ? to : (at + to + hits.length) % hits.length
+    hits[at].classList.add('current')
+    hits[at].scrollIntoView({ block: 'center' })
+    show()
+  }
+  function show() {
+    var typed = input.value.trim()
+    count.textContent = !typed ? '' : hits.length ? (at + 1) + ' of ' + hits.length : 'No matches'
+    count.classList.toggle('none', !!typed && !hits.length)
+  }
+  function open() {
+    bar.hidden = false
+    input.focus()
+    input.select()
+    if (input.value.trim() && !hits.length) find(input.value)
+  }
+  function close() {
+    bar.hidden = true
+    clear()
+    show()
+  }
+  window.marginFind = open
+  addEventListener('keydown', function (e) {
+    var mod = e.metaKey || e.ctrlKey
+    if (mod && !e.altKey && e.key.toLowerCase() === 'f') { e.preventDefault(); open() }
+    else if (mod && e.key.toLowerCase() === 'g' && hits.length) { e.preventDefault(); move(e.shiftKey ? -1 : 1) }
+    else if (e.key === 'Escape' && !bar.hidden) { e.preventDefault(); close() }
+  })
+  input.addEventListener('input', function () {
+    clearTimeout(timer)
+    timer = setTimeout(function () { find(input.value) }, 120)
+  })
+  input.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return
+    e.preventDefault()
+    clearTimeout(timer)
+    if (!hits.length) find(input.value)
+    else move(e.shiftKey ? -1 : 1)
+  })
+  bar.addEventListener('click', function (e) {
+    var b = e.target.closest('button')
+    if (!b) return
+    if (b.hasAttribute('data-close')) close()
+    else { move(Number(b.dataset.step)); input.focus() }
+  })
+})()
+</script>
 </body>
 </html>

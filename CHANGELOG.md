@@ -2,6 +2,173 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.18.1 (2026-10-22)
+
+### Changed
+
+- **The notes icon on a task stands out more:** blue on a light blue tint, a little larger and bolder, and solid blue while the notes are showing.
+
+## 1.18.0 (2026-10-22)
+
+### Added
+
+- **Notes in Quick task.** Press **Tab** in the Quick task box to add notes under the task: context, a link, a few bullets. **⌘↵** saves. They are saved on the lines under the task, indented, so they travel with it when you move it to a note with **M**.
+- **Task notes in the Tasks view.** A task with lines indented under it shows a small notes icon. Hover it to read them, or click it (or press **N**) to show them under the task. They are read straight from the note; nothing is stored separately.
+
+### Fixed
+
+- The suggestion list in the Quick task box no longer stays open after you move out of the task line.
+
+## 1.17.1 (2026-10-16)
+
+### Changed
+
+- **Folded lines stand out more.** The arrow on a folded heading or list item is now a solid triangle in the accent colour, and the **…** after it is drawn as three bold dots, tinted to match.
+
+## 1.17.0 (2026-10-15)
+
+### Added
+
+- **Folding.** A section (a heading and what is under it) or a list item with lines under it folds down to its first line. Hover and click the arrow to its left, or use **⌘'** to fold or unfold where the cursor is, **⌘⌥↑** to fold (again for the section around it) and **⌘⌥↓** to unfold. **Fold All** and **Unfold All** are in the Format menu and ⌘K. Folds are remembered for each note and never change the file; find and jumps open the fold they land in.
+
+## 1.16.1 (2026-10-14)
+
+### Changed
+
+- **The Format menu is one flat list.** The Paragraph, Insert and Task submenus are gone; their commands sit directly in Format, still divided into groups by lines. The right-click menu keeps its submenus.
+
+### Added
+
+- **Find in the shortcuts window.** The window that **?** opens has a find box: type to narrow the list to the shortcuts whose name or keys match. ⌘F and **Edit → Find…** go to it while the window is open; **Esc** clears it, then closes the window.
+
+## 1.16.0 (2026-10-14)
+
+### Changed
+
+- **Move to note files tasks under "Open Threads".** M in the Tasks view puts the task at the end of the chosen note's `## Open Threads` section, after the tasks already there, instead of at the very end of the note, so moved tasks collect in one place. A note without the heading gets it, at the end of the page.
+
+### Added
+
+- **New note from the Move to note picker:** type a name that matches no note and choose **New note "…"**. It is made in the notebook of the project you edited last (or the one you type, as in `People/Sam`), with the Open Threads heading and the task in it.
+
+## 1.15.6 (2026-10-13)
+
+### Added
+
+- **A Format menu in the menu bar,** with the Markdown commands for the note being edited: Bold, Italic, Strikethrough and Inline Code, then Paragraph (headings, lists, quote, code block), Insert (note link, web link, table, math, divider, date, time) and Task submenus. Shortcuts shown follow Settings → Shortcuts.
+- **Code Block** and **Divider** commands, also in the right-click menu.
+
+## 1.15.5 (2026-10-13)
+
+### Changed
+
+- **⌘F finds in what is in front**, as in any Mac app: in a note, the find and replace bar (as before); in the Tasks view or a list of notes, its narrow-down box; in a guide, the guide's find bar; anywhere else, ⌘K's search. It used to do nothing outside notes and guides.
+- The menu item is now **Edit → Find…**, acting on the window in front. **Help → Find in Guide** is gone: it suggested that ⌘F always searched the guides.
+
+## 1.15.4 (2026-10-13)
+
+### Fixed
+
+- **Text settings now reach the Tasks view.** Note font, Text size and Text weight (Settings → Appearance) changed notes but not the task lists, whose sizes were fixed. Task text now uses the note font and weight, and the task text, labels, checkbox and headings scale with Text size. The panel under daily notes follows it too.
+
+## 1.15.3 (2026-10-12)
+
+### Changed
+
+- **Darker dark theme:** the page and sidebar are near-black (`#161617`) instead of charcoal (`#282828`), with panels, pop-ups and lines moved down to match, so the dark theme no longer looks washed out. The guides' dark theme follows.
+
+## 1.15.2 (2026-10-12)
+
+### Documentation
+
+- **Projects and areas:** the user guide explains how Things 3's areas, projects, headings and to-dos map onto notebooks, notes, headings and task lines, with a suggested layout (Work and People, plus the notebooks Margin manages) and an Archive notebook for finished projects. The notebooks advice no longer suggests the Inbox for notes.
+- The theory of operations adds "an area is a notebook, a project is a note", where new projects and a meeting's actions go, and archiving finished projects in the monthly review.
+
+## 1.15.1 (2026-10-12)
+
+### Changed
+
+- **Dark theme text is almost white** (`#f8f8f9`, secondary text `#d8d8da`), as in Things 3, for easier reading. The guides' dark theme follows.
+
+## 1.15.0 (2026-10-12)
+
+### Added
+
+- **Meeting actions under their project:** with the Tasks view grouped by Project, the tasks of a meeting note that links `[[Organization]]` are listed under Organization, after its own tasks, under "From" and the meeting's name. A task anywhere else joins a project by linking it on its own line. Nothing is moved; ticking one ticks it in its own note, and the project's progress circle counts them.
+- Projects are ordinary notes outside the notebooks Margin manages (Daily, Meetings, Inbox, Templates, Scratch) and People, so a meeting that links only a person keeps its tasks under its own name.
+
+## 1.14.1 (2026-10-12)
+
+### Added
+
+- A yellow star on tasks that are also in Today, in Anytime and the other lists (not in Today or Overdue themselves), as Things marks them.
+
+## 1.14.0 (2026-10-12)
+
+One Inbox, for tasks.
+
+### Changed
+
+- **The tasks Inbox is one note:** the note called *Inbox* in the Inbox notebook. Its tasks with no planned day are the Inbox list; tasks in other notes of the notebook no longer count. As before, a task with a day is in Today or Upcoming rather than the Inbox.
+- **Quick task always adds to the Inbox note.** The destination choice and its setting are gone.
+- **Quick capture of a note always goes to today's note.** The Scratch, Inbox and "A note…" destinations and the "Quick capture saves to" setting are gone. Scratch notes are still made with New → Scratch note (⌘⌥N).
+- "New notes go to the Inbox notebook" is no longer offered; if it was chosen, new notes go to the notebook you are in.
+
+### Added
+
+- When other notes in the Inbox notebook still hold open tasks (such as the *Tasks* note earlier versions made), the Inbox list offers **Move them into Inbox**, with Undo.
+- Move to note can move several tasks at once, with one Undo.
+
+## 1.13.1 (2026-10-12)
+
+### Fixed
+
+- **Tasks missing from the Inbox list** when the Inbox notebook's name on disk differed from the setting only in capitals (for example `inbox` and `Inbox`). macOS treats these as one folder but Margin compared them letter for letter, so hand-written tasks never counted, and a Quick task could show for a moment and then disappear after a restart. Notebook names are now compared ignoring capitals and stray spaces, in the app and in `margin-tasks`.
+- New notes, notes moved into a notebook and new notebooks reuse the spelling of an existing folder that differs only in capitals, instead of being recorded under a second name. Quick task adds to the existing Tasks note rather than making a "Tasks 2".
+
+### Changed
+
+- The Inbox list says which notebook it reads.
+
+## 1.13.0 (2026-10-12)
+
+### Added
+
+- **Find in the guides:** ⌘F in the user guide, theory of operations, design guide or specification opens a small find bar. Matches are highlighted as you type; Enter and ⇧Enter move between them, Esc closes. Also Help → Find in Guide, and it works in the printable HTML copies.
+- **Task lists in ⌘K:** type `inbox`, `today`, `upcoming`, `anytime`, `someday`, `logbook` and so on, or a saved filter's name, and "Tasks: Inbox" (and the rest) opens that list.
+
+## 1.12.0 (2026-10-12)
+
+The Inbox now works as it does in Things 3.
+
+### Added
+
+- **Inbox list:** Tasks → Inbox, first in the Tasks view and the sidebar, with a count. It holds tasks in the Inbox notebook that have no planned day and are not Someday: everything Quick task saves there, and any task written in a note in that notebook.
+- **Move to note:** M in the Tasks view, or the new button on a task's row, moves the task (with the lines indented under it) into another note, such as a project. Undo puts it back.
+- `margin-tasks inbox` lists the Inbox from the command line; `--inbox NAME` if your Inbox notebook has another name. The JSON output has an `in_inbox` field.
+
+### Changed
+
+- Inbox tasks stay out of **Anytime** and **No date** until you decide on them: give one a day or Someday, or move it into another note, and it leaves the Inbox. A due date does not take a task out of the Inbox, but a task that is due also shows in Today.
+- List keys in the Tasks view: 1 Inbox, 2 Today, 3 Upcoming, 4 Anytime, 5 Someday, 6 Logbook, 7 Overdue, 8 This week, 9 No date, 0 All open.
+- The theory of operations guide empties the Inbox at the end of each day and at the start of the weekly review.
+
+No note is changed: tasks you already have in the Inbox notebook simply appear in the Inbox list.
+
+## 1.11.1 (2026-10-12)
+
+### Changed
+
+- The Mac build on GitHub (Actions → Build Mac app) names each run after the branch it was built from, and puts the version in the download's name and on the run's page, so you can tell which version a build contains.
+
+## 1.11.0 (2026-10-12)
+
+### Added
+
+- **Quick task:** ⌘⌥C, or ⌃⌥T from any app, opens the capture box ready for a task. Type it with its details and the same suggestions as on a task line appear: `>` and `@due(` for dates, `P` for priority, `#` for tags, `[[` for links. Dates typed in words (`>fri`, `@due(next week)`) are turned into dates on save, so suggestions need not be picked, and the line under the box shows what was understood.
+- Quick task saves to the Inbox, a note called *Tasks* in the Inbox notebook (made the first time), or to today's note; Tab switches. ⇧Enter saves and keeps the box open for the next task. Settings → Capture & scratch → **Quick task saves to** sets the default.
+- A **Note / Task** switch at the top of the capture box. Either capture shortcut switches while the box is open, keeping what was typed.
+
 ## 1.10.2 (2026-10-09)
 
 ### Added

@@ -76,6 +76,19 @@ function openDoc(page) {
   docWin.loadURL(url)
 }
 
+/** Open the find bar of the guide window (Edit → Find… while a guide is in front). */
+function findInGuide() {
+  const run = () => docWin?.webContents.executeJavaScript('window.marginFind && window.marginFind()').catch(() => {})
+  if (docWin && !docWin.isDestroyed()) {
+    docWin.show()
+    docWin.focus()
+    run()
+  } else {
+    openDoc('user-guide')
+    docWin.webContents.once('did-finish-load', run)
+  }
+}
+
 // The task lister for the terminal ships inside the app. This shows where it is and can link it into
 // ~/.local/bin as "margin-tasks": a folder the user owns, so no password is needed.
 // The folder of HTML and PDF copies of the guides, for printing. It ships inside the app (and in the installer's window).
@@ -171,13 +184,16 @@ async function chooseVault() {
 let accelerators = {
   search: 'CmdOrCtrl+K', back: 'CmdOrCtrl+[', forward: 'CmdOrCtrl+]', home: 'CmdOrCtrl+Shift+H', daily: 'CmdOrCtrl+D',
   calendar: 'CmdOrCtrl+Shift+L', all: 'CmdOrCtrl+Shift+A', prevTab: 'CmdOrCtrl+Shift+[', nextTab: 'CmdOrCtrl+Shift+]',
-  closeTab: 'CmdOrCtrl+W', new: 'CmdOrCtrl+N', capture: 'CmdOrCtrl+Shift+C', scratch: 'CmdOrCtrl+Alt+N',
+  closeTab: 'CmdOrCtrl+W', new: 'CmdOrCtrl+N', capture: 'CmdOrCtrl+Shift+C', captureTask: 'CmdOrCtrl+Alt+C', scratch: 'CmdOrCtrl+Alt+N',
   canvas: 'CmdOrCtrl+Shift+N', meeting: 'CmdOrCtrl+Shift+M', expdf: 'CmdOrCtrl+P', prefs: 'CmdOrCtrl+,', tasks: 'CmdOrCtrl+Shift+T', journal: 'CmdOrCtrl+J',
   h1: 'CmdOrCtrl+1', h2: 'CmdOrCtrl+2', h3: 'CmdOrCtrl+3', h4: 'CmdOrCtrl+4', h5: 'CmdOrCtrl+5', mdlink: 'CmdOrCtrl+L',
+  foldToggle: "CmdOrCtrl+'", fold: 'CmdOrCtrl+Alt+Up', unfold: 'CmdOrCtrl+Alt+Down',
 }
 
 function buildMenu() {
   const cmd = (label, id) => ({ label, accelerator: accelerators[id] || undefined, registerAccelerator: false, click: () => send(id) })
+  // A formatting command with no app-wide shortcut: sent to the note's editor, as from the right-click menu.
+  const fmt = (label, kind, accelerator) => ({ label, accelerator, registerAccelerator: false, click: () => win?.webContents.send('context-action', { type: 'format', kind }) })
   const template = [
     ...(isMac
       ? [
@@ -212,6 +228,7 @@ function buildMenu() {
         cmd('New Notebook', 'folder'),
         { type: 'separator' },
         cmd('Quick Capture', 'capture'),
+        cmd('Quick Task', 'captureTask'),
         { type: 'separator' },
         cmd('Export as PDF…', 'expdf'),
         cmd('Export as Markdown', 'exmd'),
@@ -227,7 +244,68 @@ function buildMenu() {
         ...(isMac ? [] : [{ type: 'separator' }, cmd('Settings…', 'prefs'), { role: 'quit' }]),
       ],
     },
-    { role: 'editMenu' },
+    {
+      label: 'Edit',
+      submenu: [
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        ...(isMac ? [{ role: 'pasteAndMatchStyle' }] : []),
+        { role: 'delete' },
+        { role: 'selectAll' },
+        { type: 'separator' },
+        // Find in whatever is in front: the note or list in the main window, or the guide in the guide window.
+        // The key itself is handled by each page (so it can be customised and reach the editor), hence not registered.
+        { label: 'Find…', accelerator: 'CmdOrCtrl+F', registerAccelerator: false, click: (_item, focused) => (focused && focused === docWin ? findInGuide() : send('find')) },
+      ],
+    },
+    // Markdown formatting for the note being edited, the same commands as the right-click menu. Each goes to the
+    // editor of the active pane; with no note open it does nothing. Keys are shown, not registered: the page handles them.
+    {
+      label: 'Format',
+      submenu: [
+        fmt('Bold', 'bold', 'CmdOrCtrl+B'),
+        fmt('Italic', 'italic', 'CmdOrCtrl+I'),
+        fmt('Strikethrough', 'strike'),
+        fmt('Inline Code', 'code'),
+        { type: 'separator' },
+        cmd('Heading 1', 'h1'),
+        cmd('Heading 2', 'h2'),
+        cmd('Heading 3', 'h3'),
+        cmd('Heading 4', 'h4'),
+        cmd('Heading 5', 'h5'),
+        { type: 'separator' },
+        cmd('Bulleted List', 'bullet'),
+        cmd('Numbered List', 'numbered'),
+        cmd('Task List', 'task'),
+        fmt('Quote', 'quote'),
+        fmt('Code Block', 'codeblock'),
+        { type: 'separator' },
+        fmt('Link to a Note', 'wikilink', 'CmdOrCtrl+Shift+K'),
+        cmd('Web Link', 'mdlink'),
+        fmt('Table', 'table'),
+        fmt('Math', 'math'),
+        fmt('Divider', 'divider'),
+        { type: 'separator' },
+        fmt("Today's Date", 'date'),
+        fmt('Current Time', 'time'),
+        { type: 'separator' },
+        cmd('Tick or Untick Task', 'done'),
+        cmd('Move Task to Today', 'taskToday'),
+        cmd('Task When…', 'taskWhen'),
+        cmd('Task Due Date…', 'taskDue'),
+        cmd('Change Task Priority', 'taskPriority'),
+        { type: 'separator' },
+        cmd('Fold or Unfold', 'foldToggle'),
+        cmd('Fold', 'fold'),
+        cmd('Unfold', 'unfold'),
+        cmd('Fold All', 'foldAll'),
+        cmd('Unfold All', 'unfoldAll'),
+      ],
+    },
     {
       label: 'View',
       submenu: [
@@ -400,11 +478,12 @@ function createWindow() {
             format('Numbered List', 'numbered', accelerators.numbered),
             format('Task List', 'task', accelerators.task),
             format('Quote', 'quote'),
+            format('Code Block', 'codeblock'),
           ],
         },
         {
           label: 'Insert',
-          submenu: [format('Link to a Note', 'wikilink'), format('Web Link', 'link', accelerators.mdlink), format('Table', 'table'), format('Math', 'math'), format("Today's Date", 'date'), format('Current Time', 'time')],
+          submenu: [format('Link to a Note', 'wikilink', 'CmdOrCtrl+Shift+K'), format('Web Link', 'link', accelerators.mdlink), format('Table', 'table'), format('Math', 'math'), format('Divider', 'divider'), format("Today's Date", 'date'), format('Current Time', 'time')],
         },
       )
     }
@@ -489,8 +568,9 @@ if (!app.requestSingleInstanceLock()) {
     if (isMac && !app.isPackaged && fs.existsSync(iconPath)) app.dock.setIcon(iconPath)
     buildMenu()
     createWindow()
-    // Capture a thought from any app.
+    // Capture a thought, or a task, from any app.
     globalShortcut.register('Control+Alt+Space', () => send('capture'))
+    globalShortcut.register('Control+Alt+T', () => send('captureTask'))
 
     app.on('activate', () => (win ? win.show() : createWindow()))
   })

@@ -3,9 +3,13 @@
 // "P1", "P2", "P3" is the priority (P1 highest), ">date" the day to work on it, "@due(date)" the deadline.
 // ">someday" parks a task out of the active lists, and "@done(date)" records the day it was ticked.
 // The lists follow Things: a planned day is when a task starts, so it stays in Today until it is done;
-// only a missed deadline makes it overdue.
+// only a missed deadline makes it overdue. A task in the Inbox note (the note called Inbox in the Inbox notebook)
+// with no planned day waits in the Inbox list, out of Anytime, until it is given a day, Someday, or moved into a
+// project's note.
 import type { Note } from '../types'
 import { addDays, parseYmd, today } from './util'
+import { parseDatePhrase } from './dates'
+import { outgoing, resolver } from './links'
 
 export interface Task {
   noteId: string
@@ -27,6 +31,8 @@ export interface Task {
   completed?: string
   /** Nearest heading above the task. */
   heading: string
+  /** In the Inbox note. Set by allTasks. */
+  inInbox?: boolean
 }
 
 export const TASK_LINE = /^(\s*(?:>\s*)*(?:[-*+]|\d+[.)])\s+\[)([ xX])(\]\s+)(.*)$/
@@ -69,6 +75,28 @@ export function withDetails(raw: string, patch: { priority?: number; scheduled?:
   const due = patch.due === undefined ? now.due : patch.due
   const planned = someday ? '>someday' : scheduled ? `>${scheduled}` : ''
   return [now.text, priorityLabel(priority), planned, due ? `@due(${due})` : '', now.completed ? `@done(${now.completed})` : ''].filter(Boolean).join(' ')
+}
+
+/**
+ * Dates typed in words, turned into the dates they mean: ">fri" becomes ">2026-10-16" and
+ * "@due(next week)" becomes "@due(2026-10-19)". ">" takes up to three words, the longest that reads as a date.
+ * Anything that is not a date is left as typed. Used when a task is captured, so suggestions need not be picked.
+ */
+export function resolveTaskWords(raw: string, dayFirst = true): string {
+  const out = raw.replace(/@due\(([^)]*)\)/g, (m, words: string) => {
+    const date = parseDatePhrase(words.trim(), dayFirst)
+    return date ? `@due(${date})` : m
+  })
+  return out.replace(/(^|\s)>(\S+(?:[ \t]+(?![>@])\S+){0,2})/g, (m, lead: string, words: string) => {
+    // Where each of the (up to three) words ends, so the longest that reads as a date can be cut off.
+    const ends = [...words.matchAll(/\S+/g)].map((w) => w.index! + w[0].length)
+    for (let n = ends.length; n > 0; n--) {
+      const phrase = words.slice(0, ends[n - 1])
+      const date = /^someday$/i.test(phrase) ? 'someday' : parseDatePhrase(phrase, dayFirst)
+      if (date) return `${lead}>${date}${words.slice(ends[n - 1])}`
+    }
+    return m
+  })
 }
 
 /** The task's text with "@done(date)" added at the end, or taken away. Nothing else on the line moves. */
@@ -133,15 +161,33 @@ export function tasksOf(note: Note): Task[] {
   return tasks
 }
 
+/** A notebook path compared the way macOS compares folder names: capitals and stray spaces or slashes do not matter. */
+const notebookKey = (folder: string) => folder.split('/').map((s) => s.trim()).filter(Boolean).join('/').toLowerCase()
+
+/** Whether two notebook paths name the same notebook, as macOS compares folder names. */
+export const sameNotebook = (a: string, b: string) => notebookKey(a) === notebookKey(b)
+
+/** The title of the one note that is the tasks Inbox. It lives in the Inbox notebook. */
+export const INBOX_NOTE_TITLE = 'Inbox'
+
+/** Whether a note is the Inbox note: the note called Inbox in the Inbox notebook. Capitals do not matter, as on a Mac. */
+export function isInboxNote(note: Pick<Note, 'folder' | 'title'>, inboxFolder: string): boolean {
+  return !!notebookKey(inboxFolder) && notebookKey(note.folder) === notebookKey(inboxFolder) && note.title.trim().toLowerCase() === INBOX_NOTE_TITLE.toLowerCase()
+}
+
 let lastNotes: Record<string, Note> | null = null
 let lastFolder = ''
+let lastInbox = ''
 let lastAll: Task[] = []
-/** Every task in every note, except the ones in templates. */
-export function allTasks(notes: Record<string, Note>, templatesFolder: string): Task[] {
-  if (notes === lastNotes && templatesFolder === lastFolder) return lastAll
-  lastAll = Object.values(notes).flatMap((n) => (n.folder === templatesFolder ? [] : tasksOf(n)))
+/** Every task in every note, except the ones in templates. Tasks in the Inbox note are marked `inInbox`. */
+export function allTasks(notes: Record<string, Note>, templatesFolder: string, inboxFolder = ''): Task[] {
+  if (notes === lastNotes && templatesFolder === lastFolder && inboxFolder === lastInbox) return lastAll
+  lastAll = Object.values(notes).flatMap((n) =>
+    n.folder === templatesFolder ? [] : isInboxNote(n, inboxFolder) ? tasksOf(n).map((t) => ({ ...t, inInbox: true })) : tasksOf(n),
+  )
   lastNotes = notes
   lastFolder = templatesFolder
+  lastInbox = inboxFolder
   return lastAll
 }
 
@@ -178,6 +224,12 @@ export const isOverdue = (t: Task, now = today()) => !t.done && !!t.due && t.due
 /** In Today: planned for today or an earlier day, or due today or earlier. */
 export const isToday = (t: Task, now = today()) => !t.done && ((!!t.scheduled && t.scheduled <= now) || (!!t.due && t.due <= now))
 
+/**
+ * Waiting in the Inbox: open, in the Inbox note, and not yet decided on (no planned day, not Someday).
+ * A due date does not take it out; a task due today or earlier is also in Today.
+ */
+export const inInbox = (t: Task) => !t.done && !!t.inInbox && !t.scheduled && !t.someday
+
 /** Planned for an earlier day and still not done, so carried into today. */
 export const isCarried = (t: Task, now = today()) => !t.done && !!t.scheduled && t.scheduled < now && !isOverdue(t, now) && t.due !== now
 
@@ -191,19 +243,20 @@ export function weekRange(date: string, weekStart: number): [string, string] {
   return [from, addDays(from, 6)]
 }
 
-export type TaskFilter = 'open' | 'today' | 'upcoming' | 'anytime' | 'someday' | 'week' | 'month' | 'overdue' | 'undated' | 'done'
+export type TaskFilter = 'open' | 'inbox' | 'today' | 'upcoming' | 'anytime' | 'someday' | 'week' | 'month' | 'overdue' | 'undated' | 'done'
 
-/** The lists, in the order they are shown. The first five are the ones from Things. Keys 1 to 9 and 0 pick them. */
+/** The lists, in the order they are shown. The first six are the ones from Things. */
 export const TASK_FILTERS: [TaskFilter, string, string][] = [
+  ['inbox', 'Inbox', 'Captured and not yet decided on: in the Inbox note, with no planned day'],
   ['today', 'Today', 'Planned for today or earlier, or due today or earlier'],
   ['upcoming', 'Upcoming', 'Planned for a day after today'],
-  ['anytime', 'Anytime', 'Everything you could do now: not planned for later and not someday'],
+  ['anytime', 'Anytime', 'Everything you could do now: not planned for later, not someday, not waiting in the Inbox'],
   ['someday', 'Someday', 'Parked for later, kept out of the other lists'],
   ['done', 'Logbook', 'Ticked tasks, most recently done first'],
   ['overdue', 'Overdue', 'Past the due date'],
   ['week', 'This week', 'Due or planned for this week'],
   ['month', 'Next 30 days', 'Due or planned from today to 30 days ahead'],
-  ['undated', 'No date', 'No due date, no planned day and not someday'],
+  ['undated', 'No date', 'No due date, no planned day, not someday and not waiting in the Inbox'],
   ['open', 'All open', 'Every task that is not ticked'],
 ]
 
@@ -215,8 +268,10 @@ export function matchesFilter(t: Task, filter: TaskFilter, weekStart: number, no
   switch (filter) {
     case 'today':
       return isToday(t, now)
+    case 'inbox':
+      return inInbox(t)
     case 'anytime':
-      return !t.someday && !(t.scheduled && t.scheduled > now)
+      return !t.someday && !(t.scheduled && t.scheduled > now) && !inInbox(t)
     case 'someday':
       return t.someday
     case 'week':
@@ -230,10 +285,57 @@ export function matchesFilter(t: Task, filter: TaskFilter, weekStart: number, no
     case 'upcoming':
       return !!t.scheduled && t.scheduled > now
     case 'undated':
-      return !taskDate(t) && !t.someday
+      return !taskDate(t) && !t.someday && !inInbox(t)
     default:
       return true
   }
+}
+
+/** The notebooks that matter for telling projects apart: the ones the app files into, and People. */
+export interface ProjectFolders {
+  dailyFolder: string
+  meetingsFolder: string
+  peopleFolder: string
+  templatesFolder: string
+  scratchFolder: string
+  inboxFolder: string
+}
+
+/** Whether a notebook is `folder` or a notebook inside it, compared as macOS compares folder names. */
+const within = (notebook: string, folder: string) => !!notebookKey(folder) && (notebookKey(notebook) === notebookKey(folder) || notebookKey(notebook).startsWith(notebookKey(folder) + '/'))
+
+/**
+ * A project, as in Things: an ordinary note outside the notebooks the app manages (daily notes, meetings, the
+ * Inbox, templates, scratch) and outside People. "Work/Organization" is a project; a meeting note is not.
+ */
+export function isProjectNote(note: Note, f: ProjectFolders): boolean {
+  if (note.type !== 'note') return false
+  return ![f.dailyFolder, f.meetingsFolder, f.peopleFolder, f.templatesFolder, f.scratchFolder, f.inboxFolder].some((x) => within(note.folder, x))
+}
+
+const LINK = /\[\[([^\]\n|#]+)(?:#[^\]\n|]*)?(?:\|[^\]\n]*)?\]\]/g
+
+/**
+ * The projects a task is shown under when the Tasks view is grouped by project, as note ids:
+ * - in a project note: that project;
+ * - linking a project on its own line ("- [ ] Send the deck [[Organization]]"): the projects it links;
+ * - in a meeting note that links projects anywhere: those projects, so a meeting's actions show with its project;
+ * - otherwise its own note.
+ * Nothing in the notes changes; this only decides where a task is listed.
+ */
+export function projectsOf(t: Task, notes: Record<string, Note>, f: ProjectFolders): string[] {
+  const own = notes[t.noteId]
+  if (!own) return []
+  if (isProjectNote(own, f)) return [own.id]
+  const find = resolver(notes)
+  const projects = (titles: string[]) => [...new Set(titles.map((x) => find(x)).filter((id): id is string => !!id && id !== own.id && isProjectNote(notes[id], f)))]
+  const onLine = projects([...t.raw.matchAll(LINK)].map((m) => m[1]))
+  if (onLine.length) return onLine
+  if (own.type === 'note' && within(own.folder, f.meetingsFolder)) {
+    const linked = projects(outgoing(own))
+    if (linked.length) return linked
+  }
+  return [own.id]
 }
 
 /** Which notes tasks are taken from: everywhere, ordinary notes only, or daily notes only. */

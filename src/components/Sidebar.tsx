@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { listIcon } from './listIcons'
 import {
   BookMarked,
   CalendarCheck,
@@ -19,11 +20,6 @@ import {
   User,
   ListChecks,
   BookOpenText,
-  Star,
-  Layers,
-  Archive,
-  BookCheck,
-  Flag,
   Filter,
   LayoutDashboard,
   Moon,
@@ -86,15 +82,6 @@ function buildTree(folders: string[]): TreeNode[] {
   return roots
 }
 
-/** The lists under Tasks, each with the kind of icon and colour Things gives it. */
-const LIST_ICONS: Record<string, React.ReactNode> = {
-  today: <Star size={13} fill="currentColor" />,
-  upcoming: <CalendarDays size={13} />,
-  anytime: <Layers size={13} />,
-  someday: <Archive size={13} />,
-  done: <BookCheck size={13} />,
-  overdue: <Flag size={13} fill="currentColor" />,
-}
 
 function NavItem({ icon, label, count, active, hint, onClick }: { icon: React.ReactNode; label: string; count?: number; active?: boolean; hint?: string; onClick: () => void }) {
   return (
@@ -119,15 +106,16 @@ export function Sidebar() {
 
   const list = useMemo(() => Object.values(notes), [notes])
   const templatesFolder = useStore((s) => s.settings.templatesFolder)
+  const inboxFolder = useStore((s) => s.settings.inboxFolder)
   const taskViews = useStore((s) => s.settings.taskViews)
   const weekSetting = useStore((s) => s.settings.weekStart)
   const taskView = route.name === 'tasks' ? route.view : undefined
   // Lists shown under Tasks: the ones from Things, Overdue while anything is, then the filters saved from the Tasks view.
   const { dueNow, taskLists } = useMemo(() => {
-    const all = allTasks(notes, templatesFolder)
+    const all = allTasks(notes, templatesFolder, inboxFolder)
     const weekStart = weekSetting === 'sunday' ? 0 : weekSetting === 'monday' ? 1 : firstWeekday()
     const count = (v: Pick<TaskView, 'filter' | 'query' | 'source'>) => selectTasks(all, notes, v, weekStart).length
-    const builtIn = (['today', 'upcoming', 'anytime', 'someday', 'done', 'overdue'] as TaskFilter[])
+    const builtIn = (['inbox', 'today', 'upcoming', 'anytime', 'someday', 'done', 'overdue'] as TaskFilter[])
       .map((f) => {
         const [, label, title] = TASK_FILTERS.find(([x]) => x === f)!
         // The Logbook only grows, so a count beside it says nothing.
@@ -137,7 +125,7 @@ export function Sidebar() {
     const saved = taskViews.map((v) => ({ id: `s:${v.id}`, label: v.name, title: 'Saved filter. Right-click to rename or delete.', count: count(v), warn: false, savedId: v.id as string | undefined }))
     // As in Things, the number beside Tasks is what is in Today, which includes anything overdue.
     return { dueNow: all.filter((t) => isToday(t)).length, taskLists: [...builtIn, ...saved] }
-  }, [notes, templatesFolder, taskViews, weekSetting])
+  }, [notes, templatesFolder, inboxFolder, taskViews, weekSetting])
   const tree = useMemo(() => buildTree(folders), [folders])
   const counts = useMemo(() => {
     const m = new Map<string, number>()
@@ -259,7 +247,7 @@ export function Sidebar() {
         >
           <ChevronDown size={15} />
         </button>
-        <button className="btn icon" title={`Quick capture  ${hint('capture')}`} onClick={() => ui({ capture: true })}>
+        <button className="btn icon" title={`Quick capture  ${hint('capture')}`} onClick={() => ui({ capture: 'note' })}>
           <Zap size={15} />
         </button>
       </div>
@@ -293,7 +281,7 @@ export function Sidebar() {
                     ])
                   }
                 >
-                  <span className={cx('nav-icon', !v.savedId && `list-${v.id}`)}>{v.savedId ? <Filter size={13} /> : LIST_ICONS[v.id] ?? <i className="nav-dot" />}</span>
+                  <span className={cx('nav-icon', !v.savedId && `list-${v.id}`)}>{v.savedId ? <Filter size={13} /> : listIcon(v.id) ?? <i className="nav-dot" />}</span>
                   <span className="nav-label">{v.label}</span>
                   {v.count > 0 && <span className="count">{v.count}</span>}
                 </button>

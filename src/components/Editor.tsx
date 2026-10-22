@@ -22,7 +22,7 @@ import { markdown, markdownLanguage } from '@codemirror/lang-markdown'
 import { languages } from '@codemirror/language-data'
 import { HighlightStyle, indentOnInput, syntaxHighlighting } from '@codemirror/language'
 import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap, type Completion, type CompletionContext } from '@codemirror/autocomplete'
-import { search, searchKeymap } from '@codemirror/search'
+import { openSearchPanel, search, searchKeymap } from '@codemirror/search'
 import { tags as t } from '@lezer/highlight'
 import { uploadAsMarkdown } from '../api'
 import { linkHref } from '../lib/markdown'
@@ -32,6 +32,7 @@ import { parseDatePhrase } from '../lib/dates'
 import { TASK_LINE, parseTaskText, withDetails } from '../lib/tasks'
 import { dailyLabel, isYmd, longDate, today, tagHue } from '../lib/util'
 import { livePreview } from './livePreview'
+import { externalChange, foldCommand, folding, foldOnlySectionsAndLists, restoreFolds } from './folding'
 import { cellsFromClipboard, serializeTable, tableFromCells } from './tableWidget'
 import { type ListKind, moveListItem, shiftListItem, toggleDone, toggleList } from './lists'
 import { syntaxTree } from '@codemirror/language'
@@ -52,6 +53,10 @@ export interface EditorHandle {
   /** Select a range of text and bring it to the middle of the view. */
   reveal(from: number, to: number): void
   upload(files: File[]): void
+  /** Open the find (and replace) bar, as ⌘F does in the editor. */
+  find(): void
+  /** Fold or unfold at the cursor, or all of the note. */
+  fold(kind: 'toggle' | 'fold' | 'unfold' | 'foldAll' | 'unfoldAll'): void
 }
 
 interface Props {
@@ -64,6 +69,8 @@ interface Props {
   spellcheck?: boolean
   autoPair?: boolean
   lineNumbers?: boolean
+  /** The note being edited, to remember what is folded in it. */
+  foldKey?: string
 }
 
 const highlight = HighlightStyle.define([
@@ -114,7 +121,8 @@ const decorator = new MatchDecorator({
       : Decoration.mark({ class: m[0].startsWith('[[') ? 'cm-wikilink' : 'cm-math' }),
 })
 
-const marks = ViewPlugin.fromClass(
+/** Tags, note links and math, marked so they stand out. Also used by the task capture box. */
+export const marks = ViewPlugin.fromClass(
   class {
     decorations: DecorationSet
     constructor(view: EditorView) {
@@ -233,7 +241,11 @@ function numberAfter(view: EditorView, lineNumber: number, indent: number): stri
   return '1. '
 }
 
-function completions(ctx: CompletionContext) {
+/** Suggestions in the task capture box: the same as on a task line in a note, plus priorities, without slash commands. */
+export const captureCompletions = (ctx: CompletionContext) => completions(ctx, true)
+
+/** Suggestions while typing: note links, task dates, slash commands and tags. `capture` is the task capture box, where the whole text is one task. */
+function completions(ctx: CompletionContext, capture = false) {
   const link = ctx.matchBefore(/\[\[[^\]\n|]*/)
   if (link) {
     const notes = Object.values(useStore.getState().notes).sort((a, b) => b.updated.localeCompare(a.updated))
@@ -262,7 +274,7 @@ function completions(ctx: CompletionContext) {
   }
   // On a task: ">fri" plans it for a day and "@due(fri" sets the deadline; any date phrase works.
   const when = ctx.matchBefore(/(?:(?<=\s)>|@due\()[\w ./-]*$/)
-  if (when && TASK_LINE.test(ctx.state.doc.lineAt(when.from).text)) {
+  if (when && (capture || TASK_LINE.test(ctx.state.doc.lineAt(when.from).text))) {
     const start = when.from + (when.text.startsWith('>') ? 1 : 5)
     const typed = ctx.state.sliceDoc(start, ctx.pos)
     const due = !when.text.startsWith('>')
@@ -283,12 +295,21 @@ function completions(ctx: CompletionContext) {
       options.push({ label: 'someday', detail: 'Out of Today, Upcoming and Anytime', type: 'daily', apply: apply('someday') })
     if (options.length) return { from: start, filter: false, options }
   }
-  const slash = slashCommands(ctx)
+  // "P" after a space offers the three priorities; only in the capture box, where it cannot get in the way of writing.
+  const pri = capture && ctx.matchBefore(/(?<=\s)P[1-3]?$/)
+  if (pri) {
+    const apply = (label: string) => (view: EditorView, _c: unknown, from: number, to: number) => {
+      const space = view.state.sliceDoc(to, to + 1) === ' ' ? '' : ' '
+      view.dispatch({ changes: { from, to, insert: label + space }, selection: { anchor: from + label.length + 1 } })
+    }
+    return { from: pri.from, options: ['High', 'Medium', 'Low'].map((name, i) => ({ label: `P${i + 1}`, detail: `${name} priority`, apply: apply(`P${i + 1}`) })), validFor: /^P[1-3]?$/ }
+  }
+  const slash = !capture && slashCommands(ctx)
   if (slash) return slash
   const tag = ctx.matchBefore(/(?<![\w&])#[\w/-]*/)
   if (tag && (tag.to - tag.from > 1 || ctx.explicit)) {
     // A "#" at the start of a line is a heading, not a tag.
-    if (ctx.state.doc.lineAt(tag.from).from === tag.from) return null
+    if (!capture && ctx.state.doc.lineAt(tag.from).from === tag.from) return null
     return {
       from: tag.from + 1,
       options: tagCounts(useStore.getState().notes).map(([label, n]) => ({ label, detail: String(n) })),
@@ -329,7 +350,7 @@ async function uploadInto(view: EditorView, files: File[], pos?: number, pasted 
   }
 }
 
-export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, onChange, onFollowLink, autoFocus, live, spellcheck, autoPair = true, lineNumbers: showLineNumbers }, ref) {
+export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, onChange, onFollowLink, autoFocus, live, spellcheck, autoPair = true, lineNumbers: showLineNumbers, foldKey }, ref) {
   const host = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
   const cb = useRef({ onChange, onFollowLink })
@@ -438,7 +459,8 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
           EditorView.contentAttributes.of({ spellcheck: spellcheck ? 'true' : 'false', autocorrect: spellcheck ? 'on' : 'off' }),
           EditorView.lineWrapping,
           flashField,
-          markdown({ base: markdownLanguage, codeLanguages: languages }),
+          markdown({ base: markdownLanguage, codeLanguages: languages, extensions: [foldOnlySectionsAndLists] }),
+          folding(foldKey),
           syntaxHighlighting(highlight),
           marks,
           isearchHighlight,
@@ -558,6 +580,7 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
       }),
     })
     viewRef.current = view
+    if (foldKey) restoreFolds(view, foldKey)
     if (autoFocus) view.focus()
     return () => view.destroy()
     // The editor is created once per mounted note; value changes are synced below.
@@ -571,7 +594,9 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
     const current = view.state.doc.toString()
     if (current !== value) {
       const head = Math.min(view.state.selection.main.head, value.length)
-      view.dispatch({ changes: { from: 0, to: current.length, insert: value }, selection: { anchor: head } })
+      // Replacing the whole text drops the folds, so fold again what was folded.
+      view.dispatch({ changes: { from: 0, to: current.length, insert: value }, selection: { anchor: head }, annotations: externalChange.of(true) })
+      if (foldKey) restoreFolds(view, foldKey)
     }
   }, [value])
 
@@ -635,6 +660,12 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
           view.focus()
         },
       })
+    },
+    find() {
+      const view = viewRef.current
+      if (!view) return
+      view.focus()
+      openSearchPanel(view)
     },
     toggleDone() {
       if (viewRef.current && !toggleDone(viewRef.current, useStore.getState().settings.logCompletion)) toast('The cursor is not on a task')
@@ -701,6 +732,12 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
     },
     upload(files) {
       if (viewRef.current) uploadInto(viewRef.current, files)
+    },
+    fold(kind) {
+      const view = viewRef.current
+      if (!view) return
+      if (!foldCommand(view, kind) && (kind === 'toggle' || kind === 'fold')) toast('Nothing to fold here: put the cursor on a heading or a list item with lines under it')
+      view.focus()
     },
   }))
 

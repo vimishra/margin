@@ -262,6 +262,7 @@ export function applyFormat(ed: EditorHandle, kind: string) {
     numbered: () => ed.toggleList('numbered'),
     task: () => ed.toggleList('task'),
     done: () => ed.toggleDone(),
+    find: () => ed.find(),
     taskPriority: () => ed.taskEdit('priority'),
     taskDue: () => ed.taskEdit('due'),
     taskWhen: () => ed.taskEdit('when'),
@@ -277,12 +278,19 @@ export function applyFormat(ed: EditorHandle, kind: string) {
     h5: () => ed.prefixLines('##### '),
     mdlink: () => ed.insertLink(),
     quote: () => ed.prefixLines('> '),
+    codeblock: () => ed.wrap('```\n', '\n```', 'code'),
+    divider: () => ed.insert('\n---\n\n'),
     wikilink: () => ed.wrap('[[', ']]'),
     link: () => ed.insertLink(),
     math: () => ed.wrap('$', '$', 'x^2'),
     table: () => ed.insert('\n\n| Column 1 | Column 2 |\n| --- | --- |\n|  |  |\n\n'),
     date: () => ed.insert(today()),
     time: () => ed.insert(timeNow()),
+    foldToggle: () => ed.fold('toggle'),
+    fold: () => ed.fold('fold'),
+    unfold: () => ed.fold('unfold'),
+    foldAll: () => ed.fold('foldAll'),
+    unfoldAll: () => ed.fold('unfoldAll'),
   }
   actions[kind]?.()
 }
@@ -560,6 +568,7 @@ export function NoteView({ note, slot = 'main' }: { note: Note; slot?: 'main' | 
                     spellcheck={settings.spellcheck}
                     autoPair={settings.autoPair}
                     lineNumbers={settings.lineNumbers}
+                    foldKey={note.id}
                     ref={editor} value={page} onChange={setPage} onFollowLink={(target, other) => followLink(target, isSide ? !other : other)} autoFocus={!fresh.current} />
                 )}
                 {mode === 'read' && (

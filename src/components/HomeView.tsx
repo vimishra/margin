@@ -84,7 +84,7 @@ export function HomeView() {
           className="home-capture"
           onSubmit={(e) => {
             e.preventDefault()
-            captureText(text, 'daily')
+            captureText(text)
             setText('')
           }}
         >

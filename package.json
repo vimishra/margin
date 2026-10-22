@@ -1,7 +1,7 @@
 {
   "name": "margin-notes",
   "private": true,
-  "version": "1.10.2",
+  "version": "1.18.1",
   "type": "module",
   "description": "Margin — a fast, local-first markdown note-taking app",
   "scripts": {

@@ -6,6 +6,8 @@ Margin is a note-taking app for people who keep a lot of notes: work, meetings, 
 
 You can open this guide from inside the app: **Help → User Guide** in the menu bar, the **User guide** button in the shortcuts window (press `?`), or type "guide" in ⌘K. The [design guide](design.md), which explains how Margin is built, is in the same places.
 
+To search a guide, press **⌘F**: a small bar opens at the top right and highlights every match as you type. **Enter** goes to the next match and **⇧Enter** to the previous one (⌘G and ⌘⇧G do the same), and **Esc** closes the bar. **Edit → Find…** does the same from the menu bar while a guide is in front.
+
 To print a guide, choose **Help → Printable Guides…**. It opens a folder with each guide as a PDF and as a web page. The same folder, named **Documentation**, is in the installer's window beside the app.
 
 This guide uses the desktop app's shortcuts. In a browser, most use ⌥ in place of ⌘ (see [Shortcuts](#shortcuts)). Every shortcut can be changed in Settings.
@@ -40,7 +42,8 @@ Everything the app does, at a glance. Each heading links to the section that exp
 
 **[Capturing](#quick-capture-and-scratch-notes)**
 
-- Quick capture from anywhere, even from another app, into today's note, a scratch note, the inbox, or a note and heading you choose
+- Quick capture from anywhere, even from another app, into today's note
+- Quick task: capture a task with its dates, priority and tags, with suggestions as you type, into the Inbox
 - Scratch notes that remove themselves after a week
 - Research notes for articles, with a source link and a reading status
 
@@ -60,7 +63,8 @@ Everything the app does, at a glance. Each heading links to the section that exp
 **[Tasks](#tasks)**
 
 - Any checkbox in any note is a task, with an optional priority, planned day, due date and tags
-- A Tasks view that gathers them all: Today, Upcoming, Anytime, Someday, Logbook, Overdue and more
+- A Tasks view that gathers them all: Inbox, Today, Upcoming, Anytime, Someday, Logbook, Overdue and more
+- An Inbox, as in Things: captured tasks wait there until you give them a day or move them into a project
 - Filters by words, tag and priority; grouping by date, project or priority; and filters you save to the sidebar
 - Today's tasks and anything overdue shown at the top of the daily note
 - A Top 3 for each day, whose unfinished items move to the next day
@@ -177,17 +181,56 @@ If you only remember one thing: put notes in a few broad notebooks, link generou
 **What they are good for.**
 
 - Separating areas of your life that rarely mix: Work, Personal, Learning.
-- Keeping generated notes out of the way: Daily, Meetings, Scratch and Templates are notebooks Margin files things into for you.
+- Keeping generated notes out of the way: Daily, Meetings, Inbox, Templates, Scratch and Assets are notebooks Margin files things into for you (see the table below).
 - Scoping a list. Clicking a notebook shows only what is in it.
 
 **What they are bad at.** A note can only be in one notebook, but most notes belong to several topics. A meeting about the Atlas project with a vendor is "Meetings", "Atlas" and "Vendors" all at once. Trying to express that with folders leads to deep trees and time lost deciding where things go.
 
 **How to use them well.**
 
-- Keep to a handful, by broad area. Five to seven is plenty for most people.
+- Keep to very few, one per area of your life, as Things has areas. For most people **Work** and **People** are enough; add **Personal** if you want a second area.
+- Make each project one note inside its area: `Work/Organization`, `Work/Atlas`. See [Projects and areas](#projects-and-areas).
 - Avoid nesting more than one level, except where Margin does it for you (Meetings by year and month).
-- If you cannot decide where a note goes, leave it at the top level or in the Inbox. It is still found by search, links and tags.
-- Use tags and links for topics, projects and people.
+- If you cannot decide where a note goes, leave it at the top level, or write it in today's note. It is still found by search, links and tags. (The Inbox notebook is for tasks, not notes.)
+- Use tags and links for topics; use links for projects and people.
+
+The notebooks Margin manages. You do not need to open or organise these; Margin creates them and files into them:
+
+| Notebook | What goes there |
+| --- | --- |
+| Daily | One note per day, made by ⌘D or the journal |
+| Meetings | Meeting notes, filed as Meetings/2026/Oct |
+| Inbox | The Inbox note, where Quick task puts tasks |
+| Templates | The daily and meeting templates, and your own |
+| Scratch | Notes that remove themselves after a while |
+| Assets | Pasted images and attached files (the name is a setting) |
+
+So a simple notes folder looks like this:
+
+```
+Work/        one note per project: Organization, Atlas, …
+People/      one note per person, for 1:1s
+Archive/     finished projects (optional)
+Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
+```
+
+### Projects and areas
+
+Margin follows Things 3 here, with notes instead of a separate task database:
+
+| Things 3 | Margin |
+| --- | --- |
+| Area, such as Work | A notebook: `Work` |
+| Project, such as Organization | A note in that notebook: `Work/Organization` |
+| Heading inside a project | A `##` heading inside the note |
+| To-do | A `- [ ] …` line in the note |
+| Notes on a to-do | Lines indented under the task |
+| Inbox | The *Inbox* note in the Inbox notebook |
+| Completing a project | Tick its last tasks, then move the note to an **Archive** notebook |
+
+A project note is more than a task list: decisions, links and background go in the same note, around the tasks.
+
+Not every note is a project. Daily notes, meeting notes, the Inbox, templates, scratch notes and notes in **People** are not. A meeting's actions still belong to its project: when a meeting note links `[[Organization]]`, its tasks are listed under Organization in the Tasks view (grouped by Project), after Organization's own tasks, under "From" and the meeting's name. They stay in the meeting note, where the context is; ticking one there or in the Tasks view is the same thing. A task in any other note, such as today's, joins a project by linking it on its own line: `- [ ] Ring the recruiter [[Organization]]`. To move a task into the project note for good, press **M** on it in the Tasks view.
 
 ### Tags and links
 
@@ -295,6 +338,17 @@ Type `/` at the start of a line or after a space. A menu appears; keep typing to
 
 Nested levels show a faint guide line. The indent width and the guides are in Settings → Appearance.
 
+### Folding
+
+A section (a heading and everything under it, down to the next heading of the same or a higher level) or a list item with lines indented under it can be folded down to its first line. Hover over the line and click the small arrow to its left; a folded line always shows a solid arrow in the accent colour, pointing right, and three bold, tinted dots (**…**) at its end, so folded places are easy to spot. Click either to unfold.
+
+- **⌘'** folds or unfolds where the cursor is. Inside a section's text, it folds that section.
+- **⌘⌥↑** folds. Pressed again, it folds the next section or item out, so a few presses collapse a long note down to its main headings.
+- **⌘⌥↓** unfolds the fold on the cursor's line.
+- **Fold All** and **Unfold All** are in the Format menu and ⌘K. They fold every top-level section and list item.
+
+Folding never changes the note. It is remembered for each note on this computer, so a note opens the way you left it, and tasks in a folded section still show in the Tasks view. Find, Jump to a heading and links to a section open any fold they land in. Paragraphs, tables and code blocks do not fold, and the read-only view and exports always show everything.
+
 ### Tables
 
 Tables are edited in place. Click a cell and type.
@@ -343,9 +397,21 @@ Paste or drop an image, PDF or any file into a note. It is saved in your attachm
 - **Short links:** company short links written as plain text are clickable as they stand: `go/some-name`, `b/1234567` and `b/hotlists/1234567`. Clicking one opens `http://go/some-name` (or `http://b/…`) in your browser. The text in the note is not changed. They are recognised in the editor, read mode, canvas cards and the Tasks view, but not inside code, web addresses or existing links. Turn this off in Settings → Editor → Short links.
 - **Paste to link:** select some words and paste a web address. The words become a link to it. This does not happen inside code or an existing link.
 
-### Right-click
+### Right-click and the Format menu
 
 In the desktop app, right-clicking in a note offers spelling suggestions, Cut, Copy and Paste, Look Up, "Search Notes for…", and Format, Paragraph and Insert menus. Right-clicking a link offers Open, Open to the Side and Copy Link.
+
+The same commands are in the menu bar under **Format**, for the note you are editing, in one list with no submenus. Lines divide it into groups:
+
+- **Bold** (⌘B), **Italic** (⌘I), **Strikethrough**, **Inline Code**
+- Heading 1 to 5
+- Bulleted, Numbered and Task List, Quote, Code Block
+- Link to a Note (⌘⇧K), Web Link, Table, Math, Divider
+- Today's Date, Current Time
+- Tick or Untick Task, Move Task to Today, Task When…, Task Due Date…, Change Task Priority
+- Fold or Unfold, Fold, Unfold, Fold All, Unfold All
+
+The menu shows each command's shortcut, including ones you have changed in Settings → Shortcuts. With no note open, the commands do nothing.
 
 ## Finding things
 
@@ -358,6 +424,7 @@ In the desktop app, right-clicking in a note offers spelling suggestions, Cut, C
 - **`#tag`:** only notes with that tag.
 - **A date:** `today`, `tomorrow`, `friday`, `next monday`, `last friday`, `06/10`, `6 oct`, `in 3 days`. The first result is that day's daily note.
 - **A command:** type what you want to do. `rename`, `delete`, `duplicate`, `close other`, `add tag`, `copy link`, `export`. A matching command appears at the top; press Enter.
+- **A task list:** `inbox`, `today`, `upcoming`, `anytime`, `someday`, `logbook`, `overdue` and the others, or the name of a saved filter. **Tasks: Inbox** and the rest appear at the top; Enter opens that list.
 - **`>`:** commands only.
 - **⌥↵** opens the selected note in the side pane. **⌘↵** creates a note named with what you typed.
 
@@ -384,7 +451,7 @@ Commands act on the note in the active pane. The ones people reach for most:
 - **Enter** jumps to the match and closes the bar. **Esc** cancels and returns to where you were.
 - Lowercase ignores case; one capital letter makes the search exact.
 
-⌘F opens find and replace.
+⌘F opens find and replace. ⌘F always finds in what is in front: in a note, this find and replace bar; in the Tasks view or a list of notes, its narrow-down box; in a guide, the guide's find bar; in the shortcuts window, its find box; anywhere else, ⌘K's search. **Edit → Find…** in the menu bar does the same.
 
 ### Jump to a heading: ⌘⇧O
 
@@ -429,16 +496,35 @@ On the canvas:
 
 ## Quick capture and scratch notes
 
-**Quick capture** (⌘⇧C, or ⌃⌥Space from any app) opens a small box. Type, press Enter, and carry on with what you were doing. Tab chooses where it goes:
+**Quick capture** (⌘⇧C, or ⌃⌥Space from any app) opens a small box. Type, press Enter, and carry on with what you were doing. A note always goes into **today's note**: as a timestamped line (Settings → Capture & scratch → Timestamp captures), or as a card if today is on the canvas. ⇧Enter starts a new line.
 
-- **Today's note:** a timestamped line, or a card if today is on the canvas.
-- **Scratch:** a new temporary note.
-- **Inbox:** a new note in the Inbox notebook.
-- **A note…:** added to a note you choose, as a new bullet. The first time, press Enter or click to search for the note; you can also pick a heading to add it under. Margin remembers the note and heading, so next time it is Tab and Enter. ⌥↓ chooses a different note.
+To capture a task, use **Quick task** below: tasks go to the Inbox, not to today's note.
 
-The destination the box opens with is still the one set in Settings, so the usual capture is unchanged. Anything you type as a task (`- [ ] …`) is kept as a task, in today's note as well as in a chosen note.
+### Quick task
 
-**Scratch notes** (⌘⌥N) are for things you need for a few days. They expire after a week and move to the trash. Each one shows how long it has left, with buttons to extend it or **Keep** it as a normal note.
+**Quick task** (⌘⌥C, or ⌃⌥T from any app) opens the same box ready for a task. The **Note / Task** switch at the top changes between the two, and so do their shortcuts while the box is open; what you have typed comes along.
+
+Type the task with its details, as you would on a task line in a note, and the same suggestions appear:
+
+| Type | Suggests |
+| --- | --- |
+| `>` and a day in words (`>fri`, `>next week`), or `>some` | When: the planned day, or Someday |
+| `@due(` and a day in words | The due date |
+| `P` after a space | P1, P2, P3 |
+| `#` | Your tags |
+| `[[` | A note to link |
+
+You do not have to pick a suggestion: when the task is saved, `>fri` and `@due(next week)` are turned into the dates they mean. The line under the box shows what Margin understood (When Tomorrow, Due Fri 16 Oct, P2, #atlas) before you save.
+
+- **Enter** saves the task and closes the box. **⇧Enter** saves it and keeps the box open for the next one.
+- **Tab** moves down to **Notes**, for anything that belongs with the task: context, a link, a few bullets. There, **Enter** starts a new line, **⌘↵** saves, **⇧⌘↵** saves and starts another, and **⇧Tab** goes back up to the task. The notes are saved on the lines under the task, indented, so they stay with it when you tick it or move it with **M**. Blank lines are left out, since a blank line would cut the notes off from the task.
+- Every task goes to the end of the **Inbox note**: the note called *Inbox* in your Inbox notebook, made the first time it is needed.
+- With no day, it waits in the **Inbox** list until you decide on it (see [The Inbox](#the-inbox)). If you typed a day (`>fri`) or Someday, it shows in Today, Upcoming or Someday instead; the line under the box tells you which before you save.
+- Esc closes a suggestion list first, then the box.
+
+Captured tasks appear in **Tasks → Inbox**, where you sort them: see [The Inbox](#the-inbox).
+
+**Scratch notes** (⌘⌥N, or New → Scratch note) are for things you need for a few days. They expire after a week and move to the trash. Each one shows how long it has left, with buttons to extend it or **Keep** it as a normal note.
 
 ## Meeting notes and templates
 
@@ -489,7 +575,7 @@ The format letters are the same as Obsidian's: `YYYY`, `MMMM`, `MMM`, `MM`, `Do`
 ## About
 ```
 
-- **Between meetings:** add to *Next time*. Quick capture can do it without opening the note: choose **A note…**, pick the person and the *Next time* heading once, and it is remembered.
+- **Between meetings:** add to *Next time*: ⌘K, type their name, and write the line under *Next time*.
 - **When the meeting starts:** ⌘K → "Add today's meeting entry". A new dated heading is added at the top of *Meetings*, newest first.
 - **Actions** are tasks, so they show in the Tasks view. Give them a due date with `@due(fri)`.
 
@@ -559,7 +645,7 @@ Everything about deciding what to do and when: what a task is, its priority and 
 
 ## Tasks
 
-A task is a checkbox: `- [ ] Send the proposal`. Type `/task`, press ⌘⇧9, or write it by hand. Tasks can live in any note. To tick or untick the task the cursor is on, press ⌘↵ or click its box; with several lines selected, ⌘↵ ticks them all.
+A task is a checkbox: `- [ ] Send the proposal`. Type `/task`, press ⌘⇧9, or write it by hand, or capture one from anywhere with **Quick task** (⌘⌥C; see [Quick task](#quick-task)). Tasks can live in any note. To tick or untick the task the cursor is on, press ⌘↵ or click its box; with several lines selected, ⌘↵ ticks them all.
 
 Ticking a task writes the day on its line, `@done(2026-10-07)`, so the Logbook can show when it was done. Unticking takes it off again. Turn this off in Settings → General → **Record when tasks are done**.
 
@@ -568,7 +654,9 @@ The lists work the way they do in Things 3:
 - A **planned day** is the day a task *starts*. Until then it waits in Upcoming; from that day on it is in Today, and it stays there until you tick it. It never becomes overdue.
 - A **due date** is a real deadline. Only a missed due date makes a task overdue.
 - **Someday** parks a task. It is kept out of Today, Upcoming and Anytime until you give it a day.
-- A **project** is a note, and an **area** is the notebook it is in. Headings in the note divide the project, as headings do in Things.
+- The **Inbox** holds what you have captured but not decided on: tasks in the Inbox note with no planned day. They stay out of Anytime until you give them a day or Someday, or move them into a project's note.
+- A **project** is a note, and an **area** is the notebook it is in: a project called Organization is the note `Work/Organization`. Headings in the note divide the project, as headings do in Things. Notes in the notebooks Margin manages (Daily, Meetings, Inbox, Templates, Scratch) and in People are not projects.
+- A meeting's actions belong to its project without being moved: a meeting note that links `[[Organization]]` lists its tasks under Organization when the Tasks view is grouped by project. A task anywhere else can do the same by linking the project on its own line: `- [ ] Ring the recruiter [[Organization]]`.
 
 ### Details on a task
 
@@ -607,14 +695,15 @@ In the editor the details show as small labels. A due date turns red once it has
 
 **Tasks** in the sidebar (⌘⇧T) gathers every checkbox from every note. Templates are left out.
 
-- **Lists** across the top: first the ones from Things, Today, Upcoming, Anytime, Someday and Logbook; then Overdue, This week, Next 30 days, No date and All open. Each shows its count (except the Logbook). Keys 1 to 9 and 0 switch between them, in that order.
+- **Lists** across the top: first the ones from Things, Inbox, Today, Upcoming, Anytime, Someday and Logbook; then Overdue, This week, Next 30 days, No date and All open. Each shows its count (except the Logbook). Keys 1 to 6 pick the Things lists in that order; 7 is Overdue, 8 This week, 9 No date and 0 All open.
 - **Narrow down** with the box: words match the task or its note's title, `#atlas` needs that tag, `p2` needs that priority or higher (P1 and P2). The tag chips below do the same with a click.
 - **From** chooses where tasks are taken from: All, Notes (leaves out tasks written in daily notes) or Daily (only those).
-- **Group by** date, project or priority. **Project** puts each note's tasks together under its notebook, in the order they are written and under their headings, with a small circle that fills as the project's tasks are ticked. Tasks in daily notes are kept together as one group, latest day first. In the Logbook, grouping by date groups by the day each task was done.
+- **Group by** date, project or priority. **Project** puts each project's tasks together under its notebook, in the order they are written and under their headings, with a small circle that fills as the project's tasks are ticked. After them come the tasks that belong to the project but live elsewhere, each under "From" and the note they are in: the actions of meetings that link the project, and any task whose line links it. Ticking one ticks it in its own note; nothing is moved. Tasks in daily notes that link no project are kept together as one group, latest day first; a meeting that links no project keeps its tasks under its own name. In the Logbook, grouping by date groups by the day each task was done.
 - **Tick** a task to complete it. The checkbox in the note's file is ticked.
-- **Hover** a task for three buttons: priority, when (planned day or Someday), due date. Clicking a date label changes it too.
+- **Hover** a task for four buttons: priority, when (planned day or Someday), due date, and move to another note. Clicking a date label changes it too.
 - **Rescheduling:** the when and due-date buttons open a small calendar. Click a day, or type one in words (`fri`, `14 oct`, `in 3 days`) and press Enter. The arrow keys move the highlighted day, PgUp and PgDn change month, and Today, Tomorrow and Next week are one click. The when calendar also has **Someday**. **Remove** clears the date, or takes a task out of Someday.
 - **Click** a task to open its note at that line. ⌘-click opens the note to the side.
+- **Notes:** a task with lines indented under it in its note (context, links, bullets, such as the notes Quick task saves) shows a blue notes icon after its text (solid blue while the notes are showing). Hover the icon to read them, or click it (or press **N**) to show them under the task. They are read from the note as it is, so editing them means editing those lines in the note. Sub-tasks are listed on their own and are not repeated in the notes. This also works in the task panel under daily notes.
 
 With the keyboard:
 
@@ -628,26 +717,44 @@ With the keyboard:
 | T | Move to today |
 | S | When: planned day or Someday |
 | P | Priority |
+| M | Move to another note (a project), under its Open Threads heading |
+| N | Show or hide the task's notes |
 | 1 to 9, 0 | Switch list |
 | / | Narrow down; ↓ or ↵ goes back to the list |
 
 How the lists are decided:
 
+- **Inbox:** in the Inbox note, with no planned day and not Someday. A due date does not take a task out of the Inbox, but once it is due it also shows in Today.
 - **Today:** planned for today or an earlier day, or due today or earlier.
 - **Upcoming:** planned for a day after today. A task with only a due date is not here; it is in Anytime until the day it is due.
-- **Anytime:** everything you could do now: not planned for a later day and not Someday. Today's tasks are here too.
+- **Anytime:** everything you could do now: not planned for a later day, not Someday, and not waiting in the Inbox. Today's tasks are here too, marked with a yellow star, as in Things. The star shows in every list except Today and Overdue, so you can see what you have already committed to today.
 - **Someday:** marked `>someday`.
 - **Logbook:** ticked tasks, the most recently done first. Tasks ticked before the day was recorded come last, under "Day not recorded".
 - **Overdue:** the due date has passed. A planned day passing never makes a task overdue.
 - **This week:** due or planned between the first and last day of this week (your Week starts on setting).
 - **Next 30 days:** due or planned from today to 30 days ahead.
-- **No date:** no due date, no planned day and not Someday.
+- **No date:** no due date, no planned day, not Someday and not waiting in the Inbox.
 
 The number beside Tasks in the sidebar is how many are in Today, overdue ones included.
 
+### The Inbox
+
+The Inbox is where things wait until you decide what they are, as in Things 3. It is one note: the **Inbox note**, called *Inbox*, in the Inbox notebook (Settings → General → Inbox notebook). A task is in the Inbox list when it is in that note, has no planned day and is not Someday. That covers everything Quick task saves, and any task you write there by hand. Tasks in other notes, even other notes in the Inbox notebook, are not in the Inbox. Capitals do not matter, as on a Mac.
+
+A task with a day is not in the Inbox list even though its line is in the Inbox note: it is in Today or Upcoming. If other notes in the Inbox notebook still hold open tasks (a *Tasks* note from an earlier version, say), the Inbox list offers **Move them into Inbox**, with Undo.
+
+Nothing in the Inbox shows in Anytime, so your considered lists stay clean. To clear it, open **Tasks → Inbox** (⌘⇧T, then 1) and, for each task:
+
+- **Give it a day:** S, and pick one. It moves to Today or Upcoming. T plans it for today.
+- **Park it:** S, then Someday.
+- **Put it in its project:** M, type part of the note's name, and press Enter. The task line, with any indented lines under it, goes under the note's **Open Threads** heading, after the tasks already there, so moved tasks always collect in one place. If the note has no such heading, `## Open Threads` is added at the end of the page. If no note matches what you typed, the picker offers **New note "…"**: it is made in the notebook of the project you edited last (Work, usually) with the heading and the task in it; type `People/Sam` to choose another notebook. Undo in the message puts the task back. A task moved out of the Inbox note with no day goes to Anytime.
+- **Tick it** if it is already done, or delete the line if it is not happening.
+
+The task's line stays where it is in the note unless you move it; only the lists it shows in change. The Inbox's count in the sidebar tells you when there is sorting to do.
+
 ### Saved filters
 
-Under **Tasks** in the sidebar are Today, Upcoming, Anytime, Someday and Logbook, and Overdue while anything is overdue. You can add your own:
+Under **Tasks** in the sidebar are Inbox, Today, Upcoming, Anytime, Someday and Logbook, and Overdue while anything is overdue. You can add your own:
 
 1. In the Tasks view, choose a list, narrow it down (say `#atlas p2`), and pick From and Group by.
 2. Click **Save filter** and give it a name.
@@ -699,7 +806,7 @@ margin-tasks upcoming
 margin-tasks logbook --done-after -7
 ```
 
-The lists are `today`, `upcoming`, `anytime`, `someday`, `logbook`, `overdue`, `week`, `month`, `undated`, `open`, and `all` for every task, ticked or not.
+The lists are `inbox`, `today`, `upcoming`, `anytime`, `someday`, `logbook`, `overdue`, `week`, `month`, `undated`, `open`, and `all` for every task, ticked or not. `inbox` reads the note called Inbox in the Inbox notebook; if your Inbox notebook is not called Inbox, add `--inbox NAME`.
 
 **Narrowing down.** Options combine: a task must satisfy all of them.
 
@@ -753,12 +860,12 @@ Two settings live inside the app and cannot be read from outside it. If you rena
 | Section | What is there |
 | --- | --- |
 | General | Start page, where new notes go, which sidebar sections to show, week start, sidebar calendar, time format, how typed dates are read, tabs |
-| Appearance | Theme, accent colour (in the desktop app the first choice, System, follows the accent colour set in macOS System Settings), note font and code font (any installed font), text size and weight, line spacing, list indent, indent guides, image border, page width |
+| Appearance | Theme, accent colour (in the desktop app the first choice, System, follows the accent colour set in macOS System Settings), note font and code font (any installed font), text size and weight, line spacing, list indent, indent guides, image border, page width. The note font, size and weight also apply to tasks wherever they are listed: the Tasks view and the panel under daily notes. |
 | Text styles | Colour and size for Heading 1–5, bold and italic, with a separate colour for the light and dark themes |
 | Editor | Default mode, toolbar, spell check, auto-closing brackets, image pasting, line numbers, side panel |
 | Daily notes | Canvas or page, the daily notebook, a template for new days |
 | Templates & meetings | Template and meeting notebooks, how meetings are filed, the meeting template |
-| Capture & scratch | Capture destination, timestamps, scratch expiry |
+| Capture & scratch | Timestamps on captures, scratch expiry |
 | Files & data | Notes folder, attachments folder, image naming, Obsidian import, reset |
 | Shortcuts | Every shortcut; click one and press new keys |
 
@@ -769,6 +876,8 @@ Page width is measured in characters per line. Settings are kept per app: the de
 ## Shortcuts
 
 These are the defaults. Change any of them in Settings → Shortcuts.
+
+Press **?** (or click **Shortcuts** at the bottom of the sidebar) for a window listing every shortcut with the keys you have set. Start typing to narrow it to the ones whose name or keys match; ⌘F returns to the box, and **Esc** clears it, then closes the window.
 
 | Action | Desktop app | Browser |
 | --- | --- | --- |
@@ -783,6 +892,8 @@ These are the defaults. Change any of them in Settings → Shortcuts.
 | New canvas | ⌘⇧N | — |
 | Quick capture | ⌘⇧C | ⌥C |
 | Quick capture from any app | ⌃⌥Space | — |
+| Quick task | ⌘⌥C | ⌥⇧C |
+| Quick task from any app | ⌃⌥T | — |
 | Today's daily note | ⌘D | ⌥D |
 | Home | ⌘⇧H | ⌥H |
 | Calendar | ⌘⇧L | ⌥L |
@@ -795,11 +906,13 @@ These are the defaults. Change any of them in Settings → Shortcuts.
 | Close tab | ⌘W | ⌥W |
 | Write / Read | ⌘E | ⌘E |
 | Search in note | ⌃S, ⌃R | ⌃S, ⌃R |
-| Find and replace | ⌘F | ⌘F |
+| Find in what is in front (in a note: find and replace) | ⌘F | ⌘F |
 | Jump to a heading | ⌘⇧O | ⌘⇧O |
 | Bulleted / numbered / task list | ⌘⇧8 / ⌘⇧7 / ⌘⇧9 | same |
 | Nest / un-nest list item | Tab / ⇧Tab | same |
 | Move list item | ⌥↑ / ⌥↓ | same |
+| Fold or unfold here | ⌘' | ⌘' |
+| Fold (again: the section around it) / unfold | ⌘⌥↑ / ⌘⌥↓ | same |
 | Bold / italic | ⌘B / ⌘I | same |
 | Open to the side, or close it | ⌘⌥\\ | ⌘⌥\\ |
 | Side panel (backlinks) | ⌘. | ⌘. |
@@ -830,7 +943,7 @@ And for tasks:
 - **Morning:** read today's task panel, clear anything overdue, settle the Top 3.
 - **During the day:** write anything that needs doing as a task; tick things as you finish.
 - **Meetings:** write each action as a task, with a due date if one was agreed.
-- **End of day:** tick what is done and leave the rest.
+- **End of day:** tick what is done, empty the Inbox, and leave the rest.
 - **Weekly:** clear Overdue, plan from Upcoming and Anytime, catch undated tasks.
 - **Monthly:** review Someday, read the Logbook, close finished projects.
 

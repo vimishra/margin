@@ -23,6 +23,32 @@ import { AskDialog, HelpModal, Lightbox, Menu, QuickCapture, Toasts } from './co
 
 let lastRun = { id: '', source: '', at: 0 }
 
+/**
+ * ⌘F, and Edit → Find in the desktop app: find in what is in front, as in any Mac app. In a note, its find bar;
+ * in the Tasks view or a list of notes, its narrow-down box; anywhere else, search everything.
+ */
+function findHere() {
+  const s = useStore.getState()
+  // The shortcuts window has its own find box.
+  const helpBox = s.help && document.querySelector<HTMLInputElement>('.modal.help .help-find input')
+  if (helpBox) {
+    helpBox.focus()
+    helpBox.select()
+    return
+  }
+  if ((s.route.name === 'note' || s.route.name === 'journal') && document.querySelector('.cm-editor')) {
+    window.dispatchEvent(new CustomEvent('margin:format', { detail: 'find' }))
+    return
+  }
+  const box = document.querySelector<HTMLInputElement>('.page .filter input')
+  if (box) {
+    box.focus()
+    box.select()
+    return
+  }
+  ui({ palette: { mode: 'search' } })
+}
+
 /** Run an action by id. Called from the keyboard, and from the desktop app's menu bar. */
 export function runAction(id: string, source: 'key' | 'menu') {
   // A key press can arrive both ways in the desktop app; only act on it once.
@@ -40,6 +66,7 @@ export function runAction(id: string, source: 'key' | 'menu') {
     if (s.activePane === 'side' && s.side) closeSideTab(s.side)
     else if (current) closeTab(current)
   }
+  else if (id === 'find') findHere()
   else if (id === 'prevTab') cycleTab(-1)
   else if (id === 'nextTab') cycleTab(1)
   else commands().find((c) => c.id === id)?.run()
@@ -51,6 +78,11 @@ function onKey(e: KeyboardEvent) {
   const overlay = !!(s.palette || s.capture || s.help || s.prefs || s.historyFor || s.asking || s.menu || s.lightbox || s.datePick)
   const combo = eventCombo(e)
 
+  if (combo === 'Mod+F' && s.help) {
+    e.preventDefault()
+    findHere()
+    return
+  }
   if (combo) {
     let id = actionFor(combo)
     // Ctrl+[ and Ctrl+] also go back and forward on a Mac, unless they were given to something else.
@@ -73,8 +105,15 @@ function onKey(e: KeyboardEvent) {
   if (overlay) return
 
   const el = e.target as HTMLElement
+  // ⌘F in the editor is the editor's own find bar; anywhere else it finds in the page in front.
+  if (combo === 'Mod+F' && !el.closest('.cm-editor')) {
+    e.preventDefault()
+    findHere()
+    return
+  }
   const typing = el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)
-  if (e.key === '?' && !typing) ui({ help: true })
+  // Without preventDefault the ? would land in the window's find box.
+  if (e.key === '?' && !typing) (e.preventDefault(), ui({ help: true }))
 }
 
 /** A second note beside the main view, with a divider that can be dragged to resize. */

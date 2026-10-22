@@ -20,6 +20,7 @@ with open(os.path.join(HERE, "..", "tests", "task-cases.json"), encoding="utf-8"
     CASES = json.load(f)
 NOW = CASES["today"]
 WEEK = CASES["weekStart"]
+INBOX = CASES["inbox"]
 
 
 class SharedCases(unittest.TestCase):
@@ -45,7 +46,7 @@ class SharedCases(unittest.TestCase):
         cls.dir.cleanup()
 
     def select(self, name, query=""):
-        chosen = [t for t in self.tasks if mt.in_list(t, name, WEEK, NOW) and (not query or mt.matches_query(t, query))]
+        chosen = [t for t in self.tasks if mt.in_list(t, name, WEEK, NOW, INBOX) and (not query or mt.matches_query(t, query))]
         chosen.sort(key=lambda t: mt.urgency_key(t, NOW))
         if name == "logbook":
             chosen.sort(key=lambda t: t.done_on or "", reverse=True)
@@ -60,7 +61,7 @@ class SharedCases(unittest.TestCase):
             mine = {
                 "key": key, "text": t.text, "done": t.done, "priority": t.priority_label or None, "tags": t.tags,
                 "planned": t.planned, "someday": t.someday, "due": t.due, "done_on": t.done_on, "heading": t.heading,
-                "overdue": mt.is_overdue(t, NOW), "in_today": mt.is_today(t, NOW),
+                "overdue": mt.is_overdue(t, NOW), "in_today": mt.is_today(t, NOW), "in_inbox": mt.in_inbox(t, INBOX),
             }
             self.assertEqual(mine, w, key)
 
@@ -105,11 +106,14 @@ class SharedCases(unittest.TestCase):
         self.assertEqual(texts("open", "--due-before", NOW), ["Book venue"])
         done = texts("logbook", "--done-after", "-2")
         self.assertEqual(done[0], "Capital X counts as done")  # the most recent day first
-        self.assertEqual(sorted(done[1:]), ["Done yesterday", "Logged and done"])
+        self.assertEqual(sorted(done[1:]), ["Done from the Inbox", "Done yesterday", "Logged and done"])
         self.assertEqual(texts("open", "--source", "daily", "--priority", "p1"), ["Daily top item"])
         self.assertEqual(texts("open", "--note-tag", "meeting", "--priority", "p3"), ["Me: follow up"])
         self.assertEqual(texts("open", "--priority", "none", "--has-due", "--notebook", "Work/Meetings"), ["Sunday of this week", "Priya: send numbers #atlas"])  # planned for the 11th comes before due on the 12th
         self.assertEqual(texts("all", "--note", "lisbon", "--limit", "1"), ["Train tickets"])
+        # The Inbox notebook is a setting in the app, so the tool takes its name; its note called Inbox is the inbox.
+        self.assertEqual(texts("inbox", "--tag", "ops"), ["Captured, due today #ops"])
+        self.assertEqual(texts("inbox", "--inbox", "Inboxes elsewhere"), ["The Inbox note of another notebook, title in capitals"])
 
     def test_other_outputs(self):
         paths = self.run_cli("overdue", "--paths").strip()

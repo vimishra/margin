@@ -1,11 +1,11 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { BookOpen, Check, Workflow, X } from 'lucide-react'
-import { captureText, captureToNote, dismissToast, ui, useStore, type CaptureTarget } from '../store'
-import type { Note } from '../types'
-import { headings } from '../lib/markdown'
-import { splitContent } from '../lib/canvas'
+import { captureTask, captureText, dismissToast, ui, useStore } from '../store'
+import { TaskInput, type TaskInputHandle } from './TaskCapture'
+import { parseTaskText, priorityLabel, PRIORITIES, resolveTaskWords, shortDate } from '../lib/tasks'
+import { actionFor, eventCombo, hint } from '../shortcuts'
 import { openGuide, shortcutGroups } from '../commands'
-import { MOD, cx, displayTitle, local } from '../lib/util'
+import { cx, MOD, today } from '../lib/util'
 
 export function Toasts() {
   const toasts = useStore((s) => s.toasts)
@@ -131,9 +131,14 @@ export function AskDialog() {
 
 export function HelpModal() {
   const close = () => ui({ help: false })
+  const [query, setQuery] = useState('')
+  const q = query.trim().toLowerCase()
+  const groups = shortcutGroups()
+    .map(([group, rows]) => [group, q && !group.toLowerCase().includes(q) ? rows.filter(([keys, label]) => `${label} ${keys}`.toLowerCase().includes(q)) : rows] as const)
+    .filter(([, rows]) => rows.length)
   return (
     <div className="overlay" onMouseDown={close}>
-      <div className="modal help" tabIndex={-1} ref={(el) => el?.focus()} onMouseDown={(e) => e.stopPropagation()} onKeyDown={(e) => e.key === 'Escape' && close()}>
+      <div className="modal help" tabIndex={-1} onMouseDown={(e) => e.stopPropagation()} onKeyDown={(e) => e.key === 'Escape' && close()}>
         <header className="modal-head">
           <h2>Keyboard shortcuts</h2>
           <button className="btn ghost sm" onClick={() => openGuide('user-guide')}>
@@ -149,155 +154,224 @@ export function HelpModal() {
             <X size={16} />
           </button>
         </header>
+        <div className="help-find">
+          {/* Typing filters at once; ⌘F comes back here. Escape clears what is typed, then closes. */}
+          <input
+            autoFocus
+            value={query}
+            placeholder="Find a shortcut by name or keys…"
+            spellCheck={false}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => e.key === 'Escape' && query && (e.stopPropagation(), setQuery(''))}
+          />
+        </div>
         <div className="help-grid">
-          {shortcutGroups().map(([group, rows]) => (
+          {groups.map(([group, rows]) => (
             <section key={group}>
               <h3>{group}</h3>
               {rows.map(([keys, label]) => (
-                <div key={keys} className="help-row">
+                <div key={keys + label} className="help-row">
                   <span>{label}</span>
                   <kbd>{keys}</kbd>
                 </div>
               ))}
             </section>
           ))}
+          {!groups.length && <p className="help-none">No shortcut matches “{query.trim()}”.</p>}
         </div>
       </div>
     </div>
   )
 }
 
-const TARGETS: [CaptureTarget, string, string][] = [
-  ['daily', "Today's note", 'Lands on today’s daily note'],
-  ['scratch', 'Scratch', 'A temporary note that expires on its own'],
-  ['inbox', 'Inbox', 'A new note in the Inbox notebook'],
-  ['note', 'A note…', 'Added to a note you choose, under a heading if you like'],
-]
+/** What has been typed, kept when switching between the note and the task box. */
+let carried = ''
 
+/** The quick capture box, for a note or for a task. Its own shortcuts switch between the two while it is open. */
 export function QuickCapture() {
-  const notes = useStore((s) => s.notes)
-  const [text, setText] = useState('')
-  const [target, setTarget] = useState<CaptureTarget>(() => useStore.getState().settings.captureTarget)
-  // The note chosen last time is offered again, so a regular destination takes no extra steps.
-  const [dest, setDest] = useState(() => local.get<{ id: string; heading: string }>('captureNote', { id: '', heading: '' }))
-  const [picking, setPicking] = useState(false)
-  const [find, setFind] = useState('')
-  const [active, setActive] = useState(0)
-  const area = useRef<HTMLTextAreaElement>(null)
-  const chosen = notes[dest.id] as Note | undefined
-  const sections = useMemo(() => (chosen ? headings(splitContent(chosen.content).page) : []), [chosen])
-  const heading = sections.some((h) => h.text === dest.heading) ? dest.heading : ''
-  const matches = useMemo(() => {
-    const q = find.trim().toLowerCase()
-    return Object.values(notes)
-      .filter((n) => n.type !== 'scratch' && (!q || displayTitle(n).toLowerCase().includes(q)))
-      .sort((a, b) => b.updated.localeCompare(a.updated))
-      .slice(0, 6)
-  }, [notes, find])
-  const choosing = target === 'note' && (picking || !chosen)
+  const kind = useStore((s) => s.capture)
+  return kind === 'task' ? <TaskCapture /> : <NoteCapture />
+}
 
+/** Note / Task, at the top of the capture box. */
+function CaptureKind({ kind, text }: { kind: 'note' | 'task'; text: string }) {
+  const to = (k: 'note' | 'task') => {
+    if (k === kind) return
+    carried = text
+    ui({ capture: k })
+  }
+  return (
+    <div className="capture-kind seg sm">
+      <button className={cx(kind === 'note' && 'on')} title={`Capture a note  ${hint('capture')}`} onClick={() => to('note')}>
+        Note
+      </button>
+      <button className={cx(kind === 'task' && 'on')} title={`Capture a task  ${hint('captureTask')}`} onClick={() => to('task')}>
+        Task
+      </button>
+    </div>
+  )
+}
+
+/** Pressing the shortcut of the other kind of capture while the box is open switches to it, keeping the text. */
+function switchKeys(e: React.KeyboardEvent, kind: 'note' | 'task', text: string) {
+  const combo = eventCombo(e.nativeEvent)
+  const id = combo && actionFor(combo)
+  if (id !== 'capture' && id !== 'captureTask') return
+  e.preventDefault()
+  e.stopPropagation()
+  const next = id === 'capture' ? 'note' : 'task'
+  if (next !== kind) {
+    carried = text
+    ui({ capture: next })
+  }
+}
+
+/** The capture box for a note: always saved to today's daily note, with the time if that setting is on. */
+function NoteCapture() {
+  const [text, setText] = useState(() => {
+    const t = carried
+    carried = ''
+    return t
+  })
+  const area = useRef<HTMLTextAreaElement>(null)
+  // Text carried over from the task box: the cursor goes after it.
+  useEffect(() => area.current?.setSelectionRange(area.current.value.length, area.current.value.length), [])
   const close = () => ui({ capture: false })
   const save = () => {
-    if (!text.trim()) return close()
-    if (target === 'note') {
-      if (!chosen) return setPicking(true)
-      captureToNote(text, chosen.id, heading)
-    } else captureText(text, target)
+    if (text.trim()) void captureText(text)
     close()
-  }
-  const choose = (n: Note) => {
-    setDest({ id: n.id, heading: n.id === dest.id ? heading : '' })
-    setPicking(false)
-    setFind('')
-    area.current?.focus()
   }
   return (
     <div className="overlay top" onMouseDown={close}>
-      <div className="modal capture" onMouseDown={(e) => e.stopPropagation()}>
+      <div className="modal capture" onMouseDown={(e) => e.stopPropagation()} onKeyDown={(e) => switchKeys(e, 'note', text)}>
+        <CaptureKind kind="note" text={text} />
         <textarea
           ref={area}
           autoFocus
           value={text}
           rows={4}
-          placeholder="Capture a thought, a link, a to-do…"
+          placeholder="Capture a thought, a link, a note… It goes into today's note."
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Escape') close()
             else if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault()
               save()
-            } else if (e.key === 'Tab') {
-              e.preventDefault()
-              const i = TARGETS.findIndex(([t]) => t === target)
-              setTarget(TARGETS[(i + (e.shiftKey ? TARGETS.length - 1 : 1)) % TARGETS.length][0])
-            } else if (e.key === 'ArrowDown' && e.altKey && target === 'note') {
-              e.preventDefault()
-              setPicking(true)
             }
           }}
         />
-        {target === 'note' && (
-          <div className="capture-dest">
-            {choosing ? (
+        <footer>
+          <span className="capture-to">Saves to today's note</span>
+          <span className="capture-hint">
+            <kbd>⇧↵</kbd> new line · <kbd>↵</kbd> save
+          </span>
+          <button className="btn primary" onClick={save} title="↵">
+            Save
+          </button>
+        </footer>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * The capture box for a task. It is saved as "- [ ] …", with dates typed in words turned into dates, at the end
+ * of the Inbox note. With no day it waits in the Inbox list; with one it shows in Today or Upcoming.
+ */
+function TaskCapture() {
+  const dayFirst = useStore((s) => s.settings.dayFirst)
+  // Text carried over from the note box: its first line is the task, the rest its notes.
+  const [[initial, initialNotes]] = useState(() => {
+    const [first, ...rest] = carried.replace(/^\s+/, '').split('\n')
+    carried = ''
+    return [first ?? '', rest.join('\n').trim()]
+  })
+  const [text, setText] = useState(initial)
+  const [notes, setNotes] = useState(initialNotes)
+  const [saved, setSaved] = useState(0)
+  const input = useRef<TaskInputHandle>(null)
+  const notesBox = useRef<HTMLTextAreaElement>(null)
+  const [inNotes, setInNotes] = useState(false)
+  const both = () => [text, notes].filter((s) => s.trim()).join('\n')
+  const task = useMemo(() => parseTaskText(resolveTaskWords(text, dayFirst)), [text, dayFirst])
+  const now = today()
+  // Where the task will show once saved, as the Inbox list's rules decide.
+  const lands = task.someday ? 'Someday' : task.scheduled ? (task.scheduled <= now ? 'Today' : 'Upcoming') : 'the Inbox'
+
+  const close = () => ui({ capture: false })
+  const save = (again: boolean) => {
+    if (!text.trim()) return again || close()
+    void captureTask(resolveTaskWords(text, dayFirst), notes)
+    if (!again) return close()
+    // Shift+Enter: ready for the next one.
+    input.current?.clear()
+    setNotes('')
+    setSaved((n) => n + 1)
+    input.current?.focus()
+  }
+  return (
+    <div className="overlay top" onMouseDown={close}>
+      <div className="modal capture" onMouseDown={(e) => e.stopPropagation()} onKeyDown={(e) => switchKeys(e, 'task', both())}>
+        <CaptureKind kind="task" text={both()} />
+        <div className="capture-task">
+          {/* Tab goes down to the notes. */}
+          <TaskInput ref={input} initial={initial} onChange={setText} onSubmit={save} onCancel={close} onTab={(back) => !back && notesBox.current?.focus()} />
+        </div>
+        <div className="capture-reads">
+          {text.trim() ? (
+            <>
+              {task.someday && <span className="task-chip someday">Someday</span>}
+              {task.scheduled && <span className={cx('task-chip', task.scheduled <= now && 'now')}>When {shortDate(task.scheduled)}</span>}
+              {task.due && <span className={cx('task-chip', task.due < now && 'late', task.due === now && 'now')}>Due {shortDate(task.due)}</span>}
+              {task.priority > 0 && <span className="task-chip">{priorityLabel(task.priority)} · {PRIORITIES[task.priority]}</span>}
+              {task.tags.map((tag) => (
+                <span key={tag} className="task-chip">#{tag}</span>
+              ))}
+              <span className="capture-tip">{lands === 'the Inbox' ? 'No day yet: it waits in the Inbox until you decide.' : `It goes to ${lands}.`}</span>
+            </>
+          ) : (
+            <span className="capture-tip">
+              <kbd>&gt;</kbd> when · <kbd>@due(</kbd> deadline · <kbd>P</kbd> priority · <kbd>#</kbd> tag · <kbd>[[</kbd> link
+              {saved > 0 && ` · ${saved} saved`}
+            </span>
+          )}
+        </div>
+        <textarea
+          ref={notesBox}
+          className="capture-notes"
+          value={notes}
+          rows={Math.min(8, Math.max(2, notes.split('\n').length))}
+          placeholder="Notes (optional): saved on the lines under the task"
+          spellCheck
+          onFocus={() => setInNotes(true)}
+          onBlur={() => setInNotes(false)}
+          onChange={(e) => setNotes(e.target.value)}
+          onKeyDown={(e) => {
+            // Enter starts a new line here; ⌘↵ saves, ⇧⌘↵ saves and starts another, ⇧Tab goes back to the task.
+            if (e.key === 'Escape') close()
+            else if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+              e.preventDefault()
+              save(e.shiftKey)
+            } else if (e.key === 'Tab' && e.shiftKey) {
+              e.preventDefault()
+              input.current?.focus()
+            }
+          }}
+        />
+        <footer>
+          <span className="capture-to">Saves to the Inbox note</span>
+          <span className="capture-hint">
+            {inNotes ? (
               <>
-                <input
-                  ref={(el) => picking && el?.focus()}
-                  value={find}
-                  placeholder="Which note? Type to search…"
-                  onChange={(e) => (setFind(e.target.value), setActive(0))}
-                  onKeyDown={(e) => {
-                    if (e.key === 'ArrowDown') (e.preventDefault(), setActive((i) => Math.min(matches.length - 1, i + 1)))
-                    else if (e.key === 'ArrowUp') (e.preventDefault(), setActive((i) => Math.max(0, i - 1)))
-                    else if (e.key === 'Enter' && matches[active]) (e.preventDefault(), choose(matches[active]))
-                    else if (e.key === 'Escape') (e.preventDefault(), e.stopPropagation(), setPicking(false), area.current?.focus())
-                  }}
-                />
-                <div className="capture-notes">
-                  {matches.map((n, i) => (
-                    <button key={n.id} className={cx(i === active && 'active')} onMouseEnter={() => setActive(i)} onClick={() => choose(n)}>
-                      {displayTitle(n)}
-                      {n.folder && <span>{n.folder}</span>}
-                    </button>
-                  ))}
-                  {matches.length === 0 && <p>No note matches.</p>}
-                </div>
+                <kbd>⇧⇥</kbd> task · <kbd>↵</kbd> new line · <kbd>{MOD}↵</kbd> save
               </>
             ) : (
               <>
-                <span className="capture-to">Add to</span>
-                <button className="chip" title="Choose another note  ⌥↓" onClick={() => setPicking(true)}>
-                  {displayTitle(chosen!)}
-                </button>
-                {sections.length > 0 && (
-                  <>
-                    <span className="capture-to">under</span>
-                    <select value={heading} onChange={(e) => setDest({ id: chosen!.id, heading: e.target.value })}>
-                      <option value="">End of the note</option>
-                      {sections.map((h) => (
-                        <option key={h.line} value={h.text}>
-                          {'\u2003'.repeat(Math.max(0, h.level - 1))}
-                          {h.text}
-                        </option>
-                      ))}
-                    </select>
-                  </>
-                )}
+                <kbd>⇥</kbd> notes · <kbd>⇧↵</kbd> save, add another · <kbd>↵</kbd> save
               </>
             )}
-          </div>
-        )}
-        <footer>
-          <div className="seg sm">
-            {TARGETS.map(([t, label, title]) => (
-              <button key={t} className={cx(target === t && 'on')} title={title} onClick={() => (setTarget(t), area.current?.focus())}>
-                {label}
-              </button>
-            ))}
-          </div>
-          <span className="capture-hint">
-            <kbd>Tab</kbd> destination · {target === 'note' && chosen ? <><kbd>⌥↓</kbd> change · </> : null}<kbd>↵</kbd> save
           </span>
-          <button className="btn primary" onClick={save} title={`${MOD}↵`}>
+          <button className="btn primary" onClick={() => save(false)}>
             Save
           </button>
         </footer>

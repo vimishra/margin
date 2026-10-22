@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { CalendarDays, CornerDownLeft, FilePlus2, Folder, FolderPlus, Hash, LayoutTemplate, Search, Users, Plus } from 'lucide-react'
-import { createNote, go, openSide, openDaily, newFromTemplate, newMeeting, newTemplate, openNote, openNoteAt, templates, toast, ui, updateNote, useStore, type PaletteState, applyTags } from '../store'
+import { createNote, go, moveTaskToNewNote, moveTaskToNote, newProjectPlace, OPEN_THREADS, openSide, openDaily, newFromTemplate, newMeeting, newTemplate, openNote, openNoteAt, templates, toast, ui, updateNote, useStore, type PaletteState, applyTags } from '../store'
 import { commands } from '../commands'
 import { search } from '../lib/search'
 import { tagCounts } from '../lib/links'
@@ -85,6 +85,40 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
         // Several words mean several tags, so that is what Enter does.
         if (words.length > 1) out.unshift(item)
         else out.push(item)
+      }
+      return out
+    }
+
+    if (state.mode === 'moveTask' && state.task) {
+      const task = state.task
+      // Notes a task can go into: not scratch notes or templates, latest edited first; the notebook says which area.
+      const templatesFolder = useStore.getState().settings.templatesFolder
+      const out: Item[] = Object.values(notes)
+        .filter((n) => n.id !== task.noteId && n.type !== 'scratch' && n.folder !== templatesFolder && (!lower || displayTitle(n).toLowerCase().includes(lower) || n.folder.toLowerCase().includes(lower)))
+        .sort((a, b) => b.updated.localeCompare(a.updated))
+        .slice(0, 50)
+        .map((n) => ({
+          key: n.id,
+          group: lower ? 'Notes' : 'Recently edited',
+          icon: <NoteIcon note={n} />,
+          title: displayTitle(n),
+          subtitle: `${n.folder ? n.folder.split('/').join(' / ') + ' · ' : ''}under ${OPEN_THREADS}`,
+          run: () => moveTaskToNote(task, n.id),
+        }))
+      // No note called that: offer to make it, in the notebook it would go to.
+      const place = q ? newProjectPlace(q) : null
+      if (place?.title && !Object.values(notes).some((n) => n.title.toLowerCase() === place.title.toLowerCase() && n.folder.toLowerCase() === place.folder.toLowerCase())) {
+        const item: Item = {
+          key: 'new',
+          group: 'New note',
+          icon: <FilePlus2 size={16} />,
+          title: `New note “${place.title}”`,
+          subtitle: `${place.folder ? `In ${place.folder.split('/').join(' / ')}` : 'At the top level'} · the task goes under ${OPEN_THREADS} · type Notebook/Name for another notebook`,
+          run: () => void moveTaskToNewNote(task, q),
+        }
+        // When nothing else matches, Enter makes the note.
+        if (out.length) out.push(item)
+        else out.unshift(item)
       }
       return out
     }
@@ -218,7 +252,7 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
           <input
             autoFocus
             value={query}
-            placeholder={state.mode === 'outline' ? 'Jump to a heading in this note' : state.mode === 'template' ? 'New note from which template?' : state.mode === 'tag' ? `Tag “${notes[state.noteId || ''] ? displayTitle(notes[state.noteId || '']) : ''}” with…` : moving ? `Move “${displayTitle(moving)}” to…` : 'Search notes, #tags, a date like “next monday”, or > for commands'}
+            placeholder={state.mode === 'moveTask' ? `Move “${state.task?.text ?? ''}” to which note?` : state.mode === 'outline' ? 'Jump to a heading in this note' : state.mode === 'template' ? 'New note from which template?' : state.mode === 'tag' ? `Tag “${notes[state.noteId || ''] ? displayTitle(notes[state.noteId || '']) : ''}” with…` : moving ? `Move “${displayTitle(moving)}” to…` : 'Search notes, #tags, a date like “next monday”, or > for commands'}
             spellCheck={false}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => {

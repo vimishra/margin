@@ -22,7 +22,7 @@
 </script>
 <style>
 :root{--bg:#fff;--text:#15171a;--muted:#6a6e74;--line:#e4e6e9;--soft:#f5f6f8;--accent:#255fb3;--code:#c2410c;color-scheme:light}
-:root[data-theme=dark]{--bg:#282828;--text:#f2f2f2;--muted:#a3a3a6;--line:#3a3b3d;--soft:#313133;--accent:#7fb2f5;--code:#f0987c;color-scheme:dark}
+:root[data-theme=dark]{--bg:#161617;--text:#f8f8f9;--muted:#a3a3a6;--line:#303033;--soft:#222224;--accent:#7fb2f5;--code:#f0987c;color-scheme:dark}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
 main{max-width:820px;margin:0 auto;padding:56px 28px 120px}
@@ -49,6 +49,18 @@ tr:last-child td{border-bottom:none}
 th{background:var(--soft);font-weight:620;color:var(--muted);font-size:.92em}
 blockquote{margin:0 0 1em;padding:.1em 0 .1em 1em;border-left:3px solid var(--line);color:var(--muted)}
 @media print{main{padding:0}h2{break-after:avoid}pre,.table,img{break-inside:avoid}}
+.find{position:fixed;top:12px;right:16px;z-index:10;display:flex;align-items:center;gap:4px;padding:5px 5px 5px 12px;background:var(--bg);border:1px solid var(--line);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.14);font-size:14px}
+.find[hidden]{display:none}
+.find input{width:220px;border:none;outline:none;background:none;color:inherit;font:inherit}
+.find-count{min-width:5.5em;text-align:right;color:var(--muted);font-size:13px;white-space:nowrap}
+.find-count.none{color:#d23d5f}
+.find button{border:none;background:none;color:var(--muted);font:inherit;width:28px;height:26px;border-radius:6px;cursor:default}
+.find button:hover{background:var(--soft);color:var(--text)}
+mark.find-hit{background:#ffe680;color:inherit;border-radius:2px}
+mark.find-hit.current{background:#ffab2e}
+:root[data-theme=dark] mark.find-hit{background:#6b5a1a}
+:root[data-theme=dark] mark.find-hit.current{background:#b5761a}
+@media print{.find{display:none}mark.find-hit{background:none}}
 </style>
 </head>
 <body>
@@ -270,7 +282,7 @@ Each canvas card is markdown too.
 <li>A search button that opens the palette, showing its shortcut.</li>
 <li><strong>New note</strong> button; a <strong>New…</strong> menu (Note, Canvas, Scratch note, Meeting note, Person note, Research note, From a template…, Notebook); a <strong>Quick capture</strong> button.</li>
 <li>Navigation: Home, Today, Journal, Calendar, All notes (with count), Tasks (with the Today count), Research (count), Scratch (count). Each entry's icon has its own colour, kept whether or not the entry is selected; notebook icons share one colour. Note icons are coloured by kind wherever notes are listed: ordinary notes blue, daily notes amber, research notes purple, scratch notes brown, canvas notes teal.</li>
-<li>Under Tasks: Today, Upcoming, Anytime, Someday, Logbook, and Overdue only while something is overdue, each with an icon in its own colour and a count (no count for Logbook); then the user's saved filters.</li>
+<li>Under Tasks: Inbox, Today, Upcoming, Anytime, Someday, Logbook, and Overdue only while something is overdue, each with an icon in its own colour and a count (no count for Logbook); then the user's saved filters.</li>
 <li>A small month calendar that can be folded. Days with a daily note have a dot; today is ringed; clicking a day opens its note.</li>
 <li><strong>Pinned</strong> notes, alphabetical.</li>
 <li><strong>Recent</strong>: the five notes opened most recently, newest first.</li>
@@ -326,6 +338,14 @@ Each canvas card is markdown too.
 </ul>
 <h3 id="56-headings">5.6 Headings</h3>
 <p>Shortcuts set heading level 1 to 5 on the current line or each selected line. The same level again removes the heading; a different level changes it.</p>
+<h3 id="56a-folding">5.6a Folding</h3>
+<ul>
+<li>A heading folds from the end of its line to the end of its section (the last block before the next heading of the same or a higher level). A list item folds from the end of its first line to the end of the item, when it has lines under it (sub-items or indented text). Nothing else folds: paragraphs, quotes, tables and code blocks do not.</li>
+<li>A foldable line shows an arrow in the left margin on hover; a folded line always shows it as a solid right-pointing triangle in the accent colour, and ends with a &quot;…&quot; marker tinted in the accent colour. Clicking either toggles the fold. The arrow takes no room in the line.</li>
+<li>Commands, all acting at the cursor in the active pane's editor: <strong>Fold or unfold here</strong> (Mod+'): unfold a fold on this line, else fold this line, else fold the closest section or item that contains it. <strong>Fold</strong> (Mod+Alt+↑): the same, except that on an already folded line it folds the closest container, so repeated presses collapse outwards. <strong>Unfold</strong> (Mod+Alt+↓): open the fold on this line. <strong>Fold all</strong>, <strong>Unfold all</strong>: no default keys. When folding hides the cursor, it moves to the end of the folded line. With nothing to fold, a message says so.</li>
+<li>Folds are never written into the note. They are kept per note in the app's local storage (<code>margin.folds</code>: the line number and text of each folded line) and restored when the note opens, by the same line or, if lines have moved, the nearest line with the same text. A change from outside the editor (the file changed on disk, a task ticked in the Tasks view) keeps the folds. A fold that would hide the cursor is not restored.</li>
+<li>Moving the cursor into a fold (find, find and replace, search in note, jump to a heading, a link to a section) opens it. Folding applies in writing and source modes and in the journal; the read-only view and exports show everything.</li>
+</ul>
 <h3 id="57-tables">5.7 Tables</h3>
 <ul>
 <li>A table renders as an editable grid. Click a cell and type; Tab and ⇧Tab move between cells and Enter moves down, both adding a row at the end.</li>
@@ -398,7 +418,7 @@ Each canvas card is markdown too.
 <li>Matches highlight as you type, with a count. The same key again goes to the next match; the backward key goes to the previous one and also starts a backward search.</li>
 <li>Enter stays at the match and closes the bar. Esc returns to where the search began.</li>
 <li>All lowercase ignores case; any capital makes it exact.</li>
-<li>⌘F opens ordinary find and replace.</li>
+<li>⌘F opens ordinary find and replace. Outside the editor ⌘F (and Edit → Find… in the desktop app) finds in what is in front: the Tasks view's or a list's narrow-down box gets focus with its text selected, a guide window opens its find bar, the keyboard shortcuts window focuses its find box, and anywhere else the palette opens for search.</li>
 </ul>
 <h3 id="513-other-editor-behaviour">5.13 Other editor behaviour</h3>
 <ul>
@@ -447,13 +467,13 @@ Each canvas card is markdown too.
 <li><strong>Words:</strong> full-text search over titles and content, with a snippet. Opening a result scrolls to the first match and flashes that line.</li>
 <li><strong><code>#tag</code>:</strong> notes with that tag.</li>
 <li><strong>A date phrase:</strong> that day's daily note first.</li>
-<li><strong>Command names:</strong> matching commands rank above notes.</li>
+<li><strong>Command names:</strong> matching commands rank above notes. Every list of the Tasks view is a command named &quot;Tasks: <list>&quot; (Inbox, Today, …, All open), with that list's icon and colour, and so is every saved filter (&quot;Tasks: <name>&quot;); each opens that list.</li>
 <li><strong><code>&gt;</code>:</strong> commands only.</li>
 <li><strong>⌥↵</strong> opens the selected note in the side pane. <strong>⌘↵</strong> creates a note named with the typed text.</li>
 </ul>
 <p>The palette has further modes with the same look: move a note to a notebook (with &quot;create notebook&quot;), choose a template, jump to a heading, and choose a tag.</p>
 <p><strong>Jumping to a place in a note</strong> (from search or the Tasks view): a search result selects the text found; a task, or a meeting entry just added, puts the cursor at the end of its line with nothing selected, so a stray key cannot replace the line. Either way the editor scrolls it to the middle, repeats the scroll a few times over the first second while images and tables settle, and flashes the line for about 1.5 seconds. It works in either pane.</p>
-<p><strong>Commands</strong> cover every action in the app: create (note, canvas, scratch, meeting, person, research, from template, notebook), go to (each view), on the current note (side, swap, jump to heading, search, formatting, headings, lists, task actions, mode, page or canvas, rename, duplicate, add tag, copy link, reveal file, close tab, close others, close all, pin, history, move, export as Markdown, HTML, PDF, Word, delete), and app (page width, sidebar, side panel, theme, settings, import, help pages, keyboard shortcuts).</p>
+<p><strong>Commands</strong> cover every action in the app: create (note, canvas, scratch, meeting, person, research, from template, notebook), go to (each view, each task list and saved filter), on the current note (side, swap, jump to heading, search, formatting, headings, lists, task actions, mode, page or canvas, rename, duplicate, add tag, copy link, reveal file, close tab, close others, close all, pin, history, move, export as Markdown, HTML, PDF, Word, delete), and app (page width, sidebar, side panel, theme, settings, import, help pages, keyboard shortcuts).</p>
 <h2 id="8-kinds-of-note">8. Kinds of note</h2>
 <div class="table"><table><thead>
 <tr>
@@ -544,32 +564,18 @@ Each canvas card is markdown too.
 </ul>
 <h2 id="11-capture-templates-meetings-people">11. Capture, templates, meetings, people</h2>
 <h3 id="111-quick-capture">11.1 Quick capture</h3>
-<p>A small box with a text area and a destination selector. Enter saves, ⇧Enter adds a line, Tab cycles destinations, Esc closes.</p>
-<div class="table"><table><thead>
-<tr>
-<th>Destination</th>
-<th>Result</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Today's note (default)</td>
-<td>Appended to the page as <code>- **time** : text</code>, or as a card when today is a canvas. An empty trailing bullet left by the template is replaced. Text typed as a task (<code>- [ ] …</code>) is added as that task with no timestamp.</td>
-</tr>
-<tr>
-<td>Scratch</td>
-<td>A new scratch note</td>
-</tr>
-<tr>
-<td>Inbox</td>
-<td>A new note in the Inbox notebook, titled with the first line</td>
-</tr>
-<tr>
-<td>A note…</td>
-<td>Appended as a list item to a chosen note, at the end of a chosen heading's section or the end of the page. The note and heading are remembered. ⌥↓ picks another note.</td>
-</tr>
-</tbody>
-</table></div><p>The default destination and whether to add the time are settings. In the desktop app a global hotkey opens capture from any application.</p>
+<p>A small box with a text area. Enter saves, ⇧Enter adds a line, Esc closes. There is one destination, today's daily note: the text is appended to the page as <code>- **time** : text</code> (without the time when that setting is off), or as a card when today is a canvas. An empty trailing bullet left by the template is replaced. Text typed as a task (<code>- [ ] …</code>) is added as that task with no timestamp.</p>
+<p>Whether to add the time is a setting. In the desktop app a global hotkey opens capture from any application.</p>
+<p><strong>Quick task.</strong> The same box can be opened for a task (its own shortcut and global hotkey). A Note / Task switch at the top changes between the two; the shortcuts of either do the same while the box is open, and the text typed so far is kept.</p>
+<ul>
+<li>One line of the editor: a pasted line break becomes a space. The details are marked as labels as they are typed, as on a task line in a note.</li>
+<li>Suggestions: <code>&gt;</code> or <code>@due(</code> with a phrase offer dates as in <a href="#122-entering-details">section 12.2</a> (<code>&gt;some</code> offers someday); <code>P</code> after a space offers P1, P2, P3; <code>#</code> offers tags; <code>[[</code> offers notes. No slash commands.</li>
+<li>A line under the text shows the details read from it (when or Someday, due date, priority, tags), with dates typed in words already turned into dates.</li>
+<li>On save, a date phrase after <code>&gt;</code> (the longest run of up to three words that reads as a date, or <code>someday</code>) and inside <code>@due(…)</code> is replaced by the date; anything that is not a date is left as typed. The task is saved as <code>- [ ] &lt;text&gt;</code>.</li>
+<li><strong>Notes</strong>: a multi-line box under the task line (Tab from the task line, Shift+Tab back). Enter makes a new line; Mod+Enter saves, Mod+Shift+Enter saves and keeps the box open. Each non-blank line is saved under the task indented by two spaces (blank lines are dropped, so the notes stay in the task's block for Move to note). Switching from the note box carries its first line to the task and the rest to the notes; switching back joins them.</li>
+<li>One destination: appended as the last line of the <strong>Inbox note</strong>, the note titled <code>Inbox</code> in the Inbox notebook, which is created empty when it does not exist. A task with no planned day is then in the Inbox list (<a href="#124-the-lists">section 12.4</a>); one with a day or Someday is in that list instead, and the line under the text says which before saving.</li>
+<li>Enter saves and closes; ⇧Enter saves and clears the box for another task; Esc closes an open suggestion list, otherwise the box.</li>
+</ul>
 <h3 id="112-templates">11.2 Templates</h3>
 <ul>
 <li>A template is any note in the Templates notebook.</li>
@@ -702,6 +708,10 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 </thead>
 <tbody>
 <tr>
+<td>Inbox</td>
+<td>Not done, in the Inbox note, no planned day, not Someday</td>
+</tr>
+<tr>
 <td>Today</td>
 <td>Not done, and planned on or before <code>now</code>, or due on or before <code>now</code></td>
 </tr>
@@ -711,7 +721,7 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 </tr>
 <tr>
 <td>Anytime</td>
-<td>Not done, not Someday, and not planned after <code>now</code></td>
+<td>Not done, not Someday, not planned after <code>now</code>, and not in the Inbox</td>
 </tr>
 <tr>
 <td>Someday</td>
@@ -735,26 +745,37 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 </tr>
 <tr>
 <td>No date</td>
-<td>Not done, no due date, no planned day, not Someday</td>
+<td>Not done, no due date, no planned day, not Someday, not in the Inbox</td>
 </tr>
 <tr>
 <td>All open</td>
 <td>Not done</td>
 </tr>
 </tbody>
-</table></div><p>Consequences that must hold: a planned day passing never makes a task overdue, it stays in Today until ticked; a task with only a future due date is in Anytime; Today's tasks are also in Anytime; a Someday task with a due date appears in Today once that date arrives.</p>
+</table></div><p>&quot;The Inbox note&quot; is the note titled <code>Inbox</code> in the notebook named by the Inbox notebook setting (default <code>Inbox</code>), both compared ignoring capitals and stray spaces, as macOS compares folder names. Other notes in that notebook, and notebooks inside it, are not the Inbox. When other notes in the Inbox notebook hold open tasks, the Inbox list offers to move them all into the Inbox note (as Move to another note does, with one Undo). A note created in or moved into a notebook whose name differs from an existing one only in capitals goes into the existing one, under its spelling.</p>
+<p>Consequences that must hold: a planned day passing never makes a task overdue, it stays in Today until ticked; a task with only a future due date is in Anytime, unless it is in the Inbox; an Inbox task leaves the Inbox when it is given a planned day or Someday, or moved to another note, and nothing else is needed; an Inbox task due on or before <code>now</code> is in both the Inbox and Today; Today's tasks are also in Anytime; a Someday task with a due date appears in Today once that date arrives.</p>
 <p><strong>Order.</strong> Lists sort by the day a task next needs attention: a passed due date first; otherwise the earlier of its planned day (a passed planned day counts as today) and its due date; undated last. Then higher priority, then note, then position in the note. The Logbook sorts by done date, latest first, with undated last.</p>
 <h3 id="125-the-tasks-view">12.5 The Tasks view</h3>
 <ul>
 <li>A header with the open and overdue counts, and a <strong>Save filter</strong> button.</li>
-<li>A row of chips, one per list in the order of the table above, each with its count (none for the Logbook). Keys 1 to 9 and 0 select them in order.</li>
+<li>A row of chips, one per list in the order of the table above, each with its count (none for the Logbook). Keys: 1 Inbox, 2 Today, 3 Upcoming, 4 Anytime, 5 Someday, 6 Logbook, 7 Overdue, 8 This week, 9 No date, 0 All open; Next 30 days has none.</li>
 <li>A narrow-down box: words must all appear in the task text or its note's title; <code>#tag</code> requires that tag or a nested one; <code>p1</code>, <code>p2</code>, <code>p3</code> require that priority or higher. Tag chips below it toggle a tag.</li>
 <li><strong>From:</strong> All, Notes (not daily notes), Daily (only daily notes).</li>
-<li><strong>Group by:</strong> Date (Overdue, Today, Tomorrow, Later this week, Later, No date, Someday; in the Logbook, by done date, latest first, with &quot;Day not recorded&quot; last), Project (each note's tasks together under its notebook, in written order under their headings, with a progress circle; daily notes kept as one group), Priority, None. Groups fold.</li>
-<li><strong>A row</strong> shows a checkbox, the priority badge, the task text rendered as inline markdown, date labels, and the note and heading it comes from. On hover: buttons for priority, when and due date. Clicking the row opens its note at that line; ⌘-click opens it to the side at that line.</li>
+<li><strong>Group by:</strong> Date (Overdue, Today, Tomorrow, Later this week, Later, No date, Someday; in the Logbook, by done date, latest first, with &quot;Day not recorded&quot; last), Project (see below), Priority, None. Groups fold.</li>
+<li><strong>A row</strong> shows a checkbox, a yellow star when the task is also in Today (in every list but Today and Overdue, as Things marks Today's to-dos in Anytime and projects), the priority badge, the task text rendered as inline markdown, date labels, and the note and heading it comes from. On hover: buttons for priority, when, due date, and move to another note. Clicking the row opens its note at that line; ⌘-click opens it to the side at that line.</li>
+<li><strong>Move to another note:</strong> opens the palette listing notes (not scratch notes or templates, most recently edited first, with their notebook), filtered as you type. Choosing one removes the task's line, with the indented lines under it, from its note and adds them at the end of the section under the chosen note's <code>Open Threads</code> heading (any level, capitals ignored), after what is already there and before the next heading of the same or a higher level; when the section is empty a blank line separates heading and task. A note without that heading gets <code>## Open Threads</code> at the end of its page, after a blank line, with the task under it. The lines go in at the left margin, the lines under the task keeping their indent relative to it. When the typed text matches no note's title, a &quot;New note&quot; item makes a note of that name containing <code>## Open Threads</code> and the task: in the notebook typed before a slash (<code>People/Sam</code>), otherwise in the notebook of the most recently edited project note, otherwise at the top level. A message offers Undo, which restores both notes if neither has changed since. (The Inbox list's &quot;Move them into Inbox&quot; adds at the end of the Inbox note, with no heading.)</li>
 <li><strong>Bulk move:</strong> when overdue tasks are shown, &quot;Move all…&quot; opens the date picker and gives each a new due date, with Undo.</li>
-<li><strong>Keys</strong> on the highlighted row: ↑ ↓ (J K), Home, End, Space or X to tick, T for today, S for when, D for due, P for priority, Enter to open, ⇧Enter to open to the side, <code>/</code> to focus the box (↓ or Enter returns to the list). After a menu or picker closes, focus returns to the list. A line at the bottom lists the keys.</li>
+<li><strong>Task notes</strong>: the lines indented under a task in its note, up to the first blank or less indented line, with sub-task lines left out and the common indent removed. A task that has any shows a notes icon after its text; its tooltip shows them as written, and clicking it (or N) shows them rendered as markdown under the task, in a quieter, smaller style with a rule on the left. Clicking the notes does not open the note; links in them work. Nothing is stored: they are read from the note each time. The same applies to task rows in the panel under daily notes, where each row keeps its own open state.</li>
+<li><strong>Keys</strong> on the highlighted row: ↑ ↓ (J K), Home, End, Space or X to tick, T for today, S for when, D for due, P for priority, M to move to another note, N to show or hide its notes, Enter to open, ⇧Enter to open to the side, <code>/</code> to focus the box (↓ or Enter returns to the list). After a menu or picker closes, focus returns to the list. A line at the bottom lists the keys.</li>
 </ul>
+<p><strong>Group by Project.</strong> A <em>project</em> is an ordinary note (not daily, research or scratch) outside the Daily, Meetings, Inbox, Templates, Scratch and People notebooks and the notebooks inside them. Each task is listed under:</p>
+<ol>
+<li>its own note, when that note is a project;</li>
+<li>otherwise, the projects linked (<code>[[Title]]</code>) on the task's own line, if any;</li>
+<li>otherwise, when its note is in the Meetings notebook, the projects that note links anywhere;</li>
+<li>otherwise, its own note; daily notes that come to this are gathered into one &quot;Daily notes&quot; group, latest day first.</li>
+</ol>
+<p>A task can so be listed under several projects. A project's group shows the notebook, the title, the count of tasks shown and a progress circle (ticked over all tasks listed under it, including linked ones). Inside it, its own tasks come first in written order under their headings, then the linked ones under &quot;From <note>&quot;, latest note first. Nothing in any note changes. The command-line tool's <code>--group note</code> groups by each task's own note.</p>
 <h3 id="126-saved-filters">12.6 Saved filters</h3>
 <p>A saved filter is a list, a narrow-down text, a From value and a grouping, with a name. It appears under Tasks in the sidebar with a live count. Opening one and changing anything offers <strong>Update filter</strong>. It can be renamed, saved as new, or deleted (with Undo). Stored in app settings.</p>
 <h3 id="127-date-picker">12.7 Date picker</h3>
@@ -807,7 +828,7 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 </tr>
 <tr>
 <td>New notes go to</td>
-<td>Current notebook, top level, Inbox</td>
+<td>Current notebook, top level</td>
 <td>Current</td>
 </tr>
 <tr>
@@ -991,11 +1012,6 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <td><code>People</code></td>
 </tr>
 <tr>
-<td>Capture goes to</td>
-<td>Today's note, Scratch, Inbox</td>
-<td>Today's note</td>
-</tr>
-<tr>
 <td>Add the time to captures</td>
 <td>on, off</td>
 <td>on</td>
@@ -1120,6 +1136,11 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <td>Alt+C</td>
 </tr>
 <tr>
+<td>Quick task</td>
+<td>Mod+Alt+C</td>
+<td>Alt+Shift+C</td>
+</tr>
+<tr>
 <td>New scratch note</td>
 <td>Mod+Alt+N</td>
 <td>Alt+S</td>
@@ -1210,6 +1231,21 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <td>none</td>
 </tr>
 <tr>
+<td>Fold or unfold here</td>
+<td>Mod+'</td>
+<td>same</td>
+</tr>
+<tr>
+<td>Fold (again: the container) / Unfold</td>
+<td>Mod+Alt+↑ / Mod+Alt+↓</td>
+<td>same</td>
+</tr>
+<tr>
+<td>Fold all, Unfold all</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
 <td>Switch writing / reading</td>
 <td>Mod+E</td>
 <td>same</td>
@@ -1287,7 +1323,7 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <tr>
 <td>Anywhere, not typing</td>
 <td><code>?</code></td>
-<td>Keyboard shortcuts window</td>
+<td>Keyboard shortcuts window, with a find box that has focus: typing narrows the list to shortcuts whose group, name or keys contain the text (ignoring case); Esc clears it, then closes the window</td>
 </tr>
 <tr>
 <td>Anywhere (Mac)</td>
@@ -1317,7 +1353,7 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <tr>
 <td>Editor</td>
 <td>Mod+F</td>
-<td>Find and replace</td>
+<td>Find and replace; elsewhere, find in what is in front (see section 5)</td>
 </tr>
 <tr>
 <td>Editor</td>
@@ -1364,6 +1400,11 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <td>Ctrl+Alt+Space</td>
 <td>Quick capture</td>
 </tr>
+<tr>
+<td>Desktop, any app</td>
+<td>Ctrl+Alt+T</td>
+<td>Quick task</td>
+</tr>
 </tbody>
 </table></div><h2 id="17-appearance">17. Appearance</h2>
 <ul>
@@ -1381,22 +1422,22 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <tr>
 <td>Page</td>
 <td><code>#ffffff</code></td>
-<td><code>#282828</code></td>
+<td><code>#161617</code> (near-black)</td>
 </tr>
 <tr>
 <td>Sidebar</td>
 <td><code>#f9f9fb</code></td>
-<td><code>#282828</code>, with a darker dividing line</td>
+<td><code>#161617</code>, with a darker dividing line</td>
 </tr>
 <tr>
 <td>Text</td>
 <td><code>#15171a</code></td>
-<td><code>#ededee</code></td>
+<td><code>#f8f8f9</code> (almost white)</td>
 </tr>
 <tr>
 <td>Secondary text</td>
 <td><code>#3c3e41</code></td>
-<td><code>#c8c8ca</code></td>
+<td><code>#d8d8da</code></td>
 </tr>
 <tr>
 <td>Muted text</td>
@@ -1406,7 +1447,12 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <tr>
 <td>Borders</td>
 <td><code>#ebecee</code>, <code>#d3d5d8</code></td>
-<td><code>#1f2021</code>, <code>#4a4b4d</code></td>
+<td><code>#0c0c0d</code>, <code>#4a4b4d</code></td>
+</tr>
+<tr>
+<td>Panels and pop-ups</td>
+<td><code>#ffffff</code></td>
+<td><code>#222224</code></td>
 </tr>
 <tr>
 <td>Selected row</td>
@@ -1424,6 +1470,11 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <td><code>#f0577a</code></td>
 </tr>
 <tr>
+<td>Inbox</td>
+<td><code>#1b89f0</code></td>
+<td><code>#3d9cf3</code></td>
+</tr>
+<tr>
 <td>Today / Upcoming / Anytime / Someday / Logbook</td>
 <td><code>#fed301</code> / <code>#d92f5c</code> / <code>#39a69c</code> / <code>#cbbf7f</code> / <code>#4dbc61</code></td>
 <td><code>#fed402</code> / <code>#d73d67</code> / <code>#4eb0a4</code> / <code>#d1c68a</code> / <code>#4dbd61</code></td>
@@ -1431,22 +1482,22 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 </tbody>
 </table></div><ul>
 <li><strong>Native behaviour:</strong> the cursor is the arrow over every control and only becomes the pointing hand over links inside notes. Dividing lines are 1 px, or 0.5 px on high-density screens with a slightly stronger colour. Hover shading is faint (about 5% tint). When the window is not the front window, the selected sidebar row and tab fall back to the hover tint, coloured icons desaturate and the primary button dims. Menus and dialogs appear with a short (0.12 s) fade and slight scale, disabled when the system asks for reduced motion.</li>
-<li><strong>Typography:</strong> the system font by default. Interface text uses one scale of sizes (11, 12, 13, 14, 15, 17, 24, 28 px) and the weights 400, 500, 600 and 700 only; letter-spacing is slightly tight (-0.006em) and tightens further on large titles, small capital labels are spaced out, and digits in the interface are tabular. Note text keeps the font's own spacing and digits. Spacing is in multiples of 4 px; buttons are 30 px tall (26 px small) with a 7 px radius. Interface text is 15 px; sidebar rows are 34 px tall (30 px for the lists under Tasks); labels in the sidebar, tabs and panels are at least medium weight (500). Note text is 16 px at 1.7 line height, with headings sized as a percentage of body text. The note column has 72 px of side margin.</li>
+<li><strong>Typography:</strong> the system font by default. Interface text uses one scale of sizes (11, 12, 13, 14, 15, 17, 24, 28 px) and the weights 400, 500, 600 and 700 only; letter-spacing is slightly tight (-0.006em) and tightens further on large titles, small capital labels are spaced out, and digits in the interface are tabular. Note text keeps the font's own spacing and digits. Spacing is in multiples of 4 px; buttons are 30 px tall (26 px small) with a 7 px radius. Interface text is 15 px; sidebar rows are 34 px tall (30 px for the lists under Tasks); labels in the sidebar, tabs and panels are at least medium weight (500). Note text is 16 px by default (the Text size setting) at 1.7 line height, with headings sized as a percentage of body text. The note column has 72 px of side margin. Tasks are lines of notes, so in the Tasks view a task's text uses the note font and weight at 15/16 of the note text size, and its labels (dates, note name) 13/16; in a note's task panel the task text is the full note size. All of these follow the Text size, font and weight settings.</li>
 <li><strong>Page width</strong> is measured in characters of the chosen font, so &quot;90&quot; means 90 average characters per line.</li>
-<li><strong>Help pages</strong> follow the app's theme, not only the system's.</li>
+<li><strong>Help pages</strong> follow the app's theme, not only the system's. Each page has its own find bar: ⌘F (Ctrl+F) opens it at the top right; matches are highlighted as you type, ignoring case, with &quot;n of m&quot; or &quot;No matches&quot;; the first match below the top of the window is current; Enter and ⇧Enter (or ⌘G and ⌘⇧G) move between matches, wrapping; Esc closes it and removes the highlighting. It is part of the page, so it also works in a browser and in the printable HTML copies, and it is hidden when printing.</li>
 <li>A simple logo: a rounded square with a page-and-margin mark, used as the app icon.</li>
 </ul>
 <h2 id="18-desktop-shell">18. Desktop shell</h2>
 <ul>
 <li>Single window; a second launch focuses the existing one.</li>
 <li>Window size and position are remembered.</li>
-<li><strong>Menu bar:</strong> App (about, settings, quit), File (new items, choose notes folder, show notes folder, close tab, close window), Edit (standard), View (sidebar, side panel, mode, zoom, full screen, reload, developer tools), Go (back, forward, each view, tabs), Window, Help (User Guide, Theory of Operations, Design Guide, Printable Guides…, Keyboard Shortcuts, Command-Line Tool…). Menu items show the user's current shortcuts; the keys themselves are handled by the page so they can be customised, and an action triggered by both within 300 ms runs once.</li>
-<li><strong>Right-click in a note:</strong> spelling suggestions, Cut, Copy, Paste, Paste as Plain Text, Look Up, &quot;Search Notes for…&quot;, and Format, Paragraph and Insert submenus. On a link: Open, Open to the Side, Copy Link. On an image: Copy Image.</li>
+<li><strong>Menu bar:</strong> App (about, settings, quit), File (new items, choose notes folder, show notes folder, close tab, close window), Edit (standard, plus Find… ⌘F, which finds in the window in front: the note or list in the main window, or the guide in a guide window), Format (one flat list, no submenus, in separated groups: Bold, Italic, Strikethrough, Inline Code | Heading 1 to 5 | Bulleted, Numbered and Task List, Quote, Code Block | Link to a Note, Web Link, Table, Math, Divider | Today's Date, Current Time | Tick or Untick Task, Move Task to Today, Task When…, Task Due Date…, Change Task Priority | Fold or Unfold, Fold, Unfold, Fold All, Unfold All; each acts on the active pane's editor), View (sidebar, side panel, mode, zoom, full screen, reload, developer tools), Go (back, forward, each view, tabs), Window, Help (User Guide, Theory of Operations, Design Guide, Printable Guides…, Keyboard Shortcuts, Command-Line Tool…). Menu items show the user's current shortcuts; the keys themselves are handled by the page so they can be customised, and an action triggered by both within 300 ms runs once.</li>
+<li><strong>Right-click in a note:</strong> spelling suggestions, Cut, Copy, Paste, Paste as Plain Text, Look Up, &quot;Search Notes for…&quot;, and Format, Paragraph and Insert submenus, the same commands as the Format menu. On a link: Open, Open to the Side, Copy Link. On an image: Copy Image.</li>
 <li><strong>Choosing a notes folder</strong> saves the choice and restarts the app on it; nothing is moved.</li>
 <li><strong>PDF export</strong> saves directly to a chosen file.</li>
 <li><strong>Web links</strong> open in the default browser; only the app's own pages load in app windows.</li>
 <li><strong>Help pages</strong> open in a separate window that is reused.</li>
-<li><strong>Global hotkey</strong> Ctrl+Alt+Space opens quick capture.</li>
+<li><strong>Global hotkeys</strong> Ctrl+Alt+Space opens quick capture, Ctrl+Alt+T quick task.</li>
 <li><strong>Installed fonts</strong> are listed for the font picker.</li>
 <li><strong>Packaging:</strong> a <code>.dmg</code> for Apple silicon, signed ad hoc (no Apple developer account); unsigned builds require <code>xattr -cr</code> once after installing. Versioned releases with a changelog.</li>
 <li><strong>Printable Guides…</strong> opens a folder shipped inside the app holding each guide (user guide, theory of operations, design guide, specification) as a PDF and as a standalone HTML page. The installer's window shows the same folder, named Documentation, beside the app.</li>
@@ -1457,13 +1508,13 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <pre><code>margin-tasks [LIST] [options]
 </code></pre>
 <ul>
-<li><strong>LIST:</strong> <code>today</code> (default), <code>upcoming</code>, <code>anytime</code>, <code>someday</code>, <code>logbook</code> (alias <code>done</code>), <code>overdue</code>, <code>week</code>, <code>month</code>, <code>undated</code> (alias <code>nodate</code>), <code>open</code>, <code>all</code>.</li>
+<li><strong>LIST:</strong> <code>inbox</code>, <code>today</code> (default), <code>upcoming</code>, <code>anytime</code>, <code>someday</code>, <code>logbook</code> (alias <code>done</code>), <code>overdue</code>, <code>week</code>, <code>month</code>, <code>undated</code> (alias <code>nodate</code>), <code>open</code>, <code>all</code>.</li>
 <li><strong>Finding the folder:</strong> <code>--vault PATH</code>, else <code>$MARGIN_VAULT</code>, else the desktop app's saved choice, else <code>~/Documents/Margin</code>.</li>
-<li><strong>Reading files:</strong> skip hidden entries and the top-level attachments folder; read <code>id</code>, <code>title</code>, <code>type</code> and <code>tags</code> from frontmatter without a YAML library; leave out the Templates notebook (<code>--templates NAME</code> to change).</li>
+<li><strong>Reading files:</strong> skip hidden entries and the top-level attachments folder; read <code>id</code>, <code>title</code>, <code>type</code> and <code>tags</code> from frontmatter without a YAML library; leave out the Templates notebook (<code>--templates NAME</code> to change); the Inbox notebook is <code>Inbox</code> unless <code>--inbox NAME</code> is given, since the app's setting is not stored in the notes folder.</li>
 <li><strong>Narrowing</strong> (all must hold): <code>--tag TAG</code> (repeatable; matches nested tags), <code>--note-tag TAG</code>, <code>--priority p1|p2|p3|none</code> (that level or higher; <code>--exact-priority</code> for only that level), <code>--due-before|after|on DAY</code>, <code>--planned-before|after|on DAY</code>, <code>--done-before|after|on DAY</code>, <code>--has-due</code>, <code>--no-due</code>, <code>--notebook NAME</code> (and those inside it), <code>--note TEXT</code> (title contains), <code>--source all|notes|daily</code>, <code>-q TEXT</code> (the Tasks view's narrow-down syntax).</li>
 <li><strong>DAY:</strong> <code>YYYY-MM-DD</code>, <code>today</code>, <code>tomorrow</code>, <code>yesterday</code>, <code>+N</code>, <code>-N</code>, or a weekday name meaning the next one.</li>
 <li><strong>Output:</strong> a plain listing by default (checkbox, priority, text, dates, note and heading; colour when writing to a terminal); <code>--json</code>; <code>--csv</code>; <code>--paths</code> (<code>path:line: [ ] task</code>); <code>--format TEMPLATE</code> with the JSON field names; <code>--count</code>.</li>
-<li><strong>JSON fields:</strong> <code>text</code>, <code>done</code>, <code>priority</code>, <code>tags</code>, <code>planned</code>, <code>someday</code>, <code>due</code>, <code>done_on</code>, <code>overdue</code>, <code>in_today</code>, <code>note</code>, <code>notebook</code>, <code>note_type</code>, <code>note_tags</code>, <code>heading</code>, <code>path</code>, <code>relpath</code>, <code>line</code> (1-based, in the file), <code>raw</code>.</li>
+<li><strong>JSON fields:</strong> <code>text</code>, <code>done</code>, <code>priority</code>, <code>tags</code>, <code>planned</code>, <code>someday</code>, <code>due</code>, <code>done_on</code>, <code>overdue</code>, <code>in_today</code>, <code>in_inbox</code>, <code>note</code>, <code>notebook</code>, <code>note_type</code>, <code>note_tags</code>, <code>heading</code>, <code>path</code>, <code>relpath</code>, <code>line</code> (1-based, in the file), <code>raw</code>.</li>
 <li><strong>Order:</strong> <code>--sort urgency|due|planned|priority|note|done</code>, <code>--reverse</code>, <code>--limit N</code>, <code>--group none|date|note|notebook|priority</code>.</li>
 <li><strong>Other:</strong> <code>--today DAY</code> to pretend it is another day, <code>--week-start sunday|monday</code>, <code>--no-color</code>, <code>--version</code>, <code>--help</code>.</li>
 <li><strong>Exit codes:</strong> 0 on success, 1 when the folder cannot be found or read, 2 for a bad argument.</li>
@@ -1552,7 +1603,8 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <ul>
 <li>Daily notes are created from the Daily template with placeholders filled for their own date.</li>
 <li>The journal shows all days, editable, loading more on scroll.</li>
-<li>Quick capture reaches all four destinations, and a typed task stays a task.</li>
+<li>Quick capture adds to today's note, and a typed task stays a task.</li>
+<li>Quick task offers dates, priorities and tags as it is typed, turns typed date words into dates on save, and adds to the Inbox note.</li>
 <li>Meeting and person notes are created as in sections 11.3 and 11.4.</li>
 <li>Backlinks, unlinked mentions (with Link) and outgoing links are correct.</li>
 <li>Two panes work, with commands going to the active one.</li>
@@ -1566,6 +1618,7 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <li>Saved filters appear in the sidebar with live counts.</li>
 <li>Unticked Top 3 items move to the next day's note when it is created.</li>
 <li>The command-line tool gives the same lists as the app for the same folder and date.</li>
+<li>A task captured to the Inbox with no day is in the Inbox list and not in Anytime; planning it, parking it or moving it into another note takes it out; Move to another note carries the lines under the task and can be undone.</li>
 </ul>
 <p><strong>App</strong></p>
 <ul>
@@ -1577,5 +1630,108 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 </ul>
 
 </main>
+<div class="find" id="find" hidden role="search">
+<input type="text" placeholder="Find in this guide" aria-label="Find in this guide" spellcheck="false">
+<span class="find-count" aria-live="polite"></span>
+<button type="button" data-step="-1" title="Previous  ⇧↵">↑</button>
+<button type="button" data-step="1" title="Next  ↵">↓</button>
+<button type="button" data-close title="Close  Esc">✕</button>
+</div>
+<script>
+(function () {
+  var bar = document.getElementById('find'), input = bar.querySelector('input'), count = bar.querySelector('.find-count')
+  var main = document.querySelector('main'), hits = [], at = -1, timer = 0
+  function clear() {
+    var parents = []
+    hits.forEach(function (m) {
+      var p = m.parentNode
+      if (!p) return
+      p.replaceChild(document.createTextNode(m.textContent), m)
+      if (parents.indexOf(p) < 0) parents.push(p)
+    })
+    parents.forEach(function (p) { p.normalize() })
+    hits = []
+    at = -1
+  }
+  function find(query) {
+    clear()
+    var q = query.trim().toLowerCase()
+    if (!q) return show()
+    var walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (n) { return n.parentNode.closest('script,style') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT },
+    })
+    var nodes = []
+    while (walker.nextNode()) nodes.push(walker.currentNode)
+    nodes.forEach(function (node) {
+      var text = node.nodeValue, lower = text.toLowerCase(), from = 0, i = lower.indexOf(q)
+      if (i < 0 || hits.length > 2000) return
+      var frag = document.createDocumentFragment()
+      while (i >= 0) {
+        frag.appendChild(document.createTextNode(text.slice(from, i)))
+        var mark = document.createElement('mark')
+        mark.className = 'find-hit'
+        mark.textContent = text.slice(i, i + q.length)
+        frag.appendChild(mark)
+        hits.push(mark)
+        from = i + q.length
+        i = lower.indexOf(q, from)
+      }
+      frag.appendChild(document.createTextNode(text.slice(from)))
+      node.parentNode.replaceChild(frag, node)
+    })
+    // Start from the first match below the top of the window, so finding does not jump back to the start.
+    var below = hits.findIndex(function (m) { return m.getBoundingClientRect().top >= 0 })
+    move(below < 0 ? 0 : below, true)
+  }
+  function move(to, absolute) {
+    if (!hits.length) return show()
+    if (at >= 0) hits[at].classList.remove('current')
+    at = absolute ? to : (at + to + hits.length) % hits.length
+    hits[at].classList.add('current')
+    hits[at].scrollIntoView({ block: 'center' })
+    show()
+  }
+  function show() {
+    var typed = input.value.trim()
+    count.textContent = !typed ? '' : hits.length ? (at + 1) + ' of ' + hits.length : 'No matches'
+    count.classList.toggle('none', !!typed && !hits.length)
+  }
+  function open() {
+    bar.hidden = false
+    input.focus()
+    input.select()
+    if (input.value.trim() && !hits.length) find(input.value)
+  }
+  function close() {
+    bar.hidden = true
+    clear()
+    show()
+  }
+  window.marginFind = open
+  addEventListener('keydown', function (e) {
+    var mod = e.metaKey || e.ctrlKey
+    if (mod && !e.altKey && e.key.toLowerCase() === 'f') { e.preventDefault(); open() }
+    else if (mod && e.key.toLowerCase() === 'g' && hits.length) { e.preventDefault(); move(e.shiftKey ? -1 : 1) }
+    else if (e.key === 'Escape' && !bar.hidden) { e.preventDefault(); close() }
+  })
+  input.addEventListener('input', function () {
+    clearTimeout(timer)
+    timer = setTimeout(function () { find(input.value) }, 120)
+  })
+  input.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return
+    e.preventDefault()
+    clearTimeout(timer)
+    if (!hits.length) find(input.value)
+    else move(e.shiftKey ? -1 : 1)
+  })
+  bar.addEventListener('click', function (e) {
+    var b = e.target.closest('button')
+    if (!b) return
+    if (b.hasAttribute('data-close')) close()
+    else { move(Number(b.dataset.step)); input.focus() }
+  })
+})()
+</script>
 </body>
 </html>

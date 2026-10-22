@@ -55,6 +55,7 @@
   --shadow-md: 0 4px 14px rgba(18, 26, 42, 0.08), 0 1px 3px rgba(18, 26, 42, 0.05);
   --shadow-lg: 0 24px 60px rgba(18, 26, 42, 0.18), 0 4px 14px rgba(18, 26, 42, 0.08);
   /* The colours Things gives its lists: Today, Upcoming, Anytime, Someday, Logbook. */
+  --list-inbox: #1b89f0;
   --list-today: #fed301;
   --list-upcoming: #d92f5c;
   --list-anytime: #39a69c;
@@ -82,23 +83,26 @@
   color-scheme: light;
 }
 :root[data-theme='dark'] {
-  /* Dark theme: measured from Things 3. One charcoal for page and sidebar, with a darker line between. */
+  /* Dark theme: near-black, darker than Things 3's charcoal (#282828) so it does not look washed out. One colour
+     for page and sidebar, with a darker line between; panels and pop-ups a step lighter. */
+  --list-inbox: #3d9cf3;
   --list-today: #fed402;
   --list-upcoming: #d73d67;
   --list-anytime: #4eb0a4;
   --list-someday: #d1c68a;
   --list-logbook: #4dbd61;
   --pri-2: #f0a63a;
-  --bg: #282828;
-  --bg-side: #282828;
-  --bg-raised: #323234;
-  --bg-sunken: #212122;
+  --bg: #161617;
+  --bg-side: #161617;
+  --bg-raised: #222224;
+  --bg-sunken: #111112;
   --hover: rgba(200, 215, 235, 0.05);
   --active: rgba(190, 205, 225, 0.115);
-  --border: #1f2021;
+  --border: #0c0c0d;
   --border-strong: #4a4b4d;
-  --text: #ededee;
-  --text-2: #c8c8ca;
+  /* Almost white, as Things 3 draws text in its dark theme: easier to read than grey. */
+  --text: #f8f8f9;
+  --text-2: #d8d8da;
   --text-3: #98989b;
   --text-4: #69696b;
   --accent: #8787f2;
@@ -2373,7 +2377,7 @@ button.crumb:hover {
   border: 2.5px solid var(--bg-raised);
   opacity: 0;
   cursor: crosshair;
-  transition: opacity 0.12s, transform 0.12s;
+  transition: opacity 0.12s;
 }
 .card:hover .card-connect,
 .card.selected .card-connect {
@@ -2685,6 +2689,50 @@ button.crumb:hover {
   font-size: 12px;
   color: var(--text-3);
 }
+/* Note / Task, at the top of the capture box */
+.capture-kind {
+  margin: 12px 14px 0;
+  width: max-content;
+}
+.capture textarea {
+  padding-top: 12px;
+}
+/* The task's notes, under the task line: quieter than the task itself */
+.capture textarea.capture-notes {
+  padding: 4px 22px 8px 40px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-2);
+  background: transparent;
+  border: none;
+  outline: none;
+}
+/* The task box: one line of the editor, with the details as labels */
+.capture-task {
+  padding: 14px 22px 6px;
+}
+.capture-editor .cm-editor {
+  font-size: 17px;
+}
+.capture-editor .cm-scroller {
+  font-family: var(--font);
+  line-height: 1.55;
+}
+.capture-editor .cm-content {
+  min-height: 0;
+}
+.capture-reads {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  padding: 2px 22px 6px;
+}
+.capture-tip {
+  font-size: 12.5px;
+  color: var(--text-3);
+}
 
 .ask {
   width: 420px;
@@ -2729,6 +2777,27 @@ button.crumb:hover {
   gap: 8px 40px;
   padding: 18px 24px 26px;
   overflow-y: auto;
+}
+.help-find {
+  padding: 12px 24px 0;
+}
+.help-find input {
+  width: 100%;
+  padding: 7px 10px;
+  border: var(--hair) solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-sunken);
+  color: var(--text);
+  font: inherit;
+  outline: none;
+}
+.help-find input:focus {
+  border-color: var(--accent);
+}
+.help-none {
+  grid-column: 1 / -1;
+  color: var(--text-3);
+  padding: 12px 0;
 }
 .help h3 {
   font-size: 12px;
@@ -4009,9 +4078,9 @@ body.resizing {
   background: var(--hover);
 }
 .task > input[type='checkbox'] {
-  width: 16px;
-  height: 16px;
-  margin-top: 3px;
+  width: var(--doc-size);
+  height: var(--doc-size);
+  margin-top: calc(var(--doc-size) * 0.2);
   flex: none;
   accent-color: var(--accent);
   cursor: default;
@@ -4021,10 +4090,68 @@ body.resizing {
   min-width: 0;
   cursor: default;
 }
+/* A task is a line of a note, so wherever it is listed its text follows the note font, size and weight in
+   Settings → Appearance. The labels around it are sized in proportion (12 px beside 16 px text). */
 .task-text {
   display: block;
   line-height: 1.45;
   overflow-wrap: anywhere;
+  font-family: var(--doc-font);
+  font-size: var(--doc-size);
+  font-weight: var(--doc-weight);
+}
+/* A task with lines under it in its note: a small button after the text shows them below the task */
+.task-notes-btn {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  margin-left: 8px;
+  padding: 2px 5px;
+  border-radius: 5px;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: none;
+  cursor: pointer;
+}
+.task-notes-btn svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 2.4;
+}
+.task-notes-btn:hover {
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+.task-notes-btn.open {
+  color: var(--bg);
+  background: var(--accent);
+}
+.task-notes {
+  margin: 6px 0 2px;
+  padding: 6px 10px;
+  border-left: 2px solid var(--border-strong, var(--border));
+  color: var(--text-2);
+  font-family: var(--doc-font);
+  font-size: calc(var(--doc-size) * 0.875);
+  line-height: 1.5;
+  cursor: text;
+  user-select: text;
+}
+.task-notes > :first-child {
+  margin-top: 0;
+}
+.task-notes > :last-child {
+  margin-bottom: 0;
+}
+.task-notes p,
+.task-notes ul,
+.task-notes ol {
+  margin: 0 0 0.4em;
+}
+/* The star on a task that is also in Today, in Things' Today yellow */
+.task-star {
+  color: var(--list-today);
+  vertical-align: -1px;
+  margin-right: 5px;
 }
 .task.done .task-text {
   color: var(--text-3);
@@ -4032,7 +4159,8 @@ body.resizing {
   text-decoration-color: var(--text-4);
 }
 .task-pri {
-  font-size: 12px;
+  font-family: var(--font);
+  font-size: 0.75em;
   font-weight: 700;
   padding: 1px 4px;
   border-radius: 5px;
@@ -4054,6 +4182,7 @@ body.resizing {
   align-items: center;
   gap: 6px 8px;
   margin-top: 3px;
+  font-size: calc(var(--doc-size) * 0.75);
 }
 .task-meta:empty {
   display: none;
@@ -4062,12 +4191,12 @@ body.resizing {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  height: 20px;
-  padding: 0 8px;
+  height: 1.67em;
+  padding: 0 0.67em;
   border-radius: 999px;
   background: var(--hover);
   color: var(--text-2);
-  font-size: 12px;
+  font-size: 1em;
   white-space: nowrap;
 }
 .task-chip:hover {
@@ -4114,13 +4243,13 @@ body.resizing {
   opacity: 0.8;
 }
 .task-subhead {
-  margin: 10px 0 2px 26px;
-  font-size: 13px;
+  margin: 10px 0 2px calc(var(--doc-size) + 10px);
+  font-size: calc(var(--doc-size) * 0.8125);
   font-weight: 600;
   color: var(--text-2);
 }
 .task-where {
-  font-size: 12px;
+  font-size: 1em;
   color: var(--text-3);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -4721,6 +4850,7 @@ button.chip.tag:hover,
 }
 
 /* Things-style colours for the lists under Tasks */
+.nav-item.sub .nav-icon.list-inbox { color: var(--list-inbox); }
 .nav-item.sub .nav-icon.list-today { color: var(--list-today); }
 .nav-item.sub .nav-icon.list-upcoming { color: var(--list-upcoming); }
 .nav-item.sub .nav-icon.list-anytime { color: var(--list-anytime); }
@@ -4803,13 +4933,6 @@ button.chip.tag:hover,
   color: var(--text);
 }
 
-/* The task panel inside a note is part of the page: its tasks use the note's own font, size and weight. */
-.doc .day-tasks .task-text,
-.day-tasks-float .day-tasks .task-text {
-  font-family: var(--doc-font);
-  font-size: var(--doc-size);
-  font-weight: var(--doc-weight);
-}
 .doc .day-tasks .task-pri {
   font-family: var(--font);
 }
@@ -4997,20 +5120,27 @@ body {
   padding: 8px 8px;
   gap: 12px;
 }
+/* Sizes follow Settings → Appearance → Text size: 15 and 13 px beside the default 16 px note text. */
 .task-text {
-  font-size: 15px;
+  font-size: calc(var(--doc-size) * 0.9375);
+}
+/* In a note's task panel the tasks are part of the page, so they take the note's full text size. */
+.doc .day-tasks .task-text,
+.day-tasks-float .day-tasks .task-text {
+  font-size: var(--doc-size);
 }
 .task-meta {
   margin-top: 4px;
   gap: 6px 10px;
+  font-size: calc(var(--doc-size) * 0.8125);
 }
 .task-where {
-  font-size: 13px;
+  font-size: 1em;
 }
 .task-chip {
-  height: 22px;
-  font-size: 13px;
-  padding: 0 8px;
+  height: 1.7em;
+  font-size: 1em;
+  padding: 0 0.62em;
 }
 .task-group {
   margin-top: 20px;
@@ -5267,4 +5397,70 @@ kbd {
 }
 .pane-section.toned > .backlink:hover {
   background: var(--hover);
+}
+
+/* ---------- folding ---------- */
+/* The arrow sits in the margin to the left of the text, so it takes no room in the line. */
+.cm-fold-toggle {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* The line's own font size, so the arrow is centred on the first row of a heading as of body text. */
+  width: 20px;
+  height: calc(var(--doc-leading) * 1em);
+  margin-left: -24px;
+  color: var(--text-4);
+  text-indent: 0;
+  cursor: pointer;
+  opacity: 0;
+  border-radius: 4px;
+  transition: opacity 0.12s;
+  user-select: none;
+}
+.cm-line:hover > .cm-fold-toggle,
+.cm-line:hover .cm-list-indent > .cm-fold-toggle,
+.cm-fold-toggle.folded {
+  opacity: 1;
+}
+.cm-fold-toggle:hover {
+  color: var(--text);
+  background: var(--bg-hover, var(--accent-soft));
+}
+.cm-fold-toggle svg {
+  width: 14px;
+  height: 14px;
+}
+.cm-fold-toggle.folded svg {
+  width: 16px;
+  height: 16px;
+}
+.cm-fold-toggle.folded {
+  color: var(--accent);
+}
+.cm-fold-toggle.folded:hover {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.editor .cm-editor .cm-fold-more {
+  display: inline-block;
+  margin-left: 0.4em;
+  padding: 0 0.45em;
+  line-height: 1.3;
+  border-radius: 6px;
+  background: var(--accent-soft);
+  border: var(--hair) solid transparent;
+  color: var(--accent-text);
+  font-size: 0.85em;
+  font-weight: 600;
+  cursor: pointer;
+  vertical-align: middle;
+}
+.editor .cm-editor .cm-fold-more svg {
+  display: block;
+  margin: 0.42em 0;
+  fill: currentColor;
+}
+.editor .cm-editor .cm-fold-more:hover {
+  border-color: var(--accent);
 }

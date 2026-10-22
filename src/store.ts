@@ -7,7 +7,7 @@ import { desktop } from './desktop'
 import type { Note, NotePatch, NoteType, Route } from './types'
 import { appendCard } from './lib/canvas'
 import { clock, displayTitle, isYmd, local, today, parseYmd, ymd, dailyLabel } from './lib/util'
-import { rewriteTask, shortDate, withDetails, type SavedTaskView, type Task, type TaskView } from './lib/tasks'
+import { INBOX_NOTE_TITLE, TASK_LINE, isInboxNote, isProjectNote, rewriteTask, shortDate, withDetails, type SavedTaskView, type Task, type TaskView } from './lib/tasks'
 
 export interface Toast {
   id: number
@@ -39,7 +39,6 @@ interface AskOptions {
 /** edit = live preview (rendered as you type), source = raw markdown, read = read-only page. */
 export type Mode = 'edit' | 'source' | 'read'
 export type Theme = 'system' | 'light' | 'dark'
-export type CaptureTarget = 'daily' | 'scratch' | 'inbox' | 'note'
 
 export type StyleKey = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'bold' | 'italic'
 export interface TextStyle {
@@ -71,7 +70,8 @@ export const DEFAULT_STYLES: Record<StyleKey, TextStyle> = {
 
 export interface Settings {
   startPage: 'home' | 'today' | 'last'
-  newNoteFolder: 'current' | 'root' | 'inbox'
+  /** Where New note puts a note. (An older 'inbox' choice is read as 'current': the Inbox notebook is for tasks.) */
+  newNoteFolder: 'current' | 'root'
   inboxFolder: string
   weekStart: 'auto' | 'sunday' | 'monday'
   timeFormat: '24' | '12'
@@ -111,7 +111,6 @@ export interface Settings {
   dailyView: 'canvas' | 'page'
   dailyFolder: string
   dailyTemplate: string
-  captureTarget: CaptureTarget
   captureTime: boolean
   scratchDays: number
   scratchFolder: string
@@ -164,7 +163,6 @@ export const DEFAULT_SETTINGS: Settings = {
   dailyView: 'canvas',
   dailyFolder: 'Daily',
   dailyTemplate: '',
-  captureTarget: 'daily',
   captureTime: true,
   scratchDays: 7,
   scratchFolder: 'Scratch',
@@ -220,7 +218,7 @@ export function fontCss(family: string, mono = false): string {
   return `"${family.replace(/["\\]/g, '')}", ${fallback}`
 }
 
-export type PaletteState = null | { mode: 'search' | 'move' | 'template' | 'outline' | 'tag'; noteId?: string; query?: string }
+export type PaletteState = null | { mode: 'search' | 'move' | 'template' | 'outline' | 'tag' | 'moveTask'; noteId?: string; query?: string; task?: Task }
 
 interface State {
   loaded: boolean
@@ -243,7 +241,8 @@ interface State {
   theme: Theme
   dirty: boolean
   palette: PaletteState
-  capture: boolean
+  /** The quick capture box: closed, or open for a note or for a task. */
+  capture: false | 'note' | 'task'
   help: boolean
   prefs: boolean
   /** Note shown in the second pane beside the main view, if any. */
@@ -322,7 +321,10 @@ function loadSettings(): Settings {
       local.set('settings', saved)
     }
   }
-  return { ...DEFAULT_SETTINGS, ...saved }
+  const settings = { ...DEFAULT_SETTINGS, ...saved }
+  // New notes no longer go to the Inbox notebook, which holds the tasks Inbox.
+  if ((settings.newNoteFolder as string) === 'inbox') settings.newNoteFolder = 'current'
+  return settings
 }
 
 /** The sidebar's width until it is dragged. */
@@ -618,7 +620,6 @@ export function updateNote(id: string, patch: NotePatch) {
 function context(): { folder: string } {
   const s = get()
   if (s.settings.newNoteFolder === 'root') return { folder: '' }
-  if (s.settings.newNoteFolder === 'inbox') return { folder: s.settings.inboxFolder }
   if (s.route.name === 'folder') return { folder: s.route.path }
   if (s.route.name === 'note') {
     const n = s.notes[s.route.id]
@@ -1093,29 +1094,74 @@ export function addMeetingEntry(id: string) {
   set({ jump: { id, query: `### ${title}`, terms: [], caret: true } })
 }
 
-/** Add text to a chosen note: at the end of the section under `heading`, or at the end of the page. */
-export function captureToNote(text: string, id: string, heading: string) {
-  const note = get().notes[id]
-  const body = text.trim()
-  if (!note || !body) return
+/**
+ * The Inbox notebook as it is spelled in the notes folder: the setting names it, but a notebook that differs
+ * only in capitals or spaces ("inbox") is the same one, and new notes go into it rather than beside it.
+ */
+export function inboxNotebook(): string {
+  const wanted = get().settings.inboxFolder.split('/').map((s) => s.trim()).filter(Boolean).join('/')
+  return get().folders.find((f) => f.toLowerCase() === wanted.toLowerCase()) ?? wanted
+}
+
+/** The Inbox note (the note called Inbox in the Inbox notebook), if there is one. */
+export function inboxNote(): Note | undefined {
+  const s = get()
+  return Object.values(s.notes).find((n) => n.type !== 'scratch' && isInboxNote(n, s.settings.inboxFolder))
+}
+
+/** The Inbox note, made empty in the Inbox notebook the first time it is needed. */
+export async function ensureInboxNote(): Promise<Note | null> {
+  return inboxNote() ?? (await createNote({ title: INBOX_NOTE_TITLE, folder: inboxNotebook(), content: '' }, false))
+}
+
+/**
+ * Save one task from the task capture box to the Inbox note. `raw` is the task as typed, after the checkbox;
+ * dates typed in words should already be resolved. A task with a day goes on to Today or Upcoming from there.
+ */
+export async function captureTask(raw: string, notes = '') {
+  const task = raw.trim().replace(/\s+/g, ' ')
+  if (!task) return
+  const note = await ensureInboxNote()
+  if (!note) return
+  // Notes go on the lines under the task, indented, so they belong to it. Blank lines are left out: a blank
+  // line would end the task's block, and Move to note would then leave the notes behind.
+  const under = notes.split('\n').map((l) => l.trimEnd()).filter((l) => l.trim()).map((l) => '  ' + l)
+  appendToNote(get().notes[note.id] ?? note, [`- [ ] ${task}`, ...under].join('\n'), '', true)
+  toast(`Task added to the Inbox`, { label: 'Open', run: () => openNote(note.id) })
+}
+
+/**
+ * Add text as a list item to a note, under `heading` or at the end of the page. With `asIs`, the lines go in
+ * exactly as given. Where it went: the line, or -1 for the end. Null when there was nothing to add.
+ */
+function appendToNote(note: Note, text: string, heading: string, asIs = false, createHeading = false): number | null {
+  const id = note.id
+  const body = asIs ? text.replace(/\n+$/, '') : text.trim()
+  if (!body.trim()) return null
   const [head, ...rest] = body.split('\n')
   // Already a list item or a task: keep it as typed.
-  const entry = [/^\s*([-*+]|\d+[.)])\s/.test(head) ? head : `- ${head}`, ...rest.map((l) => '  ' + l)]
+  const entry = asIs ? body.split('\n') : [/^\s*([-*+]|\d+[.)])\s/.test(head) ? head : `- ${head}`, ...rest.map((l) => '  ' + l)]
   const idx = note.content.indexOf('\n\n<!-- canvas -->')
   const page = idx < 0 ? note.content : note.content.slice(0, idx)
   const tail = idx < 0 ? '' : note.content.slice(idx)
-  const lines = page.replace(/\n+$/, '').split('\n')
-  const { at } = heading ? sectionEnd(lines, heading) : { at: -1 }
-  if (at < 0) lines.push(...entry)
-  else {
+  const kept = page.replace(/\n+$/, '')
+  // An empty note gets the entry as its first line, not after a blank one.
+  const lines = kept ? kept.split('\n') : []
+  const { at, start } = heading ? sectionEnd(lines, heading) : { at: -1, start: -1 }
+  if (at < 0 && heading && createHeading) {
+    // The heading is not there yet: add it at the end of the page, with the entry under it.
+    lines.push(...(lines.length && lines[lines.length - 1].trim() ? [''] : []), `## ${heading}`, '', ...entry)
+  } else if (at < 0) lines.push(...entry)
+  else if (at === start + 1) {
+    // Right under the heading: leave a blank line between them, as notes are written.
+    lines.splice(at, 0, '', ...entry)
+  } else {
     // An empty "- " left by a template is where the first entry goes.
     if (/^\s*[-*+]\s*$/.test(lines[at - 1] ?? '')) lines.splice(at - 1, 1, ...entry)
     else lines.splice(at, 0, ...entry)
   }
   updateNote(id, { content: (lines.join('\n').trim() ? lines.join('\n') + '\n' : '') + tail })
-  local.set('captureNote', { id, heading })
-  const where = heading && at >= 0 ? `${displayTitle(note)} › ${heading}` : displayTitle(note)
-  toast(`Added to ${where}`, { label: 'Open', run: () => openNote(id) })
+  return at
 }
 
 // ---------- tasks ----------
@@ -1147,6 +1193,85 @@ export function deleteTaskView(id: string) {
   const route = get().route
   if (route.name === 'tasks' && route.view === `s:${id}`) go({ name: 'tasks' })
   toast(`Removed the filter “${view.name}”`, { label: 'Undo', run: () => setSetting('taskViews', [...get().settings.taskViews, view]) })
+}
+
+/** The heading in a note that tasks moved into it with M go under, made when it is not there. */
+export const OPEN_THREADS = 'Open Threads'
+
+/** Move a task into another note, under its Open Threads heading, as Things moves a to-do into a project. */
+export const moveTaskToNote = (task: Task, targetId: string) => moveTasksToNote([task], targetId, OPEN_THREADS)
+
+/**
+ * Where a new project note goes when it is made from the Move to note picker: a "Notebook/Title" typed in full
+ * goes there; otherwise the notebook of the project note edited most recently (Work, usually), or the top level.
+ */
+export function newProjectPlace(typed: string): { folder: string; title: string } {
+  const parts = typed.split('/').map((s) => s.trim()).filter(Boolean)
+  if (parts.length > 1) return { folder: parts.slice(0, -1).join('/'), title: parts[parts.length - 1] }
+  const s = get()
+  const recent = Object.values(s.notes)
+    .filter((n) => isProjectNote(n, s.settings))
+    .sort((a, b) => b.updated.localeCompare(a.updated))[0]
+  return { folder: recent?.folder ?? '', title: parts[0] ?? typed.trim() }
+}
+
+/** Make a new note, with its Open Threads heading, and move a task under it. */
+export async function moveTaskToNewNote(task: Task, typed: string) {
+  const { folder, title } = newProjectPlace(typed)
+  if (!title) return
+  const note = await createNote({ title, folder, content: `## ${OPEN_THREADS}\n` }, false)
+  if (note) moveTasksToNote([task], note.id, OPEN_THREADS)
+}
+
+/**
+ * Move tasks into another note: each task's line, and the indented lines under it (notes, sub-tasks), are taken
+ * out of its note and added, in order, at the end of the other one's page. One Undo puts everything back.
+ */
+export function moveTasksToNote(tasks: Task[], targetId: string, heading = '') {
+  const s = get()
+  const target = s.notes[targetId]
+  if (!target) return
+  const before: Record<string, string> = {}
+  const blocks: string[] = []
+  let moved = 0
+  const bySource = new Map<string, Task[]>()
+  for (const t of tasks) if (t.noteId !== targetId) bySource.set(t.noteId, [...(bySource.get(t.noteId) ?? []), t])
+  for (const [id, list] of bySource) {
+    const source = get().notes[id]
+    if (!source) continue
+    const lines = source.content.split('\n')
+    // The block of each task: its line and the lines indented under it. A task inside another's block goes with it.
+    const ranges: [number, number][] = []
+    for (const t of [...list].sort((a, b) => a.line - b.line)) {
+      if (ranges.some(([a, b]) => t.line >= a && t.line < b)) continue
+      const m = TASK_LINE.exec(lines[t.line] ?? '')
+      if (!m || m[4] !== t.raw) continue
+      const indent = /^\s*/.exec(lines[t.line])![0].length
+      let end = t.line + 1
+      while (end < lines.length && lines[end].trim() && /^\s*/.exec(lines[end])![0].length > indent) end++
+      ranges.push([t.line, end])
+      // Written at the left edge in the new note; the lines under it keep their indent relative to it.
+      blocks.push(lines.slice(t.line, end).map((l) => l.slice(Math.min(indent, /^\s*/.exec(l)![0].length))).join('\n'))
+      moved++
+    }
+    if (!ranges.length) continue
+    before[id] = source.content
+    for (const [a, b] of [...ranges].reverse()) lines.splice(a, b - a)
+    updateNote(id, { content: lines.join('\n') })
+  }
+  if (!moved) return toast('Those tasks have changed since this list was drawn. Try again.')
+  before[target.id] = target.content
+  appendToNote(get().notes[target.id] ?? target, blocks.join('\n'), heading, true, !!heading)
+  const after = Object.fromEntries(Object.keys(before).map((id) => [id, get().notes[id]?.content]))
+  toast(`Moved ${moved === 1 ? 'to' : `${moved} tasks to`} ${displayTitle(target)}${heading ? ` › ${heading}` : ''}`, {
+    label: 'Undo',
+    run: () => {
+      // Only put things back if none of the notes has been changed since.
+      const now = get().notes
+      if (Object.keys(before).some((id) => now[id]?.content !== after[id])) return toast('Those notes have changed since; nothing was undone.')
+      for (const [id, content] of Object.entries(before)) updateNote(id, { content })
+    },
+  })
 }
 
 /** Move several tasks to one day. For each, the date that made it late is the one changed. */
@@ -1225,20 +1350,12 @@ export async function importFromObsidian() {
   }
 }
 
-export async function captureText(text: string, target: CaptureTarget) {
+/** Save a quick capture of a note: always to today's daily note, timestamped if the setting is on. */
+export async function captureText(text: string) {
   const body = text.trim()
   if (!body) return
-  const firstLine = body.split('\n')[0].replace(/^[#>\-*\s]+/, '').slice(0, 60).trim() || 'Quick note'
-  if (target === 'daily') {
-    const note = await addToDaily(body, get().settings.captureTime)
-    if (note) toast("Added to today's note", { label: 'Open', run: () => openNote(note.id) })
-  } else if (target === 'scratch') {
-    const note = await newNote('scratch', { title: `Scratch — ${firstLine}`, content: body })
-    if (note) toast(`Scratch note saved, kept for ${get().settings.scratchDays} day${get().settings.scratchDays === 1 ? '' : 's'}`)
-  } else {
-    const note = await createNote({ title: firstLine, folder: get().settings.inboxFolder, content: body }, false)
-    if (note) toast(`Saved to ${get().settings.inboxFolder}`, { label: 'Open', run: () => openNote(note.id) })
-  }
+  const note = await addToDaily(body, get().settings.captureTime)
+  if (note) toast("Added to today's note", { label: 'Open', run: () => openNote(note.id) })
 }
 
 // ---------- folders ----------
