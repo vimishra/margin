@@ -4105,18 +4105,25 @@ body.resizing {
   display: inline-flex;
   align-items: center;
   vertical-align: middle;
-  margin-left: 6px;
-  padding: 1px 3px;
-  border-radius: 4px;
-  color: var(--text-3);
-  background: none;
+  margin-left: 8px;
+  padding: 2px 5px;
+  border-radius: 5px;
+  color: var(--accent);
+  background: var(--accent-soft);
   border: none;
   cursor: pointer;
 }
-.task-notes-btn:hover,
+.task-notes-btn svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 2.4;
+}
+.task-notes-btn:hover {
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
 .task-notes-btn.open {
-  color: var(--accent);
-  background: var(--accent-soft);
+  color: var(--bg);
+  background: var(--accent);
 }
 .task-notes {
   margin: 6px 0 2px;

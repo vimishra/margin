@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.18.1 (2026-10-22)
+
+### Changed
+
+- **The notes icon on a task stands out more:** blue on a light blue tint, a little larger and bolder, and solid blue while the notes are showing.
+
 ## 1.18.0 (2026-10-22)
 
 ### Added
