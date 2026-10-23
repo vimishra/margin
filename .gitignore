@@ -10,3 +10,6 @@ vault
 
 # Local tooling
 .claude
+
+# Python byte-code from running the command-line tool or its tests
+__pycache__/
