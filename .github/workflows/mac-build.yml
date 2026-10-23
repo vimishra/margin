@@ -1,6 +1,8 @@
 # Builds the macOS installer (.dmg) on a GitHub-hosted Mac, only when asked:
 # Actions → "Build Mac app" → Run workflow. Pick the branch in "Use workflow from".
-# The .dmg is attached to the run as an artifact for 14 days. Nothing is published as a release.
+# The .dmg is attached to the run as an artifact for 14 days, after a quick start-up test of the built app.
+# With "Publish a release" ticked (main only), it is also published as a GitHub release v<version>, with the
+# changelog since the last release as its notes and margin_tasks.py attached, as the releases built at home were.
 name: Build Mac app
 # The list of runs shows which branch each build was made from.
 run-name: Build Mac app from ${{ github.ref_name }} (${{ inputs.arch || 'arm64' }})
@@ -13,9 +15,14 @@ on:
         type: choice
         options: [arm64, x64, universal]
         default: arm64
+      release:
+        description: 'Publish a release v<version> with this build (only from main; fails if that release exists)'
+        type: boolean
+        default: false
 
 permissions:
-  contents: read
+  # Write only so that a release can be published; nothing else is pushed.
+  contents: write
 
 jobs:
   dmg:
@@ -46,9 +53,81 @@ jobs:
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
 
+      # Start the built app once against an empty notes folder and its own profile, so it cannot touch anything
+      # else, and check it shows its window: MARGIN_CAPTURE saves a picture of it and quits. The runner is Apple
+      # silicon, so an Intel-only build is not started.
+      - name: Start-up test
+        if: ${{ (inputs.arch || 'arm64') != 'x64' }}
+        run: |
+          app=$(ls -d release/mac*/Margin.app | head -1)
+          built=$(plutil -extract CFBundleShortVersionString raw "$app/Contents/Info.plist")
+          echo "Built $app, version $built"
+          test "$built" = "${{ steps.version.outputs.version }}"
+          mkdir -p "$RUNNER_TEMP/vault" "$RUNNER_TEMP/profile"
+          VAULT_DIR="$RUNNER_TEMP/vault" MARGIN_CAPTURE="$RUNNER_TEMP/start-up.png" "$app/Contents/MacOS/Margin" --user-data-dir="$RUNNER_TEMP/profile" &
+          pid=$!
+          for i in $(seq 90); do kill -0 $pid 2>/dev/null || break; sleep 1; done
+          kill $pid 2>/dev/null || true
+          test -s "$RUNNER_TEMP/start-up.png"
+          echo "The app started and showed its window; starter notes written: $(ls "$RUNNER_TEMP/vault" | wc -l | tr -d ' ')" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep the start-up picture
+        if: ${{ always() && (inputs.arch || 'arm64') != 'x64' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: start-up-run${{ github.run_number }}
+          path: ${{ runner.temp }}/start-up.png
+          if-no-files-found: ignore
+          retention-days: 14
+
       - uses: actions/upload-artifact@v4
         with:
           name: Margin-${{ steps.version.outputs.version }}-mac-${{ inputs.arch || 'arm64' }}-run${{ github.run_number }}
           path: release/*.dmg
           if-no-files-found: error
           retention-days: 14
+
+      # The notes are the changelog sections since the last published release, between a line on who it is for
+      # and the install steps.
+      - name: Publish the release
+        if: ${{ inputs.release }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          v=${{ steps.version.outputs.version }}
+          tag="v$v"
+          if [ "${{ github.ref_name }}" != main ]; then echo "Releases are published from main only." >&2; exit 1; fi
+          if gh release view "$tag" >/dev/null 2>&1; then echo "Release $tag already exists." >&2; exit 1; fi
+          prev=$(gh release list --exclude-drafts --limit 1 --json tagName -q '.[0].tagName')
+          dmg=$(ls release/*.dmg | head -1)
+          case "${{ inputs.arch || 'arm64' }}" in
+            arm64) who='For Macs with Apple silicon (M1 and later).' ;;
+            x64) who='For Macs with an Intel processor.' ;;
+            *) who='For any Mac: Apple silicon and Intel.' ;;
+          esac
+          {
+            echo "$who"
+            echo
+            echo "## What's new since ${prev#v}"
+            echo
+            awk -v cur="## $v " -v old="## ${prev#v} " 'index($0, old) == 1 { exit } index($0, cur) == 1 { on = 1 } on && /^## / { sub(/^## /, "### ") ; print; next } on && /^### / { sub(/^### /, "#### "); print; next } on { print }' CHANGELOG.md | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}'
+            echo
+            echo "The full history is in [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md)."
+            echo
+            echo "## Install"
+            echo
+            echo "1. Download \`$(basename "$dmg")\` below."
+            echo "2. Open it and drag **Margin** into **Applications**, replacing the old one if asked."
+            echo "3. Clear the download flag once in Terminal:"
+            echo
+            echo "   \`\`\`"
+            echo "   xattr -cr /Applications/Margin.app"
+            echo "   \`\`\`"
+            echo
+            echo "4. Open Margin from Applications."
+            echo
+            echo "Notes and settings are kept when installing over an earlier version. \`margin_tasks.py\`, the command-line tool, is attached on its own as well."
+          } > "$RUNNER_TEMP/notes.md"
+          cat "$RUNNER_TEMP/notes.md"
+          gh release create "$tag" "$dmg" tools/margin_tasks.py --target "$GITHUB_SHA" --title "Margin $v" --notes-file "$RUNNER_TEMP/notes.md"
+          echo "Published [$tag](https://github.com/${{ github.repository }}/releases/tag/$tag)" >> "$GITHUB_STEP_SUMMARY"
