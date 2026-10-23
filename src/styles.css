@@ -5464,3 +5464,10 @@ kbd {
 .editor .cm-editor .cm-fold-more:hover {
   border-color: var(--accent);
 }
+
+/* Tags are medium weight wherever they appear as pills: thin letters look faint on a tinted background. */
+.chip.tag,
+.chip.tag .chip-label,
+.task-chip.tag {
+  font-weight: var(--label-weight);
+}

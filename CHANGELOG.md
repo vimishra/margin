@@ -2,6 +2,16 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## Unreleased
+
+### Added
+
+- **`margin-update`** (`scripts/install-latest.sh`): installs or updates Margin from the GitHub releases on another Mac with no `xattr` step, because it downloads with the GitHub command-line tool or a read-only token instead of a browser. Set up once per Mac; then one command per update. Steps in the user guide, "Installing and updating on another Mac".
+
+### Changed
+
+- Tag pills (under a note's title and in the sidebar) are medium weight, so they read more clearly on their tinted background. The size is unchanged.
+
 ## 1.18.1 (2026-10-22)
 
 ### Changed

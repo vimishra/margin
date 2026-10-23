@@ -149,6 +149,7 @@ mark.find-hit.current{background:#ffab2e}
 <p><strong>Start here</strong></p>
 <ul>
 <li><a href="#getting-started">Getting started</a></li>
+<li><a href="#installing-and-updating-on-another-mac">Installing and updating on another Mac</a></li>
 <li><a href="#the-window">The window</a></li>
 <li><a href="#how-margin-is-organised-and-why">How Margin is organised, and why</a></li>
 </ul>
@@ -219,6 +220,74 @@ npm run app
 </tr>
 </tbody>
 </table></div><p>To use a different notes folder, choose <strong>File → Choose Notes Folder</strong> in the desktop app. The browser version opens the same folder the desktop app uses; to give it a different one, start it with <code>VAULT_DIR=~/Notes npm start</code>.</p>
+<h2 id="installing-and-updating-on-another-mac">Installing and updating on another Mac</h2>
+<p>Margin's releases are on GitHub. A Mac blocks an app downloaded with a browser unless Apple has checked it (notarised it), which costs a paid developer account; that is why the release notes say to run <code>xattr -cr</code> after every install. <strong><code>margin-update</code></strong> avoids this: it downloads the release with GitHub's own tools instead of a browser, so the Mac never marks it, and installs it into Applications. One setup per Mac, then one command per update.</p>
+<p>The repository is private, so the Mac has to be signed in to GitHub. Pick one of the two ways below. <strong>Way B needs nothing installed</strong>, so it suits a work laptop where you cannot add software.</p>
+<h3 id="way-a-with-the-github-command-line-tool">Way A: with the GitHub command-line tool</h3>
+<p>Use this if you have <a href="https://brew.sh">Homebrew</a> or already use <code>gh</code>.</p>
+<ol>
+<li>
+<p>Open <strong>Terminal</strong>.</p>
+</li>
+<li>
+<p>Install the GitHub command-line tool, if it is not there yet:</p>
+<pre><code class="language-bash">brew install gh
+</code></pre>
+</li>
+<li>
+<p>Sign in once. Choose <strong><a href="http://GitHub.com">GitHub.com</a></strong>, <strong>HTTPS</strong>, and <strong>Login with a web browser</strong>, then paste the code it shows into the page that opens:</p>
+<pre><code class="language-bash">gh auth login
+</code></pre>
+</li>
+<li>
+<p>Fetch and run the installer script:</p>
+<pre><code class="language-bash">gh api repos/vimishra/margin/contents/scripts/install-latest.sh -H &quot;Accept: application/vnd.github.raw&quot; &gt; /tmp/margin-update; bash /tmp/margin-update
+</code></pre>
+</li>
+</ol>
+<h3 id="way-b-with-a-github-token-nothing-to-install">Way B: with a GitHub token (nothing to install)</h3>
+<ol>
+<li>
+<p>On any computer, sign in to GitHub and go to <strong>Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token</strong>.</p>
+</li>
+<li>
+<p>Fill it in:</p>
+<ul>
+<li><strong>Token name:</strong> <code>Margin updates on my work laptop</code></li>
+<li><strong>Expiration:</strong> as long as you like; when it runs out, make a new one and repeat step 4.</li>
+<li><strong>Repository access:</strong> <strong>Only select repositories</strong>, and pick <strong>vimishra/margin</strong>.</li>
+<li><strong>Permissions → Repository permissions → Contents:</strong> <strong>Read-only</strong>. Leave everything else at No access.</li>
+</ul>
+</li>
+<li>
+<p>Click <strong>Generate token</strong> and copy it. GitHub shows it only once.</p>
+</li>
+<li>
+<p>On the Mac, open <strong>Terminal</strong> and save the token from the clipboard into a file only you can read (pasting from the clipboard keeps it out of your Terminal history):</p>
+<pre><code class="language-bash">mkdir -p ~/.config/margin; pbpaste &gt; ~/.config/margin/github-token; chmod 600 ~/.config/margin/github-token
+</code></pre>
+</li>
+<li>
+<p>Fetch and run the installer script:</p>
+<pre><code class="language-bash">curl -fsSL -H &quot;Authorization: Bearer $(cat ~/.config/margin/github-token)&quot; -H &quot;Accept: application/vnd.github.raw&quot; https://api.github.com/repos/vimishra/margin/contents/scripts/install-latest.sh -o /tmp/margin-update; bash /tmp/margin-update
+</code></pre>
+</li>
+</ol>
+<h3 id="what-happens-and-updating-later">What happens, and updating later</h3>
+<p>The script downloads the newest installer, closes Margin if it is open (your notes are already saved), puts the new version in Applications, and opens it. Your notes and settings are kept. It also saves itself as <code>~/.local/bin/margin-update</code>.</p>
+<p>From then on, to update, open Terminal and run:</p>
+<pre><code class="language-bash">margin-update
+</code></pre>
+<p>To install a particular version instead of the newest, add it: <code>margin-update 1.18.1</code>.</p>
+<p>If Terminal says <code>margin-update: command not found</code>, <code>~/.local/bin</code> is not on your PATH yet. Either run it as <code>~/.local/bin/margin-update</code>, or add the folder once: in zsh (the Mac's usual shell) run <code>echo 'export PATH=&quot;$HOME/.local/bin:$PATH&quot;' &gt;&gt; ~/.zshrc</code> and open a new Terminal window; in fish run <code>fish_add_path ~/.local/bin</code>. The same folder holds <code>margin-tasks</code> (see <a href="#tasks-from-the-command-line">Tasks from the command line</a>).</p>
+<p><strong>If it stops with a message:</strong></p>
+<ul>
+<li><em>not signed in to GitHub</em>: do step 3 of Way A, or steps 1 to 4 of Way B.</li>
+<li><em>could not read the release from GitHub</em>: the token has expired or cannot see the repository. Make a new one (Way B, steps 1 to 4).</li>
+<li><em>Margin is still open</em>: quit Margin yourself and run the command again.</li>
+<li><em>this Mac has an Intel processor</em>: the releases are built for Apple silicon only.</li>
+</ul>
+<p>An installer downloaded in a browser still works as before: drag Margin into Applications and run <code>xattr -cr /Applications/Margin.app</code> once.</p>
 <h2 id="the-window">The window</h2>
 <ul>
 <li><strong>Sidebar</strong> on the left: search, the New note button, Home, Today, Journal, Calendar, All notes, Tasks, Research, Scratch, a small calendar, your pinned notes, the five notes you opened most recently, notebooks and tags. ⌘\ hides it. Drag its right edge to make it wider or narrower; double-click the edge to go back to the usual width.</li>

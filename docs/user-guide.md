@@ -92,6 +92,7 @@ The guide has two main parts, because Margin does two different jobs. **Part 1**
 **Start here**
 
 - [Getting started](#getting-started)
+- [Installing and updating on another Mac](#installing-and-updating-on-another-mac)
 - [The window](#the-window)
 - [How Margin is organised, and why](#how-margin-is-organised-and-why)
 
@@ -147,6 +148,79 @@ npm run app
 | `npm run app:dist` | Build an installer for the system you are on, into `release/` |
 
 To use a different notes folder, choose **File → Choose Notes Folder** in the desktop app. The browser version opens the same folder the desktop app uses; to give it a different one, start it with `VAULT_DIR=~/Notes npm start`.
+
+## Installing and updating on another Mac
+
+Margin's releases are on GitHub. A Mac blocks an app downloaded with a browser unless Apple has checked it (notarised it), which costs a paid developer account; that is why the release notes say to run `xattr -cr` after every install. **`margin-update`** avoids this: it downloads the release with GitHub's own tools instead of a browser, so the Mac never marks it, and installs it into Applications. One setup per Mac, then one command per update.
+
+The repository is private, so the Mac has to be signed in to GitHub. Pick one of the two ways below. **Way B needs nothing installed**, so it suits a work laptop where you cannot add software.
+
+### Way A: with the GitHub command-line tool
+
+Use this if you have [Homebrew](https://brew.sh) or already use `gh`.
+
+1. Open **Terminal**.
+2. Install the GitHub command-line tool, if it is not there yet:
+
+   ```bash
+   brew install gh
+   ```
+
+3. Sign in once. Choose **GitHub.com**, **HTTPS**, and **Login with a web browser**, then paste the code it shows into the page that opens:
+
+   ```bash
+   gh auth login
+   ```
+
+4. Fetch and run the installer script:
+
+   ```bash
+   gh api repos/vimishra/margin/contents/scripts/install-latest.sh -H "Accept: application/vnd.github.raw" > /tmp/margin-update; bash /tmp/margin-update
+   ```
+
+### Way B: with a GitHub token (nothing to install)
+
+1. On any computer, sign in to GitHub and go to **Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token**.
+2. Fill it in:
+   - **Token name:** `Margin updates on my work laptop`
+   - **Expiration:** as long as you like; when it runs out, make a new one and repeat step 4.
+   - **Repository access:** **Only select repositories**, and pick **vimishra/margin**.
+   - **Permissions → Repository permissions → Contents:** **Read-only**. Leave everything else at No access.
+3. Click **Generate token** and copy it. GitHub shows it only once.
+4. On the Mac, open **Terminal** and save the token from the clipboard into a file only you can read (pasting from the clipboard keeps it out of your Terminal history):
+
+   ```bash
+   mkdir -p ~/.config/margin; pbpaste > ~/.config/margin/github-token; chmod 600 ~/.config/margin/github-token
+   ```
+
+5. Fetch and run the installer script:
+
+   ```bash
+   curl -fsSL -H "Authorization: Bearer $(cat ~/.config/margin/github-token)" -H "Accept: application/vnd.github.raw" https://api.github.com/repos/vimishra/margin/contents/scripts/install-latest.sh -o /tmp/margin-update; bash /tmp/margin-update
+   ```
+
+### What happens, and updating later
+
+The script downloads the newest installer, closes Margin if it is open (your notes are already saved), puts the new version in Applications, and opens it. Your notes and settings are kept. It also saves itself as `~/.local/bin/margin-update`.
+
+From then on, to update, open Terminal and run:
+
+```bash
+margin-update
+```
+
+To install a particular version instead of the newest, add it: `margin-update 1.18.1`.
+
+If Terminal says `margin-update: command not found`, `~/.local/bin` is not on your PATH yet. Either run it as `~/.local/bin/margin-update`, or add the folder once: in zsh (the Mac's usual shell) run `echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc` and open a new Terminal window; in fish run `fish_add_path ~/.local/bin`. The same folder holds `margin-tasks` (see [Tasks from the command line](#tasks-from-the-command-line)).
+
+**If it stops with a message:**
+
+- *not signed in to GitHub*: do step 3 of Way A, or steps 1 to 4 of Way B.
+- *could not read the release from GitHub*: the token has expired or cannot see the repository. Make a new one (Way B, steps 1 to 4).
+- *Margin is still open*: quit Margin yourself and run the command again.
+- *this Mac has an Intel processor*: the releases are built for Apple silicon only.
+
+An installer downloaded in a browser still works as before: drag Margin into Applications and run `xattr -cr /Applications/Margin.app` once.
 
 ## The window
 

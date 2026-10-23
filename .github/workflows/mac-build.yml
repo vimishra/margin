@@ -126,6 +126,8 @@ jobs:
             echo
             echo "4. Open Margin from Applications."
             echo
+            echo "Or, without the Terminal step: run \`margin-update\` (see \"Installing and updating on another Mac\" in the user guide)."
+            echo
             echo "Notes and settings are kept when installing over an earlier version. \`margin_tasks.py\`, the command-line tool, is attached on its own as well."
           } > "$RUNNER_TEMP/notes.md"
           cat "$RUNNER_TEMP/notes.md"
