@@ -511,7 +511,7 @@ Commands act on the note in the active pane. The ones people reach for most:
 | `duplicate` | Make a copy |
 | `add tag` | Add one or more tags |
 | `copy link` | Copy `[[Title]]` to paste into another note |
-| `close other` / `close all` | Close the other tabs, or all of them |
+| `close other` / `close all` | Close the other tabs, or all of them. Close all is offered from any view while tabs are open; close other needs a note in front, since that is the tab it keeps. Right-clicking a tab offers the same. |
 | `move` | Move to another notebook |
 | `open to the side` | Show this note in the side pane |
 | `history`, `export` | Version history; export as PDF, Markdown, HTML or Word |

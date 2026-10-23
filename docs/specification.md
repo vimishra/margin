@@ -1,6 +1,6 @@
 # Margin product specification
 
-This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.10.2.
+This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.18.2.
 
 It is written to be handed to a developer or a coding tool. Where a detail is a free choice for the implementer, it says so; everything else is a requirement.
 
@@ -373,7 +373,7 @@ The palette has further modes with the same look: move a note to a notebook (wit
 
 **Jumping to a place in a note** (from search or the Tasks view): a search result selects the text found; a task, or a meeting entry just added, puts the cursor at the end of its line with nothing selected, so a stray key cannot replace the line. Either way the editor scrolls it to the middle, repeats the scroll a few times over the first second while images and tables settle, and flashes the line for about 1.5 seconds. It works in either pane.
 
-**Commands** cover every action in the app: create (note, canvas, scratch, meeting, person, research, from template, notebook), go to (each view, each task list and saved filter), on the current note (side, swap, jump to heading, search, formatting, headings, lists, task actions, mode, page or canvas, rename, duplicate, add tag, copy link, reveal file, close tab, close others, close all, pin, history, move, export as Markdown, HTML, PDF, Word, delete), and app (page width, sidebar, side panel, theme, settings, import, help pages, keyboard shortcuts).
+**Commands** cover every action in the app: create (note, canvas, scratch, meeting, person, research, from template, notebook), go to (each view, each task list and saved filter), on the current note (side, swap, jump to heading, search, formatting, headings, lists, task actions, mode, page or canvas, rename, duplicate, add tag, copy link, reveal file, close tab, pin, history, move, export as Markdown, HTML, PDF, Word, delete), tabs (close all tabs, offered from any view while tabs are open; close all other tabs, offered when a note is in front with other tabs open), and app (page width, sidebar, side panel, theme, settings, import, help pages, keyboard shortcuts).
 
 ## 8. Kinds of note
 

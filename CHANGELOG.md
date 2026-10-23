@@ -2,7 +2,11 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
-## Unreleased
+## 1.18.2 (2026-10-23)
+
+### Fixed
+
+- ⌘K offered **Close all other tabs** and **Close all tabs** only while a note was open. Close all tabs is now offered from any view (Home, Tasks, Calendar, the Journal) whenever tabs are open, and Close all other tabs whenever a note is in front with other tabs beside it.
 
 ### Added
 

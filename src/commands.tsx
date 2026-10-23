@@ -114,6 +114,13 @@ export function commands(): Command[] {
     { id: 'goscratch', label: 'Go to Scratch', icon: i(Hourglass), run: () => go({ name: 'scratch' }) },
     { id: 'research', label: 'Go to Research', icon: i(BookMarked), hint: `${ALT}R`, run: () => go({ name: 'research' }) },
   ]
+  // The tab commands are offered wherever there are tabs, not only while a note is in front.
+  // "Other" tabs need a note tab in front to keep; from Home, Tasks and the like, only "all" makes sense.
+  const sideActive = s.activePane === 'side' && !!s.side
+  const paneTabs = sideActive ? s.sideTabs : s.tabs
+  const onTab = sideActive || s.route.name === 'note'
+  if (onTab && paneTabs.length > 1) list.push({ id: 'closeOthers', label: 'Close all other tabs', icon: i(X), keywords: 'tabs', run: () => closeOtherTabs() })
+  if (paneTabs.length) list.push({ id: 'closeAll', label: 'Close all tabs', icon: i(X), keywords: 'tabs', run: () => closeAllTabs() })
   if (note) {
     list.push(
       { id: 'side', label: s.side ? 'Close the side pane' : 'Open this note to the side', icon: i(Columns2), keywords: 'split pane two', run: () => (s.side ? closeSide() : openSide(note.id)) },
@@ -151,8 +158,6 @@ export function commands(): Command[] {
       },
       ...(desktop ? [{ id: 'reveal', label: `Show this note's file in ${fileManager}`, icon: i(FolderOpen), keywords: 'finder file explorer reveal', run: () => void desktop!.revealFile(note.path) }] : []),
       { id: 'closeTab', label: 'Close this tab', icon: i(X), run: () => window.dispatchEvent(new CustomEvent('margin:action', { detail: 'closeTab' })) },
-      { id: 'closeOthers', label: 'Close all other tabs', icon: i(X), keywords: 'tabs', run: () => closeOtherTabs() },
-      { id: 'closeAll', label: 'Close all tabs', icon: i(X), keywords: 'tabs', run: () => closeAllTabs() },
       { id: 'pin', label: note.pinned ? 'Unpin this note' : 'Pin this note', icon: i(Pin), run: () => updateNote(note.id, { pinned: !note.pinned }) },
       { id: 'history', label: 'Version history', icon: i(History), hint: `${ALT}V`, keywords: 'restore undo', run: () => ui({ historyFor: note.id }) },
       { id: 'move', label: 'Move to notebook…', icon: i(FolderInput), hint: `${ALT}M`, keywords: 'folder', run: () => ui({ palette: { mode: 'move', noteId: note.id } }) },
