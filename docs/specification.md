@@ -1,6 +1,6 @@
 # Margin product specification
 
-This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.18.2.
+This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.18.3.
 
 It is written to be handed to a developer or a coding tool. Where a detail is a free choice for the implementer, it says so; everything else is a requirement.
 
@@ -848,7 +848,7 @@ Every action below can be reassigned or cleared in Settings → Shortcuts, which
 - **Help pages** open in a separate window that is reused.
 - **Global hotkeys** Ctrl+Alt+Space opens quick capture, Ctrl+Alt+T quick task.
 - **Installed fonts** are listed for the font picker.
-- **Packaging:** a `.dmg` for Apple silicon, signed ad hoc (no Apple developer account); unsigned builds require `xattr -cr` once after installing from a browser download. An install script (`margin-update`) downloads a release with the GitHub command-line tool or a read-only token instead, which leaves no download mark, so no `xattr` step is needed; it closes the running app, replaces it in Applications, keeps a copy of itself in `~/.local/bin`, and can install a named version. Versioned releases with a changelog.
+- **Packaging:** a `.deb` for 64-bit Intel and AMD Linux (Debian, Ubuntu, a Chromebook's Linux environment), installing into `/opt/Margin` with a `margin` command and a launcher entry, attached to the same releases. A `.dmg` for Apple silicon, signed ad hoc (no Apple developer account); unsigned builds require `xattr -cr` once after installing from a browser download. An install script (`margin-update`) downloads a release with the GitHub command-line tool or a read-only token instead, which leaves no download mark, so no `xattr` step is needed; it closes the running app, replaces it in Applications, keeps a copy of itself in `~/.local/bin`, and can install a named version. Versioned releases with a changelog.
 - **Printable Guides…** opens a folder shipped inside the app holding each guide (user guide, theory of operations, design guide, specification) as a PDF and as a standalone HTML page. The installer's window shows the same folder, named Documentation, beside the app.
 - **Command-Line Tool…** shows where the bundled tool is and can link it into `~/.local/bin/margin-tasks`, a folder the user owns, so no administrator rights are needed. It replaces an older link of its own but never a real file.
 

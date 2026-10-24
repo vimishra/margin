@@ -19,6 +19,9 @@ const configFile = () => path.join(app.getPath('userData'), 'config.json')
 let win = null
 let origin = ''
 let vault = ''
+// The notes folder and port as given when the app was started (normally neither). Start-up sets both for the
+// built-in server, and a restarted app inherits them, so they are put back before restarting (see chooseVault).
+const startedWith = { VAULT_DIR: process.env.VAULT_DIR, PORT: process.env.PORT }
 
 function readConfig() {
   try {
@@ -174,6 +177,21 @@ async function chooseVault() {
   })
   if (result.canceled || !result.filePaths[0] || result.filePaths[0] === vault) return false
   writeConfig({ vaultDir: result.filePaths[0] })
+  // Started with VAULT_DIR (testing), that folder wins over the saved one, so say so rather than restart into it again.
+  if (startedWith.VAULT_DIR) {
+    await dialog.showMessageBox(win, {
+      type: 'info',
+      message: 'The folder is saved for next time',
+      detail: `Margin was started with VAULT_DIR set, which takes precedence. Start it without VAULT_DIR to use ${result.filePaths[0]}.`,
+    })
+    return false
+  }
+  // Restart into the new folder. The restarted app inherits this one's environment, which still names the old
+  // folder and port, so put those back as they were at start-up first; otherwise it reopens the old folder.
+  for (const [key, value] of Object.entries(startedWith)) {
+    if (value === undefined) delete process.env[key]
+    else process.env[key] = value
+  }
   app.relaunch()
   app.exit(0)
   return true

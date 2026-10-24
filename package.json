@@ -1,7 +1,7 @@
 {
   "name": "margin-notes",
   "private": true,
-  "version": "1.18.2",
+  "version": "1.18.3",
   "type": "module",
   "description": "Margin — a fast, local-first markdown note-taking app",
   "scripts": {
@@ -56,6 +56,7 @@
   "main": "electron/main.mjs",
   "productName": "Margin",
   "author": "Vikas Mishra",
+  "desktopName": "margin.desktop",
   "build": {
     "appId": "org.vikasmishra.margin",
     "productName": "Margin",
@@ -113,8 +114,29 @@
         }
       ]
     },
+    "deb": {
+      "depends": [
+        "libgtk-3-0",
+        "libnotify4",
+        "libnss3",
+        "libxss1",
+        "libxtst6",
+        "xdg-utils",
+        "libatspi2.0-0",
+        "libuuid1",
+        "libsecret-1-0",
+        "libasound2 | libasound2t64",
+        "libgbm1",
+        "libdrm2"
+      ]
+    },
     "linux": {
       "category": "Office",
+      "syncDesktopName": true,
+      "executableName": "margin",
+      "maintainer": "Vikas Mishra <vikas.mishra@hey.com>",
+      "synopsis": "Local-first markdown notes and tasks",
+      "description": "A note-taking app where every note is a plain markdown file in a folder, with tasks, a journal and daily notes.",
       "target": [
         "AppImage",
         "deb"

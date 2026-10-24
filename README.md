@@ -49,6 +49,8 @@ npm run app:dist
 
 The result is written to `release/`. `npm run app:pack` builds just the unpacked app, which is quicker. Builds are unsigned.
 
+Releases also carry a Linux `.deb` (amd64) for Debian, Ubuntu and a Chromebook's Linux environment, built with `npx electron-builder --linux deb --x64`; see "Installing on Linux or a Chromebook" in the user guide.
+
 To install a published release on another Mac without the `xattr` step, use `scripts/install-latest.sh`: it downloads with the GitHub command-line tool or a read-only token, so macOS does not block the app, and installs itself as `margin-update` for later updates. The user guide's "Installing and updating on another Mac" has the steps.
 
 Run from this folder, the desktop app uses `./vault`. An installed copy uses `~/Documents/Margin` until you pick another folder with File → Choose Notes Folder.

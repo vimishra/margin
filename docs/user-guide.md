@@ -93,6 +93,7 @@ The guide has two main parts, because Margin does two different jobs. **Part 1**
 
 - [Getting started](#getting-started)
 - [Installing and updating on another Mac](#installing-and-updating-on-another-mac)
+- [Installing on Linux or a Chromebook](#installing-on-linux-or-a-chromebook)
 - [The window](#the-window)
 - [How Margin is organised, and why](#how-margin-is-organised-and-why)
 
@@ -147,7 +148,7 @@ npm run app
 | `npm start` | Build once and serve in a browser |
 | `npm run app:dist` | Build an installer for the system you are on, into `release/` |
 
-To use a different notes folder, choose **File → Choose Notes Folder** in the desktop app. The browser version opens the same folder the desktop app uses; to give it a different one, start it with `VAULT_DIR=~/Notes npm start`.
+To use a different notes folder, choose **File → Choose Notes Folder** in the desktop app. Margin restarts and opens the folder you picked, and keeps using it from then on. Nothing is moved: the notes in the old folder stay where they are, so copy them across first if you want them in the new one. The browser version opens the same folder the desktop app uses; to give it a different one, start it with `VAULT_DIR=~/Notes npm start`.
 
 ## Installing and updating on another Mac
 
@@ -221,6 +222,29 @@ If Terminal says `margin-update: command not found`, `~/.local/bin` is not on yo
 - *this Mac has an Intel processor*: the releases are built for Apple silicon only.
 
 An installer downloaded in a browser still works as before: drag Margin into Applications and run `xattr -cr /Applications/Margin.app` once.
+
+## Installing on Linux or a Chromebook
+
+Each release also has a Linux package, `margin-notes_<version>_amd64.deb`, for 64-bit Intel or AMD computers running Debian or Ubuntu, including the Linux environment on a Chromebook. It needs no extra steps of the `xattr` kind.
+
+**On a Chromebook:**
+
+1. Turn on Linux once, if it is not on yet: **Settings → About ChromeOS → Developers → Linux development environment → Set up**.
+2. On the [releases page](https://github.com/vimishra/margin/releases), open the newest release and download the `.deb` file.
+3. Open the **Files** app, go to **Downloads**, right-click the `.deb` and choose **Install with Linux**. Click **Install** and wait for it to finish.
+4. Open **Margin** from the launcher; it is in the **Linux apps** folder. You can pin it to the shelf like any app.
+
+**On Debian or Ubuntu:** download the `.deb`, then in a terminal, in the folder you saved it to, run `sudo apt install ./margin-notes_<version>_amd64.deb`. Open Margin from the applications menu, or run `margin`.
+
+**Updating:** install the newer `.deb` the same way; your notes and settings are kept. `margin-update` is for Macs only.
+
+**Notes on Linux:**
+
+- New notes go to `~/Documents/Margin` until you choose a folder with **File → Choose Notes Folder**. On a Chromebook that folder is inside Linux; to keep notes in the Chromebook's own **My files** instead, share a folder with Linux in the Files app (right-click → **Share with Linux**), then choose it under `/mnt/chromeos/MyFiles/`.
+- Shortcuts use **Ctrl** where this guide says ⌘, and **Alt** where it says ⌥.
+- **Help → Command-Line Tool…** installs `margin-tasks` in `~/.local/bin`, as on a Mac.
+- The printable guides are in `/opt/Margin/resources/Documentation`.
+
 
 ## The window
 

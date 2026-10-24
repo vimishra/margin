@@ -150,6 +150,7 @@ mark.find-hit.current{background:#ffab2e}
 <ul>
 <li><a href="#getting-started">Getting started</a></li>
 <li><a href="#installing-and-updating-on-another-mac">Installing and updating on another Mac</a></li>
+<li><a href="#installing-on-linux-or-a-chromebook">Installing on Linux or a Chromebook</a></li>
 <li><a href="#the-window">The window</a></li>
 <li><a href="#how-margin-is-organised-and-why">How Margin is organised, and why</a></li>
 </ul>
@@ -219,7 +220,7 @@ npm run app
 <td>Build an installer for the system you are on, into <code>release/</code></td>
 </tr>
 </tbody>
-</table></div><p>To use a different notes folder, choose <strong>File → Choose Notes Folder</strong> in the desktop app. The browser version opens the same folder the desktop app uses; to give it a different one, start it with <code>VAULT_DIR=~/Notes npm start</code>.</p>
+</table></div><p>To use a different notes folder, choose <strong>File → Choose Notes Folder</strong> in the desktop app. Margin restarts and opens the folder you picked, and keeps using it from then on. Nothing is moved: the notes in the old folder stay where they are, so copy them across first if you want them in the new one. The browser version opens the same folder the desktop app uses; to give it a different one, start it with <code>VAULT_DIR=~/Notes npm start</code>.</p>
 <h2 id="installing-and-updating-on-another-mac">Installing and updating on another Mac</h2>
 <p>Margin's releases are on GitHub. A Mac blocks an app downloaded with a browser unless Apple has checked it (notarised it), which costs a paid developer account; that is why the release notes say to run <code>xattr -cr</code> after every install. <strong><code>margin-update</code></strong> avoids this: it downloads the release with GitHub's own tools instead of a browser, so the Mac never marks it, and installs it into Applications. One setup per Mac, then one command per update.</p>
 <p>The repository is private, so the Mac has to be signed in to GitHub. Pick one of the two ways below. <strong>Way B needs nothing installed</strong>, so it suits a work laptop where you cannot add software.</p>
@@ -288,6 +289,24 @@ npm run app
 <li><em>this Mac has an Intel processor</em>: the releases are built for Apple silicon only.</li>
 </ul>
 <p>An installer downloaded in a browser still works as before: drag Margin into Applications and run <code>xattr -cr /Applications/Margin.app</code> once.</p>
+<h2 id="installing-on-linux-or-a-chromebook">Installing on Linux or a Chromebook</h2>
+<p>Each release also has a Linux package, <code>margin-notes_&lt;version&gt;_amd64.deb</code>, for 64-bit Intel or AMD computers running Debian or Ubuntu, including the Linux environment on a Chromebook. It needs no extra steps of the <code>xattr</code> kind.</p>
+<p><strong>On a Chromebook:</strong></p>
+<ol>
+<li>Turn on Linux once, if it is not on yet: <strong>Settings → About ChromeOS → Developers → Linux development environment → Set up</strong>.</li>
+<li>On the <a href="https://github.com/vimishra/margin/releases">releases page</a>, open the newest release and download the <code>.deb</code> file.</li>
+<li>Open the <strong>Files</strong> app, go to <strong>Downloads</strong>, right-click the <code>.deb</code> and choose <strong>Install with Linux</strong>. Click <strong>Install</strong> and wait for it to finish.</li>
+<li>Open <strong>Margin</strong> from the launcher; it is in the <strong>Linux apps</strong> folder. You can pin it to the shelf like any app.</li>
+</ol>
+<p><strong>On Debian or Ubuntu:</strong> download the <code>.deb</code>, then in a terminal, in the folder you saved it to, run <code>sudo apt install ./margin-notes_&lt;version&gt;_amd64.deb</code>. Open Margin from the applications menu, or run <code>margin</code>.</p>
+<p><strong>Updating:</strong> install the newer <code>.deb</code> the same way; your notes and settings are kept. <code>margin-update</code> is for Macs only.</p>
+<p><strong>Notes on Linux:</strong></p>
+<ul>
+<li>New notes go to <code>~/Documents/Margin</code> until you choose a folder with <strong>File → Choose Notes Folder</strong>. On a Chromebook that folder is inside Linux; to keep notes in the Chromebook's own <strong>My files</strong> instead, share a folder with Linux in the Files app (right-click → <strong>Share with Linux</strong>), then choose it under <code>/mnt/chromeos/MyFiles/</code>.</li>
+<li>Shortcuts use <strong>Ctrl</strong> where this guide says ⌘, and <strong>Alt</strong> where it says ⌥.</li>
+<li><strong>Help → Command-Line Tool…</strong> installs <code>margin-tasks</code> in <code>~/.local/bin</code>, as on a Mac.</li>
+<li>The printable guides are in <code>/opt/Margin/resources/Documentation</code>.</li>
+</ul>
 <h2 id="the-window">The window</h2>
 <ul>
 <li><strong>Sidebar</strong> on the left: search, the New note button, Home, Today, Journal, Calendar, All notes, Tasks, Research, Scratch, a small calendar, your pinned notes, the five notes you opened most recently, notebooks and tags. ⌘\ hides it. Drag its right edge to make it wider or narrower; double-click the edge to go back to the usual width.</li>
