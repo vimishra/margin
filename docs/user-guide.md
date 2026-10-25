@@ -521,6 +521,7 @@ The menu shows each command's shortcut, including ones you have changed in Setti
 
 - **Empty:** recently opened notes. The first is the note you were in before, so ⌘K then Enter flips between two notes.
 - **Words:** full-text search across all notes. Opening a result scrolls to the match.
+- **Tasks:** the same words also find tasks. Below the best three notes, a **Tasks** group lists up to five tasks whose text contains every word, open ones first (most urgent first), then finished ones. Each shows its note, priority and dates. `#tag` and `p1`–`p3` narrow them as in the Tasks view: `p1 bank` finds high-priority tasks mentioning the bank. Enter opens the task's note with the cursor at the end of the task; ⌥↵ opens it in the side pane. To tick or reschedule, use the Tasks view.
 - **`#tag`:** only notes with that tag.
 - **A date:** `today`, `tomorrow`, `friday`, `next monday`, `last friday`, `06/10`, `6 oct`, `in 3 days`. The first result is that day's daily note.
 - **A command:** type what you want to do. `rename`, `delete`, `duplicate`, `close other`, `add tag`, `copy link`, `export`. A matching command appears at the top; press Enter.

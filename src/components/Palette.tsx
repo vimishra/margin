@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { CalendarDays, CornerDownLeft, FilePlus2, Folder, FolderPlus, Hash, LayoutTemplate, Search, Users, Plus } from 'lucide-react'
-import { createNote, go, moveTaskToNewNote, moveTaskToNote, newProjectPlace, OPEN_THREADS, openSide, openDaily, newFromTemplate, newMeeting, newTemplate, openNote, openNoteAt, templates, toast, ui, updateNote, useStore, type PaletteState, applyTags } from '../store'
+import { Archive, CalendarClock, CalendarDays, CheckSquare, CornerDownLeft, FilePlus2, Folder, FolderPlus, Hash, LayoutTemplate, Search, Square, Users, Plus } from 'lucide-react'
+import { createNote, go, moveTaskToNewNote, moveTaskToNote, newProjectPlace, OPEN_THREADS, openSide, openSideAt, openDaily, newFromTemplate, newMeeting, newTemplate, openNote, openNoteAt, templates, toast, ui, updateNote, useStore, type PaletteState, applyTags } from '../store'
 import { commands } from '../commands'
 import { search } from '../lib/search'
 import { tagCounts } from '../lib/links'
-import { cx, dailyLabel, displayTitle, longDate, relTime, snippet } from '../lib/util'
+import { cx, dailyLabel, displayTitle, longDate, relTime, snippet, today } from '../lib/util'
 import { parseDatePhrase } from '../lib/dates'
 import { headings } from '../lib/markdown'
+import { allTasks, byUrgency, matchesQuery, priorityLabel, shortDate, type Task } from '../lib/tasks'
 import { splitContent } from '../lib/canvas'
 import { Marked, NoteIcon } from './bits'
 import { api } from '../api'
@@ -21,6 +22,29 @@ interface Item {
   run: () => void
   /** Set on note results, so they can also be opened in the side pane. */
   noteId?: string
+  /** What ⌥↵ does, when it is more than opening `noteId` to the side (a task opens at its line). */
+  side?: () => void
+}
+
+/** A task's text without markdown marks, for a one-line result: `[[Note|label]]` shows as label, `**bold**` as bold. */
+const plainTask = (text: string) => text.replace(/\[\[([^\]|]*\|)?([^\]]*)\]\]/g, '$2').replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/[*_`]/g, '')
+
+/** How many tasks a search lists in ⌘K, and how many notes come before them. */
+const TASK_RESULTS = 5
+const NOTES_BEFORE_TASKS = 3
+
+/**
+ * Tasks whose text has every word typed (and `#tag` or `p1`–`p3`, as in the Tasks view's box): open ones first,
+ * most urgent first, then finished ones, newest first, while there is room.
+ */
+function findTasks(notes: Record<string, import('../types').Note>, query: string): Task[] {
+  const words = query.trim()
+  if (words.replace(/[#\s]/g, '').length < 2) return []
+  const { templatesFolder, inboxFolder } = useStore.getState().settings
+  const hits = allTasks(notes, templatesFolder, inboxFolder).filter((t) => matchesQuery(t, '', words))
+  const open = hits.filter((t) => !t.done).sort(byUrgency)
+  const done = hits.filter((t) => t.done).sort((a, b) => (b.completed || '').localeCompare(a.completed || ''))
+  return [...open, ...done].slice(0, TASK_RESULTS)
 }
 
 export function Palette({ state }: { state: NonNullable<PaletteState> }) {
@@ -217,7 +241,53 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
         run: () => void openDaily(date),
       })
     }
-    out.push(...hits.map((h) => noteItem(h.note.id, 'Notes', h.terms, h.snippet)!))
+    // The best few notes, then matching tasks, then the rest of the notes.
+    const noteItems = hits.map((h) => noteItem(h.note.id, 'Notes', h.terms, h.snippet)!)
+    out.push(...noteItems.slice(0, NOTES_BEFORE_TASKS))
+    const now = today()
+    const terms = q.split(/\s+/).filter((w) => w && !w.startsWith('#') && !/^p[123]$/i.test(w))
+    for (const t of findTasks(notes, q)) {
+      const n = notes[t.noteId]
+      if (!n) continue
+      const late = (d?: string) => !t.done && !!d && d < now
+      out.push({
+        key: `task:${t.noteId}:${t.line}`,
+        group: 'Tasks',
+        icon: t.done ? <CheckSquare size={16} /> : <Square size={16} />,
+        title: (
+          <span className={cx('palette-task', t.done && 'done')}>
+            {t.priority > 0 && <b className="task-pri">{priorityLabel(t.priority)}</b>}
+            <Marked text={plainTask(t.text)} terms={terms} />
+          </span>
+        ),
+        subtitle: displayTitle(n) + (t.heading && t.heading !== n.title ? ` › ${t.heading}` : ''),
+        meta: (
+          <>
+            {t.someday && (
+              <span className="task-chip someday">
+                <Archive size={12} /> Someday
+              </span>
+            )}
+            {t.scheduled && (
+              <span className={cx('task-chip', !t.done && t.scheduled <= now && 'now')}>
+                <CalendarClock size={12} /> {shortDate(t.scheduled)}
+              </span>
+            )}
+            {t.due && (
+              <span className={cx('task-chip', late(t.due) && 'late', t.due === now && 'now')}>
+                <CalendarDays size={12} /> Due {shortDate(t.due)}
+              </span>
+            )}
+            {t.done && t.completed && <span className="task-chip done-on">Done {shortDate(t.completed)}</span>}
+          </>
+        ),
+        // As from the Tasks view: the cursor lands at the end of the task, with nothing selected.
+        run: () => openNoteAt(t.noteId, t.raw, [], true),
+        noteId: t.noteId,
+        side: () => openSideAt(t.noteId, t.raw, true),
+      })
+    }
+    out.push(...noteItems.slice(NOTES_BEFORE_TASKS).map((item) => ({ ...item, group: noteItems.length > NOTES_BEFORE_TASKS && out.some((i) => i.group === 'Tasks') ? 'More notes' : 'Notes' })))
     if (!q.startsWith('#')) {
       for (const [tag, count] of tagCounts(notes)) {
         if (tag.toLowerCase().startsWith(lower) && out.length < 40) {
@@ -263,7 +333,8 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
                 e.preventDefault()
                 if (e.altKey && items[active]?.noteId) {
                   close()
-                  openSide(items[active].noteId!)
+                  if (items[active].side) items[active].side!()
+                  else openSide(items[active].noteId!)
                 } else if ((e.metaKey || e.ctrlKey) && query.trim() && !moving && state.mode === 'search') {
                   close()
                   createNote({ title: query.trim() })

@@ -5471,3 +5471,16 @@ kbd {
 .task-chip.tag {
   font-weight: var(--label-weight);
 }
+
+/* Tasks in ⌘K results: the priority badge and date labels as in the Tasks view, done tasks struck through. */
+.palette-task .task-pri {
+  margin-right: 6px;
+}
+.palette-task.done {
+  color: var(--text-3);
+  text-decoration: line-through;
+}
+.palette-meta .task-chip {
+  margin-left: 4px;
+  pointer-events: none;
+}

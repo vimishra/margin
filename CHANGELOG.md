@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.19.0 (2026-10-25)
+
+### Added
+
+- **Tasks in ⌘K search.** Typing in ⌘K now also lists matching tasks, in a **Tasks** group below the best three notes: up to five, open ones first, each with its note, priority and dates. `#tag` and `p1`–`p3` narrow them. Enter opens the task in its note with the cursor at the end of the line; ⌥↵ opens it to the side.
+
 ## 1.18.4 (2026-10-25)
 
 ### Fixed
