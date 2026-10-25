@@ -238,6 +238,8 @@ Each release also has a Linux package, `margin-notes_<version>_amd64.deb`, for 6
 
 **Updating:** install the newer `.deb` the same way; your notes and settings are kept. `margin-update` is for Macs only.
 
+If a Chromebook keeps showing a generic icon for Margin after an update, it is showing a remembered one: right-click the Terminal icon on the shelf, choose **Shut down Linux**, and open Margin again.
+
 **Notes on Linux:**
 
 - New notes go to `~/Documents/Margin` until you choose a folder with **File → Choose Notes Folder**. On a Chromebook that folder is inside Linux; to keep notes in the Chromebook's own **My files** instead, share a folder with Linux in the Files app (right-click → **Share with Linux**), then choose it under `/mnt/chromeos/MyFiles/`.

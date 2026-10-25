@@ -1,7 +1,7 @@
 {
   "name": "margin-notes",
   "private": true,
-  "version": "1.18.3",
+  "version": "1.18.4",
   "type": "module",
   "description": "Margin — a fast, local-first markdown note-taking app",
   "scripts": {
@@ -134,6 +134,7 @@
       "category": "Office",
       "syncDesktopName": true,
       "executableName": "margin",
+      "icon": "build/icons",
       "maintainer": "Vikas Mishra <vikas.mishra@hey.com>",
       "synopsis": "Local-first markdown notes and tasks",
       "description": "A note-taking app where every note is a plain markdown file in a folder, with tasks, a journal and daily notes.",

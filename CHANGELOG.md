@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.18.4 (2026-10-25)
+
+### Fixed
+
+- **Linux: Margin's own icon in the launcher and shelf.** The Linux package carried the icon only at 1024×1024, a size Linux icon themes do not look in, so a Chromebook showed a generic icon. It now carries the standard sizes from 16×16 to 512×512.
+
 ## 1.18.3 (2026-10-25)
 
 ### Fixed
