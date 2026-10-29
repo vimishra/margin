@@ -291,6 +291,10 @@ export function applyFormat(ed: EditorHandle, kind: string) {
     unfold: () => ed.fold('unfold'),
     foldAll: () => ed.fold('foldAll'),
     unfoldAll: () => ed.fold('unfoldAll'),
+    foldBelow: () => ed.fold('foldBelow'),
+    foldLevel1: () => ed.fold('level1'),
+    foldLevel2: () => ed.fold('level2'),
+    foldLevel3: () => ed.fold('level3'),
   }
   actions[kind]?.()
 }

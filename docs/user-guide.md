@@ -489,6 +489,15 @@ A section (a heading and everything under it, down to the next heading of the sa
 - **⌘⌥↓** unfolds the fold on the cursor's line.
 - **Fold All** and **Unfold All** are in the Format menu and ⌘K. They fold every top-level section and list item.
 
+**Folding by outline, as in org-mode.** With the cursor on a heading line:
+
+- **Tab** cycles that section: *folded* (just the heading) → *its subheadings* (each folded, so you see the section's outline) → *everything* → folded again. A section with no subheadings goes from folded straight to open.
+- **⇧Tab** cycles the whole note: *top headings only* → *every heading, no text* → *everything* → top headings again. The cursor can be on any heading.
+- **Fold below this level** (⌘K or the Format menu) keeps every heading down to the level of the heading you are in and folds the rest. In a `##` section you see all the `#` and `##` headings, with everything under each `##` folded.
+- **Fold to level 1, 2 or 3** does the same for that level, wherever the cursor is.
+
+Off a heading line, Tab and ⇧Tab work as before: they nest and un-nest list items, and move between table cells. To use Tab only for indenting, turn off **Settings → Editor → Tab folds headings**. Each of these commands can have a shortcut in Settings → Shortcuts.
+
 Folding never changes the note. It is remembered for each note on this computer, so a note opens the way you left it, and tasks in a folded section still show in the Tasks view. Find, Jump to a heading and links to a section open any fold they land in. Paragraphs, tables and code blocks do not fold, and the read-only view and exports always show everything.
 
 ### Tables
@@ -1058,6 +1067,8 @@ Press **?** (or click **Shortcuts** at the bottom of the sidebar) for a window l
 | Move list item | ⌥↑ / ⌥↓ | same |
 | Fold or unfold here | ⌘' | ⌘' |
 | Fold (again: the section around it) / unfold | ⌘⌥↑ / ⌘⌥↓ | same |
+| Cycle a section's folding (on a heading) | Tab | Tab |
+| Cycle the whole note's folding (on a heading) | ⇧Tab | ⇧Tab |
 | Bold / italic | ⌘B / ⌘I | same |
 | Open to the side, or close it | ⌘⌥\\ | ⌘⌥\\ |
 | Side panel (backlinks) | ⌘. | ⌘. |
@@ -1127,7 +1138,20 @@ You can edit the files in any other program, or add `.md` files to the folder. M
 | "Port 4321 is already in use" | Margin is already running. Open http://localhost:4321, or stop the other copy. |
 | A change you made is missing | Open version history (⌥V) and restore an earlier version. |
 | A note disappeared | Look in the `.trash` folder inside your notes folder. Scratch notes go there when they expire. |
+| A note will not open, or Margin stops responding when you open it | See **A note that will not open** below. |
 | A shortcut does nothing | Check Settings → Shortcuts. Another action may have taken those keys. For the keys under **From any app**, a note there says if another app or the system holds them. |
 | Text is not rendering | Check the mode buttons at the top right of the note; Markdown source shows raw text. |
 | No spelling suggestions | Turn on Settings → Editor → Spell check. |
 | The app will not open on a Mac | The build is unsigned. Right-click the app and choose Open. |
+
+### A note that will not open
+
+1. **Try another view.** Open any other note, press ⌘E for the reading view, then open the problem note. If it opens there, the trouble is in the editor, not in the file being read. Note the result; it helps narrow things down.
+2. **Check the file.** Margin carries a checker that looks for anything unusual in a note: odd characters, very long lines, a code block or comment that is never closed, deep nesting, wide tables, or a second file with the same note id (easy to end up with after moving a note and moving it back). It prints only counts and line numbers, never the note's text, so you can share what it says. In Terminal:
+
+   ```bash
+   python3 /Applications/Margin.app/Contents/Resources/tools/check_note.py "$HOME/Documents/Vault/Alpha.md" --vault "$HOME/Documents/Vault"
+   ```
+
+   Use the path of your own note and notes folder. Anything unusual is marked `!!` with the line numbers; open the file in any text editor and look at those lines. On Linux the checker is at `/opt/Margin/resources/tools/check_note.py`.
+3. **See where Margin is stuck.** Before opening the note, choose **View → Toggle Developer Tools**, then open the note. When Margin stops responding, go to the **Sources** tab in the developer tools and press the pause button (⏸, or F8). The **Call Stack** panel then lists the names of the functions Margin was running. They are names from Margin's code, not your note's text, so a screenshot of that panel shows exactly which part of Margin is struggling.

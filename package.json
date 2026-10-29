@@ -1,7 +1,7 @@
 {
   "name": "margin-notes",
   "private": true,
-  "version": "1.20.0",
+  "version": "1.21.0",
   "type": "module",
   "description": "Margin — a fast, local-first markdown note-taking app",
   "scripts": {
@@ -72,6 +72,10 @@
       {
         "from": "tools/margin_tasks.py",
         "to": "tools/margin_tasks.py"
+      },
+      {
+        "from": "tools/check_note.py",
+        "to": "tools/check_note.py"
       },
       {
         "from": "build/Documentation",

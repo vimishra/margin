@@ -1,6 +1,6 @@
 # Margin product specification
 
-This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.20.0.
+This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.21.0.
 
 It is written to be handed to a developer or a coding tool. Where a detail is a free choice for the implementer, it says so; everything else is a requirement.
 
@@ -254,7 +254,12 @@ Shortcuts set heading level 1 to 5 on the current line or each selected line. Th
 - A heading folds from the end of its line to the end of its section (the last block before the next heading of the same or a higher level). A list item folds from the end of its first line to the end of the item, when it has lines under it (sub-items or indented text). Nothing else folds: paragraphs, quotes, tables and code blocks do not.
 - A foldable line shows an arrow in the left margin on hover; a folded line always shows it as a solid right-pointing triangle in the accent colour, and ends with a "…" marker tinted in the accent colour. Clicking either toggles the fold. The arrow takes no room in the line.
 - Commands, all acting at the cursor in the active pane's editor: **Fold or unfold here** (Mod+'): unfold a fold on this line, else fold this line, else fold the closest section or item that contains it. **Fold** (Mod+Alt+↑): the same, except that on an already folded line it folds the closest container, so repeated presses collapse outwards. **Unfold** (Mod+Alt+↓): open the fold on this line. **Fold all**, **Unfold all**: no default keys. When folding hides the cursor, it moves to the end of the folded line. With nothing to fold, a message says so.
-- Folds are never written into the note. They are kept per note in the app's local storage (`margin.folds`: the line number and text of each folded line) and restored when the note opens, by the same line or, if lines have moved, the nearest line with the same text. A change from outside the editor (the file changed on disk, a task ticked in the Tasks view) keeps the folds. A fold that would hide the cursor is not restored.
+- **Outline folding, as in org-mode** (on by default; Settings → Editor → "Tab folds headings" turns it off). Only on a heading line with nothing selected; elsewhere Tab and Shift+Tab keep their jobs (list nesting, table cells, indenting). Headings are found from the syntax tree, so `#` lines in code blocks are not headings.
+  - **Tab** cycles the heading's section through three states: *folded* (the section's own fold) → *children* (the section open, each of its direct subheadings, the shallowest level below it present, folded) → *subtree* (nothing in the section folded) → folded. If the section has no subheadings, children is skipped. From any other mix of folds inside the section, Tab folds it. Folds outside the section are left alone. A heading with nothing under it does nothing special.
+  - **Shift+Tab** cycles the whole note: *overview* (every heading at the note's top level folded) → *contents* (every heading visible: each folds only its own text, up to the next heading of any level, and the deepest headings their whole section) → *show all* → overview. From any other set of folds it goes to overview. When overview and contents are the same (all headings at one level), contents is skipped.
+  - **Fold to level N** (N = 1, 2, 3) shows the headings of level 1 to N and folds the rest: a level-N heading folds its whole section, a heading above N folds only its own text. **Fold below this level** does the same with N = the level of the heading the cursor is on or in. Both replace any folds the note had.
+  - When a fold would hide the cursor, it moves to the end of the visible line the fold starts on.
+- Folds are never written into the note. They are kept per note in the app's local storage (`margin.folds`: the line number and text of each folded line, and, for a fold that stops before the end of its section, how many lines it covers) and restored when the note opens, by the same line or, if lines have moved, the nearest line with the same text. A change from outside the editor (the file changed on disk, a task ticked in the Tasks view) keeps the folds. A fold that would hide the cursor is not restored.
 - Moving the cursor into a fold (find, find and replace, search in note, jump to a heading, a link to a section) opens it. Folding applies in writing and source modes and in the journal; the read-only view and exports show everything.
 
 ### 5.7 Tables
@@ -775,6 +780,8 @@ Every action below can be reassigned or cleared in Settings → Shortcuts, which
 | Fold or unfold here | Mod+' | same |
 | Fold (again: the container) / Unfold | Mod+Alt+↑ / Mod+Alt+↓ | same |
 | Fold all, Unfold all | none | none |
+| Cycle a section / the whole note (on a heading line) | Tab / Shift+Tab | same |
+| Fold below this level, Fold to level 1, 2, 3 | none | none |
 | Switch writing / reading | Mod+E | same |
 | Switch page / canvas | none | none |
 | Side panel | Mod+. | same |

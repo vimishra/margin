@@ -124,6 +124,8 @@ export interface Settings {
   carryTop3: boolean
   /** Show go/name and b/123 as links. */
   shortLinks: boolean
+  /** Tab and ⇧Tab on a heading line cycle its folding, and the note's, as org-mode does. */
+  headingTabFold: boolean
   /** Task filters saved from the Tasks view; they show under Tasks in the sidebar. */
   taskViews: SavedTaskView[]
   /** Write "@done(date)" on a task when it is ticked, for the Logbook. */
@@ -172,6 +174,7 @@ export const DEFAULT_SETTINGS: Settings = {
   meetingLink: true,
   carryTop3: true,
   shortLinks: true,
+  headingTabFold: true,
   taskViews: [],
   logCompletion: true,
   peopleFolder: 'People',

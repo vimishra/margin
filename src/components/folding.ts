@@ -18,7 +18,8 @@ export const foldOnlySectionsAndLists: MarkdownConfig = {
 /** Marks a change made from outside the editor (the note changed on disk, a task ticked in the Tasks view). */
 export const externalChange = Annotation.define<boolean>()
 
-type Saved = { n: number; t: string }[]
+/** A fold by its first line (number and text) and, when it stops before the end of its section, how many lines it covers. */
+type Saved = { n: number; t: string; e?: number }[]
 const KEY = 'folds'
 let saved: Record<string, Saved> | null = null
 const store = () => (saved ??= local.get<Record<string, Saved>>(KEY, {}))
@@ -28,9 +29,11 @@ const timers = new Map<string, ReturnType<typeof setTimeout>>()
 function save(state: EditorState, key: string) {
   const all = store()
   const folds: Saved = []
-  foldedRanges(state).between(0, state.doc.length, (from) => {
+  foldedRanges(state).between(0, state.doc.length, (from, to) => {
     const line = state.doc.lineAt(from)
-    folds.push({ n: line.number, t: line.text })
+    const whole = foldable(state, line.from, line.to)
+    const end = state.doc.lineAt(to).number
+    folds.push(whole && whole.to === to ? { n: line.number, t: line.text } : { n: line.number, t: line.text, e: end - line.number })
   })
   if (folds.length) all[key] = folds
   else delete all[key]
@@ -62,7 +65,10 @@ export function restoreFolds(view: EditorView, key: string) {
   const effects = []
   for (const f of folds) {
     const line = findLine(view.state, f)
-    const range = line && foldable(view.state, line.from, line.to)
+    const whole = line && foldable(view.state, line.from, line.to)
+    // A fold of only part of a section (a heading's own text) ends where it ended before, never past the section.
+    const range =
+      whole && f.e !== undefined ? { from: whole.from, to: Math.min(whole.to, view.state.doc.line(Math.min(view.state.doc.lines, line.number + f.e)).to) } : whole
     if (range && !(head > range.from && head < range.to)) effects.push(foldEffect.of(range))
   }
   if (effects.length) view.dispatch({ effects, annotations: externalChange.of(true) })
@@ -117,6 +123,157 @@ export function foldCommand(view: EditorView, kind: 'toggle' | 'fold' | 'unfold'
   const range = own || container(state, line.from)
   if (!range) return false
   fold(view, range)
+  return true
+}
+
+// ---------- Outline folding, as org-mode does it ----------
+
+interface Heading {
+  level: number
+  line: { from: number; to: number; number: number }
+}
+
+/** The note's headings in order (not ones inside code blocks), with their levels. */
+function headingsOf(state: EditorState): Heading[] {
+  const tree = ensureSyntaxTree(state, state.doc.length, 500) ?? syntaxTree(state)
+  const out: Heading[] = []
+  tree.iterate({
+    enter(node) {
+      const m = /^(?:ATX|Setext)Heading(\d)$/.exec(node.name)
+      if (m) {
+        const line = state.doc.lineAt(node.from)
+        out.push({ level: Number(m[1]), line: { from: line.from, to: line.to, number: line.number } })
+        return false
+      }
+      return undefined
+    },
+  })
+  return out
+}
+
+/** The text under a heading before the next heading of any level, as a range to fold; null when there is none. */
+function ownText(state: EditorState, all: Heading[], i: number) {
+  const h = all[i]
+  const next = all[i + 1]
+  const end = next ? next.line.from - 1 : state.doc.length
+  const to = state.doc.lineAt(Math.max(h.line.to, end)).to
+  if (to <= h.line.to || !state.doc.sliceString(h.line.to, to).trim()) return null
+  // Keep one blank line before the next heading visible, as the section's own fold does.
+  let stop = to
+  while (stop > h.line.to && !state.doc.lineAt(stop).text.trim()) stop = state.doc.lineAt(stop).from - 1
+  return stop > h.line.to ? { from: h.line.to, to: stop } : null
+}
+
+const sameSet = (a: { from: number; to: number }[], b: { from: number; to: number }[]) =>
+  a.length === b.length && a.every((r) => b.some((x) => x.from === r.from && x.to === r.to))
+
+const allFolds = (state: EditorState) => {
+  const out: { from: number; to: number }[] = []
+  foldedRanges(state).between(0, state.doc.length, (from, to) => {
+    out.push({ from, to })
+  })
+  return out
+}
+
+/** Replace every fold with these; if the cursor would be hidden it moves to the visible line the fold starts on. */
+function setFolds(view: EditorView, ranges: { from: number; to: number }[]) {
+  const head = view.state.selection.main.head
+  const hiding = ranges.find((r) => head > r.from && head <= r.to)
+  view.dispatch({
+    effects: [...allFolds(view.state).map((r) => unfoldEffect.of(r)), ...ranges.map((r) => foldEffect.of(r))],
+    selection: hiding ? { anchor: hiding.from } : undefined,
+    scrollIntoView: true,
+  })
+}
+
+/**
+ * The folds that show every heading down to `level` and hide the rest: a heading at that level folds its whole
+ * section; one above it folds only its own text, so the headings under it stay in view.
+ */
+function foldsToLevel(state: EditorState, level: number) {
+  const all = headingsOf(state)
+  const out: { from: number; to: number }[] = []
+  all.forEach((h, i) => {
+    if (h.level > level) return
+    const range = h.level === level ? foldable(state, h.line.from, h.line.to) : ownText(state, all, i)
+    if (range) out.push(range)
+  })
+  return out
+}
+
+/** Show the headings down to `level` and fold everything below them. */
+export function foldToLevel(view: EditorView, level: number): boolean {
+  if (!headingsOf(view.state).length) return false
+  setFolds(view, foldsToLevel(view.state, level))
+  return true
+}
+
+/** The heading the cursor is on, or else the one whose section it is in. */
+function headingAt(state: EditorState, pos: number) {
+  const all = headingsOf(state)
+  let found: Heading | undefined
+  for (const h of all) if (h.line.from <= pos) found = h
+  return found
+}
+
+/** Keep headings down to the level of the heading the cursor is in, and fold everything deeper. */
+export function foldBelowHere(view: EditorView): boolean {
+  const h = headingAt(view.state, view.state.selection.main.head)
+  return h ? foldToLevel(view, h.level) : false
+}
+
+/** The heading on the cursor's line, if the line is one and nothing is selected. */
+function headingOnCursorLine(state: EditorState) {
+  const sel = state.selection.main
+  if (!sel.empty) return null
+  const line = state.doc.lineAt(sel.head)
+  const all = headingsOf(state)
+  const i = all.findIndex((h) => h.line.from === line.from)
+  return i < 0 ? null : { all, i }
+}
+
+/**
+ * Tab on a heading, as org-mode's TAB: folded → its subheadings showing, each folded → everything open → folded.
+ * A section with no subheadings goes straight from folded to open. Returns false off a heading line, or on a
+ * heading with nothing under it, so Tab keeps its usual job there.
+ */
+export function cycleSection(view: EditorView): boolean {
+  const at = headingOnCursorLine(view.state)
+  if (!at) return false
+  const { state } = view
+  const { all, i } = at
+  const h = all[i]
+  const whole = foldable(state, h.line.from, h.line.to)
+  if (!whole) return false
+  const inside = allFolds(state).filter((r) => r.from >= whole.from && r.from <= whole.to)
+  const ownFold = inside.find((r) => r.from === whole.from)
+  // Direct children: the headings inside the section one level down from it (the shallowest present).
+  const below = all.slice(i + 1).filter((x) => x.line.from <= whole.to && x.level > h.level)
+  const childLevel = Math.min(...below.map((x) => x.level))
+  const children = below.filter((x) => x.level === childLevel).map((x) => foldable(state, x.line.from, x.line.to)).filter((r): r is { from: number; to: number } => !!r)
+  const keepOthers = allFolds(state).filter((r) => r.from < whole.from || r.from > whole.to)
+  const apply = (inSection: { from: number; to: number }[]) => setFolds(view, [...keepOthers, ...inSection])
+  if (ownFold) apply(children)
+  else if (children.length && sameSet(inside, children)) apply([])
+  else apply([whole])
+  return true
+}
+
+/**
+ * ⇧Tab on a heading, as org-mode's S-TAB, for the whole note: only the top headings → every heading, no text →
+ * everything open → only the top headings. Returns false off a heading line, so ⇧Tab keeps its usual job there.
+ */
+export function cycleNote(view: EditorView): boolean {
+  if (!headingOnCursorLine(view.state)) return false
+  const { state } = view
+  const top = Math.min(...headingsOf(state).map((h) => h.level))
+  const overview = foldsToLevel(state, top)
+  const contents = foldsToLevel(state, 6)
+  const now = allFolds(state)
+  // With headings all at one level the first two steps are the same, so it goes straight to everything open.
+  if (now.length && sameSet(now, overview)) setFolds(view, sameSet(overview, contents) ? [] : contents)
+  else if (now.length && sameSet(now, contents)) setFolds(view, [])
+  else setFolds(view, overview)
   return true
 }
 

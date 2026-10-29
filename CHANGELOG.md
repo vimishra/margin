@@ -2,6 +2,15 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.21.0 (2026-10-29)
+
+### Added
+
+- **Folding by outline, as in org-mode.** On a heading line, **Tab** cycles that section: folded → its subheadings → everything; **⇧Tab** cycles the whole note: top headings → every heading → everything. Elsewhere Tab and ⇧Tab still nest list items. **Settings → Editor → Tab folds headings** turns this off.
+- **Fold below this level** and **Fold to level 1, 2, 3** (⌘K and the Format menu): show the headings down to that level and fold the rest.
+- **`check_note.py`**, a checker for a note that will not open: it reports anything unusual in the file (encoding, odd characters, very long lines, a code block or comment left open, deep nesting, a second file with the same note id) as counts and line numbers only, never the text. It ships inside the app; see "If something goes wrong" in the user guide.
+- A note opened again keeps folds that hide a heading's own text but not its subheadings, as the "every heading" view uses.
+
 ## 1.20.0 (2026-10-29)
 
 ### Added

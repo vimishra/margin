@@ -144,6 +144,8 @@ export function commands(): Command[] {
       { id: 'unfold', label: 'Unfold', icon: i(ChevronsUpDown), keywords: 'expand show section heading list', run: () => format('unfold') },
       { id: 'foldAll', label: 'Fold all sections and lists', icon: i(ChevronsDownUp), keywords: 'collapse everything outline overview', run: () => format('foldAll') },
       { id: 'unfoldAll', label: 'Unfold all', icon: i(ChevronsUpDown), keywords: 'expand everything show', run: () => format('unfoldAll') },
+      { id: 'foldBelow', label: 'Fold below this level', icon: i(ChevronsDownUp), keywords: 'collapse outline org headings depth deeper', run: () => format('foldBelow') },
+      ...[1, 2, 3].map((n) => ({ id: `foldLevel${n}`, label: `Fold to level ${n} (${['# headings only', '# and ## headings', '# to ### headings'][n - 1]})`, icon: i(ChevronsDownUp), keywords: 'collapse outline org headings depth overview', run: () => format(`foldLevel${n}`) })),
       { id: 'mode', label: s.mode === 'read' ? 'Switch to writing' : 'Switch to reading', icon: i(BookOpen), hint: `${MOD}E`, keywords: 'preview edit', run: toggleMode },
       { id: 'view', label: note.view === 'canvas' ? 'Show page' : 'Show canvas', icon: i(LayoutDashboard), keywords: 'board', run: () => updateNote(note.id, { view: note.view === 'canvas' ? '' : 'canvas' }) },
       ...(daily ? [] : [{ id: 'rename', label: 'Rename this note…', icon: i(PenLine), keywords: 'title name', run: () => void renameNote(note.id) }]),

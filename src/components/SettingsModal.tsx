@@ -630,6 +630,9 @@ export function SettingsModal() {
                 <Row label="Auto-close brackets and quotes" hint="Typing ( [ { or a quote inserts the closing one too.">
                   <Toggle label="Auto-close brackets" value={s.autoPair} onChange={set('autoPair')} />
                 </Row>
+                <Row label="Tab folds headings" hint="As in org-mode: on a heading line, Tab cycles its section (folded, its subheadings, everything) and ⇧Tab cycles the whole note (top headings, all headings, everything). Elsewhere Tab and ⇧Tab work as usual. Off: they indent as on any other line.">
+                  <Toggle label="Tab folds headings" value={s.headingTabFold} onChange={set('headingTabFold')} />
+                </Row>
                 <Row label="Short links" hint="Show company short links written as plain text, such as go/some-name, b/1234567 and b/hotlists/1234567, as links that open in your browser. The text in the note is not changed.">
                   <Toggle label="Short links" value={s.shortLinks} onChange={set('shortLinks')} />
                 </Row>

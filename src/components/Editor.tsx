@@ -32,7 +32,7 @@ import { parseDatePhrase } from '../lib/dates'
 import { TASK_LINE, parseTaskText, withDetails } from '../lib/tasks'
 import { dailyLabel, isYmd, longDate, today, tagHue } from '../lib/util'
 import { livePreview } from './livePreview'
-import { externalChange, foldCommand, folding, foldOnlySectionsAndLists, restoreFolds } from './folding'
+import { cycleNote, cycleSection, externalChange, foldBelowHere, foldCommand, folding, foldOnlySectionsAndLists, foldToLevel, restoreFolds } from './folding'
 import { cellsFromClipboard, serializeTable, tableFromCells } from './tableWidget'
 import { type ListKind, moveListItem, shiftListItem, toggleDone, toggleList } from './lists'
 import { syntaxTree } from '@codemirror/language'
@@ -56,7 +56,7 @@ export interface EditorHandle {
   /** Open the find (and replace) bar, as ⌘F does in the editor. */
   find(): void
   /** Fold or unfold at the cursor, or all of the note. */
-  fold(kind: 'toggle' | 'fold' | 'unfold' | 'foldAll' | 'unfoldAll'): void
+  fold(kind: 'toggle' | 'fold' | 'unfold' | 'foldAll' | 'unfoldAll' | 'foldBelow' | 'level1' | 'level2' | 'level3'): void
 }
 
 interface Props {
@@ -483,8 +483,9 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
             ...historyKeymap,
             ...searchKeymap,
             ...defaultKeymap.filter((k) => k.key !== 'Mod-Enter' && k.key !== 'Mod-/'),
-            { key: 'Tab', run: (v) => shiftListItem(v, 1) },
-            { key: 'Shift-Tab', run: (v) => shiftListItem(v, -1) },
+            // On a heading line, Tab and ⇧Tab cycle folding as in org-mode (a setting); elsewhere they nest list items.
+            { key: 'Tab', run: (v) => (useStore.getState().settings.headingTabFold !== false && cycleSection(v)) || shiftListItem(v, 1) },
+            { key: 'Shift-Tab', run: (v) => (useStore.getState().settings.headingTabFold !== false && cycleNote(v)) || shiftListItem(v, -1) },
             indentWithTab,
           ]),
           EditorView.updateListener.of((u) => {
@@ -736,7 +737,11 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
     fold(kind) {
       const view = viewRef.current
       if (!view) return
-      if (!foldCommand(view, kind) && (kind === 'toggle' || kind === 'fold')) toast('Nothing to fold here: put the cursor on a heading or a list item with lines under it')
+      if (kind === 'foldBelow') {
+        if (!foldBelowHere(view)) toast('Nothing to fold by level: put the cursor on a heading, or in a section under one')
+      } else if (kind === 'level1' || kind === 'level2' || kind === 'level3') {
+        if (!foldToLevel(view, Number(kind.slice(5)))) toast('This note has no headings to fold by level')
+      } else if (!foldCommand(view, kind) && (kind === 'toggle' || kind === 'fold')) toast('Nothing to fold here: put the cursor on a heading or a list item with lines under it')
       view.focus()
     },
   }))

@@ -356,6 +356,10 @@ function buildMenu() {
         cmd('Unfold', 'unfold'),
         cmd('Fold All', 'foldAll'),
         cmd('Unfold All', 'unfoldAll'),
+        cmd('Fold Below This Level', 'foldBelow'),
+        cmd('Fold to Level 1', 'foldLevel1'),
+        cmd('Fold to Level 2', 'foldLevel2'),
+        cmd('Fold to Level 3', 'foldLevel3'),
       ],
     },
     {
