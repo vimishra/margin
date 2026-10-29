@@ -335,31 +335,40 @@ A project is anything with more than one step that ends when an outcome is reach
 
 #### Shaping a project note
 
-A shape that works, for a project called *Atlas launch* in `Work`:
+A shape that works, for a project note called *Project Goldilocks* in `Work`, with its to-dos in one part and its background in another:
 
 ```markdown
-Outcome: Atlas is live for all EU customers by 30 Nov.
+Outcome: 1.0 schedule and resourcing agreed by 15 Nov.
 
-## Plan
-- [ ] Draft the rollout plan @due(2026-11-07)
-- [ ] Review with Priya >2026-11-10
+## Tasks
+### Close the schedule with the new feature list
+- [ ] Review the final feature list
+- [ ] Close the 0.2 milestone schedule
+- [ ] Close the 0.5 milestone schedule
+- [ ] Close the 1.0 milestone schedule @due(2026-11-15)
+### Close the resourcing
+- [ ] Close the resourcing for feature A
+- [ ] Close the resourcing for feature B
+### Open Threads
 
-## Build
-- [ ] Migrate the billing tables
-  Needs the new schema first; see [[Billing schema]]
-
-## Open Threads
-- [ ] Ask legal about the DPA
+## Notes
+### Feature A details
+### Feature B details
 
 ## Log
-- 29 Oct: kicked off with Sam and Priya
+- 29 Oct: feature list frozen for 1.0
 ```
 
+- **No title heading.** The note's title is already its name, shown above the page and used as the file name, so a `# Project Goldilocks` line would only repeat it.
 - **Outcome first,** in one line: what "done" means. It is what makes the note a project rather than a list.
-- **A heading for each phase or part,** as Things uses headings. Most tasks need no date: they wait in Anytime. Plan only the next one or two with a day (`>date`), so Today stays short.
-- **Open Threads** is where **M** files tasks from the Inbox, so it works as the project's own inbox. Sort its tasks into the phases now and then.
+- **A `###` heading for each phase under Tasks,** as Things uses headings. In the Tasks view each task shows its heading (*Project Goldilocks › Close the resourcing*), and grouped by Project the tasks are listed under these headings. Most tasks need no date: they wait in Anytime. Plan only the next one or two with a day (`>date`), so Today stays short.
+- **Open Threads inside Tasks.** **M** files a task under the note's Open Threads heading, at whatever level it is, so filed tasks land next to the others; sort them into the phases now and then. Without one, Margin adds `## Open Threads` at the end of the note, below the notes.
+- **Notes** for background, one `###` per topic. A task about one feature can also sit under its notes; it still belongs to the project and shows that heading in the Tasks view.
 - **Log** for decisions and dated context, newest last, so the note is the project's whole memory, not only its to-do list.
-- **The deadline** goes on the task that marks the end (`- [ ] Launch @due(2026-11-30)`). It shows in This week and Next 30 days as it comes near, joins Today on the day, and is marked overdue if it slips.
+- **The deadline** goes on the task that marks the end, here the 1.0 schedule. It shows in This week and Next 30 days as it comes near, joins Today on the day, and is marked overdue if it slips.
+- **Fold what you are not working on:** fold `## Notes` while going through the tasks, or a phase once it is done (⌘', or the arrow beside the heading).
+
+To reuse the shape, save it without the details as a note called *Project* in the Templates notebook, and start each project with ⌘K → "New note from a template".
 
 To start a project, make the note in its area's notebook, or press **M** on an Inbox task and type a new name: Margin makes the note with an Open Threads heading and the task under it. How to keep projects moving week to week is in the [theory of operations](operations.md#tasks-projects).
 
