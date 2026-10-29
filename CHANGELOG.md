@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.19.2 (2026-10-29)
+
+### Changed
+
+- **Areas and projects stand out in the Tasks view,** grouped by Project, as in Things: each notebook is a heading with a box icon, each project's name is bold and larger than its tasks beside a blue progress circle, and the headings inside a project are bold and blue, with an icon for a section, a meeting or a day. Grouped any other way, the note a task is in is shown under it with a note icon, a little darker than before.
+
 ## 1.19.1 (2026-10-29)
 
 ### Fixed
