@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.19.1 (2026-10-29)
+
+### Fixed
+
+- **Quick capture and Quick task follow the text settings.** What you type there now uses the note font, size and weight from Settings → Appearance, so it matches your notes instead of being a fixed, larger size.
+
 ## 1.19.0 (2026-10-25)
 
 ### Added
