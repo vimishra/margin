@@ -55,6 +55,8 @@ export interface EditorHandle {
   upload(files: File[]): void
   /** Open the find (and replace) bar, as ⌘F does in the editor. */
   find(): void
+  /** The selection in the page, and the cursor's line (0-based), for reorganising notes. */
+  selection(): { from: number; to: number; line: number } | null
   /** Fold or unfold at the cursor, or all of the note. */
   fold(kind: 'toggle' | 'fold' | 'unfold' | 'foldAll' | 'unfoldAll' | 'foldBelow' | 'level1' | 'level2' | 'level3'): void
 }
@@ -733,6 +735,12 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
     },
     upload(files) {
       if (viewRef.current) uploadInto(viewRef.current, files)
+    },
+    selection() {
+      const view = viewRef.current
+      if (!view) return null
+      const sel = view.state.selection.main
+      return { from: sel.from, to: sel.to, line: view.state.doc.lineAt(sel.head).number - 1 }
     },
     fold(kind) {
       const view = viewRef.current

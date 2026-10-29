@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import type { ReactNode } from 'react'
 import { api } from './api'
 import { shortLinks } from './lib/shortlinks'
+import { sinkInText } from './lib/archive'
 import { addToTop3, takeUnfinishedTop3 } from './lib/top3'
 import { desktop } from './desktop'
 import type { Note, NotePatch, NoteType, Route } from './types'
@@ -130,6 +131,12 @@ export interface Settings {
   taskViews: SavedTaskView[]
   /** Write "@done(date)" on a task when it is ticked, for the Logbook. */
   logCompletion: boolean
+  /** A ticked task (with the lines under it) moves to the end of its list. */
+  sinkDoneTasks: boolean
+  /** "Archive done tasks in all notes" takes tasks done at least this many days ago. */
+  archiveAfterDays: number
+  /** The notebook a finished project note is moved into, keeping its own notebook inside it. */
+  archiveFolder: string
   /** Notebook for notes about people (1:1s). */
   peopleFolder: string
 }
@@ -177,6 +184,9 @@ export const DEFAULT_SETTINGS: Settings = {
   headingTabFold: true,
   taskViews: [],
   logCompletion: true,
+  sinkDoneTasks: true,
+  archiveAfterDays: 7,
+  archiveFolder: 'Archive',
   peopleFolder: 'People',
 }
 
@@ -221,7 +231,14 @@ export function fontCss(family: string, mono = false): string {
   return `"${family.replace(/["\\]/g, '')}", ${fallback}`
 }
 
-export type PaletteState = null | { mode: 'search' | 'move' | 'template' | 'outline' | 'tag' | 'moveTask'; noteId?: string; query?: string; task?: Task }
+export type PaletteState = null | {
+  mode: 'search' | 'move' | 'template' | 'outline' | 'tag' | 'moveTask' | 'moveSection' | 'merge'
+  noteId?: string
+  query?: string
+  task?: Task
+  /** For moveSection: the section's heading line in the page, and its title, to find it again. */
+  section?: { line: number; title: string }
+}
 
 interface State {
   loaded: boolean
@@ -1306,8 +1323,10 @@ export function rescheduleTasks(tasks: Task[], date: string) {
 /** Tick a task, or change its text, wherever it lives. */
 export function updateTask(task: Task, change: { done?: boolean; raw?: string }) {
   const note = get().notes[task.noteId]
-  const content = note && rewriteTask(note.content, task, { ...change, stamp: get().settings.logCompletion })
+  let content = note && rewriteTask(note.content, task, { ...change, stamp: get().settings.logCompletion })
   if (!note || content == null) return toast('That task has changed since this list was drawn. Try again.')
+  // Ticked: to the end of its list, with the lines under it, so the open ones stay together.
+  if (change.done && get().settings.sinkDoneTasks) content = sinkInText(content, task.line)
   updateNote(note.id, { content })
 }
 

@@ -40,8 +40,10 @@ import {
 } from 'lucide-react'
 import type { Note } from '../types'
 import { timeNow, deleteNote, duplicateNote, go, openDaily, openMenu, openSide, pageWidthMenu, setActivePane, setPref, swapPanes, toast, ui, updateNote, useStore, type Mode, type Settings, fontCss } from '../store'
+import { extractToNote, pickSectionTarget } from '../refactor'
+import { archiveHere } from '../archive'
 import { joinContent, splitContent } from '../lib/canvas'
-import { tagsOf } from '../lib/links'
+import { tagCounts, tagsOf } from '../lib/links'
 import { ALT, MOD, addDays, cx, dailyLabel, displayTitle, expiresIn, isYmd, today, tagStyle } from '../lib/util'
 import { copyRichText, exportHtml, exportMarkdown, exportPdf, exportWord } from '../lib/export'
 import { Editor, type EditorHandle } from './Editor'
@@ -113,12 +115,30 @@ function exportItems(note: Note) {
 
 function Tags({ note }: { note: Note }) {
   const [draft, setDraft] = useState('')
+  const [open, setOpen] = useState(false)
+  const [active, setActive] = useState(0)
+  const notes = useStore((s) => s.notes)
   const inline = tagsOf(note).filter((t) => !note.tags.includes(t))
-  const add = () => {
-    const tag = draft.trim().replace(/^#/, '').replace(/\s+/g, '-')
+  const clean = (s: string) => s.trim().replace(/^#/, '').replace(/\s+/g, '-')
+  const add = (value = draft) => {
+    const tag = clean(value)
     setDraft('')
+    setActive(0)
     if (tag && !note.tags.includes(tag)) updateNote(note.id, { tags: [...note.tags, tag] })
   }
+  // The tags already used in your notes, most used first, narrowed as you type: ones that start with what you typed,
+  // then ones that contain it. What you typed is offered as a new tag when no tag is called exactly that.
+  const typed = clean(draft).toLowerCase()
+  const suggestions = useMemo(() => {
+    const own = new Set([...note.tags, ...inline].map((t) => t.toLowerCase()))
+    const all = tagCounts(notes).filter(([t]) => !own.has(t.toLowerCase()))
+    const starts = all.filter(([t]) => t.toLowerCase().startsWith(typed))
+    const contains = typed ? all.filter(([t]) => !t.toLowerCase().startsWith(typed) && t.toLowerCase().includes(typed)) : []
+    return [...starts, ...contains].slice(0, 8)
+  }, [notes, note, typed])
+  const offerNew = !!typed && !tagCounts(notes).some(([t]) => t.toLowerCase() === typed) && !note.tags.some((t) => t.toLowerCase() === typed)
+  const choices: { tag: string; count?: number; isNew?: boolean }[] = [...suggestions.map(([tag, count]) => ({ tag, count })), ...(offerNew ? [{ tag: clean(draft), isNew: true }] : [])]
+  const shown = open && choices.length > 0
   return (
     <div className="tags-row">
       {note.tags.map((t) => (
@@ -136,21 +156,68 @@ function Tags({ note }: { note: Note }) {
           #{t}
         </button>
       ))}
-      <input
-        className="tag-input"
-        value={draft}
-        placeholder={note.tags.length || inline.length ? 'Add tag' : '+ Add tag'}
-        onChange={(e) => setDraft(e.target.value)}
-        onBlur={add}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ',' || e.key === ' ') {
-            e.preventDefault()
+      <span className="tag-add">
+        <input
+          className="tag-input"
+          value={draft}
+          placeholder={note.tags.length || inline.length ? 'Add tag' : '+ Add tag'}
+          role="combobox"
+          aria-expanded={shown}
+          onFocus={() => setOpen(true)}
+          onChange={(e) => {
+            setDraft(e.target.value)
+            setActive(0)
+            setOpen(true)
+          }}
+          onBlur={() => {
+            setOpen(false)
             add()
-          } else if (e.key === 'Backspace' && !draft && note.tags.length) {
-            updateNote(note.id, { tags: note.tags.slice(0, -1) })
-          }
-        }}
-      />
+          }}
+          onKeyDown={(e) => {
+            if (shown && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+              e.preventDefault()
+              setActive((a) => (a + (e.key === 'ArrowDown' ? 1 : choices.length - 1)) % choices.length)
+            } else if ((e.key === 'Enter' || e.key === 'Tab') && shown && (draft || e.key === 'Enter')) {
+              // The highlighted suggestion; Tab only completes once something is typed, so it still moves on otherwise.
+              e.preventDefault()
+              add(choices[Math.min(active, choices.length - 1)].tag)
+            } else if (e.key === 'Enter' || e.key === ',' || e.key === ' ') {
+              e.preventDefault()
+              add()
+            } else if (e.key === 'Escape' && (shown || draft)) {
+              e.preventDefault()
+              e.stopPropagation()
+              setDraft('')
+              setOpen(false)
+            } else if (e.key === 'Backspace' && !draft && note.tags.length) {
+              updateNote(note.id, { tags: note.tags.slice(0, -1) })
+            }
+          }}
+        />
+        {shown && (
+          <div className="tag-suggest" role="listbox">
+            {choices.map((c, i) => (
+              <button
+                key={c.tag + (c.isNew ? ':new' : '')}
+                role="option"
+                aria-selected={i === active}
+                className={cx('tag-suggest-item', i === active && 'active')}
+                // Chosen on mouse-down, before the box loses focus.
+                onMouseDown={(e) => {
+                  e.preventDefault()
+                  add(c.tag)
+                }}
+                onMouseMove={() => i !== active && setActive(i)}
+              >
+                <span className="chip tag" style={tagStyle(c.tag)}>
+                  #{c.tag}
+                </span>
+                <span className="tag-suggest-meta">{c.isNew ? 'new tag' : `${c.count} note${c.count === 1 ? '' : 's'}`}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </span>
     </div>
   )
 }
@@ -292,6 +359,9 @@ export function applyFormat(ed: EditorHandle, kind: string) {
     foldAll: () => ed.fold('foldAll'),
     unfoldAll: () => ed.fold('unfoldAll'),
     foldBelow: () => ed.fold('foldBelow'),
+    extract: () => void extractToNote(ed.selection()),
+    archiveSection: () => archiveHere('section', ed.selection()?.line ?? 0),
+    moveSection: () => pickSectionTarget(ed.selection()?.line ?? 0),
     foldLevel1: () => ed.fold('level1'),
     foldLevel2: () => ed.fold('level2'),
     foldLevel3: () => ed.fold('level3'),

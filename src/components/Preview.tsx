@@ -2,6 +2,7 @@ import { memo, useEffect, useMemo, useRef } from 'react'
 import { renderMarkdown, toggleTask } from '../lib/markdown'
 import { resolver, titlesKey } from '../lib/links'
 import { createNote, go, openNote, openSide, ui, useStore, ensureDaily } from '../store'
+import { changedLine, sinkInText } from '../lib/archive'
 import { isYmd } from '../lib/util'
 import { openDaily } from '../store'
 
@@ -81,7 +82,10 @@ export const Preview = memo(function Preview({ source, className, onChange }: Pr
     if (el instanceof HTMLInputElement && el.type === 'checkbox') {
       if (!onChange) return e.preventDefault()
       const boxes = [...ref.current!.querySelectorAll('input[type=checkbox]')]
-      onChange(toggleTask(source, boxes.indexOf(el), useStore.getState().settings.logCompletion))
+      const s = useStore.getState().settings
+      const next = toggleTask(source, boxes.indexOf(el), s.logCompletion)
+      // Ticked: to the end of its list, as in the editor.
+      onChange(el.checked && s.sinkDoneTasks ? sinkInText(next, changedLine(source, next)) : next)
     }
   }
 

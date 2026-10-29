@@ -3,6 +3,7 @@ import { AlignLeft, Archive, BookmarkPlus, Box, CalendarClock, CalendarDays, Che
 import type { Note } from '../types'
 import { deleteTaskView, go, openDatePicker, openFromClick, openMenu, openNoteAt, openSideAt, renameTaskView, rescheduleTasks, saveTaskView, ensureInboxNote, inboxNotebook, moveTasksToNote, ui, updateTask, updateTaskView, useStore, type MenuItem } from '../store'
 import { hint } from '../shortcuts'
+import { archiveEverywhere } from '../archive'
 import { renderInline, renderMarkdown } from '../lib/markdown'
 import { PRIORITIES, TASK_FILTERS, TASK_LINE, TASK_SOURCES, allTasks, byUrgency, isCarried, isOn, isOverdue, isToday, nextDate, priorityLabel, projectsOf, sameNotebook, selectTasks, shortDate, weekRange, withDetails, within, type ProjectFolders, type Task, type TaskFilter, type TaskGroup, type TaskSource, type TaskView } from '../lib/tasks'
 import { addDays, cx, displayTitle, firstWeekday, local, today, tagStyle } from '../lib/util'
@@ -484,6 +485,14 @@ export function TasksView({ view }: { view?: string }) {
             </span>
             <button className="btn sm" title="Move them to the end of the Inbox note, with Undo" onClick={() => void moveStrays()}>
               <FolderInput size={13} /> Move them into Inbox
+            </button>
+          </div>
+        )}
+        {filter === 'done' && (
+          <div className="task-bulk quiet">
+            <span>Ticked tasks stay in their notes. Archiving moves them to an Archive section at the end of each note, out of the way; they stay listed here.</span>
+            <button className="btn sm" title={`Tasks ticked at least ${settings.archiveAfterDays ?? 7} days ago, in every note but daily notes and templates. Asks first, with Undo.`} onClick={() => void archiveEverywhere()}>
+              <Archive size={13} /> Archive done tasks…
             </button>
           </div>
         )}

@@ -12,6 +12,7 @@ import { ui, useStore } from '../store'
 import { TASK_TOKENS, lineDoneChanges } from '../lib/tasks'
 import { shortLinkHref, shortLinkPattern, shortLinks } from '../lib/shortlinks'
 import { today } from '../lib/util'
+import { sinkTicked } from './lists'
 
 const setFocus = StateEffect.define<boolean>()
 const focusField = StateField.define<boolean>({
@@ -188,6 +189,8 @@ class CheckboxWidget extends WidgetType {
       const edits = lineDoneChanges(line.text, text === '[ ]', useStore.getState().settings.logCompletion)
       if (edits) view.dispatch({ changes: edits.map((x) => ({ from: line.from + x.from, to: line.from + x.to, insert: x.insert })) })
       else view.dispatch({ changes: { from: pos, to: pos + 3, insert: text === '[ ]' ? '[x]' : '[ ]' } })
+      // Ticked: to the end of its list, so the open ones stay together.
+      if (text === '[ ]' && useStore.getState().settings.sinkDoneTasks) sinkTicked(view, [line.number])
     })
     return box
   }

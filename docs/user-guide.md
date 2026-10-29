@@ -329,7 +329,7 @@ Margin follows Things 3 here, with notes instead of a separate task database:
 | Moving an Inbox to-do into a project | **M** in the Tasks view: it goes under the project note's **Open Threads** heading |
 | A project's to-dos in one place | The Tasks view grouped by **Project**, with a circle that fills as they are ticked |
 | A project deadline | `@due(…)` on the one task that means the project is done |
-| Completing a project | Tick its last tasks, then move the note to an **Archive** notebook |
+| Completing a project | Tick its last tasks, then **Move this note to the Archive** (⌘K) |
 
 A project is anything with more than one step that ends when an outcome is reached. A project note is more than a task list: decisions, links and background go in the same note, around the tasks.
 
@@ -746,7 +746,7 @@ Each one has a source link, a status (Unread, Reading, Done), and sections for a
 For what each of these is for, see [How Margin is organised, and why](#how-margin-is-organised-and-why). This section is the how-to.
 
 - **Notebooks** are folders, and can be nested. Right-click one to add a note, add a notebook inside it, rename or delete it. Drag a note from a list onto a notebook to move it.
-- **Tags:** add them under the title, or write `#tag` in the text. Click a tag to see everything with it. ⌘T adds a tag to the note you are in: the tags you already use are listed and narrow as you type, Enter picks the highlighted one, and a name that does not exist yet is offered as a new tag. Several words separated by spaces add several tags. Every tag has its own colour, chosen automatically from its name, and keeps it everywhere: under the title, in the text, in the sidebar and in the Tasks view. Nested tags such as `work/atlas` share the colour of their first part.
+- **Tags:** add them under the title, or write `#tag` in the text. The **Add tag** box under the title suggests the tags you already use, most used first, narrowing as you type; ↑ ↓ choose, Enter or Tab adds the highlighted one, and a name no note has yet is offered as a new tag. Click a tag to see everything with it. ⌘T adds a tag to the note you are in: the tags you already use are listed and narrow as you type, Enter picks the highlighted one, and a name that does not exist yet is offered as a new tag. Several words separated by spaces add several tags. Every tag has its own colour, chosen automatically from its name, and keeps it everywhere: under the title, in the text, in the sidebar and in the Tasks view. Nested tags such as `work/atlas` share the colour of their first part.
 - **Notebook tags:** right-click a notebook and choose **Tags for notes here…** to give it tags, such as `#meeting` for Meetings.
   - A note created in the notebook, or moved into it, gets those tags written into the note itself, alongside the ones you add by hand.
   - Notebooks inside it inherit them.
@@ -757,6 +757,17 @@ For what each of these is for, see [How Margin is organised, and why](#how-margi
 - **Move** a note with ⌥M, or by clicking its notebook name above the title.
 
 Lists of notes can be filtered (press `/`) and sorted. ↑ and ↓ move through a list; Enter opens.
+
+### Reorganising notes
+
+As notes grow, parts of them want to become notes of their own, or two notes turn out to be one. Four commands in ⌘K do this for you, so nothing has to be cut, pasted and relinked by hand. Each ends with a message that has **Undo**, which puts every note involved back as it was (as long as none of them has been edited since), and every change is also in version history.
+
+- **Extract to a new note.** Select some text and choose *Extract to a new note*: it moves into a new note beside this one (you choose the title), and a `[[link]]` to it takes its place. With nothing selected, it extracts the section the cursor is in: everything under its heading moves out, its subheadings start at `##` in the new note, and the heading stays here with the link under it. The title offered is the heading's text, or the first line of the selection.
+- **Move this section to another note.** Put the cursor anywhere in a section and choose *Move this section to another note…*. Pick the note from the list, or type a new name to make one (`Notebook/Name` for another notebook). The heading and everything under it go to the end of that note and leave this one.
+- **Turn this note into a notebook.** For a note that has grown into several topics. It makes a notebook named after the note (inside the note's own notebook) with one note for each top-level heading, each holding what was under that heading. The note itself moves in as the overview: it keeps its title, so links to it keep working, keeps the text above its first heading, and gets a list of links to the new notes. A message first says how many notes it will make and what they are called. A note whose title is already used elsewhere gets the original note's name after it, as in *Risks (Alpha)*, so links stay unambiguous.
+- **Merge this note into another.** Pick the note it goes into: this note's text is added at the end of that one, under a heading with this note's title (its own headings move down a level to sit under it), the other note takes on its tags, every `[[link]]` to it in your notes now points at the other note, and this note goes to the trash. A note with a canvas cannot be merged; move its cards first.
+
+Each can have a shortcut in Settings → Shortcuts.
 
 ## Two notes side by side
 
@@ -800,6 +811,8 @@ Everything about deciding what to do and when: what a task is, its priority and 
 A task is a checkbox: `- [ ] Send the proposal`. Type `/task`, press ⌘⇧9, or write it by hand, or capture one from anywhere with **Quick task** (⌘⌥C; see [Quick task](#quick-task)). Tasks can live in any note. To tick or untick the task the cursor is on, press ⌘↵ or click its box; with several lines selected, ⌘↵ ticks them all.
 
 Ticking a task writes the day on its line, `@done(2026-10-07)`, so the Logbook can show when it was done. Unticking takes it off again. Turn this off in Settings → General → **Record when tasks are done**.
+
+A ticked task also **moves to the end of its list**, with everything indented under it (its notes and sub-items), so the open tasks stay together at the top and the finished ones collect below them, newest last. This happens wherever you tick: in the note, in the Tasks view, or in the reading view. Unticking leaves the task where it is. Turn it off in Settings → General → **Move ticked tasks to the end of their list**.
 
 The lists work the way they do in Things 3:
 
@@ -912,6 +925,18 @@ Under **Tasks** in the sidebar are Inbox, Today, Upcoming, Anytime, Someday and 
 2. Click **Save filter** and give it a name.
 
 It appears under Tasks in the sidebar with a live count. Open it and change anything, and an **Update filter** button appears to keep the change. The ⋯ button, or a right-click in the sidebar, renames or deletes it. Saved filters are kept with your settings, so they belong to this app on this computer.
+
+### Archiving finished tasks
+
+Ticked tasks stay in their notes, struck through, and the **Logbook** lists them all with the day each was done. To clear them out of the way in a note, archive them: they move into an **Archive** section at the end of the same note, which opens folded, and they stay in the Logbook. Nothing is archived unless you ask.
+
+- **Archive done tasks in this section** (⌘K): the ticked tasks under the heading the cursor is in. Together with ticked tasks sinking to the end of their list, this is the routine: work down a list, then archive what collected at its end.
+- **Archive done tasks in this note** (⌘K): every ticked task in the note.
+- **Archive done tasks in all notes…** (⌘K, or the button at the top of the Logbook): tasks ticked at least a week ago in every note except daily notes and templates. It says how many tasks in how many notes before it does anything. Change "a week" in Settings → General → **Archive tasks done this many days ago**.
+
+In the Archive, tasks are filed under a `###` heading with the name of the section they came from, so `## Phase one` tasks end up under `## Archive` › `### Phase one`. A ticked task takes the lines indented under it along, but only when everything under it is finished: a ticked task with an open sub-task stays, so the open one does not disappear from view, and a ticked sub-task under an open task stays with its parent. Each archive has **Undo**.
+
+**Finished projects.** When a project is done, **Move this note to the Archive** (⌘K) moves its note into the **Archive** notebook, keeping its area: `Work/Atlas` goes to `Archive/Work/Atlas`. If it still has open tasks, Margin asks first; they move with it and keep showing in your task lists, so tick them or move them elsewhere with **M**. The notebook's name is a setting (Settings → General → **Archive notebook**). Undo moves it back.
 
 ### Moving overdue tasks
 

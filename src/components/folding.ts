@@ -45,6 +45,14 @@ function saveSoon(state: EditorState, key: string) {
   timers.set(key, setTimeout(() => save(state, key), 300))
 }
 
+/** Remember a fold on a note's line (1-based) without an editor, so the note opens with it folded. */
+export function rememberFold(key: string, n: number, t: string) {
+  const all = store()
+  const folds = all[key] ?? []
+  if (!folds.some((f) => f.t === t)) all[key] = [...folds, { n, t }]
+  local.set(KEY, all)
+}
+
 /** The line a saved fold starts on: the same line if its text is unchanged, else the nearest line with that text. */
 function findLine(state: EditorState, f: { n: number; t: string }) {
   const { doc } = state

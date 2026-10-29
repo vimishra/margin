@@ -38,6 +38,8 @@ import {
   Zap,
   CalendarCheck,
   FolderPlus,
+  Combine,
+  Archive,
   Workflow,
   Heading,
   BookOpenText,
@@ -46,6 +48,8 @@ import {
   ChevronsDownUp,
   ChevronsUpDown,
 } from 'lucide-react'
+import { pickMergeTarget, turnIntoNotebook } from './refactor'
+import { archiveEverywhere, archiveHere, archiveProject } from './archive'
 import { addTag, closeAllTabs, closeOtherTabs, duplicateNote, renameNote, toast, askPageWidth, closeSide, createFolder, currentNote, openSide, swapPanes, importFromObsidian, carryTop3, newMeeting, newPerson, addMeetingEntry, deleteNote, go, newNote, openDaily, setPref, ui, updateNote, useStore } from './store'
 import { exportHtml, exportMarkdown, exportPdf, exportWord } from './lib/export'
 import { ALT, MOD } from './lib/util'
@@ -110,6 +114,7 @@ export function commands(): Command[] {
       keywords: 'go to list task saved filter',
       run: () => go({ name: 'tasks', view: `s:${v.id}` }),
     })),
+    { id: 'archiveAll', label: 'Archive done tasks in all notes…', icon: i(Archive), keywords: 'archive ticked completed finished tasks logbook clean tidy', run: () => void archiveEverywhere() },
     { id: 'all', label: 'Go to All notes', icon: i(Files), hint: `${ALT}A`, run: () => go({ name: 'all' }) },
     { id: 'goscratch', label: 'Go to Scratch', icon: i(Hourglass), run: () => go({ name: 'scratch' }) },
     { id: 'research', label: 'Go to Research', icon: i(BookMarked), hint: `${ALT}R`, run: () => go({ name: 'research' }) },
@@ -144,6 +149,13 @@ export function commands(): Command[] {
       { id: 'unfold', label: 'Unfold', icon: i(ChevronsUpDown), keywords: 'expand show section heading list', run: () => format('unfold') },
       { id: 'foldAll', label: 'Fold all sections and lists', icon: i(ChevronsDownUp), keywords: 'collapse everything outline overview', run: () => format('foldAll') },
       { id: 'unfoldAll', label: 'Unfold all', icon: i(ChevronsUpDown), keywords: 'expand everything show', run: () => format('unfoldAll') },
+      { id: 'extract', label: 'Extract to a new note', icon: i(FilePlus2), keywords: 'refactor split selection section move out link', run: () => format('extract') },
+      { id: 'moveSection', label: 'Move this section to another note…', icon: i(FolderInput), keywords: 'refactor heading section move', run: () => format('moveSection') },
+      ...(note.type === 'note' ? [{ id: 'toNotebook', label: 'Turn this note into a notebook…', icon: i(FolderPlus), keywords: 'refactor split sections headings folder notebook', run: () => void turnIntoNotebook() }] : []),
+      { id: 'archiveSection', label: 'Archive done tasks in this section', icon: i(Archive), keywords: 'archive ticked completed finished tasks heading clean tidy', run: () => format('archiveSection') },
+      { id: 'archiveNote', label: 'Archive done tasks in this note', icon: i(Archive), keywords: 'archive ticked completed finished tasks clean tidy', run: () => archiveHere('note') },
+      ...(note.type === 'note' ? [{ id: 'archiveProject', label: 'Move this note to the Archive', icon: i(Archive), keywords: 'archive project finished done complete notebook', run: () => void archiveProject() }] : []),
+      { id: 'merge', label: 'Merge this note into another…', icon: i(Combine), keywords: 'refactor combine join append', run: () => pickMergeTarget() },
       { id: 'foldBelow', label: 'Fold below this level', icon: i(ChevronsDownUp), keywords: 'collapse outline org headings depth deeper', run: () => format('foldBelow') },
       ...[1, 2, 3].map((n) => ({ id: `foldLevel${n}`, label: `Fold to level ${n} (${['# headings only', '# and ## headings', '# to ### headings'][n - 1]})`, icon: i(ChevronsDownUp), keywords: 'collapse outline org headings depth overview', run: () => format(`foldLevel${n}`) })),
       { id: 'mode', label: s.mode === 'read' ? 'Switch to writing' : 'Switch to reading', icon: i(BookOpen), hint: `${MOD}E`, keywords: 'preview edit', run: toggleMode },

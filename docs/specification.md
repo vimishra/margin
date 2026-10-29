@@ -1,6 +1,6 @@
 # Margin product specification
 
-This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.21.0.
+This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.22.0.
 
 It is written to be handed to a developer or a coding tool. Where a detail is a free choice for the implementer, it says so; everything else is a requirement.
 
@@ -341,7 +341,7 @@ An Emacs-style incremental search:
 - An inline tag is `#` followed by a letter and then letters, digits, `_`, `-` or `/`, preceded by start of line, whitespace or `(`. A `#` beginning a line is a heading. Tags inside code are ignored.
 - Nested tags use `/`.
 - **Every tag has a colour derived from its name,** the same everywhere it appears. Nested tags take the colour of their first segment. Hash the lower-cased first segment and spread the result around the hue wheel by the golden angle; text uses a dark shade on a light tint in the light theme and the reverse in the dark theme.
-- The tag row under a title shows frontmatter tags as removable chips, inline tags as outlined chips, and an input for adding one.
+- The tag row under a title shows frontmatter tags as removable chips, inline tags as outlined chips, and an input for adding one. While the input has focus it lists up to eight tags already in use that the note does not have, most used first with their counts: with text typed, tags starting with it, then tags containing it, then the typed text as a new tag if no tag has that name. ↑/↓ move, Enter or Tab (Tab only once text is typed) adds the highlighted one, a click adds one, Esc closes; Enter, comma or space with no list adds the typed text; Backspace in an empty input removes the last tag.
 - **Add a tag** (shortcut) opens a picker listing tags already in use, most used first with counts, narrowing as you type, prefix matches first. A name that matches nothing is offered as a new tag. Several words add several tags. It tags only the current note.
 
 ### 6.3 Notebook tags
@@ -585,6 +585,16 @@ When the app rewrites a task's details it writes: text, priority, planned day or
 
 - Ticking writes `@done(<today>)` at the end of the line; unticking removes it. Setting, on by default.
 - A selection that mixes ticked and unticked is all ticked; a fully ticked selection is cleared.
+- **Sinking** (setting, on): a task that is ticked (in the editor by its checkbox or the shortcut, in the Tasks view, or in the read-only view) moves, with its block (its line and the following non-blank lines indented more), to after the last of the list items that follow it at the same indent; the run of items ends at a blank line, a heading or a line indented less. Unticking does not move it. In the editor the move is a second change after the tick, and the cursor stays at its position, now on the next item. With several lines ticked at once, each is moved, lowest first.
+
+### 12.3a Archiving
+
+- **The Archive section** is the first heading named `Archive` (any level, any case, outside code blocks) in the page; it is created as `## Archive` at the end of the page when needed, after a blank line.
+- **What is archived:** a ticked task outside the Archive section, outside code blocks, whose nearest less-indented list line is not an open task, and whose block contains no open task. Its block goes with it, unindented to the left edge.
+- **Where:** under a heading one level below the Archive heading, named after the heading the task was under (made at the end of the Archive section if missing, otherwise the task goes at the end of that subheading's text); a task above any heading goes directly under the Archive heading, before its subheadings. Doubled blank lines left behind are closed up.
+- **Commands:** *Archive done tasks in this section* (the section of the heading at or above the cursor; the whole page if there is none), *in this note*, and *in all notes…*, which takes only tasks with `@done(date)` earlier than today minus the "archive after" setting (default 7 days; 0 for any), in every note except daily notes, scratch notes and templates, after a confirmation stating the number of tasks and notes. After archiving, the Archive heading is remembered as folded for that note. Each ends with one Undo over all the notes it changed (only if none has been edited since).
+- **Move this note to the Archive** (ordinary notes): moves the note to `<archive notebook>/<its notebook>` (setting, default `Archive`); not when it is already inside it. With open tasks, a confirmation says how many and that they stay in the lists. Undo moves it back and removes the notebooks the move created if they are empty.
+- Archived tasks are ordinary task lines: they stay in the Logbook and count wherever ticked tasks count.
 
 ### 12.4 The lists
 
@@ -648,6 +658,11 @@ A small popover with: a text box that accepts a day in words and shows the date 
 - **Duplicate**, **copy a link** (`[[Title]]`), and **reveal the file** in the system file manager (desktop).
 - **Rename** by editing the title, or by a dialog with the name pre-selected.
 - **Delete** moves to the trash, closes the tab, and shows Undo.
+- **Reorganising** (commands, no default keys; each ends with one Undo that restores the content, notebook and tags of every note it changed, removes the notes it made, brings back the note it removed, and removes a notebook it made once empty; nothing is undone if one of those notes was edited since). Sections are a heading (outside code blocks) down to the next heading of the same or a higher level; headings are matched as in section 5. All four work on the page, not the canvas.
+  - **Extract to a new note:** with a selection, the selected text becomes a new note and is replaced by `[[Title]]`. With none, the section around the cursor: its text under the heading (blank lines trimmed, headings shifted so its subheadings start at `##`) becomes the new note, and the heading stays with `[[Title]]` as its only text. A dialog asks for the title, offering the heading's text or the selection's first line (list and task markers removed, up to 60 characters). The new note goes in the same notebook (the top level for daily, research and scratch notes). A title already used gets a number.
+  - **Move this section to another note:** a palette like Move to note lists notes (not scratch notes or templates, latest edited first); typing a name that matches none offers a new note, `Notebook/Name` choosing the notebook. The section, heading included, is appended to the end of the target's page and removed from the source, closing up blank lines.
+  - **Turn this note into a notebook** (ordinary notes only): after a confirmation naming the new notes, makes the notebook `<the note's notebook>/<the note's title>` and, for each heading at the page's shallowest level, a note titled with the heading's text (link brackets and emphasis removed) holding that section's text (heading removed, subheadings shifted to start at `##`). A title already used by another note gets ` (<original title>)`, then a number. The original note keeps its id and title, moves into the notebook, and its page becomes the text above the first such heading followed by `## Notes` and a `- [[Title]]` line per new note; its canvas stays with it.
+  - **Merge this note into another** (not when this note has a canvas): a palette picks the target. The source's page is appended under `## <source title>`, its headings shifted down so the shallowest is `###`; the target gets the union of both notes' tags; in every other note, `[[Source]]`, `[[Source|label]]` and `[[Source#heading]]` are rewritten to the target's title (case-insensitive); the source goes to the trash.
 
 ## 14. History, trash, export, import
 

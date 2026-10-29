@@ -2,6 +2,23 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.22.0 (2026-10-29)
+
+### Fixed
+
+- **The Add tag box under a note's title now suggests tags.** It lists the tags already in use, most used first, narrowing as you type (those starting with what you typed first); ↑ ↓ choose, Enter or Tab adds one, and a new name is offered as a new tag. Before, it only took what you typed; the suggestions were only in ⌘T.
+
+### Added
+
+- **Ticked tasks move to the end of their list,** with their notes and sub-items, so the open ones stay together. It works wherever you tick (the note, the Tasks view, the reading view); turn it off in Settings → General.
+- **Archiving finished tasks.** *Archive done tasks in this section*, *in this note*, and *in all notes…* (also a button in the Logbook; tasks ticked at least a week ago, a setting) move ticked tasks into an **Archive** section at the end of their note, filed under the heading they came from and folded. They stay in the Logbook. Ticked tasks with open sub-tasks stay put. One Undo for each.
+- **Move this note to the Archive** for a finished project: `Work/Atlas` goes to `Archive/Work/Atlas` (the notebook's name is a setting). Asks first if it still has open tasks.
+- **Reorganising notes**, four commands in ⌘K, each with one Undo:
+  - **Extract to a new note:** the selected text, or the section the cursor is in, moves into a new note and a `[[link]]` takes its place.
+  - **Move this section to another note:** a heading and everything under it moves to the end of another note, or a new one.
+  - **Turn this note into a notebook:** a notebook named after the note, with one note per top-level heading; the note moves in as the overview, keeping its title so links still work.
+  - **Merge this note into another:** its text goes to the end of the other under its title, tags are combined, links to it are pointed at the other, and it goes to the trash.
+
 ## 1.21.0 (2026-10-29)
 
 ### Added

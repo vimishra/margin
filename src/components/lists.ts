@@ -2,6 +2,8 @@
 // keep numbered lists numbered, and switch lines between list kinds.
 import type { EditorView } from '@codemirror/view'
 import { lineDoneChanges } from '../lib/tasks'
+import { sinkTask } from '../lib/archive'
+import { useStore } from '../store'
 
 const ITEM = /^(\s*)([-*+]|\d+[.)])(\s+)(\[[ xX]\]\s+)?/
 
@@ -274,5 +276,31 @@ export function toggleDone(view: EditorView, stamp = false) {
     }),
     userEvent: 'input',
   })
+  if (done && useStore.getState().settings.sinkDoneTasks) sinkTicked(view, changes.map((c) => state.doc.lineAt(c.from).number))
   return true
+}
+
+/**
+ * Move each ticked task on these lines (1-based) to the end of its list, with the lines under it, as one change.
+ * Lowest first, so the lines above a moved one keep their numbers. The cursor stays where it was on the page, which
+ * is now the next task in the list.
+ */
+export function sinkTicked(view: EditorView, lineNumbers: number[]) {
+  let lines = view.state.doc.toString().split('\n')
+  let first = Infinity
+  let last = -1
+  for (const n of [...lineNumbers].sort((a, b) => b - a)) {
+    const i = n - 1
+    if (!/^\s*(?:>\s*)*(?:[-*+]|\d+[.)])\s+\[[xX]\]/.test(lines[i] ?? '')) continue
+    const moved = sinkTask(lines, i)
+    if (!moved) continue
+    lines = moved.lines
+    first = Math.min(first, moved.from)
+    last = Math.max(last, moved.to)
+  }
+  if (last < 0) return
+  const { doc } = view.state
+  const from = doc.line(first + 1).from
+  const to = doc.line(last).to
+  view.dispatch({ changes: { from, to, insert: lines.slice(first, last).join('\n') }, selection: { anchor: Math.min(view.state.selection.main.head, from + lines.slice(first, last).join('\n').length) }, userEvent: 'input' })
 }

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Archive, CalendarClock, CalendarDays, CheckSquare, CornerDownLeft, FilePlus2, Folder, FolderPlus, Hash, LayoutTemplate, Search, Square, Users, Plus } from 'lucide-react'
 import { createNote, go, moveTaskToNewNote, moveTaskToNote, newProjectPlace, OPEN_THREADS, openSide, openSideAt, openDaily, newFromTemplate, newMeeting, newTemplate, openNote, openNoteAt, templates, toast, ui, updateNote, useStore, type PaletteState, applyTags } from '../store'
 import { commands } from '../commands'
+import { mergeIntoNote, moveSectionToNote } from '../refactor'
 import { search } from '../lib/search'
 import { tagCounts } from '../lib/links'
 import { cx, dailyLabel, displayTitle, longDate, relTime, snippet, today } from '../lib/util'
@@ -141,6 +142,40 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
           run: () => void moveTaskToNewNote(task, q),
         }
         // When nothing else matches, Enter makes the note.
+        if (out.length) out.push(item)
+        else out.unshift(item)
+      }
+      return out
+    }
+
+    // Moving a section, or merging the whole note: pick the note it goes into (or, for a section, a new one).
+    if ((state.mode === 'moveSection' && state.section) || state.mode === 'merge') {
+      const source = notes[state.noteId || '']
+      if (!source) return []
+      const merging = state.mode === 'merge'
+      const templatesFolder = useStore.getState().settings.templatesFolder
+      const out: Item[] = Object.values(notes)
+        .filter((n) => n.id !== source.id && n.type !== 'scratch' && n.folder !== templatesFolder && (!lower || displayTitle(n).toLowerCase().includes(lower) || n.folder.toLowerCase().includes(lower)))
+        .sort((a, b) => b.updated.localeCompare(a.updated))
+        .slice(0, 50)
+        .map((n) => ({
+          key: n.id,
+          group: lower ? 'Notes' : 'Recently edited',
+          icon: <NoteIcon note={n} />,
+          title: displayTitle(n),
+          subtitle: `${n.folder ? n.folder.split('/').join(' / ') + ' · ' : ''}${merging ? `added at the end under “${displayTitle(source)}”` : 'added at the end'}`,
+          run: () => void (merging ? mergeIntoNote(source.id, n.id) : moveSectionToNote(source.id, state.section!, { id: n.id })),
+        }))
+      const place = !merging && q ? newProjectPlace(q) : null
+      if (place?.title && !Object.values(notes).some((n) => n.title.toLowerCase() === place.title.toLowerCase())) {
+        const item: Item = {
+          key: 'new',
+          group: 'New note',
+          icon: <FilePlus2 size={16} />,
+          title: `New note “${place.title}”`,
+          subtitle: `${place.folder ? `In ${place.folder.split('/').join(' / ')}` : 'At the top level'} · type Notebook/Name for another notebook`,
+          run: () => void moveSectionToNote(source.id, state.section!, { newTitle: place.title, folder: q.includes('/') ? place.folder : undefined }),
+        }
         if (out.length) out.push(item)
         else out.unshift(item)
       }
@@ -322,7 +357,7 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
           <input
             autoFocus
             value={query}
-            placeholder={state.mode === 'moveTask' ? `Move “${state.task?.text ?? ''}” to which note?` : state.mode === 'outline' ? 'Jump to a heading in this note' : state.mode === 'template' ? 'New note from which template?' : state.mode === 'tag' ? `Tag “${notes[state.noteId || ''] ? displayTitle(notes[state.noteId || '']) : ''}” with…` : moving ? `Move “${displayTitle(moving)}” to…` : 'Search notes, #tags, a date like “next monday”, or > for commands'}
+            placeholder={state.mode === 'moveTask' ? `Move “${state.task?.text ?? ''}” to which note?` : state.mode === 'moveSection' ? `Move the section “${state.section?.title ?? ''}” to which note?` : state.mode === 'merge' ? `Merge “${notes[state.noteId || ''] ? displayTitle(notes[state.noteId || '']) : ''}” into which note?` : state.mode === 'outline' ? 'Jump to a heading in this note' : state.mode === 'template' ? 'New note from which template?' : state.mode === 'tag' ? `Tag “${notes[state.noteId || ''] ? displayTitle(notes[state.noteId || '']) : ''}” with…` : moving ? `Move “${displayTitle(moving)}” to…` : 'Search notes, #tags, a date like “next monday”, or > for commands'}
             spellCheck={false}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => {

@@ -431,7 +431,7 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 </tr>
 <tr>
 <td>Completing a project</td>
-<td>Tick its last tasks, then move the note to an <strong>Archive</strong> notebook</td>
+<td>Tick its last tasks, then <strong>Move this note to the Archive</strong> (⌘K)</td>
 </tr>
 </tbody>
 </table></div><p>A project is anything with more than one step that ends when an outcome is reached. A project note is more than a task list: decisions, links and background go in the same note, around the tasks.</p>
@@ -943,7 +943,7 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 <p>For what each of these is for, see <a href="#how-margin-is-organised-and-why">How Margin is organised, and why</a>. This section is the how-to.</p>
 <ul>
 <li><strong>Notebooks</strong> are folders, and can be nested. Right-click one to add a note, add a notebook inside it, rename or delete it. Drag a note from a list onto a notebook to move it.</li>
-<li><strong>Tags:</strong> add them under the title, or write <code>#tag</code> in the text. Click a tag to see everything with it. ⌘T adds a tag to the note you are in: the tags you already use are listed and narrow as you type, Enter picks the highlighted one, and a name that does not exist yet is offered as a new tag. Several words separated by spaces add several tags. Every tag has its own colour, chosen automatically from its name, and keeps it everywhere: under the title, in the text, in the sidebar and in the Tasks view. Nested tags such as <code>work/atlas</code> share the colour of their first part.</li>
+<li><strong>Tags:</strong> add them under the title, or write <code>#tag</code> in the text. The <strong>Add tag</strong> box under the title suggests the tags you already use, most used first, narrowing as you type; ↑ ↓ choose, Enter or Tab adds the highlighted one, and a name no note has yet is offered as a new tag. Click a tag to see everything with it. ⌘T adds a tag to the note you are in: the tags you already use are listed and narrow as you type, Enter picks the highlighted one, and a name that does not exist yet is offered as a new tag. Several words separated by spaces add several tags. Every tag has its own colour, chosen automatically from its name, and keeps it everywhere: under the title, in the text, in the sidebar and in the Tasks view. Nested tags such as <code>work/atlas</code> share the colour of their first part.</li>
 <li><strong>Notebook tags:</strong> right-click a notebook and choose <strong>Tags for notes here…</strong> to give it tags, such as <code>#meeting</code> for Meetings.
 <ul>
 <li>A note created in the notebook, or moved into it, gets those tags written into the note itself, alongside the ones you add by hand.</li>
@@ -957,6 +957,15 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 <li><strong>Move</strong> a note with ⌥M, or by clicking its notebook name above the title.</li>
 </ul>
 <p>Lists of notes can be filtered (press <code>/</code>) and sorted. ↑ and ↓ move through a list; Enter opens.</p>
+<h3 id="reorganising-notes">Reorganising notes</h3>
+<p>As notes grow, parts of them want to become notes of their own, or two notes turn out to be one. Four commands in ⌘K do this for you, so nothing has to be cut, pasted and relinked by hand. Each ends with a message that has <strong>Undo</strong>, which puts every note involved back as it was (as long as none of them has been edited since), and every change is also in version history.</p>
+<ul>
+<li><strong>Extract to a new note.</strong> Select some text and choose <em>Extract to a new note</em>: it moves into a new note beside this one (you choose the title), and a <code>[[link]]</code> to it takes its place. With nothing selected, it extracts the section the cursor is in: everything under its heading moves out, its subheadings start at <code>##</code> in the new note, and the heading stays here with the link under it. The title offered is the heading's text, or the first line of the selection.</li>
+<li><strong>Move this section to another note.</strong> Put the cursor anywhere in a section and choose <em>Move this section to another note…</em>. Pick the note from the list, or type a new name to make one (<code>Notebook/Name</code> for another notebook). The heading and everything under it go to the end of that note and leave this one.</li>
+<li><strong>Turn this note into a notebook.</strong> For a note that has grown into several topics. It makes a notebook named after the note (inside the note's own notebook) with one note for each top-level heading, each holding what was under that heading. The note itself moves in as the overview: it keeps its title, so links to it keep working, keeps the text above its first heading, and gets a list of links to the new notes. A message first says how many notes it will make and what they are called. A note whose title is already used elsewhere gets the original note's name after it, as in <em>Risks (Alpha)</em>, so links stay unambiguous.</li>
+<li><strong>Merge this note into another.</strong> Pick the note it goes into: this note's text is added at the end of that one, under a heading with this note's title (its own headings move down a level to sit under it), the other note takes on its tags, every <code>[[link]]</code> to it in your notes now points at the other note, and this note goes to the trash. A note with a canvas cannot be merged; move its cards first.</li>
+</ul>
+<p>Each can have a shortcut in Settings → Shortcuts.</p>
 <h2 id="two-notes-side-by-side">Two notes side by side</h2>
 <p>Open a second note beside the first:</p>
 <ul>
@@ -985,6 +994,7 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 <h2 id="tasks">Tasks</h2>
 <p>A task is a checkbox: <code>- [ ] Send the proposal</code>. Type <code>/task</code>, press ⌘⇧9, or write it by hand, or capture one from anywhere with <strong>Quick task</strong> (⌘⌥C; see <a href="#quick-task">Quick task</a>). Tasks can live in any note. To tick or untick the task the cursor is on, press ⌘↵ or click its box; with several lines selected, ⌘↵ ticks them all.</p>
 <p>Ticking a task writes the day on its line, <code>@done(2026-10-07)</code>, so the Logbook can show when it was done. Unticking takes it off again. Turn this off in Settings → General → <strong>Record when tasks are done</strong>.</p>
+<p>A ticked task also <strong>moves to the end of its list</strong>, with everything indented under it (its notes and sub-items), so the open tasks stay together at the top and the finished ones collect below them, newest last. This happens wherever you tick: in the note, in the Tasks view, or in the reading view. Unticking leaves the task where it is. Turn it off in Settings → General → <strong>Move ticked tasks to the end of their list</strong>.</p>
 <p>The lists work the way they do in Things 3:</p>
 <ul>
 <li>A <strong>planned day</strong> is the day a task <em>starts</em>. Until then it waits in Upcoming; from that day on it is in Today, and it stays there until you tick it. It never becomes overdue.</li>
@@ -1171,6 +1181,15 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 <li>Click <strong>Save filter</strong> and give it a name.</li>
 </ol>
 <p>It appears under Tasks in the sidebar with a live count. Open it and change anything, and an <strong>Update filter</strong> button appears to keep the change. The ⋯ button, or a right-click in the sidebar, renames or deletes it. Saved filters are kept with your settings, so they belong to this app on this computer.</p>
+<h3 id="archiving-finished-tasks">Archiving finished tasks</h3>
+<p>Ticked tasks stay in their notes, struck through, and the <strong>Logbook</strong> lists them all with the day each was done. To clear them out of the way in a note, archive them: they move into an <strong>Archive</strong> section at the end of the same note, which opens folded, and they stay in the Logbook. Nothing is archived unless you ask.</p>
+<ul>
+<li><strong>Archive done tasks in this section</strong> (⌘K): the ticked tasks under the heading the cursor is in. Together with ticked tasks sinking to the end of their list, this is the routine: work down a list, then archive what collected at its end.</li>
+<li><strong>Archive done tasks in this note</strong> (⌘K): every ticked task in the note.</li>
+<li><strong>Archive done tasks in all notes…</strong> (⌘K, or the button at the top of the Logbook): tasks ticked at least a week ago in every note except daily notes and templates. It says how many tasks in how many notes before it does anything. Change &quot;a week&quot; in Settings → General → <strong>Archive tasks done this many days ago</strong>.</li>
+</ul>
+<p>In the Archive, tasks are filed under a <code>###</code> heading with the name of the section they came from, so <code>## Phase one</code> tasks end up under <code>## Archive</code> › <code>### Phase one</code>. A ticked task takes the lines indented under it along, but only when everything under it is finished: a ticked task with an open sub-task stays, so the open one does not disappear from view, and a ticked sub-task under an open task stays with its parent. Each archive has <strong>Undo</strong>.</p>
+<p><strong>Finished projects.</strong> When a project is done, <strong>Move this note to the Archive</strong> (⌘K) moves its note into the <strong>Archive</strong> notebook, keeping its area: <code>Work/Atlas</code> goes to <code>Archive/Work/Atlas</code>. If it still has open tasks, Margin asks first; they move with it and keep showing in your task lists, so tick them or move them elsewhere with <strong>M</strong>. The notebook's name is a setting (Settings → General → <strong>Archive notebook</strong>). Undo moves it back.</p>
 <h3 id="moving-overdue-tasks">Moving overdue tasks</h3>
 <p>When a list contains overdue tasks, <strong>Move all…</strong> opens the calendar. Pick one day and every overdue task shown gets it as its new due date. Narrow the list first to move only some of them. The confirmation has an <strong>Undo</strong>. Tasks whose planned day has passed are not overdue, so they are not moved; they wait in Today.</p>
 <h3 id="the-top-3">The Top 3</h3>
