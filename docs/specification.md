@@ -1,6 +1,6 @@
 # Margin product specification
 
-This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.19.0.
+This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.19.3.
 
 It is written to be handed to a developer or a coding tool. Where a detail is a free choice for the implementer, it says so; everything else is a requirement.
 
@@ -625,7 +625,7 @@ Consequences that must hold: a planned day passing never makes a task overdue, i
 3. otherwise, when its note is in the Meetings notebook, the projects that note links anywhere;
 4. otherwise, its own note; daily notes that come to this are gathered into one "Daily notes" group, latest day first.
 
-A task can so be listed under several projects. Laid out as in Things: each notebook (the area) is a heading with a box icon over its projects (shown once, before the first project in it; top-level notes have none), at 9/8 of the note text size, bold. A project's group shows its progress circle in the accent colour (ticked over all tasks listed under it, including linked ones), its title at 17/16 of the note text size, bold, and the count of tasks shown. Its headings are bold, in the accent colour at 15/16 of the note text size, with a rule under them and an icon: a section of the note, a meeting ("From <meeting>"), a day, or another note. All of these use the note font. When not grouped by project, each task's note and heading are shown under it with a note icon. Inside it, its own tasks come first in written order under their headings, then the linked ones under "From <note>", latest note first. Nothing in any note changes. The command-line tool's `--group note` groups by each task's own note.
+A task can so be listed under several projects. Laid out as in Things: each notebook (the area) is a heading with a box icon over its projects (shown once, before the first project in it; top-level notes have none), at 9/8 of the note text size, bold. A project's group shows its progress circle in the accent colour (ticked over all tasks listed under it, including linked ones), its title at 17/16 of the note text size, bold, and the count of tasks shown. Its headings are bold, in the accent colour at 15/16 of the note text size, with a rule under them and an icon: a section of the note, a meeting ("From <meeting>"), a day, or another note. All of these use the note font. They share one grid: the fold arrow in a 22 px gutter; the progress circle, each heading's icon and each task's checkbox centred in a column as wide as the checkbox (the note text size); and the project's title, the headings' text and the tasks' text starting 12 px after that column. When not grouped by project, each task's note and heading are shown under it with a note icon. Inside it, its own tasks come first in written order under their headings, then the linked ones under "From <note>", latest note first. Nothing in any note changes. The command-line tool's `--group note` groups by each task's own note.
 
 ### 12.6 Saved filters
 

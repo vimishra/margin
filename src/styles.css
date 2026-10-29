@@ -5511,3 +5511,29 @@ kbd {
   margin-left: 4px;
   pointer-events: none;
 }
+
+/* Grouped by project, everything lines up on one grid, as in Things: the fold arrow in a gutter; the project's
+   circle, a heading's icon and each task's checkbox centred in one column (as wide as the checkbox); and the
+   project's name, the heading's text and each task's text starting in the next. Sizes follow the note text size. */
+.task-group.project {
+  --pg-gutter: 22px;
+  --pg-icon: var(--doc-size);
+  --pg-gap: 12px;
+}
+.task-group.project .project-head .task-progress,
+.task-group.project .project-head .project-icon {
+  margin-left: calc((var(--pg-icon) - 15px) / 2);
+  margin-right: calc((var(--pg-icon) - 15px) / 2 + var(--pg-gap) - 8px);
+}
+.task-group.project .task-subhead {
+  margin-left: calc(var(--pg-gutter) + (var(--pg-icon) - 14px) / 2);
+  gap: calc((var(--pg-icon) - 14px) / 2 + var(--pg-gap));
+}
+.task-group.project .task {
+  padding-left: calc(8px + var(--pg-gutter));
+  gap: var(--pg-gap);
+}
+.task-group.project .task > input[type='checkbox'] {
+  margin-left: 0;
+  margin-right: 0;
+}

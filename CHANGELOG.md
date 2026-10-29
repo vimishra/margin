@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.19.3 (2026-10-29)
+
+### Fixed
+
+- **Tasks grouped by project line up.** Each project's circle, the icons of its headings and its tasks' checkboxes now sit in one column, and the project's name, its headings and the tasks' text start in the next, so a project reads as one block. Before, the checkboxes sat further left than the circle and the headings were indented more than their tasks. It follows the note text size.
+
 ## 1.19.2 (2026-10-29)
 
 ### Changed
