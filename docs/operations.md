@@ -30,6 +30,7 @@ Shortcuts are for the desktop app. Every one can be changed in Settings → Shor
   - [Tasks: during the day](#tasks-during-the-day)
   - [Tasks: in a meeting](#tasks-in-a-meeting)
   - [Tasks: end of the day](#tasks-end-of-the-day)
+  - [Tasks: projects](#tasks-projects)
   - [Tasks: every week](#tasks-every-week)
   - [Tasks: every month](#tasks-every-month)
   - [Tasks: which list to look at](#tasks-which-list-to-look-at)
@@ -45,7 +46,7 @@ The two routines interleave. This is the order they run in; the detail for each 
 | During the day | Capture with ⌘⇧C; link people and projects as you write | Write anything that needs doing as a task; tick things as you finish |
 | Each meeting | ⌘⇧M, link who and what, bullets under Notes, then Decisions | Write each action as a task, with a due date if one was agreed |
 | End of day, 2 minutes | Read down today's Log once | Tick what is done; empty the Inbox; leave the rest |
-| Weekly, 15 minutes | Skim the week, refresh people notes, empty Scratch | Empty the Inbox, clear Overdue, plan from Upcoming and Anytime, catch undated tasks |
+| Weekly, 15 minutes | Skim the week, refresh people notes, empty Scratch | Empty the Inbox, clear Overdue, plan from Upcoming and Anytime, catch undated tasks, give every project a next step |
 | Monthly, 20 minutes | Tidy tags, notebooks and templates; back up | Review Someday, read the Logbook, close finished projects |
 
 ---
@@ -230,6 +231,19 @@ In a 1:1, write actions the same way under that day's entry in the person's note
 
    Anything you cannot decide on can stay for the weekly review, but no longer than that.
 
+## Tasks: projects
+
+A project is anything with more than one step that ends when an outcome is reached: a launch, a hire, a move. In Margin it is one note in its area's notebook (`Work/Atlas launch`); the [user guide](user-guide.md#projects-and-areas) shows the shape of a project note.
+
+1. **Start one** when a task turns out to need several steps. Press **M** on it in the Tasks view and type a new name, or make the note yourself with ⌘N in the right notebook.
+2. **Write the outcome first,** in one line: what will be true when it is done. Then the steps you already know, under a heading for each phase. If it has a deadline, put it on the last task: `- [ ] Launch @due(2026-11-30)`.
+3. **Give only the next step a day.** The rest wait in Anytime. A project with every step dated fills Today with things that cannot start yet.
+4. **Let things arrive by themselves.** Tasks you file with **M** land under Open Threads. Actions in a meeting note that links the project are listed under it in the Tasks view without being moved. Sort Open Threads into the phases during the weekly review.
+5. **Keep the story in the note.** Add a line to its Log when something is decided. A month later the note answers "where is this?" without a meeting.
+6. **Finish it** when the outcome is reached: tick or delete the leftovers, then move the note to the Archive notebook (⌘K → "Move to notebook").
+
+The one rule that keeps projects moving: **every live project has at least one open task you could do now.** A project with none is stalled, and Margin will not remind you. The weekly review checks this.
+
 ## Tasks: every week
 
 This is the review that keeps the lists trustworthy. Open the Tasks view: ⌘⇧T.
@@ -241,6 +255,7 @@ This is the review that keeps the lists trustworthy. Open the Tasks view: ⌘⇧
    - For each thing you intend to do this week, press S and give it a day.
    - For each thing you are not going to do soon, press S and choose Someday.
 5. **Catch undated strays: press 9** for No date. Anything here has no plan: give it a day, send it to Someday, or delete it.
+6. **Check every project has a next step.** Press 4 for Anytime and group by **Project**. Go down the projects in Work (and your other areas): each should show at least one open task. For one that shows none, open its note and write the next step, or, if it is finished or dropped, archive it. Sort any tasks waiting under a project's Open Threads into its phases while you are there.
 
 ## Tasks: every month
 

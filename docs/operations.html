@@ -99,6 +99,7 @@ mark.find-hit.current{background:#ffab2e}
 <li><a href="#tasks-during-the-day">Tasks: during the day</a></li>
 <li><a href="#tasks-in-a-meeting">Tasks: in a meeting</a></li>
 <li><a href="#tasks-end-of-the-day">Tasks: end of the day</a></li>
+<li><a href="#tasks-projects">Tasks: projects</a></li>
 <li><a href="#tasks-every-week">Tasks: every week</a></li>
 <li><a href="#tasks-every-month">Tasks: every month</a></li>
 <li><a href="#tasks-which-list-to-look-at">Tasks: which list to look at</a></li>
@@ -139,7 +140,7 @@ mark.find-hit.current{background:#ffab2e}
 <tr>
 <td>Weekly, 15 minutes</td>
 <td>Skim the week, refresh people notes, empty Scratch</td>
-<td>Empty the Inbox, clear Overdue, plan from Upcoming and Anytime, catch undated tasks</td>
+<td>Empty the Inbox, clear Overdue, plan from Upcoming and Anytime, catch undated tasks, give every project a next step</td>
 </tr>
 <tr>
 <td>Monthly, 20 minutes</td>
@@ -434,6 +435,17 @@ mark.find-hit.current{background:#ffab2e}
 <p>Anything you cannot decide on can stay for the weekly review, but no longer than that.</p>
 </li>
 </ol>
+<h2 id="tasks-projects">Tasks: projects</h2>
+<p>A project is anything with more than one step that ends when an outcome is reached: a launch, a hire, a move. In Margin it is one note in its area's notebook (<code>Work/Atlas launch</code>); the <a href="user-guide.html#projects-and-areas">user guide</a> shows the shape of a project note.</p>
+<ol>
+<li><strong>Start one</strong> when a task turns out to need several steps. Press <strong>M</strong> on it in the Tasks view and type a new name, or make the note yourself with ⌘N in the right notebook.</li>
+<li><strong>Write the outcome first,</strong> in one line: what will be true when it is done. Then the steps you already know, under a heading for each phase. If it has a deadline, put it on the last task: <code>- [ ] Launch @due(2026-11-30)</code>.</li>
+<li><strong>Give only the next step a day.</strong> The rest wait in Anytime. A project with every step dated fills Today with things that cannot start yet.</li>
+<li><strong>Let things arrive by themselves.</strong> Tasks you file with <strong>M</strong> land under Open Threads. Actions in a meeting note that links the project are listed under it in the Tasks view without being moved. Sort Open Threads into the phases during the weekly review.</li>
+<li><strong>Keep the story in the note.</strong> Add a line to its Log when something is decided. A month later the note answers &quot;where is this?&quot; without a meeting.</li>
+<li><strong>Finish it</strong> when the outcome is reached: tick or delete the leftovers, then move the note to the Archive notebook (⌘K → &quot;Move to notebook&quot;).</li>
+</ol>
+<p>The one rule that keeps projects moving: <strong>every live project has at least one open task you could do now.</strong> A project with none is stalled, and Margin will not remind you. The weekly review checks this.</p>
 <h2 id="tasks-every-week">Tasks: every week</h2>
 <p>This is the review that keeps the lists trustworthy. Open the Tasks view: ⌘⇧T.</p>
 <ol>
@@ -447,6 +459,7 @@ mark.find-hit.current{background:#ffab2e}
 </ul>
 </li>
 <li><strong>Catch undated strays: press 9</strong> for No date. Anything here has no plan: give it a day, send it to Someday, or delete it.</li>
+<li><strong>Check every project has a next step.</strong> Press 4 for Anytime and group by <strong>Project</strong>. Go down the projects in Work (and your other areas): each should show at least one open task. For one that shows none, open its note and write the next step, or, if it is finished or dropped, archive it. Sort any tasks waiting under a project's Open Threads into its phases while you are there.</li>
 </ol>
 <h2 id="tasks-every-month">Tasks: every month</h2>
 <ol>

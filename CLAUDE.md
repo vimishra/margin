@@ -81,4 +81,5 @@ The owner's real notes (work meetings) are in `~/Documents/Vault`, set as `vault
 - Search highlighting inside tables and rendered math.
 - Version-history frequency as a setting (needs server-side config).
 - More automated tests (only the task rules are covered, by `npm run test:tasks`); `src/lib/` and `components/lists.ts` next.
+- Projects, as in Things 3 (see "Projects and areas" in the user guide and "Tasks: projects" in the theory of operations), still lack: a Projects list (each project note with its progress, next action and deadline, flagging stalled projects with no open task); a "Complete project" command that archives the note; a deadline on the project note itself (`due:` at the top) shown in that list and in Upcoming.
 - Write commands for `margin-tasks` (tick, plan, due, add). Deliberately left out so far; they should go through the local server when the app is running.

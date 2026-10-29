@@ -326,9 +326,42 @@ Margin follows Things 3 here, with notes instead of a separate task database:
 | To-do | A `- [ ] …` line in the note |
 | Notes on a to-do | Lines indented under the task |
 | Inbox | The *Inbox* note in the Inbox notebook |
+| Moving an Inbox to-do into a project | **M** in the Tasks view: it goes under the project note's **Open Threads** heading |
+| A project's to-dos in one place | The Tasks view grouped by **Project**, with a circle that fills as they are ticked |
+| A project deadline | `@due(…)` on the one task that means the project is done |
 | Completing a project | Tick its last tasks, then move the note to an **Archive** notebook |
 
-A project note is more than a task list: decisions, links and background go in the same note, around the tasks.
+A project is anything with more than one step that ends when an outcome is reached. A project note is more than a task list: decisions, links and background go in the same note, around the tasks.
+
+#### Shaping a project note
+
+A shape that works, for a project called *Atlas launch* in `Work`:
+
+```markdown
+Outcome: Atlas is live for all EU customers by 30 Nov.
+
+## Plan
+- [ ] Draft the rollout plan @due(2026-11-07)
+- [ ] Review with Priya >2026-11-10
+
+## Build
+- [ ] Migrate the billing tables
+  Needs the new schema first; see [[Billing schema]]
+
+## Open Threads
+- [ ] Ask legal about the DPA
+
+## Log
+- 29 Oct: kicked off with Sam and Priya
+```
+
+- **Outcome first,** in one line: what "done" means. It is what makes the note a project rather than a list.
+- **A heading for each phase or part,** as Things uses headings. Most tasks need no date: they wait in Anytime. Plan only the next one or two with a day (`>date`), so Today stays short.
+- **Open Threads** is where **M** files tasks from the Inbox, so it works as the project's own inbox. Sort its tasks into the phases now and then.
+- **Log** for decisions and dated context, newest last, so the note is the project's whole memory, not only its to-do list.
+- **The deadline** goes on the task that marks the end (`- [ ] Launch @due(2026-11-30)`). It shows in This week and Next 30 days as it comes near, joins Today on the day, and is marked overdue if it slips.
+
+To start a project, make the note in its area's notebook, or press **M** on an Inbox task and type a new name: Margin makes the note with an Open Threads heading and the task under it. How to keep projects moving week to week is in the [theory of operations](operations.md#tasks-projects).
 
 Not every note is a project. Daily notes, meeting notes, the Inbox, templates, scratch notes and notes in **People** are not. A meeting's actions still belong to its project: when a meeting note links `[[Organization]]`, its tasks are listed under Organization in the Tasks view (grouped by Project), after Organization's own tasks, under "From" and the meeting's name. They stay in the meeting note, where the context is; ticking one there or in the Tasks view is the same thing. A task in any other note, such as today's, joins a project by linking it on its own line: `- [ ] Ring the recruiter [[Organization]]`. To move a task into the project note for good, press **M** on it in the Tasks view.
 
