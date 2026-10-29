@@ -210,11 +210,12 @@ mark.find-hit.current{background:#ffab2e}
 <li><strong>Empty Scratch.</strong> Open Scratch in the sidebar and press Keep on anything worth keeping. The rest expires.</li>
 <li><strong>Close out reading.</strong> In Research, set anything you have finished to Done.</li>
 <li><strong>Reset the pins.</strong> Pin what next week needs; unpin what is finished.</li>
+<li><strong>Reshape what has grown.</strong> A note that has turned into several topics: ⌘K → <strong>Turn this note into a notebook</strong> (one note per top-level heading, the note itself stays as the overview, links keep working). A section that deserves its own note: put the cursor in it, ⌘K → <strong>Extract to a new note</strong>. A section in the wrong note: <strong>Move this section to another note</strong>. Two notes about the same thing: <strong>Merge this note into another</strong>. Each has Undo.</li>
 </ol>
 <h2 id="notes-every-month">Notes: every month</h2>
 <ol>
 <li><strong>Tidy tags.</strong> Look at the Tags list in the sidebar. Two tags that mean the same thing should become one: open the notes under the rarer tag and retag them (⌘T).</li>
-<li><strong>Tidy notebooks.</strong> A notebook with one or two notes is rarely worth having. Move those notes up a level.</li>
+<li><strong>Tidy notebooks.</strong> A notebook with one or two notes is rarely worth having. Move those notes up a level, or merge notes that overlap (⌘K → <strong>Merge this note into another</strong>).</li>
 <li><strong>Tune the templates.</strong> If you delete the same section from every meeting note or daily note, remove it from the template in the Templates notebook.</li>
 <li><strong>Back up.</strong> Your notes are a folder of files. Make sure that folder is included in your backup, or copy it somewhere safe now.</li>
 <li><strong>Update Margin</strong> if there is a newer version on the releases page.</li>
@@ -416,7 +417,7 @@ mark.find-hit.current{background:#ffab2e}
 <h2 id="tasks-end-of-the-day">Tasks: end of the day</h2>
 <ol>
 <li>
-<p><strong>Tick what you finished,</strong> in the Top 3 and in the panel.</p>
+<p><strong>Tick what you finished,</strong> in the Top 3 and in the panel. Each ticked task drops to the end of its list, so what is left stays together at the top.</p>
 </li>
 <li>
 <p><strong>Leave unfinished Top 3 items alone.</strong> They move into tomorrow's note when it is created.</p>
@@ -443,7 +444,8 @@ mark.find-hit.current{background:#ffab2e}
 <li><strong>Give only the next step a day.</strong> The rest wait in Anytime. A project with every step dated fills Today with things that cannot start yet.</li>
 <li><strong>Let things arrive by themselves.</strong> Tasks you file with <strong>M</strong> land under Open Threads. Actions in a meeting note that links the project are listed under it in the Tasks view without being moved. Sort Open Threads into the phases during the weekly review.</li>
 <li><strong>Keep the story in the note.</strong> Add a line to its Log when something is decided. A month later the note answers &quot;where is this?&quot; without a meeting.</li>
-<li><strong>Finish it</strong> when the outcome is reached: tick or delete the leftovers, then move the note to the Archive notebook (⌘K → &quot;Move to notebook&quot;).</li>
+<li><strong>Keep it readable.</strong> Ticked tasks collect at the end of each list. When a phase is done, or a list gets long, put the cursor under its heading and ⌘K → <strong>Archive done tasks in this section</strong>: they move to the Archive section at the end of the note, folded, and stay in the Logbook. To see only the outline, put the cursor on a heading and press ⇧Tab (top headings, then every heading, then everything); Tab on one heading opens its subheadings.</li>
+<li><strong>Finish it</strong> when the outcome is reached: tick or delete the leftovers, then ⌘K → <strong>Move this note to the Archive</strong>. It goes to <code>Archive/Work/…</code>, so Work holds only live projects.</li>
 </ol>
 <p>The one rule that keeps projects moving: <strong>every live project has at least one open task you could do now.</strong> A project with none is stalled, and Margin will not remind you. The weekly review checks this.</p>
 <h2 id="tasks-every-week">Tasks: every week</h2>
@@ -459,13 +461,14 @@ mark.find-hit.current{background:#ffab2e}
 </ul>
 </li>
 <li><strong>Catch undated strays: press 9</strong> for No date. Anything here has no plan: give it a day, send it to Someday, or delete it.</li>
+<li><strong>Archive what is finished.</strong> In the Logbook (press 6), <strong>Archive done tasks…</strong> moves everything ticked over a week ago into each note's Archive section, so project and people notes show what is still open.</li>
 <li><strong>Check every project has a next step.</strong> Press 4 for Anytime and group by <strong>Project</strong>. Go down the projects in Work (and your other areas): each should show at least one open task. For one that shows none, open its note and write the next step, or, if it is finished or dropped, archive it. Sort any tasks waiting under a project's Open Threads into its phases while you are there.</li>
 </ol>
 <h2 id="tasks-every-month">Tasks: every month</h2>
 <ol>
 <li><strong>Review Someday: ⌘⇧T, then 5.</strong> For each item: give it a real day, leave it, or delete it. This list is only useful if it is short enough to read.</li>
 <li><strong>Read the Logbook: press 6,</strong> grouped by date. Scan what you finished this month. It is the easiest source for a status update or a review.</li>
-<li><strong>Close finished projects.</strong> Group the Tasks view by Project. A note whose tasks are all done or all stale is a project that has ended: tick or delete the leftovers, then move the note to an Archive notebook (⌘K → &quot;Move to notebook&quot;), so Work holds only live projects.</li>
+<li><strong>Close finished projects.</strong> Group the Tasks view by Project. A note whose tasks are all done or all stale is a project that has ended: tick or delete the leftovers, then open it and ⌘K → <strong>Move this note to the Archive</strong>, so Work holds only live projects.</li>
 <li><strong>Check your saved filters.</strong> Remove the ones you no longer open.</li>
 </ol>
 <h2 id="tasks-which-list-to-look-at">Tasks: which list to look at</h2>

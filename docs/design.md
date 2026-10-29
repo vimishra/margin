@@ -45,7 +45,8 @@ These settle most design questions. When two of them pull apart, the earlier one
 
 - `store.ts` holds every note in memory (Zustand) along with settings, tabs and panes. It owns autosave and routing.
 - `components/` are the views: the note editor, canvas, calendar, lists, the ⌘K palette, settings.
-- `lib/` is logic with no interface: markdown rendering, the canvas format, links and backlinks, search, dates, export.
+- `lib/` is logic with no interface: markdown rendering, the canvas format, links and backlinks, search, dates, export, and the text side of reorganising (`lib/refactor.ts`: sections, splitting at headings, shifting heading levels, relinking) and archiving (`lib/archive.ts`: sinking a ticked task to the end of its list, moving ticked tasks into an Archive section).
+- `refactor.ts` and `archive.ts` are the actions built on those: extract, move a section, turn into a notebook, merge; archive a section, a note or every note, and move a project to the Archive notebook. They change notes only through `createNote` and `updateNote`, like any edit, and each offers one Undo that restores every note it touched if none has been edited since.
 
 **Editor** (`components/Editor.tsx` and its helpers). CodeMirror 6 with extensions written for Margin:
 
@@ -55,15 +56,17 @@ These settle most design questions. When two of them pull apart, the earlier one
 | `tableWidget.ts` | The in-place table editor |
 | `lists.ts` | Nesting, renumbering and moving list items |
 | `isearch.ts` | Incremental search and smart line-start |
-| `folding.ts` | Folding sections and list items: what folds, the arrows, the fold commands, and remembering folds per note in local storage |
+| `folding.ts` | Folding sections and list items: what folds, the arrows, the fold commands, org-mode cycling on headings (`cycleSection` for Tab, `cycleNote` for ⇧Tab, `foldToLevel`), and remembering folds per note in local storage (line, text, and how far a partial fold reaches) |
 
 **Installing on another Mac** (`scripts/install-latest.sh`, installed as `~/.local/bin/margin-update`). Downloads the Apple-silicon `.dmg` of the newest (or a named) release with `gh`, or with `curl` and a read-only token in `~/.config/margin/github-token`; neither sets the quarantine attribute a browser adds, so Gatekeeper does not block the ad hoc signed app. It quits Margin, copies `Margin.app` out of the mounted image with `ditto`, and reads the release JSON with `plutil`, so it needs nothing beyond macOS. `MARGIN_APPS` and `MARGIN_SELF_COPY` point it at scratch folders for testing.
 
 **Printable guides.** `npm run docs:pdf` (`scripts/docs-pdf.mjs`, run by Electron) prints each `docs/*.html` page to a PDF and puts an HTML and a PDF copy of every guide in `build/Documentation/`, which is generated and not checked in. The installer shows that folder in its window (`build.dmg.contents` in `package.json`) and the app carries it in `Resources/Documentation`, which Help → Printable Guides… opens. It must be run before `electron-builder`, which stops if the folder is missing.
 
+**Note checker** (`tools/check_note.py`). A read-only Python script for a note that will not open: it reports encoding problems, odd characters, long lines, unclosed code blocks and comments, deep nesting, wide tables, and other notes with the same id, as counts and line numbers only, never the text, so its output can be shared. Shipped in `Resources/tools` beside `margin-tasks`.
+
 **Command-line tool** (`tools/margin_tasks.py`). A single Python file, standard library only, that lists tasks by reading the notes folder directly. It never writes. It re-implements the task rules of `lib/tasks.ts`, and `tests/task-cases.json` holds cases that both must satisfy (`npm run test:tasks`). It is packaged into the app's `Resources/tools`, and Help → Command-Line Tool… links it into `~/.local/bin` as `margin-tasks`: a folder the user owns, so the app never needs administrator rights.
 
-**Desktop shell** (`electron/`). Starts the server inside the app, opens a window on it, and adds what a browser cannot: a menu bar, a native right-click menu, a folder picker, direct PDF saving and a global hotkey. `preload.cjs` is the narrow bridge the page uses to reach those.
+**Desktop shell** (`electron/`). Starts the server inside the app, opens a window on it, and adds what a browser cannot: a menu bar, a native right-click menu, a folder picker, direct PDF saving and the keys that work from any app (Quick task and Quick capture: `GLOBAL_DEFAULTS` in `main.mjs`, overridden by `globalKeys` in the app's own `config.json`, set in Settings → Shortcuts). `preload.cjs` is the narrow bridge the page uses to reach those.
 
 ## How data flows
 
@@ -168,7 +171,11 @@ Beside the notes: `attachments/` (or the name chosen in settings), `.history/<id
 | What counts as a task, its details, the lists in the Tasks view | `lib/tasks.ts`; the view itself in `components/TasksView.tsx`. Make the same change in `tools/margin_tasks.py`, re-record the cases with `node scripts/task-fixtures.mjs --write`, and run `npm run test:tasks`. |
 | The guides' HTML pages, their find bar (⌘F) | `scripts/build-docs.mjs` (`npm run docs`): the page template, its styles and the find script; Edit → Find… in `electron/main.mjs` calls `window.marginFind` when a guide window is in front, and otherwise sends `find` to the main window (`findHere` in `App.tsx`) |
 | Quick capture and Quick task | `QuickCapture` in `components/Overlays.tsx`; the one-line task editor in `components/TaskCapture.tsx`, its suggestions in `captureCompletions` (`Editor.tsx`), dates in words in `resolveTaskWords` (`lib/tasks.ts`), saving in `captureTask` (`store.ts`) |
-| Folding | `components/folding.ts`; the commands go through `applyFormat` in `NoteView.tsx` to `EditorHandle.fold` |
+| Folding | `components/folding.ts`; the commands go through `applyFormat` in `NoteView.tsx` to `EditorHandle.fold`; Tab and ⇧Tab on headings are bound in `Editor.tsx`'s keymap, before the list keys |
+| Extract, move a section, turn into a notebook, merge | `src/refactor.ts`, with the text rules in `lib/refactor.ts`; the note pickers are the `moveSection` and `merge` modes in `components/Palette.tsx` |
+| Ticked tasks sinking, archiving | `lib/archive.ts` (rules) and `src/archive.ts` (commands); every tick path calls the sink: the checkbox in `livePreview.ts`, `toggleDone` in `lists.ts`, `Preview.tsx`, and `updateTask` in `store.ts` |
+| The keys that work from any app | `GLOBAL_DEFAULTS` and `registerGlobalKeys` in `electron/main.mjs`; the settings rows are `GlobalKeyEditor` in `components/SettingsModal.tsx` |
+| Tag suggestions under a title | `Tags` in `components/NoteView.tsx` |
 | Slash commands, link completion | `slashCommands` and `completions` in `components/Editor.tsx` |
 | The menu bar or right-click menu | `electron/main.mjs` |
 | Colours, spacing, fonts | The tokens at the top of `src/styles.css` |

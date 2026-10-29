@@ -2,6 +2,16 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.22.1 (2026-10-29)
+
+### Changed
+
+- **Theory of operations:** the daily, project, weekly and monthly routines now use ticked tasks sinking, archiving a finished phase or every note's old ticks from the Logbook, ⇧Tab for a project's outline, Move this note to the Archive for finished projects, and the reorganising commands for notes that have grown.
+- **Design guide:** the new modules (reorganising, archiving, org-mode folding, the keys that work from any app, tag suggestions, the note checker) and where to change each.
+- **README** feature list and **specification** (the note checker) brought up to date.
+
+No change to the app itself.
+
 ## 1.22.0 (2026-10-29)
 
 ### Fixed

@@ -115,11 +115,12 @@ Pick a fixed time: Friday afternoon or Monday morning.
 3. **Empty Scratch.** Open Scratch in the sidebar and press Keep on anything worth keeping. The rest expires.
 4. **Close out reading.** In Research, set anything you have finished to Done.
 5. **Reset the pins.** Pin what next week needs; unpin what is finished.
+6. **Reshape what has grown.** A note that has turned into several topics: ⌘K → **Turn this note into a notebook** (one note per top-level heading, the note itself stays as the overview, links keep working). A section that deserves its own note: put the cursor in it, ⌘K → **Extract to a new note**. A section in the wrong note: **Move this section to another note**. Two notes about the same thing: **Merge this note into another**. Each has Undo.
 
 ## Notes: every month
 
 1. **Tidy tags.** Look at the Tags list in the sidebar. Two tags that mean the same thing should become one: open the notes under the rarer tag and retag them (⌘T).
-2. **Tidy notebooks.** A notebook with one or two notes is rarely worth having. Move those notes up a level.
+2. **Tidy notebooks.** A notebook with one or two notes is rarely worth having. Move those notes up a level, or merge notes that overlap (⌘K → **Merge this note into another**).
 3. **Tune the templates.** If you delete the same section from every meeting note or daily note, remove it from the template in the Templates notebook.
 4. **Back up.** Your notes are a folder of files. Make sure that folder is included in your backup, or copy it somewhere safe now.
 5. **Update Margin** if there is a newer version on the releases page.
@@ -220,7 +221,7 @@ In a 1:1, write actions the same way under that day's entry in the person's note
 
 ## Tasks: end of the day
 
-1. **Tick what you finished,** in the Top 3 and in the panel.
+1. **Tick what you finished,** in the Top 3 and in the panel. Each ticked task drops to the end of its list, so what is left stays together at the top.
 2. **Leave unfinished Top 3 items alone.** They move into tomorrow's note when it is created.
 3. **Leave everything else alone too.** A planned task you did not get to stays in Today tomorrow.
 4. **Empty the Inbox: ⌘⇧T, then 1.** For each task, decide:
@@ -240,7 +241,8 @@ A project is anything with more than one step that ends when an outcome is reach
 3. **Give only the next step a day.** The rest wait in Anytime. A project with every step dated fills Today with things that cannot start yet.
 4. **Let things arrive by themselves.** Tasks you file with **M** land under Open Threads. Actions in a meeting note that links the project are listed under it in the Tasks view without being moved. Sort Open Threads into the phases during the weekly review.
 5. **Keep the story in the note.** Add a line to its Log when something is decided. A month later the note answers "where is this?" without a meeting.
-6. **Finish it** when the outcome is reached: tick or delete the leftovers, then move the note to the Archive notebook (⌘K → "Move to notebook").
+6. **Keep it readable.** Ticked tasks collect at the end of each list. When a phase is done, or a list gets long, put the cursor under its heading and ⌘K → **Archive done tasks in this section**: they move to the Archive section at the end of the note, folded, and stay in the Logbook. To see only the outline, put the cursor on a heading and press ⇧Tab (top headings, then every heading, then everything); Tab on one heading opens its subheadings.
+7. **Finish it** when the outcome is reached: tick or delete the leftovers, then ⌘K → **Move this note to the Archive**. It goes to `Archive/Work/…`, so Work holds only live projects.
 
 The one rule that keeps projects moving: **every live project has at least one open task you could do now.** A project with none is stalled, and Margin will not remind you. The weekly review checks this.
 
@@ -255,13 +257,14 @@ This is the review that keeps the lists trustworthy. Open the Tasks view: ⌘⇧
    - For each thing you intend to do this week, press S and give it a day.
    - For each thing you are not going to do soon, press S and choose Someday.
 5. **Catch undated strays: press 9** for No date. Anything here has no plan: give it a day, send it to Someday, or delete it.
-6. **Check every project has a next step.** Press 4 for Anytime and group by **Project**. Go down the projects in Work (and your other areas): each should show at least one open task. For one that shows none, open its note and write the next step, or, if it is finished or dropped, archive it. Sort any tasks waiting under a project's Open Threads into its phases while you are there.
+6. **Archive what is finished.** In the Logbook (press 6), **Archive done tasks…** moves everything ticked over a week ago into each note's Archive section, so project and people notes show what is still open.
+7. **Check every project has a next step.** Press 4 for Anytime and group by **Project**. Go down the projects in Work (and your other areas): each should show at least one open task. For one that shows none, open its note and write the next step, or, if it is finished or dropped, archive it. Sort any tasks waiting under a project's Open Threads into its phases while you are there.
 
 ## Tasks: every month
 
 1. **Review Someday: ⌘⇧T, then 5.** For each item: give it a real day, leave it, or delete it. This list is only useful if it is short enough to read.
 2. **Read the Logbook: press 6,** grouped by date. Scan what you finished this month. It is the easiest source for a status update or a review.
-3. **Close finished projects.** Group the Tasks view by Project. A note whose tasks are all done or all stale is a project that has ended: tick or delete the leftovers, then move the note to an Archive notebook (⌘K → "Move to notebook"), so Work holds only live projects.
+3. **Close finished projects.** Group the Tasks view by Project. A note whose tasks are all done or all stale is a project that has ended: tick or delete the leftovers, then open it and ⌘K → **Move this note to the Archive**, so Work holds only live projects.
 4. **Check your saved filters.** Remove the ones you no longer open.
 
 ## Tasks: which list to look at

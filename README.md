@@ -69,13 +69,16 @@ The server only listens on `127.0.0.1`.
 - **Pages** in markdown with tables, task lists, code highlighting, LaTeX math (`$inline$` and `$$display$$`), and pasted or dropped images, PDFs and files.
 - **Daily notes and a calendar.** Each day has a page and an infinite canvas of cards. Any note can have a canvas.
 - **Search and switching** with ⌘K: full-text search, `#tag` filters, recent notes, and commands. Open notes stay in tabs.
-- **Quick capture** (⌥C) into today's note, a scratch note, or an Inbox note.
+- **Quick capture** into today's note and **Quick task** into the Inbox, also from any other app (⌃⌥N and ⌃⌥Space, changeable).
 - **Scratch notes** that expire after a week unless you keep them.
 - **Research notes** with a source link, a reading status, and sections for quotes and your own notes.
 - **Backlinks.** Link with `[[Note title]]`; the side pane shows what links here, unlinked mentions, outgoing links and an outline. Renaming a note updates links to it.
 - **Version history** with a diff view and one-click restore.
 - **Export** to Markdown, HTML, PDF (through the print dialog), a Word file, or rich text on the clipboard for Google Docs.
 - **Notebooks** (folders, nested), tags (frontmatter or inline `#tags`), and pinned notes.
+- **Tasks the Things 3 way:** Inbox, Today, Upcoming, Anytime, Someday and Logbook across all notes, projects and areas, with ticked tasks moving to the end of their list and an Archive section per note for finished ones.
+- **Reorganising:** extract a selection or section into a new note, move a section, turn a note into a notebook, merge two notes; links are kept working.
+- **Outline folding** as in org-mode: Tab and ⇧Tab on headings, and fold to a level.
 - Light and dark themes. Press `?` for the full shortcut list.
 
 ## How notes are stored
