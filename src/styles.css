@@ -2669,12 +2669,16 @@ button.crumb:hover {
   width: 580px;
   overflow: hidden;
 }
+/* What is typed in the capture box is note text, so it follows the note font, size and weight in
+   Settings → Appearance, as the task lists do. */
 .capture textarea {
   display: block;
   width: 100%;
   padding: 20px 22px 12px;
-  font-size: 17px;
-  line-height: 1.55;
+  font-family: var(--doc-font);
+  font-size: var(--doc-size);
+  font-weight: var(--doc-weight);
+  line-height: var(--doc-leading);
   resize: none;
 }
 .capture footer {
@@ -2700,7 +2704,7 @@ button.crumb:hover {
 /* The task's notes, under the task line: quieter than the task itself */
 .capture textarea.capture-notes {
   padding: 4px 22px 8px 40px;
-  font-size: 14px;
+  font-size: calc(var(--doc-size) * 0.875);
   line-height: 1.5;
   color: var(--text-2);
   background: transparent;
@@ -2712,11 +2716,12 @@ button.crumb:hover {
   padding: 14px 22px 6px;
 }
 .capture-editor .cm-editor {
-  font-size: 17px;
+  font-size: var(--doc-size);
 }
 .capture-editor .cm-scroller {
-  font-family: var(--font);
-  line-height: 1.55;
+  font-family: var(--doc-font);
+  font-weight: var(--doc-weight);
+  line-height: var(--doc-leading);
 }
 .capture-editor .cm-content {
   min-height: 0;
@@ -4382,58 +4387,8 @@ body.resizing {
   font-weight: inherit;
 }
 
-/* Quick capture into a chosen note */
-.capture-dest {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 14px 10px 22px;
-  border-top: var(--hair) solid var(--border);
-  font-size: 14px;
-}
 .capture-to {
   color: var(--text-3);
-}
-.capture-dest input {
-  flex: 1 0 100%;
-  height: 30px;
-  font-size: 14px;
-}
-.capture-dest select {
-  max-width: 240px;
-  height: 26px;
-  padding: 0 6px;
-  border-radius: 7px;
-  border: var(--hair) solid var(--border-strong);
-  background: var(--bg-raised);
-  color: var(--text);
-  font-size: 13px;
-}
-.capture-notes {
-  flex: 1 0 100%;
-  display: flex;
-  flex-direction: column;
-}
-.capture-notes button {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  padding: 4px 8px;
-  margin: 0 -8px;
-  border-radius: 7px;
-  text-align: left;
-}
-.capture-notes button.active {
-  background: var(--hover);
-}
-.capture-notes button span {
-  font-size: 12px;
-  color: var(--text-3);
-}
-.capture-notes p {
-  color: var(--text-3);
-  padding: 4px 0;
 }
 
 /* Unlinked mentions and web links in the side pane */
