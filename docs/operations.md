@@ -71,7 +71,7 @@ That is all for notes. The rest of the morning belongs to [tasks](#tasks-every-m
 
 ## Notes: during the day
 
-- **Something comes to mind:** ⌘⇧C (or ⌃⌥Space from any other app), type it, press Enter. It lands in today's Log with the time. Do not stop to file it.
+- **Something comes to mind:** ⌘⇧C (or ⌃⌥N from any other app), type it, press Enter. It lands in today's Log with the time. Do not stop to file it.
 - **You are writing about a project or a person:** link them. Type `[[` and the name.
 - **You need to find something:** ⌘K and type. A name, a `#tag`, or a date such as "last friday" all work.
 - **Something to keep for a few days only** (a number, a draft, a command): ⌘⌥N for a scratch note. It removes itself after a week.
@@ -151,7 +151,7 @@ Rules of thumb:
 | Journal (all days on one page) | ⌘J |
 | Today's note | ⌘D |
 | Search, switch, run a command | ⌘K |
-| Quick capture | ⌘⇧C, or ⌃⌥Space from another app |
+| Quick capture | ⌘⇧C, or ⌃⌥N from another app |
 | New meeting note | ⌘⇧M |
 | New note | ⌘N |
 | New scratch note | ⌘⌥N |
@@ -178,7 +178,7 @@ Five ideas carry this half.
 ## Tasks: writing one
 
 - **In a note:** press ⌘⇧9 on a line, or type `/task`, or write `- [ ] ` yourself.
-- **From anywhere:** Quick task, ⌘⌥C (or ⌃⌥T from another app). Type the task, with `>fri`, `@due(mon)`, `P1` or `#tag` if you already know them, and press Enter. With no day it goes to the Inbox; with a day it goes straight to Today or Upcoming.
+- **From anywhere:** Quick task, ⌘⌥C (or ⌃⌥Space from another app). Type the task, with `>fri`, `@due(mon)`, `P1` or `#tag` if you already know them, and press Enter. With no day it goes to the Inbox; with a day it goes straight to Today or Upcoming.
 
 Then add only the details the task needs. With the cursor on the task:
 
@@ -205,7 +205,7 @@ Most tasks need none of these. A task with no dates is in Anytime, something you
 
 - **You finish something:** tick it where you see it: ⌘↵ on its line, or its checkbox in the panel.
 - **You decide to do something today that was not planned:** cursor on the task, ⌘⌥T.
-- **Something new needs doing:** write it as a task straight away, in the note you are in, or with Quick task (⌘⌥C, or ⌃⌥T from another app). It lands in the Inbox; sort it at the end of the day.
+- **Something new needs doing:** write it as a task straight away, in the note you are in, or with Quick task (⌘⌥C, or ⌃⌥Space from another app). It lands in the Inbox; sort it at the end of the day.
 - **A task turns out not to be for now:** ⌘⇧S and pick a later day, or Someday.
 
 ## Tasks: in a meeting
@@ -285,7 +285,7 @@ To see one project's tasks, group by Project. To see one topic across projects, 
 
 ## Tasks: keys
 
-From anywhere: Quick task, ⌘⌥C (⌃⌥T from another app).
+From anywhere: Quick task, ⌘⌥C (⌃⌥Space from another app).
 
 With the cursor on a task in a note:
 

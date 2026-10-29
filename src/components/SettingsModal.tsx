@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import { CalendarDays, Check, Moon, Sun, Search, LayoutTemplate, FolderCog, Keyboard, Palette, PenLine, RotateCcw, Settings2, SlidersHorizontal, Type, X, Zap } from 'lucide-react'
 import {
   ACCENTS,
@@ -31,7 +31,7 @@ import {
 import { FIXED_SHORTCUTS } from '../commands'
 import { SHORTCUT_DEFS, defaultCombo, eventCombo, formatCombo, isUsable, recording, syncDesktopMenu } from '../shortcuts'
 import { cx } from '../lib/util'
-import { desktop, fileManager } from '../desktop'
+import { desktop, fileManager, type GlobalKeyId, type GlobalKeys } from '../desktop'
 import { FontPicker } from './FontPicker'
 
 type Section = 'general' | 'appearance' | 'styles' | 'editor' | 'daily' | 'templates' | 'capture' | 'files' | 'shortcuts'
@@ -145,6 +145,89 @@ function Text({ value, placeholder, onChange }: { value: string; placeholder?: s
   )
 }
 
+const GLOBAL_KEY_LABELS: [GlobalKeyId, string][] = [
+  ['captureTask', 'Quick task'],
+  ['capture', 'Quick capture (a note)'],
+]
+
+/**
+ * The keys that open Quick task and Quick capture from any app, desktop only. They are kept by the desktop app
+ * itself, so they work from start-up, and it says whether the system accepted each one.
+ */
+function GlobalKeyEditor({ query, inApp }: { query: string; inApp: (combo: string) => string | undefined }) {
+  const [state, setState] = useState<GlobalKeys | null>(null)
+  const [recordingId, setRecordingId] = useState<GlobalKeyId | null>(null)
+  useEffect(() => {
+    void desktop?.globalKeys?.().then(setState)
+  }, [])
+  if (!desktop?.setGlobalKey || !state) return null
+  const words = query.toLowerCase().split(/\s+/).filter(Boolean)
+  const rows = GLOBAL_KEY_LABELS.filter(([id, label]) => {
+    const hay = `${label} from any app global system-wide anywhere ${formatCombo(state.keys[id])} ${state.keys[id].replace(/\+/g, ' ')}`.toLowerCase()
+    return words.every((w) => hay.includes(w))
+  })
+  if (!rows.length) return null
+  const stop = () => {
+    recording.active = false
+    setRecordingId(null)
+  }
+  const assign = async (id: GlobalKeyId, combo: string) => {
+    const other = GLOBAL_KEY_LABELS.find(([o]) => o !== id && combo && state.keys[o] === combo)
+    if (other) return toast(`${formatCombo(combo)} already opens ${other[1]} from any app`)
+    const next = await desktop!.setGlobalKey!(id, combo)
+    setState(next)
+    if (combo && next.status[id] === 'refused') toast(`${formatCombo(combo)} could not be used: another app or the system already has it`)
+  }
+  const onKeyDown = (e: React.KeyboardEvent, id: GlobalKeyId) => {
+    if (recordingId !== id) return
+    e.preventDefault()
+    e.stopPropagation()
+    if (e.key === 'Escape') return stop()
+    if (e.key === 'Backspace' || e.key === 'Delete') {
+      void assign(id, '')
+      return stop()
+    }
+    const combo = eventCombo(e.nativeEvent)
+    if (!combo) return
+    if (!isUsable(combo)) return toast('Include ⌘, ⌃ or ⌥ so the shortcut does not fire while typing')
+    void assign(id, combo)
+    stop()
+  }
+  return (
+    <>
+      <div className="key-group">From any app</div>
+      {rows.map(([id, label]) => {
+        const combo = state.keys[id]
+        const isChanged = combo !== state.defaults[id]
+        const clash = combo ? inApp(combo) : undefined
+        return (
+          <div key={id}>
+            <div className="key-row">
+              <span>{label}</span>
+              <button
+                className={cx('key-btn', !combo && 'none', isChanged && 'changed', recordingId === id && 'recording')}
+                onClick={() => {
+                  recording.active = true
+                  setRecordingId(id)
+                }}
+                onBlur={() => recordingId === id && stop()}
+                onKeyDown={(e) => onKeyDown(e, id)}
+              >
+                {recordingId === id ? 'Press keys…' : combo ? formatCombo(combo) : 'Off'}
+              </button>
+              <button className={cx('icon-btn sm', isChanged && 'show')} title="Back to default" onClick={() => void assign(id, state.defaults[id])} tabIndex={isChanged ? 0 : -1}>
+                <RotateCcw size={13} />
+              </button>
+            </div>
+            {combo && state.status[id] === 'refused' && <p className="set-note key-warn">Not working: another app or the system already uses {formatCombo(combo)}. Choose other keys.</p>}
+            {clash && state.status[id] !== 'refused' && <p className="set-note key-warn">Inside Margin these keys are also “{clash}”; they now open {label} instead.</p>}
+          </div>
+        )
+      })}
+    </>
+  )
+}
+
 function ShortcutEditor({ filter }: { filter?: string }) {
   const overrides = useStore((st) => st.settings.shortcuts) || {}
   const [recordingId, setRecordingId] = useState<string | null>(null)
@@ -210,7 +293,7 @@ function ShortcutEditor({ filter }: { filter?: string }) {
   return (
     <>
       <p className="set-note" style={{ marginTop: 0 }} hidden={embedded}>
-        Click a shortcut, then press the new keys. Backspace removes it, Esc cancels.
+        Click a shortcut, then press the new keys. Backspace removes it, Esc cancels.{desktop?.globalKeys && ' The first two work from any app, even when Margin is in the background.'}
         {changed && (
           <>
             {' '}
@@ -229,6 +312,7 @@ function ShortcutEditor({ filter }: { filter?: string }) {
           </button>
         )}
       </label>
+      <GlobalKeyEditor query={query} inApp={(combo) => SHORTCUT_DEFS.find((d) => current(d.id) === combo)?.label} />
       {shown.length === 0 && <p className="pane-empty">No shortcut matches “{query}”.</p>}
       {shown.map((def) => {
         const combo = current(def.id)

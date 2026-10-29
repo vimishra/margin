@@ -42,7 +42,7 @@ The owner's real notes (work meetings) are in `~/Documents/Vault`, set as `vault
 - `src/components/JournalView.tsx` — all daily notes on one page, each with its own editor. The day last clicked in is `journalNote` in the store and is what `currentNote()` returns there; editors find out whether app-level commands are for them from the nearest `data-pane` attribute.
 - `src/lib/shortlinks.ts` — the pattern for company short links (`go/name`, `b/123`). `livePreview.ts` marks them in the editor and a core rule in `lib/markdown.ts` does the same for rendered text; neither changes the note.
 - `src/components/SettingsModal.tsx` — settings UI. `src/lib/` — markdown, canvas format, links, search, dates, export.
-- `electron/main.mjs` — window, menu bar, right-click menu, IPC. `electron/preload.cjs` — the bridge, typed in `src/desktop.ts`.
+- `electron/main.mjs` — window, menu bar, right-click menu, IPC. `electron/preload.cjs` — the bridge, typed in `src/desktop.ts`. The keys that work from any app (Quick task ⌃⌥Space, Quick capture ⌃⌥N) are `GLOBAL_DEFAULTS` there, overridden by `globalKeys` in the app's own `config.json` and edited in Settings → Shortcuts (`GlobalKeyEditor`); they are not in `settings.shortcuts`.
 
 ## How to add things
 

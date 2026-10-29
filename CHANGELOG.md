@@ -2,6 +2,16 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.20.0 (2026-10-29)
+
+### Added
+
+- **Choose the keys that work from any app.** Settings → Shortcuts has a **From any app** group with the keys for Quick task and Quick capture (desktop app). Click one and press new keys, Backspace turns it off, the arrow restores the default. It takes effect at once, and Settings says if another app or the system already holds the keys, or if they are also one of Margin's own shortcuts.
+
+### Changed
+
+- **New keys for capturing from any app:** ⌃⌥Space now opens **Quick task**, and ⌃⌥N opens **Quick capture** for notes (they were ⌃⌥Space for notes and ⌃⌥T for tasks).
+
 ## 1.19.3 (2026-10-29)
 
 ### Fixed

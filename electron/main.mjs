@@ -197,6 +197,40 @@ async function chooseVault() {
   return true
 }
 
+// Keys that open Quick task and Quick capture from any app. Saved with the app's own settings (config.json), not
+// the page's, so they work from start-up; written in the page's combo form ("Ctrl+Alt+Space", "Mod" being ⌘ on a
+// Mac and Ctrl elsewhere). '' turns one off. Settings → Shortcuts changes them through `globalKeys:set`.
+const GLOBAL_DEFAULTS = {
+  captureTask: isMac ? 'Ctrl+Alt+Space' : 'Mod+Alt+Space',
+  capture: isMac ? 'Ctrl+Alt+N' : 'Mod+Alt+N',
+}
+let globalStatus = {}
+const globalKeys = () => ({ ...GLOBAL_DEFAULTS, ...(readConfig().globalKeys || {}) })
+const toAccelerator = (combo) =>
+  combo
+    .split('+')
+    .map((part, i, all) => (part === '' && i === all.length - 1 ? 'Plus' : part === 'Mod' ? 'CmdOrCtrl' : part === 'Ctrl' ? 'Control' : part))
+    .join('+')
+function registerGlobalKeys() {
+  globalShortcut.unregisterAll()
+  globalStatus = {}
+  for (const [id, combo] of Object.entries(globalKeys())) {
+    if (!combo) {
+      globalStatus[id] = 'off'
+      continue
+    }
+    let ok = false
+    try {
+      ok = globalShortcut.register(toAccelerator(combo), () => send(id))
+    } catch {
+      /* not a key the system accepts */
+    }
+    // Refused when another app (or the system) already holds the key.
+    globalStatus[id] = ok ? 'on' : 'refused'
+  }
+}
+const globalKeysState = () => ({ keys: globalKeys(), defaults: GLOBAL_DEFAULTS, status: globalStatus })
+
 // Shortcuts are handled by the page (so they can be customised in Settings). The menu shows the
 // current keys; until the page reports them, these defaults are shown.
 let accelerators = {
@@ -544,6 +578,16 @@ if (!app.requestSingleInstanceLock()) {
     session.defaultSession.setPermissionCheckHandler((_wc, permission, requestingOrigin) => requestingOrigin.startsWith(origin) && allow(permission))
     session.defaultSession.setPermissionRequestHandler((wc, permission, callback) => callback(wc.getURL().startsWith(origin) && allow(permission)))
 
+    ipcMain.handle('globalKeys:get', () => globalKeysState())
+    ipcMain.handle('globalKeys:set', (_e, id, combo) => {
+      if (!(id in GLOBAL_DEFAULTS) || typeof combo !== 'string') return globalKeysState()
+      const saved = { ...(readConfig().globalKeys || {}) }
+      if (combo === GLOBAL_DEFAULTS[id]) delete saved[id]
+      else saved[id] = combo
+      writeConfig({ globalKeys: saved })
+      registerGlobalKeys()
+      return globalKeysState()
+    })
     ipcMain.on('shortcuts:set', (_e, map) => {
       if (!map || typeof map !== 'object') return
       accelerators = Object.fromEntries(Object.entries(map).filter(([, v]) => typeof v === 'string'))
@@ -586,9 +630,7 @@ if (!app.requestSingleInstanceLock()) {
     if (isMac && !app.isPackaged && fs.existsSync(iconPath)) app.dock.setIcon(iconPath)
     buildMenu()
     createWindow()
-    // Capture a thought, or a task, from any app.
-    globalShortcut.register('Control+Alt+Space', () => send('capture'))
-    globalShortcut.register('Control+Alt+T', () => send('captureTask'))
+    registerGlobalKeys()
 
     app.on('activate', () => (win ? win.show() : createWindow()))
   })

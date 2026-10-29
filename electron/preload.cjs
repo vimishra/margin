@@ -21,6 +21,9 @@ contextBridge.exposeInMainWorld('marginDesktop', {
   chooseFolder: (title) => ipcRenderer.invoke('folder:choose', title),
   savePdf: (name) => ipcRenderer.invoke('pdf:save', name),
   setShortcuts: (map) => ipcRenderer.send('shortcuts:set', map),
+  /** The keys that open Quick task and Quick capture from any app: what they are, their defaults, and whether each is working. */
+  globalKeys: () => ipcRenderer.invoke('globalKeys:get'),
+  setGlobalKey: (id, combo) => ipcRenderer.invoke('globalKeys:set', id, combo),
   /** The accent colour from the system's settings ("#rrggbb"), and a way to hear when it changes. */
   accentColor: () => ipcRenderer.invoke('accent:get'),
   onAccent: (handler) => {

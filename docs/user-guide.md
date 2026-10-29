@@ -639,13 +639,13 @@ On the canvas:
 
 ## Quick capture and scratch notes
 
-**Quick capture** (⌘⇧C, or ⌃⌥Space from any app) opens a small box. Type, press Enter, and carry on with what you were doing. A note always goes into **today's note**: as a timestamped line (Settings → Capture & scratch → Timestamp captures), or as a card if today is on the canvas. ⇧Enter starts a new line.
+**Quick capture** (⌘⇧C, or ⌃⌥N from any app) opens a small box. Type, press Enter, and carry on with what you were doing. A note always goes into **today's note**: as a timestamped line (Settings → Capture & scratch → Timestamp captures), or as a card if today is on the canvas. ⇧Enter starts a new line.
 
 To capture a task, use **Quick task** below: tasks go to the Inbox, not to today's note.
 
 ### Quick task
 
-**Quick task** (⌘⌥C, or ⌃⌥T from any app) opens the same box ready for a task. The **Note / Task** switch at the top changes between the two, and so do their shortcuts while the box is open; what you have typed comes along.
+**Quick task** (⌘⌥C, or ⌃⌥Space from any app) opens the same box ready for a task. The **Note / Task** switch at the top changes between the two, and so do their shortcuts while the box is open; what you have typed comes along.
 
 Type the task with its details, as you would on a task line in a note, and the same suggestions appear:
 
@@ -1010,7 +1010,7 @@ Two settings live inside the app and cannot be read from outside it. If you rena
 | Templates & meetings | Template and meeting notebooks, how meetings are filed, the meeting template |
 | Capture & scratch | Timestamps on captures, scratch expiry |
 | Files & data | Notes folder, attachments folder, image naming, Obsidian import, reset |
-| Shortcuts | Every shortcut; click one and press new keys |
+| Shortcuts | Every shortcut; click one and press new keys. At the top, **From any app**: the keys that open Quick task and Quick capture even when Margin is in the background (desktop app only) |
 
 **Text style colours** have a light-theme and a dark-theme picker. Leave the dark one on Auto and it uses a lightened version of your light colour, so a dark heading colour stays readable on a dark background.
 
@@ -1019,6 +1019,8 @@ Page width is measured in characters per line. Settings are kept per app: the de
 ## Shortcuts
 
 These are the defaults. Change any of them in Settings → Shortcuts.
+
+**Keys that work from any app.** In the desktop app, ⌃⌥Space opens Quick task and ⌃⌥N opens Quick capture, even while you are in another app. Change them under **From any app** at the top of Settings → Shortcuts: click one and press the new keys, or press Backspace to turn it off; the arrow beside it puts the default back. The change takes effect at once. If another app or the system already uses the keys you chose, Settings says so and the shortcut stays off until you pick others. If they are also one of Margin's own shortcuts (on Linux, Ctrl+Alt+N is also New scratch note), Settings points it out: from then on those keys open Quick task or Quick capture, even inside Margin. On a Chromebook, keys pressed outside Margin's window may not reach it at all.
 
 Press **?** (or click **Shortcuts** at the bottom of the sidebar) for a window listing every shortcut with the keys you have set. Start typing to narrow it to the ones whose name or keys match; ⌘F returns to the box, and **Esc** clears it, then closes the window.
 
@@ -1034,9 +1036,9 @@ Press **?** (or click **Shortcuts** at the bottom of the sidebar) for a window l
 | New scratch note | ⌘⌥N | ⌥S |
 | New canvas | ⌘⇧N | — |
 | Quick capture | ⌘⇧C | ⌥C |
-| Quick capture from any app | ⌃⌥Space | — |
+| Quick capture from any app | ⌃⌥N | — |
 | Quick task | ⌘⌥C | ⌥⇧C |
-| Quick task from any app | ⌃⌥T | — |
+| Quick task from any app | ⌃⌥Space | — |
 | Today's daily note | ⌘D | ⌥D |
 | Home | ⌘⇧H | ⌥H |
 | Calendar | ⌘⇧L | ⌥L |
@@ -1125,7 +1127,7 @@ You can edit the files in any other program, or add `.md` files to the folder. M
 | "Port 4321 is already in use" | Margin is already running. Open http://localhost:4321, or stop the other copy. |
 | A change you made is missing | Open version history (⌥V) and restore an earlier version. |
 | A note disappeared | Look in the `.trash` folder inside your notes folder. Scratch notes go there when they expire. |
-| A shortcut does nothing | Check Settings → Shortcuts. Another action may have taken those keys. |
+| A shortcut does nothing | Check Settings → Shortcuts. Another action may have taken those keys. For the keys under **From any app**, a note there says if another app or the system holds them. |
 | Text is not rendering | Check the mode buttons at the top right of the note; Markdown source shows raw text. |
 | No spelling suggestions | Turn on Settings → Editor → Spell check. |
 | The app will not open on a Mac | The build is unsigned. Right-click the app and choose Open. |

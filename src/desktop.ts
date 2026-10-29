@@ -13,6 +13,9 @@ export interface DesktopBridge {
   chooseFolder?(title: string): Promise<string | null>
   /** Action id → accelerator, shown next to the menu bar items. */
   setShortcuts?(map: Record<string, string>): void
+  /** The keys that open Quick task (`captureTask`) and Quick capture (`capture`) from any app. */
+  globalKeys?(): Promise<GlobalKeys>
+  setGlobalKey?(id: GlobalKeyId, combo: string): Promise<GlobalKeys>
   /** The system's accent colour as "#rrggbb", or null where there is none. */
   accentColor?(): Promise<string | null>
   onAccent?(handler: (color: string | null) => void): () => void
@@ -44,3 +47,11 @@ if (desktop) {
 }
 
 if (desktop) document.documentElement.classList.add('desktop', `desktop-${desktop.platform}`)
+
+export type GlobalKeyId = 'captureTask' | 'capture'
+/** Combos in the page's form ("Ctrl+Alt+Space"); '' is off. `status` says whether the system accepted each one. */
+export interface GlobalKeys {
+  keys: Record<GlobalKeyId, string>
+  defaults: Record<GlobalKeyId, string>
+  status: Partial<Record<GlobalKeyId, 'on' | 'off' | 'refused'>>
+}

@@ -1,6 +1,6 @@
 # Margin product specification
 
-This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.19.3.
+This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.20.0.
 
 It is written to be handed to a developer or a coding tool. Where a detail is a free choice for the implementer, it says so; everything else is a requirement.
 
@@ -808,8 +808,8 @@ Every action below can be reassigned or cleared in Settings → Shortcuts, which
 | Tasks view | see section 12.5 | |
 | Canvas | Double-click, N, Enter, Esc, ⌫, scroll, Mod+scroll | See section 10 |
 | Quick capture | Enter, Shift+Enter, Tab, Alt+↓, Esc | See section 11.1 |
-| Desktop, any app | Ctrl+Alt+Space | Quick capture |
-| Desktop, any app | Ctrl+Alt+T | Quick task |
+| Desktop, any app | Ctrl+Alt+N | Quick capture |
+| Desktop, any app | Ctrl+Alt+Space | Quick task |
 
 ## 17. Appearance
 
@@ -847,7 +847,7 @@ Every action below can be reassigned or cleared in Settings → Shortcuts, which
 - **PDF export** saves directly to a chosen file.
 - **Web links** open in the default browser; only the app's own pages load in app windows.
 - **Help pages** open in a separate window that is reused.
-- **Global hotkeys** Ctrl+Alt+Space opens quick capture, Ctrl+Alt+T quick task.
+- **Global hotkeys** Ctrl+Alt+Space opens quick task, Ctrl+Alt+N quick capture, by default (on Linux and Windows, Ctrl+Alt+N is also New scratch note, which the global key then takes over). Both can be changed or turned off in Settings → Shortcuts under "From any app" (desktop only). They are stored with the desktop app's own settings (not the page's), so they are registered at start-up before the window opens, and re-registered at once when changed. If the system refuses a key (held by another app or the system), that row says so and the key stays off. The same key cannot be given to both; one that matches an in-app shortcut is pointed out, since the global key wins.
 - **Installed fonts** are listed for the font picker.
 - **Packaging:** a `.deb` for 64-bit Intel and AMD Linux (Debian, Ubuntu, a Chromebook's Linux environment), installing into `/opt/Margin` with a `margin` command and a launcher entry, attached to the same releases. A `.dmg` for Apple silicon, signed ad hoc (no Apple developer account); unsigned builds require `xattr -cr` once after installing from a browser download. An install script (`margin-update`) downloads a release with the GitHub command-line tool or a read-only token instead, which leaves no download mark, so no `xattr` step is needed; it closes the running app, replaces it in Applications, keeps a copy of itself in `~/.local/bin`, and can install a named version. Versioned releases with a changelog.
 - **Printable Guides…** opens a folder shipped inside the app holding each guide (user guide, theory of operations, design guide, specification) as a PDF and as a standalone HTML page. The installer's window shows the same folder, named Documentation, beside the app.

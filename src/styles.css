@@ -5537,3 +5537,9 @@ kbd {
   margin-left: 0;
   margin-right: 0;
 }
+
+/* A note under a "From any app" shortcut: the key is refused, or it shadows a shortcut inside Margin. */
+.set-note.key-warn {
+  margin: 2px 0 8px;
+  color: var(--warn, var(--danger));
+}
