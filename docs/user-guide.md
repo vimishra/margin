@@ -326,9 +326,51 @@ Margin follows Things 3 here, with notes instead of a separate task database:
 | To-do | A `- [ ] …` line in the note |
 | Notes on a to-do | Lines indented under the task |
 | Inbox | The *Inbox* note in the Inbox notebook |
+| Moving an Inbox to-do into a project | **M** in the Tasks view: it goes under the project note's **Open Threads** heading |
+| A project's to-dos in one place | The Tasks view grouped by **Project**, with a circle that fills as they are ticked |
+| A project deadline | `@due(…)` on the one task that means the project is done |
 | Completing a project | Tick its last tasks, then move the note to an **Archive** notebook |
 
-A project note is more than a task list: decisions, links and background go in the same note, around the tasks.
+A project is anything with more than one step that ends when an outcome is reached. A project note is more than a task list: decisions, links and background go in the same note, around the tasks.
+
+#### Shaping a project note
+
+A shape that works, for a project note called *Project Goldilocks* in `Work`, with its to-dos in one part and its background in another:
+
+```markdown
+Outcome: 1.0 schedule and resourcing agreed by 15 Nov.
+
+## Tasks
+### Close the schedule with the new feature list
+- [ ] Review the final feature list
+- [ ] Close the 0.2 milestone schedule
+- [ ] Close the 0.5 milestone schedule
+- [ ] Close the 1.0 milestone schedule @due(2026-11-15)
+### Close the resourcing
+- [ ] Close the resourcing for feature A
+- [ ] Close the resourcing for feature B
+### Open Threads
+
+## Notes
+### Feature A details
+### Feature B details
+
+## Log
+- 29 Oct: feature list frozen for 1.0
+```
+
+- **No title heading.** The note's title is already its name, shown above the page and used as the file name, so a `# Project Goldilocks` line would only repeat it.
+- **Outcome first,** in one line: what "done" means. It is what makes the note a project rather than a list.
+- **A `###` heading for each phase under Tasks,** as Things uses headings. In the Tasks view each task shows its heading (*Project Goldilocks › Close the resourcing*), and grouped by Project the tasks are listed under these headings. Most tasks need no date: they wait in Anytime. Plan only the next one or two with a day (`>date`), so Today stays short.
+- **Open Threads inside Tasks.** **M** files a task under the note's Open Threads heading, at whatever level it is, so filed tasks land next to the others; sort them into the phases now and then. Without one, Margin adds `## Open Threads` at the end of the note, below the notes.
+- **Notes** for background, one `###` per topic. A task about one feature can also sit under its notes; it still belongs to the project and shows that heading in the Tasks view.
+- **Log** for decisions and dated context, newest last, so the note is the project's whole memory, not only its to-do list.
+- **The deadline** goes on the task that marks the end, here the 1.0 schedule. It shows in This week and Next 30 days as it comes near, joins Today on the day, and is marked overdue if it slips.
+- **Fold what you are not working on:** fold `## Notes` while going through the tasks, or a phase once it is done (⌘', or the arrow beside the heading).
+
+To reuse the shape, save it without the details as a note called *Project* in the Templates notebook, and start each project with ⌘K → "New note from a template".
+
+To start a project, make the note in its area's notebook, or press **M** on an Inbox task and type a new name: Margin makes the note with an Open Threads heading and the task under it. How to keep projects moving week to week is in the [theory of operations](operations.md#tasks-projects).
 
 Not every note is a project. Daily notes, meeting notes, the Inbox, templates, scratch notes and notes in **People** are not. A meeting's actions still belong to its project: when a meeting note links `[[Organization]]`, its tasks are listed under Organization in the Tasks view (grouped by Project), after Organization's own tasks, under "From" and the meeting's name. They stay in the meeting note, where the context is; ticking one there or in the Tasks view is the same thing. A task in any other note, such as today's, joins a project by linking it on its own line: `- [ ] Ring the recruiter [[Organization]]`. To move a task into the project note for good, press **M** on it in the Tasks view.
 

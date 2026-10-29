@@ -418,11 +418,57 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 <td>The <em>Inbox</em> note in the Inbox notebook</td>
 </tr>
 <tr>
+<td>Moving an Inbox to-do into a project</td>
+<td><strong>M</strong> in the Tasks view: it goes under the project note's <strong>Open Threads</strong> heading</td>
+</tr>
+<tr>
+<td>A project's to-dos in one place</td>
+<td>The Tasks view grouped by <strong>Project</strong>, with a circle that fills as they are ticked</td>
+</tr>
+<tr>
+<td>A project deadline</td>
+<td><code>@due(…)</code> on the one task that means the project is done</td>
+</tr>
+<tr>
 <td>Completing a project</td>
 <td>Tick its last tasks, then move the note to an <strong>Archive</strong> notebook</td>
 </tr>
 </tbody>
-</table></div><p>A project note is more than a task list: decisions, links and background go in the same note, around the tasks.</p>
+</table></div><p>A project is anything with more than one step that ends when an outcome is reached. A project note is more than a task list: decisions, links and background go in the same note, around the tasks.</p>
+<h4 id="shaping-a-project-note">Shaping a project note</h4>
+<p>A shape that works, for a project note called <em>Project Goldilocks</em> in <code>Work</code>, with its to-dos in one part and its background in another:</p>
+<pre><code class="language-markdown">Outcome: 1.0 schedule and resourcing agreed by 15 Nov.
+
+## Tasks
+### Close the schedule with the new feature list
+- [ ] Review the final feature list
+- [ ] Close the 0.2 milestone schedule
+- [ ] Close the 0.5 milestone schedule
+- [ ] Close the 1.0 milestone schedule @due(2026-11-15)
+### Close the resourcing
+- [ ] Close the resourcing for feature A
+- [ ] Close the resourcing for feature B
+### Open Threads
+
+## Notes
+### Feature A details
+### Feature B details
+
+## Log
+- 29 Oct: feature list frozen for 1.0
+</code></pre>
+<ul>
+<li><strong>No title heading.</strong> The note's title is already its name, shown above the page and used as the file name, so a <code># Project Goldilocks</code> line would only repeat it.</li>
+<li><strong>Outcome first,</strong> in one line: what &quot;done&quot; means. It is what makes the note a project rather than a list.</li>
+<li><strong>A <code>###</code> heading for each phase under Tasks,</strong> as Things uses headings. In the Tasks view each task shows its heading (<em>Project Goldilocks › Close the resourcing</em>), and grouped by Project the tasks are listed under these headings. Most tasks need no date: they wait in Anytime. Plan only the next one or two with a day (<code>&gt;date</code>), so Today stays short.</li>
+<li><strong>Open Threads inside Tasks.</strong> <strong>M</strong> files a task under the note's Open Threads heading, at whatever level it is, so filed tasks land next to the others; sort them into the phases now and then. Without one, Margin adds <code>## Open Threads</code> at the end of the note, below the notes.</li>
+<li><strong>Notes</strong> for background, one <code>###</code> per topic. A task about one feature can also sit under its notes; it still belongs to the project and shows that heading in the Tasks view.</li>
+<li><strong>Log</strong> for decisions and dated context, newest last, so the note is the project's whole memory, not only its to-do list.</li>
+<li><strong>The deadline</strong> goes on the task that marks the end, here the 1.0 schedule. It shows in This week and Next 30 days as it comes near, joins Today on the day, and is marked overdue if it slips.</li>
+<li><strong>Fold what you are not working on:</strong> fold <code>## Notes</code> while going through the tasks, or a phase once it is done (⌘', or the arrow beside the heading).</li>
+</ul>
+<p>To reuse the shape, save it without the details as a note called <em>Project</em> in the Templates notebook, and start each project with ⌘K → &quot;New note from a template&quot;.</p>
+<p>To start a project, make the note in its area's notebook, or press <strong>M</strong> on an Inbox task and type a new name: Margin makes the note with an Open Threads heading and the task under it. How to keep projects moving week to week is in the <a href="operations.html#tasks-projects">theory of operations</a>.</p>
 <p>Not every note is a project. Daily notes, meeting notes, the Inbox, templates, scratch notes and notes in <strong>People</strong> are not. A meeting's actions still belong to its project: when a meeting note links <code>[[Organization]]</code>, its tasks are listed under Organization in the Tasks view (grouped by Project), after Organization's own tasks, under &quot;From&quot; and the meeting's name. They stay in the meeting note, where the context is; ticking one there or in the Tasks view is the same thing. A task in any other note, such as today's, joins a project by linking it on its own line: <code>- [ ] Ring the recruiter [[Organization]]</code>. To move a task into the project note for good, press <strong>M</strong> on it in the Tasks view.</p>
 <h3 id="tags-and-links">Tags and links</h3>
 <p><strong>Tags</strong> answer &quot;what kind of note is this?&quot; or &quot;what state is it in?&quot;: <code>#meeting</code>, <code>#idea</code>, <code>#question</code>, <code>#todo</code>. They cut across notebooks, and a note can carry several.</p>
