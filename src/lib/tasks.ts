@@ -302,7 +302,8 @@ export interface ProjectFolders {
 }
 
 /** Whether a notebook is `folder` or a notebook inside it, compared as macOS compares folder names. */
-const within = (notebook: string, folder: string) => !!notebookKey(folder) && (notebookKey(notebook) === notebookKey(folder) || notebookKey(notebook).startsWith(notebookKey(folder) + '/'))
+/** A notebook, or one inside it (spelling of capitals and slashes ignored). */
+export const within = (notebook: string, folder: string) => !!notebookKey(folder) && (notebookKey(notebook) === notebookKey(folder) || notebookKey(notebook).startsWith(notebookKey(folder) + '/'))
 
 /**
  * A project, as in Things: an ordinary note outside the notebooks the app manages (daily notes, meetings, the

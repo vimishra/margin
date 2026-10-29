@@ -4253,9 +4253,81 @@ body.resizing {
   font-weight: 600;
   color: var(--text-2);
 }
+/* Grouped by project, as Things lays out its lists: the area (a notebook) with a box, each project with its
+   progress circle, bigger than the tasks, and the headings inside a project in bold accent with a rule under
+   them. All in the note font, sized from the note text size. */
+.task-area-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 28px 0 2px;
+  padding-bottom: 6px;
+  border-bottom: var(--hair) solid var(--border);
+  font-family: var(--doc-font);
+  font-size: calc(var(--doc-size) * 1.125);
+  font-weight: 700;
+  color: var(--text);
+}
+.task-area-head svg {
+  color: var(--text-3);
+}
+.task-groups > .task-group:first-child > .task-area-head {
+  margin-top: 8px;
+}
+.task-group-head.project-head {
+  gap: 8px;
+  font-family: var(--doc-font);
+  font-size: calc(var(--doc-size) * 1.0625);
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text);
+}
+.task-group-head.project-head > svg:first-child {
+  color: var(--text-4);
+}
+.task-group-head.project-head .count {
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-3);
+}
+.project-head .task-progress {
+  width: 15px;
+  height: 15px;
+  border-width: 2px;
+  color: var(--accent);
+  opacity: 1;
+}
+.project-head .project-icon {
+  color: var(--accent);
+}
+.task-group.project .task-subhead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 14px 0 4px calc(var(--doc-size) + 10px);
+  padding-bottom: 3px;
+  border-bottom: var(--hair) solid var(--border);
+  font-family: var(--doc-font);
+  font-size: calc(var(--doc-size) * 0.9375);
+  font-weight: 700;
+  color: var(--accent-text);
+}
+.task-group.project .task-subhead svg {
+  flex: none;
+  opacity: 0.85;
+}
+/* The note a task is in, under the task when not grouped by project */
+.task-where-icon {
+  vertical-align: -1px;
+  margin-right: 4px;
+  opacity: 0.8;
+}
 .task-where {
   font-size: 1em;
-  color: var(--text-3);
+  font-weight: 500;
+  color: var(--text-2);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

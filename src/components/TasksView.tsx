@@ -1,10 +1,10 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
-import { AlignLeft, Archive, BookmarkPlus, CalendarClock, CalendarDays, Check, ChevronDown, ChevronRight, Flag, FolderInput, ListChecks, MoreHorizontal, Search, Star } from 'lucide-react'
+import { AlignLeft, Archive, BookmarkPlus, Box, CalendarClock, CalendarDays, Check, ChevronDown, ChevronRight, FileText, Flag, FolderInput, ListChecks, ListTree, MoreHorizontal, Search, Star, Users } from 'lucide-react'
 import type { Note } from '../types'
 import { deleteTaskView, go, openDatePicker, openFromClick, openMenu, openNoteAt, openSideAt, renameTaskView, rescheduleTasks, saveTaskView, ensureInboxNote, inboxNotebook, moveTasksToNote, ui, updateTask, updateTaskView, useStore, type MenuItem } from '../store'
 import { hint } from '../shortcuts'
 import { renderInline, renderMarkdown } from '../lib/markdown'
-import { PRIORITIES, TASK_FILTERS, TASK_LINE, TASK_SOURCES, allTasks, byUrgency, isCarried, isOn, isOverdue, isToday, nextDate, priorityLabel, projectsOf, sameNotebook, selectTasks, shortDate, weekRange, withDetails, type ProjectFolders, type Task, type TaskFilter, type TaskGroup, type TaskSource, type TaskView } from '../lib/tasks'
+import { PRIORITIES, TASK_FILTERS, TASK_LINE, TASK_SOURCES, allTasks, byUrgency, isCarried, isOn, isOverdue, isToday, nextDate, priorityLabel, projectsOf, sameNotebook, selectTasks, shortDate, weekRange, withDetails, within, type ProjectFolders, type Task, type TaskFilter, type TaskGroup, type TaskSource, type TaskView } from '../lib/tasks'
 import { addDays, cx, displayTitle, firstWeekday, local, today, tagStyle } from '../lib/util'
 
 const weekStartOf = (setting: string) => (setting === 'sunday' ? 0 : setting === 'monday' ? 1 : firstWeekday())
@@ -120,6 +120,7 @@ export function TaskRow({ task, note, showNote = true, active = false, star = fa
           )}
           {showNote && (
             <span className="task-where">
+              <FileText size={12} className="task-where-icon" />
               {displayTitle(note)}
               {task.heading && task.heading !== note.title ? ` › ${task.heading}` : ''}
             </span>
@@ -172,6 +173,8 @@ interface Group {
   progress?: [number, number]
   /** The small heading a task sits under inside its group. */
   sub?: (t: Task) => string
+  /** The icon before that heading: a heading of the note itself, a meeting, a day, or another note. */
+  subIcon?: (t: Task) => React.ReactNode
 }
 
 /** A small circle that fills as a project's tasks are ticked, as in Things. */
@@ -218,6 +221,12 @@ function projectGroups(shown: Task[], all: Task[], notes: Record<string, Note>, 
         : notes[b.noteId].title.localeCompare(notes[a.noteId].title) || a.line - b.line,
     )
     g.sub = (t: Task) => (!g.noteId ? displayTitle(notes[t.noteId]) : own(t) ? t.heading : `From ${displayTitle(notes[t.noteId])}`)
+    g.subIcon = (t: Task) => {
+      const from = notes[t.noteId]
+      if (g.noteId && own(t)) return <ListTree size={14} />
+      if (from?.type === 'daily') return <CalendarDays size={14} />
+      return from && within(from.folder, folders.meetingsFolder) ? <Users size={14} /> : <FileText size={14} />
+    }
   }
   return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]))
 }
@@ -503,14 +512,22 @@ export function TasksView({ view }: { view?: string }) {
           )}
           {groups.map(([key, g], gi) => {
             const isClosed = closed[key]
+            // Grouped by project, as in Things: each notebook (the area) as a heading over its projects.
+            const byProject = group === 'note'
+            const area = byProject && g.noteId ? g.area || '' : ''
+            const newArea = !!area && (gi === 0 || groups[gi - 1][1].area !== g.area)
             return (
-              <section key={key} className={cx('task-group', g.label === 'Overdue' && 'late')}>
+              <section key={key} className={cx('task-group', g.label === 'Overdue' && 'late', byProject && 'project')}>
+                {newArea && (
+                  <h3 className="task-area-head">
+                    <Box size={16} /> {area.split('/').pop()}
+                  </h3>
+                )}
                 {g.label && (
                   <header>
-                    <button className="task-group-head" onClick={() => setClosed({ ...closed, [key]: !isClosed })}>
+                    <button className={cx('task-group-head', byProject && 'project-head')} onClick={() => setClosed({ ...closed, [key]: !isClosed })}>
                       {isClosed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
-                      {g.progress && <Progress done={g.progress[0]} total={g.progress[1]} />}
-                      {g.area && <span className="task-area">{g.area.split('/').pop()}</span>}
+                      {g.progress ? <Progress done={g.progress[0]} total={g.progress[1]} /> : byProject && <CalendarDays size={16} className="project-icon" />}
                       {g.label}
                       <span className="count">{g.tasks.length}</span>
                     </button>
@@ -533,7 +550,7 @@ export function TasksView({ view }: { view?: string }) {
                     return (
                       notes[t.noteId] && (
                         <Fragment key={`${t.noteId}:${t.line}`}>
-                          {sub && sub !== g.label && (n === 0 || sub !== g.sub!(g.tasks[n - 1])) && <h5 className="task-subhead">{sub}</h5>}
+                          {sub && sub !== g.label && (n === 0 || sub !== g.sub!(g.tasks[n - 1])) && <h5 className="task-subhead">{g.subIcon?.(t)}{sub}</h5>}
                           <TaskRow task={t} note={notes[t.noteId]} showNote={group !== 'note'} star={filter !== 'today' && filter !== 'overdue' && isToday(t, now)} active={i === at} onHover={() => ((keyboard.current = false), i !== at && setActive(i))} notesOpen={openNotes.has(notesKey(t))} onToggleNotes={() => toggleNotes(t)} />
                         </Fragment>
                       )
