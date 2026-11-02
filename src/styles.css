@@ -1790,6 +1790,29 @@ button.crumb:hover {
 .cm-wikilink-pill:hover {
   background: color-mix(in srgb, var(--accent) 22%, transparent);
 }
+/* A note link in a heading is drawn as its own element, so it takes the heading's size and weight here, the
+   same values the heading text gets in Editor.tsx; the rest of its look stays the link's. */
+.cm-heading-1 .cm-wikilink-pill {
+  font-size: var(--h1-size);
+  font-weight: 700;
+}
+.cm-heading-2 .cm-wikilink-pill {
+  font-size: var(--h2-size);
+  font-weight: 700;
+}
+.cm-heading-3 .cm-wikilink-pill {
+  font-size: var(--h3-size);
+  font-weight: 600;
+}
+.cm-heading-4 .cm-wikilink-pill {
+  font-size: var(--h4-size);
+  font-weight: 600;
+}
+.cm-heading-5 .cm-wikilink-pill,
+.cm-heading-6 .cm-wikilink-pill {
+  font-size: var(--h5-size);
+  font-weight: 600;
+}
 .cm-wikilink-pill.missing {
   background: none;
   box-shadow: inset 0 0 0 var(--hair) var(--border-strong);
