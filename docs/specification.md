@@ -214,7 +214,7 @@ All notes, a notebook, a tag, Research and Scratch share one list view: a title 
 
 - **Write** (default): live preview. Markdown is rendered in place, and the raw syntax of a line shows only while the cursor is on that line.
 - **Source:** the raw markdown, monospaced, optional line numbers.
-- **Read:** a rendered, read-only page. Checkboxes still tick. Double-click switches to Write.
+- **Read:** a rendered, read-only page. Checkboxes still tick. Double-click switches to Write. A single line break in the text is kept as a line break (as in the editor), here, in exports and in task notes; a blank line still starts a new paragraph. A task's checkbox hangs to the left, so the lines under the task start under its text.
 
 An empty note always opens in Write. The mode is one global setting.
 

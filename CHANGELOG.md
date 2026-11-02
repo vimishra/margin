@@ -7,6 +7,7 @@ What changed in each released version of Margin. Installers are on the [releases
 ### Fixed
 
 - **Images pasted into a list stay with their item.** Pasted at the end of a list item, at any depth, an image goes on the next line indented to that item, without spacing the list out, and shows under the item's text. Other lines inside a list item, such as notes under a task, also line up with the item's text in the editor.
+- **Read mode and exports keep your line breaks.** A new line in a note is a new line on the page, as in the editor, instead of being joined to the line above; a blank line still starts a new paragraph. Lines under a task start under its text, not under its checkbox.
 
 ## 1.22.1 (2026-10-29)
 

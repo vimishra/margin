@@ -1941,6 +1941,12 @@ button.crumb:hover {
 }
 .md .task-list-item {
   list-style: none;
+  /* The box hangs to the left, so the lines under a task (its notes, an image) start under its text. */
+  padding-left: calc(15px + 0.6em);
+}
+.md .task-list-item > input:first-child,
+.md .task-list-item > p:first-child > input:first-child {
+  margin-left: calc(-15px - 0.6em);
 }
 .md .task-list-item input {
   width: 15px;

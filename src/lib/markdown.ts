@@ -68,6 +68,9 @@ function hashtag(state: StateInline, silent: boolean): boolean {
 function build(math: boolean): MarkdownIt {
   const md = new MarkdownIt({
     html: true,
+    // A line break in a note stays a line break when it is read or exported, as in the editor, so a note
+    // under a task or an image under a list item shows on its own line.
+    breaks: true,
     linkify: true,
     highlight(code, lang) {
       if (lang && hljs.getLanguage(lang)) {

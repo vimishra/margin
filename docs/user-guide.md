@@ -436,7 +436,7 @@ The buttons at the top right of a note switch between three modes:
 
 - **Write** (live preview), the default
 - **Markdown source**, the raw text
-- **Read**, a read-only page. ⌘E switches between Write and Read.
+- **Read**, a read-only page. ⌘E switches between Write and Read. Each line shows as you wrote it: a new line in the note is a new line on the page, so notes under a task or an image under a list item sit below it, not beside it. The same goes for exports.
 
 ### What you can write
 
