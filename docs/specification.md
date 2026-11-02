@@ -232,6 +232,7 @@ Headings 1 to 6, bold, italic, strikethrough, inline code, fenced code blocks wi
 
 - Syntax marks (`#`, `**`, `>`, list markers, link brackets and addresses, code fences) are hidden on lines without the cursor.
 - These are replaced by rendered widgets unless the cursor touches them: math, images and PDFs, note links (as pills), checkboxes, bullets, horizontal rules and tables.
+- A link of any kind inside a heading takes the heading's size and weight; its colour, underline or pill background stay the link's.
 - The document is always plain markdown. Preview is decoration only; what is saved is exactly what was typed.
 - A current search match counts as "the cursor is here", so text hidden inside a widget is revealed and highlighted.
 

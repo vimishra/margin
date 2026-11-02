@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.22.3 (2026-11-02)
+
+### Fixed
+
+- **Note links in headings** now take the heading's size and boldness, keeping their link colour and background. Web links and short links in headings already did.
+
 ## 1.22.2 (2026-11-02)
 
 ### Fixed
