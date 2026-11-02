@@ -125,6 +125,7 @@ export function commands(): Command[] {
   const paneTabs = sideActive ? s.sideTabs : s.tabs
   const onTab = sideActive || s.route.name === 'note'
   if (onTab && paneTabs.length > 1) list.push({ id: 'closeOthers', label: 'Close all other tabs', icon: i(X), keywords: 'tabs', run: () => closeOtherTabs() })
+  if (paneTabs.length) list.push({ id: 'tabList', label: 'Show all open tabs…', icon: i(ListTree), keywords: 'tabs list find switch', run: () => ui({ palette: { mode: 'tabs', pane: sideActive ? 'side' : 'main' } }) })
   if (paneTabs.length) list.push({ id: 'closeAll', label: 'Close all tabs', icon: i(X), keywords: 'tabs', run: () => closeAllTabs() })
   if (note) {
     list.push(

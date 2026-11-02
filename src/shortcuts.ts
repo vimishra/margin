@@ -28,6 +28,7 @@ export const SHORTCUT_DEFS: ShortcutDef[] = [
   { id: 'goscratch', label: 'Scratch', group: 'Navigate', web: '' },
   { id: 'prevTab', label: 'Previous tab', group: 'Navigate', web: 'Alt+[', desktop: 'Mod+Shift+[' },
   { id: 'nextTab', label: 'Next tab', group: 'Navigate', web: 'Alt+]', desktop: 'Mod+Shift+]' },
+  { id: 'tabList', label: 'Show all open tabs', group: 'Navigate', web: '' },
   { id: 'closeOthers', label: 'Close all other tabs', group: 'Navigate', web: '' },
   { id: 'closeAll', label: 'Close all tabs', group: 'Navigate', web: '' },
   { id: 'closeTab', label: 'Close tab', group: 'Navigate', web: 'Alt+W', desktop: 'Mod+W' },

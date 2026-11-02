@@ -489,6 +489,11 @@ export function SettingsModal() {
                 <Row label="Open notes in tabs" hint="Keep a tab for every note you open. Turn off to keep only the current note.">
                   <Toggle label="Open notes in tabs" value={s.tabs} onChange={set('tabs')} />
                 </Row>
+                {s.tabs && (
+                  <Row label="Most tabs to keep open" hint="Opening one more closes the tab you used longest ago, in each pane. The note itself is untouched; reopen it any time.">
+                    <Select value={s.maxTabs} onChange={set('maxTabs')} options={[[0, 'No limit'], [5, '5'], [10, '10'], [15, '15'], [20, '20'], [30, '30']]} />
+                  </Row>
+                )}
               </div>
             )}
 

@@ -107,6 +107,7 @@ The guide has two main parts, because Margin does two different jobs. **Part 1**
 - [People and 1:1s](#people-and-11s)
 - [Research notes](#research-notes)
 - [Organising](#organising)
+- [Tabs](#tabs)
 - [Two notes side by side](#two-notes-side-by-side)
 - [History, trash and export](#history-trash-and-export)
 - [Importing from Obsidian](#importing-from-obsidian)
@@ -770,6 +771,14 @@ As notes grow, parts of them want to become notes of their own, or two notes tur
 
 Each can have a shortcut in Settings → Shortcuts.
 
+## Tabs
+
+Every note you open gets a tab, kept until you close it, even after a restart. ⌥1 to ⌥9 jump to the first nine, ⇧⌘[ and ⇧⌘] step through them, ⌘W closes one, and right-clicking a tab offers Close Other Tabs.
+
+**With many tabs open,** the row scrolls sideways: swipe on a trackpad, or use the mouse wheel over the tabs. An end of the row fades out when there are tabs hidden past it, and a small number appears after the row: how many tabs are open. Click it (or choose **Show all open tabs…** in ⌘K) for a list of them all; type a few letters to narrow it and press Enter to go to one.
+
+**To keep the number of tabs down,** set Settings → General → **Most tabs to keep open** (off unless you choose a number). When you open a note past that number, the tab you used longest ago closes. Only the tab: the note is untouched and a click away in ⌘K or its notebook.
+
 ## Two notes side by side
 
 Open a second note beside the first:
@@ -1037,7 +1046,7 @@ Two settings live inside the app and cannot be read from outside it. If you rena
 
 | Section | What is there |
 | --- | --- |
-| General | Start page, where new notes go, which sidebar sections to show, week start, sidebar calendar, time format, how typed dates are read, tabs |
+| General | Start page, where new notes go, which sidebar sections to show, week start, sidebar calendar, time format, how typed dates are read, tabs, and the most tabs to keep open |
 | Appearance | Theme, accent colour (in the desktop app the first choice, System, follows the accent colour set in macOS System Settings), note font and code font (any installed font), text size and weight, line spacing, list indent, indent guides, image border, page width. The note font, size and weight also apply to tasks wherever they are listed (the Tasks view and the panel under daily notes) and to what you type in Quick capture and Quick task. |
 | Text styles | Colour and size for Heading 1–5, bold and italic, with a separate colour for the light and dark themes |
 | Editor | Default mode, toolbar, spell check, auto-closing brackets, image pasting, line numbers, side panel |

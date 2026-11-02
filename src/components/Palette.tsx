@@ -5,7 +5,7 @@ import { commands } from '../commands'
 import { mergeIntoNote, moveSectionToNote } from '../refactor'
 import { search } from '../lib/search'
 import { tagCounts } from '../lib/links'
-import { cx, dailyLabel, displayTitle, longDate, relTime, snippet, today } from '../lib/util'
+import { ALT, cx, dailyLabel, displayTitle, longDate, relTime, snippet, today } from '../lib/util'
 import { parseDatePhrase } from '../lib/dates'
 import { headings } from '../lib/markdown'
 import { allTasks, byUrgency, matchesQuery, priorityLabel, shortDate, type Task } from '../lib/tasks'
@@ -62,6 +62,27 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
   const items = useMemo<Item[]>(() => {
     const q = query.trim()
     const lower = q.toLowerCase()
+
+    // The open tabs of a pane, in their order, to find one among many.
+    if (state.mode === 'tabs') {
+      const s = useStore.getState()
+      const side = state.pane === 'side'
+      const ids = (side ? s.sideTabs : s.tabs).filter((id) => notes[id])
+      const current = side ? s.side : route.name === 'note' ? route.id : ''
+      return ids
+        .map((id, i) => ({ id, i }))
+        .filter(({ id }) => !lower || displayTitle(notes[id]).toLowerCase().includes(lower) || (notes[id].folder || '').toLowerCase().includes(lower))
+        .map(({ id, i }) => ({
+          key: 'tab:' + id,
+          group: `Open tabs · ${ids.length}`,
+          icon: <NoteIcon note={notes[id]} />,
+          title: displayTitle(notes[id]),
+          subtitle: [notes[id].folder, id === current ? 'showing now' : ''].filter(Boolean).join(' · ') || undefined,
+          meta: i < 9 ? `${ALT}${i + 1}` : undefined,
+          noteId: id,
+          run: () => (side ? openSide(id) : openNote(id)),
+        }))
+    }
 
     if (state.mode === 'outline') {
       const note = notes[state.noteId || '']
@@ -357,7 +378,7 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
           <input
             autoFocus
             value={query}
-            placeholder={state.mode === 'moveTask' ? `Move “${state.task?.text ?? ''}” to which note?` : state.mode === 'moveSection' ? `Move the section “${state.section?.title ?? ''}” to which note?` : state.mode === 'merge' ? `Merge “${notes[state.noteId || ''] ? displayTitle(notes[state.noteId || '']) : ''}” into which note?` : state.mode === 'outline' ? 'Jump to a heading in this note' : state.mode === 'template' ? 'New note from which template?' : state.mode === 'tag' ? `Tag “${notes[state.noteId || ''] ? displayTitle(notes[state.noteId || '']) : ''}” with…` : moving ? `Move “${displayTitle(moving)}” to…` : 'Search notes, #tags, a date like “next monday”, or > for commands'}
+            placeholder={state.mode === 'moveTask' ? `Move “${state.task?.text ?? ''}” to which note?` : state.mode === 'moveSection' ? `Move the section “${state.section?.title ?? ''}” to which note?` : state.mode === 'merge' ? `Merge “${notes[state.noteId || ''] ? displayTitle(notes[state.noteId || '']) : ''}” into which note?` : state.mode === 'outline' ? 'Jump to a heading in this note' : state.mode === 'tabs' ? 'Find an open tab' : state.mode === 'template' ? 'New note from which template?' : state.mode === 'tag' ? `Tag “${notes[state.noteId || ''] ? displayTitle(notes[state.noteId || '']) : ''}” with…` : moving ? `Move “${displayTitle(moving)}” to…` : 'Search notes, #tags, a date like “next monday”, or > for commands'}
             spellCheck={false}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => {

@@ -82,6 +82,8 @@ export interface Settings {
   /** Sidebar sections the user has switched off; see SIDEBAR_SECTIONS. */
   hiddenSections: string[]
   tabs: boolean
+  /** At most this many tabs per pane: opening one more closes the least recently used. 0 means no limit. */
+  maxTabs: number
   accent: string
   /** Font family for note text: an installed font's name, or 'system' for the default. */
   font: string
@@ -151,6 +153,7 @@ export const DEFAULT_SETTINGS: Settings = {
   sidebarCalendar: true,
   hiddenSections: [],
   tabs: true,
+  maxTabs: 0,
   accent: 'sky',
   font: 'system',
   codeFont: 'system',
@@ -232,7 +235,9 @@ export function fontCss(family: string, mono = false): string {
 }
 
 export type PaletteState = null | {
-  mode: 'search' | 'move' | 'template' | 'outline' | 'tag' | 'moveTask' | 'moveSection' | 'merge'
+  mode: 'search' | 'move' | 'template' | 'outline' | 'tag' | 'moveTask' | 'moveSection' | 'merge' | 'tabs'
+  /** For tabs: which pane's tabs to list. */
+  pane?: 'main' | 'side'
   noteId?: string
   query?: string
   task?: Task
@@ -392,11 +397,23 @@ const set = useStore.setState
 
 // ---------- routing ----------
 
+/**
+ * With a tab limit set (Settings → General), the least recently used tabs beyond it are closed, never `keep`, the
+ * one being opened. Recency is the order notes were last opened in (`recent`); a tab not in it counts as oldest.
+ */
+function capTabs(tabs: string[], keep: string, recent: string[]): string[] {
+  const max = get().settings.maxTabs
+  if (!max || tabs.length <= max) return tabs
+  const age = (id: string) => (recent.includes(id) ? recent.indexOf(id) : Infinity)
+  const drop = new Set(tabs.filter((id) => id !== keep).sort((a, b) => age(b) - age(a)).slice(0, tabs.length - max))
+  return tabs.filter((id) => !drop.has(id))
+}
+
 function enterRoute(route: Route) {
   const s = get()
   if (route.name === 'note') {
-    const tabs = !s.settings.tabs ? [route.id] : s.tabs.includes(route.id) ? s.tabs : [...s.tabs, route.id]
     const recent = [route.id, ...s.recent.filter((id) => id !== route.id)].slice(0, 60)
+    const tabs = !s.settings.tabs ? [route.id] : s.tabs.includes(route.id) ? s.tabs : capTabs([...s.tabs, route.id], route.id, recent)
     local.set('tabs', tabs)
     local.set('recent', recent)
     set({ route, tabs, recent })
@@ -417,8 +434,8 @@ export const openNote = (id: string) => go({ name: 'note', id })
 
 export function openSide(id: string) {
   const s = get()
-  const sideTabs = !s.settings.tabs ? [id] : s.sideTabs.includes(id) ? s.sideTabs : [...s.sideTabs, id]
   const recent = [id, ...s.recent.filter((x) => x !== id)].slice(0, 60)
+  const sideTabs = !s.settings.tabs ? [id] : s.sideTabs.includes(id) ? s.sideTabs : capTabs([...s.sideTabs, id], id, recent)
   local.set('side', id)
   local.set('sideTabs', sideTabs)
   local.set('recent', recent)

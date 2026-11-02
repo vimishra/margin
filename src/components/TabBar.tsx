@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, PanelLeft, Plus, X } from 'lucide-react'
-import { closeSide, closeSideTab, closeTab, newNote, openMenu, openNote, openSide, setActivePane, setPref, useStore } from '../store'
+import { closeSide, closeSideTab, closeTab, newNote, openMenu, openNote, openSide, setActivePane, setPref, ui, useStore } from '../store'
 import { ALT, cx, displayTitle, local } from '../lib/util'
 import { NoteIcon, noteMenu } from './bits'
 import { hint } from '../shortcuts'
@@ -20,6 +20,30 @@ export function TabBar({ side = false }: { side?: boolean }) {
   useEffect(() => {
     strip.current?.querySelector('.tab.active')?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
   }, [active])
+
+  // Whether tabs are hidden off either end of the row: those ends fade, and the count button shows.
+  const [hidden, setHidden] = useState({ left: false, right: false })
+  const measure = () => {
+    const el = strip.current
+    if (!el) return
+    const left = el.scrollLeft > 1
+    const right = el.scrollLeft + el.clientWidth < el.scrollWidth - 1
+    setHidden((h) => (h.left === left && h.right === right ? h : { left, right }))
+  }
+  useLayoutEffect(measure, [open.length, active])
+  useEffect(() => {
+    const el = strip.current
+    if (!el) return
+    const watch = new ResizeObserver(measure)
+    watch.observe(el)
+    return () => watch.disconnect()
+  }, [])
+  // A mouse wheel scrolls up and down; over the tabs it moves the row sideways. A trackpad's sideways swipe is left alone.
+  const onWheel = (e: React.WheelEvent) => {
+    const el = strip.current
+    if (el && Math.abs(e.deltaY) > Math.abs(e.deltaX)) el.scrollLeft += e.deltaY
+  }
+  const overflowing = hidden.left || hidden.right
 
   const here = (id: string) => (side ? openSide(id) : openNote(id))
   const there = (id: string) => (side ? openNote(id) : openSide(id))
@@ -47,7 +71,7 @@ export function TabBar({ side = false }: { side?: boolean }) {
           </button>
         </>
       )}
-      <div className="tabs" ref={strip}>
+      <div className={cx('tabs', hidden.left && 'fade-left', hidden.right && 'fade-right')} ref={strip} onScroll={measure} onWheel={onWheel}>
         {open.map((id, i) => {
           const n = notes[id]
           return (
@@ -84,6 +108,11 @@ export function TabBar({ side = false }: { side?: boolean }) {
           )
         })}
       </div>
+      {overflowing && (
+        <button className="tab-count" title={`All ${open.length} open tabs${hint('tabList') ? `  ${hint('tabList')}` : ''}`} onClick={() => ui({ palette: { mode: 'tabs', pane: side ? 'side' : 'main' } })}>
+          {open.length}
+        </button>
+      )}
       {side ? (
         <button className="icon-btn" title={`Close the side pane  ${hint('side')}`} onClick={() => closeSide()}>
           <X size={16} />
