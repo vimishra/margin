@@ -214,7 +214,7 @@ All notes, a notebook, a tag, Research and Scratch share one list view: a title 
 
 - **Write** (default): live preview. Markdown is rendered in place, and the raw syntax of a line shows only while the cursor is on that line.
 - **Source:** the raw markdown, monospaced, optional line numbers.
-- **Read:** a rendered, read-only page. Checkboxes still tick. Double-click switches to Write.
+- **Read:** a rendered, read-only page. Checkboxes still tick. Double-click switches to Write. A single line break in the text is kept as a line break (as in the editor), here, in exports and in task notes; a blank line still starts a new paragraph. A task's checkbox hangs to the left, so the lines under the task start under its text.
 
 An empty note always opens in Write. The mode is one global setting.
 
@@ -243,6 +243,7 @@ Headings 1 to 6, bold, italic, strikethrough, inline code, fenced code blocks wi
 - **⌥↑ / ⌥↓** move an item, with its sub-items, past its neighbour.
 - Toggle shortcuts turn the selected lines into a bulleted, numbered or task list, and back.
 - **Wrapped lines hang under the item's text**, not under the marker, for bullets, numbers and tasks at any depth. Markers occupy a fixed width so numbers align.
+- **The other lines of an item** (indented lines under it, or lazy continuation lines, such as notes under a task or an image) are drawn at the item's text position by the same rule, with their leading spaces taking no width. Not inside quotes or code.
 - **⌃A** (Mac) goes to the start of the text, and on a second press to the start of the line.
 
 ### 5.6 Headings
@@ -278,6 +279,7 @@ Shortcuts set heading level 1 to 5 on the current line or each selected line. Th
 ### 5.8 Images and files
 
 - Paste or drop to attach. Images show inline; PDFs show in an embedded viewer.
+- Pasted at the end of a line inside a list item, the file goes on a new line indented by the item's indent plus its marker and the space after it, with no blank line after it, so the list stays tight. Elsewhere it goes on a line of its own followed by an empty line, as before.
 - Clicking an image opens it enlarged over the page; Esc, Space or Enter closes it.
 - A small **Edit** button on hover reveals the image's markdown.
 - Border style is a setting: none, hairline or shadow.
