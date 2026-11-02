@@ -334,6 +334,7 @@ Each canvas card is markdown too.
 <li><strong>⌥↑ / ⌥↓</strong> move an item, with its sub-items, past its neighbour.</li>
 <li>Toggle shortcuts turn the selected lines into a bulleted, numbered or task list, and back.</li>
 <li><strong>Wrapped lines hang under the item's text</strong>, not under the marker, for bullets, numbers and tasks at any depth. Markers occupy a fixed width so numbers align.</li>
+<li><strong>The other lines of an item</strong> (indented lines under it, or lazy continuation lines, such as notes under a task or an image) are drawn at the item's text position by the same rule, with their leading spaces taking no width. Not inside quotes or code.</li>
 <li><strong>⌃A</strong> (Mac) goes to the start of the text, and on a second press to the start of the line.</li>
 </ul>
 <h3 id="56-headings">5.6 Headings</h3>
@@ -370,6 +371,7 @@ Each canvas card is markdown too.
 <h3 id="58-images-and-files">5.8 Images and files</h3>
 <ul>
 <li>Paste or drop to attach. Images show inline; PDFs show in an embedded viewer.</li>
+<li>Pasted at the end of a line inside a list item, the file goes on a new line indented by the item's indent plus its marker and the space after it, with no blank line after it, so the list stays tight. Elsewhere it goes on a line of its own followed by an empty line, as before.</li>
 <li>Clicking an image opens it enlarged over the page; Esc, Space or Enter closes it.</li>
 <li>A small <strong>Edit</strong> button on hover reveals the image's markdown.</li>
 <li>Border style is a setting: none, hairline or shadow.</li>

@@ -333,6 +333,27 @@ function wrapSelection(view: EditorView, before: string, after = before, fallbac
   return true
 }
 
+/**
+ * The spaces that put a new line inside the list item the line at `pos` belongs to: the item's own indent plus its
+ * marker and the space after it. Empty when not in a list.
+ */
+function listIndent(state: EditorState, pos: number): string {
+  const doc = state.doc
+  const line = doc.lineAt(pos)
+  const at = line.from + (/^\s*/.exec(line.text)?.[0].length ?? 0)
+  for (let node: ReturnType<ReturnType<typeof syntaxTree>['resolveInner']> | null = syntaxTree(state).resolveInner(at, 1); node; node = node.parent) {
+    if (node.name === 'Blockquote') return ''
+    if (node.name !== 'ListItem') continue
+    const mark = node.getChild('ListMark')
+    if (!mark) return ''
+    const markLine = doc.lineAt(mark.from)
+    const before = mark.from - markLine.from
+    const spaces = doc.sliceString(mark.to, Math.min(markLine.to, mark.to + 4)).match(/^ */)![0].length || 1
+    return ' '.repeat(before + (mark.to - mark.from) + Math.min(spaces, 4))
+  }
+  return ''
+}
+
 async function uploadInto(view: EditorView, files: File[], pos?: number, pasted = false) {
   for (const file of files) {
     try {
@@ -343,7 +364,12 @@ async function uploadInto(view: EditorView, files: File[], pos?: number, pasted 
       const md = await uploadAsMarkdown(file, { pasted, actualSize: s.settings.imageActualSize, noteTitle: s.settings.imageNoteName ? note?.title : undefined })
       const at = pos ?? view.state.selection.main.head
       const line = view.state.doc.lineAt(at)
-      const insert = (line.text.trim() && at === line.to ? '\n' : '') + md + '\n'
+      // Pasted at the end of a line in a list, the file goes on a line of its own indented to that item's text,
+      // so it belongs to the item. On an empty line it goes where the cursor is: that is how a list is left.
+      const indent = line.text.trim() && at === line.to ? listIndent(view.state, line.from) : ''
+      const lead = line.text.trim() && at === line.to ? '\n' + indent : ''
+      // No blank line after it in a list: that would space the whole list out.
+      const insert = lead + md + (indent ? '' : '\n')
       view.dispatch({ changes: { from: at, insert }, selection: { anchor: at + insert.length } })
       pos = at + insert.length
     } catch {

@@ -5580,3 +5580,8 @@ kbd {
   font-size: 12px;
   color: var(--text-3);
 }
+
+/* The other lines of a list item: padded to the item's text in the editor, their own leading spaces taking no room */
+.cm-list-cont-lead {
+  font-size: 0;
+}

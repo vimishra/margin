@@ -463,6 +463,39 @@ function build(state: EditorState, follow: (t: string, side?: boolean) => void):
     },
   })
 
+  // The other lines of a list item (an image pasted under it, notes under a task, a wrapped paragraph) line up
+  // with the item's text, as its own wrapped rows do, whatever spaces the file uses: the leading spaces take no
+  // room and the line is padded to the item's text instead.
+  for (let n = 1; n <= doc.lines; n++) {
+    const line = doc.line(n)
+    const lead = /^\s*/.exec(line.text)![0].length
+    if (lead === line.length) continue
+    const start = line.from + lead
+    if (inside(code, start, start)) continue
+    let item: ReturnType<typeof tree.resolveInner> | null = null
+    let lists = 0
+    let skip = false
+    for (let node: ReturnType<typeof tree.resolveInner> | null = tree.resolveInner(start, 1); node; node = node.parent) {
+      if (node.name === 'ListItem' && !item) item = node
+      if (node.name === 'BulletList' || node.name === 'OrderedList') lists++
+      if (node.name === 'Blockquote' || node.name === 'Table') skip = true
+    }
+    if (!item || skip || doc.lineAt(item.from).number === n) continue
+    const mark = item.getChild('ListMark')
+    const markLine = mark && doc.lineAt(mark.from)
+    // Only items that are lined up themselves: their marker has nothing but spaces before it.
+    if (!mark || !markLine || /\S/.test(text.slice(markLine.from, mark.from))) continue
+    const depth = Math.max(0, lists - 1)
+    const marker = /^ \[[ xX]\] /.test(text.slice(mark.to, mark.to + 5))
+      ? 'var(--task-marker)'
+      : item.parent?.name === 'OrderedList'
+        ? `${((mark.to - mark.from - 1) * 0.62 + 0.8).toFixed(2)}em`
+        : 'var(--bullet-marker)'
+    const guides = depth > 0 ? `; background-size: calc(${depth} * var(--list-indent)) 100%` : ''
+    out.push(Decoration.line({ class: depth > 0 ? 'cm-list-cont cm-hang-nested' : 'cm-list-cont', attributes: { style: `padding-left: calc(${depth} * var(--list-indent) + ${marker})${guides}` } }).range(line.from))
+    if (lead) out.push(Decoration.mark({ class: 'cm-list-cont-lead' }).range(line.from, start))
+  }
+
   try {
     return Decoration.set(out, true)
   } catch {

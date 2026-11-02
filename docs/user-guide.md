@@ -478,7 +478,7 @@ Type `/` at the start of a line or after a space. A menu appears; keep typing to
 - **⌘⇧8**, **⌘⇧7**, **⌘⇧9** turn lines into a bulleted, numbered or task list, and back.
 - **⌃A** goes to the start of the text; pressed again, to the very start of the line.
 
-Nested levels show a faint guide line. The indent width and the guides are in Settings → Appearance.
+Nested levels show a faint guide line. The indent width and the guides are in Settings → Appearance. Other lines inside an item, such as notes under a task or an image, line up with the item's text whatever spaces the file uses.
 
 ### Folding
 
@@ -534,6 +534,7 @@ Paste or drop an image, PDF or any file into a note. It is saved in your attachm
 - **Click** an image to see it larger. Esc closes it.
 - **Edit**, a small button on hover, shows the image's markdown.
 - **Size:** a pasted Retina screenshot is shown at the size it was on screen. The width is the number after `|` in the markdown, for example `![shot|400](attachments/shot.png)`. Change or remove it to resize.
+- **In a list:** pasted at the end of a list item's line, the image goes on the next line indented to that item, so it belongs to it and shows under the item's text at any depth. On an empty line it goes where the cursor is.
 - **Names:** a pasted image is named after the note and the time, for example `Atlas-kickoff-2026-10-06-1654.png`.
 - **Border:** Settings → Appearance → Image border offers None, Hairline or Shadow.
 

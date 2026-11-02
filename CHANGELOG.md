@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.22.2 (2026-11-02)
+
+### Fixed
+
+- **Images pasted into a list stay with their item.** Pasted at the end of a list item, at any depth, an image goes on the next line indented to that item, without spacing the list out, and shows under the item's text. Other lines inside a list item, such as notes under a task, also line up with the item's text in the editor.
+
 ## 1.22.1 (2026-10-29)
 
 ### Changed
