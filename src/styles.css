@@ -669,6 +669,39 @@ button.chip:hover,
 .tabs::-webkit-scrollbar {
   display: none;
 }
+/* Tabs hidden off an end of the row: that end fades out */
+.tabs.fade-left {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 32px);
+  mask-image: linear-gradient(to right, transparent, #000 32px);
+}
+.tabs.fade-right {
+  -webkit-mask-image: linear-gradient(to left, transparent, #000 32px);
+  mask-image: linear-gradient(to left, transparent, #000 32px);
+}
+.tabs.fade-left.fade-right {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent);
+}
+/* How many tabs are open, shown when some are out of sight; opens the list of them */
+.tab-count {
+  flex: none;
+  min-width: 26px;
+  height: 22px;
+  padding: 0 7px;
+  margin: 0 2px 0 4px;
+  border-radius: 6px;
+  border: var(--hair) solid var(--border-strong);
+  background: var(--bg-raised);
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.tab-count:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
 .tab {
   display: flex;
   align-items: center;
@@ -677,7 +710,8 @@ button.chip:hover,
   padding: 0 6px 0 10px;
   border-radius: 8px;
   max-width: 200px;
-  min-width: 90px;
+  /* Wide enough to read a few words of the title; past that the row scrolls (and the count button lists them all). */
+  min-width: 120px;
   color: var(--text-3);
   cursor: default;
   flex: 0 1 auto;

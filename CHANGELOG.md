@@ -2,6 +2,17 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.23.0 (2026-11-02)
+
+### Added
+
+- **A list of every open tab.** When there are more tabs than fit, a small number after the tab row shows how many are open; click it, or choose **Show all open tabs…** in ⌘K, to see them all, type to narrow the list, and press Enter to go to one.
+- **A limit on open tabs**, off by default: Settings → General → **Most tabs to keep open**. Opening a note past the limit closes the tab you used longest ago (only the tab, never the note).
+
+### Changed
+
+- **The tab row with many tabs:** a mouse wheel over the tabs scrolls them sideways, the end of the row fades where tabs are hidden past it, and each tab stays wide enough to read a few words of its title.
+
 ## 1.22.3 (2026-11-02)
 
 ### Fixed
