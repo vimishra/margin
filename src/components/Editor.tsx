@@ -322,7 +322,13 @@ function completions(ctx: CompletionContext, capture = false) {
 }
 
 function wrapSelection(view: EditorView, before: string, after = before, fallback = '') {
-  const { from, to } = view.state.selection.main
+  let { from, to } = view.state.selection.main
+  // Spaces and line ends at either end of the selection stay outside the markers: `**word **` is not bold.
+  const raw = view.state.sliceDoc(from, to)
+  if (raw.trim()) {
+    from += raw.length - raw.trimStart().length
+    to -= raw.length - raw.trimEnd().length
+  }
   const selected = view.state.sliceDoc(from, to) || fallback
   view.dispatch({
     changes: { from, to, insert: before + selected + after },

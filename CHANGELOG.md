@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.23.1 (2026-11-03)
+
+### Fixed
+
+- **⌘B and ⌘I on a selection that ends in a space.** A space (or line end) selected at either end now stays outside the marks, giving `**word** ` instead of `**word **`, which markdown does not show as bold. The same goes for the Format menu, strikethrough, inline code and links.
+
 ## 1.23.0 (2026-11-02)
 
 ### Added
