@@ -556,7 +556,7 @@ In the desktop app, right-clicking in a note offers spelling suggestions, Cut, C
 
 The same commands are in the menu bar under **Format**, for the note you are editing, in one list with no submenus. Lines divide it into groups:
 
-- **Bold** (⌘B), **Italic** (⌘I), **Strikethrough**, **Inline Code**. They wrap the selected text; a space or line end selected at either end stays outside the marks, since markdown does not make `**word **` bold.
+- **Bold** (⌘B), **Italic** (⌘I), **Strikethrough**, **Inline Code**. They wrap the selected text; a space or line end selected at either end stays outside the marks, since markdown does not make `**word **` bold. They also switch the style off: on text that is already bold (or italic, struck or code), with it selected or the cursor anywhere inside it, the same key or menu item takes the marks off that stretch. Bold and italic together (`***word***`) lose only the one you choose.
 - Heading 1 to 5
 - Bulleted, Numbered and Task List, Quote, Code Block
 - Link to a Note (⌘⇧K), Web Link, Table, Math, Divider

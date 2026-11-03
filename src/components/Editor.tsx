@@ -321,7 +321,51 @@ function completions(ctx: CompletionContext, capture = false) {
   return null
 }
 
+/** Markers that ⌘B, ⌘I and the Format menu toggle: the syntax node they make, and the name of its mark nodes. */
+const TOGGLES: Record<string, [node: string, mark: string]> = {
+  '**': ['StrongEmphasis', 'EmphasisMark'],
+  '*': ['Emphasis', 'EmphasisMark'],
+  '~~': ['Strikethrough', 'StrikethroughMark'],
+  '`': ['InlineCode', 'CodeMark'],
+}
+
+/**
+ * Take the style off when the selection, or with nothing selected the cursor, is inside text that already has it:
+ * the marks at both ends of that stretch go, whatever the selection covered. False if it does not have the style.
+ */
+function unwrapStyle(view: EditorView, before: string): boolean {
+  const kind = TOGGLES[before]
+  if (!kind) return false
+  const { from, to, empty } = view.state.selection.main
+  const tree = syntaxTree(view.state)
+  for (const side of [1, -1] as const) {
+    for (let n: ReturnType<typeof tree.resolveInner> | null = tree.resolveInner(from, side); n; n = n.parent) {
+      if (n.name !== kind[0]) continue
+      // A cursor just outside the marks is not in the styled text; a selection may take them in.
+      const inside = empty ? n.from < from && from < n.to : n.from <= from && to <= n.to
+      const open = n.firstChild
+      const close = n.lastChild
+      if (!inside || !open || !close || open === close || open.name !== kind[1] || close.name !== kind[1]) continue
+      const changes = view.state.changes([
+        { from: open.from, to: open.to },
+        { from: close.from, to: close.to },
+      ])
+      const sel = view.state.selection.main
+      view.dispatch({
+        changes,
+        selection: { anchor: changes.mapPos(sel.anchor, 1), head: changes.mapPos(sel.head, -1) },
+        scrollIntoView: true,
+        userEvent: 'input',
+      })
+      view.focus()
+      return true
+    }
+  }
+  return false
+}
+
 function wrapSelection(view: EditorView, before: string, after = before, fallback = '') {
+  if (unwrapStyle(view, before)) return true
   let { from, to } = view.state.selection.main
   // Spaces and line ends at either end of the selection stay outside the markers: `**word **` is not bold.
   const raw = view.state.sliceDoc(from, to)

@@ -1,6 +1,6 @@
 # Margin product specification
 
-This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.23.1.
+This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.24.0.
 
 It is written to be handed to a developer or a coding tool. Where a detail is a free choice for the implementer, it says so; everything else is a requirement.
 
@@ -329,7 +329,7 @@ An Emacs-style incremental search:
 
 - Spell check (setting, on) with suggestions in the right-click menu in the desktop app.
 - Auto-closing brackets and quotes (setting, on).
-- Bold ⌘B, italic ⌘I, wrap in a note link ⌘⇧K, undo and redo. Wrapping commands leave whitespace at either end of the selection outside the marks (a selected `word ` becomes `**word** `); with nothing selected they insert placeholder text inside the marks.
+- Bold ⌘B, italic ⌘I, wrap in a note link ⌘⇧K, undo and redo. Wrapping commands leave whitespace at either end of the selection outside the marks (a selected `word ` becomes `**word** `); with nothing selected they insert placeholder text inside the marks. Bold, italic, strikethrough and inline code are toggles: when the selection, or an empty cursor strictly between the marks, is inside text with that style (as the markdown parser reads it, so `__bold__` and `***both***` count), its opening and closing marks are removed and the selection keeps covering the same text; bold-italic loses only the chosen style. A cursor just outside the marks wraps as usual.
 - **Timestamps** inserted by capture are written as `**4:54 PM** : text`, bold time, then space, colon, space.
 
 ## 6. Links, tags and the side panel

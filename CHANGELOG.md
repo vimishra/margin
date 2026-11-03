@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.24.0 (2026-11-03)
+
+### Changed
+
+- **⌘B and ⌘I are toggles.** On text that is already bold or italic, with it selected or the cursor anywhere inside it, the same key takes the style off that stretch instead of adding more stars. Bold and italic together (`***word***`) lose only the one you press. Strikethrough and Inline Code in the Format menu toggle the same way.
+
 ## 1.23.1 (2026-11-03)
 
 ### Fixed
