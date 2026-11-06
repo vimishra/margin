@@ -100,6 +100,7 @@ export function Sidebar() {
   const showCalendar = useStore((s) => s.settings.sidebarCalendar)
   const hidden = useStore((s) => s.settings.hiddenSections) || []
   const shown = (id: string) => !hidden.includes(id)
+  const trashCount = useStore((s) => s.trashCount)
   const [collapsed, setCollapsed] = useState<string[]>(() => local.get('collapsed', []))
   const [allTags, setAllTags] = useState(false)
   const [dropTarget, setDropTarget] = useState<string | null>(null)
@@ -300,6 +301,10 @@ export function Sidebar() {
           )}
           {shown('scratch') && (
             <NavItem icon={<Hourglass size={16} />} label="Scratch" count={list.filter((n) => n.type === 'scratch').length} active={is('scratch')} onClick={() => go({ name: 'scratch' })} />
+          )}
+          {/* Only while something is in the trash, or while it is open. */}
+          {shown('trash') && (trashCount > 0 || is('trash')) && (
+            <NavItem icon={<Trash2 size={16} />} label="Recently deleted" count={trashCount} active={is('trash')} onClick={() => go({ name: 'trash' })} />
           )}
         </div>
 

@@ -801,6 +801,9 @@ export function SettingsModal() {
                 <Row label="Version history" hint="A snapshot is kept for every 5 minutes of editing, up to 200 per note.">
                   <span className="set-value">Always on</span>
                 </Row>
+                <Row label="Remove deleted notes after" hint="Notes in Recently deleted that were deleted longer ago than this are removed for good, each time Margin opens. Off keeps them until you remove them.">
+                  <Select value={s.trashDays} onChange={set('trashDays')} options={[[0, 'Never (keep them)'], [30, '30 days'], [90, '90 days'], [365, '1 year']]} />
+                </Row>
                 {local && (
                   <Row label="History and deleted notes" hint="Kept on this computer only, for this notes folder: version snapshots in history/, deleted notes in trash/. Each computer keeps its own.">
                     <button className="btn ghost sm" title={local} onClick={() => navigator.clipboard.writeText(local).then(() => toast('Path copied'), () => toast('Could not copy the path'))}>

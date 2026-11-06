@@ -2,6 +2,17 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.27.0 (2026-11-06)
+
+### Added
+
+- **Recently deleted.** Every note you delete waits in Recently deleted, in the sidebar (while anything is in it) and in ⌘K. Click one to read it, **Restore** it to the notebook it came from with its version history, or delete it for good; **Empty trash** clears them all. Settings → Files & data → **Remove deleted notes after** can clear old ones by themselves (off unless you choose). It is per computer, like the trash itself.
+
+### Fixed
+
+- **Deleting a note or notebook with the notes folder on another disk,** such as Google Drive. Since 1.26 the trash is on this computer, and the move there could fail: a deleted note came back the next time the folder was read, and deleting a notebook could lose its notes. Moving now works between disks, and a delete that cannot move its notes stops with a message.
+- **Undo after deleting** brings back the same note, with its version history, instead of a copy.
+
 ## 1.26.0 (2026-11-06)
 
 ### Changed

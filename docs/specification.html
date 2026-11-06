@@ -828,6 +828,15 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 </ul>
 <h3 id="142-trash">14.2 Trash</h3>
 <p>Deleted notes and folders move to this computer's trash folder for the notes folder (see 14.1). Expired scratch notes go there too. Settings shows that folder's path, with a button to copy it.</p>
+<ul>
+<li>Moving between the notes folder and the trash works across disks (copy, then remove the original only once the copy is in place). If a note cannot be moved, deleting it fails with a message and nothing else happens; deleting a notebook stops before its folder is removed.</li>
+<li>The trash keeps, for each deleted note, the path it had (<code>trash/index.json</code>), so it can go back to its notebook.</li>
+<li><strong>Recently deleted</strong> (<code>#/trash</code>; sidebar entry under Scratch while the trash holds anything, hideable like the other sections; ⌘K &quot;Go to Recently deleted&quot;, shortcut assignable): the trashed notes, newest first, with title, the notebook they came from (&quot;Notebook not known&quot; for notes trashed before this was recorded), when deleted, and a line of text; a filter box; ↑ ↓ (J K) to move, Enter to show the note read-only under its row, <code>/</code> to filter.</li>
+<li><strong>Restore</strong> moves the file back into its notebook (made again if missing; top level when not known), keeping its id and so its version history. If a file of that name exists there, it is restored as &quot;<name> (restored)&quot;. A message offers Open.</li>
+<li><strong>Undo</strong> after deleting restores the same file from the trash.</li>
+<li><strong>Delete for good</strong> (one note) and <strong>Empty trash</strong> (all) ask first.</li>
+<li>Setting <strong>Remove deleted notes after</strong> (never, the default; 30 days, 90 days, 1 year): when the app opens, trashed notes deleted longer ago than that are removed.</li>
+</ul>
 <h3 id="143-export">14.3 Export</h3>
 <p>From a note: Markdown file, HTML page (self-contained), PDF (saved directly in the desktop app; print dialog in a browser), Word-compatible <code>.doc</code>, and &quot;Copy for Google Docs&quot; (rich text on the clipboard).</p>
 <h3 id="144-import-from-obsidian">14.4 Import from Obsidian</h3>

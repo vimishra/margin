@@ -17,13 +17,29 @@ export interface VaultConfig {
   folderTags?: Record<string, string[]>
 }
 
+/** A deleted note in this computer's trash. `folder` is the notebook it came from ('' top level, null not known). */
+export interface TrashItem {
+  file: string
+  title: string
+  folder: string | null
+  /** When it was deleted, in ms. */
+  deleted: number
+  snippet: string
+}
+
 export const api = {
   state: () => request<{ notes: Note[]; folders: string[]; vault: string; local?: string; config?: VaultConfig }>('/api/state'),
   setConfig: (config: Partial<VaultConfig>) => request<{ config: VaultConfig; folders: string[] }>('/api/config', json('PUT', config)),
   createNote: (note: Partial<Note>) => request<{ note: Note; folders: string[] }>('/api/notes', json('POST', note)),
   updateNote: (id: string, patch: NotePatch, keepalive = false) =>
     request<{ note: Note; touched: Note[] }>(`/api/notes/${id}`, { ...json('PUT', patch), keepalive }),
-  deleteNote: (id: string) => request<{ ok: true }>(`/api/notes/${id}`, { method: 'DELETE' }),
+  deleteNote: (id: string) => request<{ ok: true; trashed: string | null }>(`/api/notes/${id}`, { method: 'DELETE' }),
+  trash: () => request<{ items: TrashItem[] }>('/api/trash'),
+  trashContent: (file: string) => request<{ content: string }>(`/api/trash/${encodeURIComponent(file)}`),
+  restoreTrash: (file: string) => request<{ note: Note | null; notes: Note[]; folders: string[] }>(`/api/trash/${encodeURIComponent(file)}/restore`, json('POST')),
+  removeTrash: (file: string) => request<{ items: TrashItem[] }>(`/api/trash/${encodeURIComponent(file)}`, { method: 'DELETE' }),
+  /** Remove everything in the trash, or with `days`, only what was deleted longer ago than that. */
+  emptyTrash: (days = 0) => request<{ items: TrashItem[] }>('/api/trash/empty', json('POST', { days })),
   versions: (id: string) => request<{ versions: number[] }>(`/api/notes/${id}/versions`),
   version: (id: string, ts: number) => request<{ content: string }>(`/api/notes/${id}/versions/${ts}`),
   createFolder: (path: string) => request<{ folders: string[]; path: string }>('/api/folders', json('POST', { path })),

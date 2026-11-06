@@ -178,6 +178,7 @@ Not in the notes folder: version history and deleted notes. A synced notes folde
 | Ticked tasks sinking, archiving | `lib/archive.ts` (rules) and `src/archive.ts` (commands); every tick path calls the sink: the checkbox in `livePreview.ts`, `toggleDone` in `lists.ts`, `Preview.tsx`, and `updateTask` in `store.ts` |
 | The keys that work from any app | `GLOBAL_DEFAULTS` and `registerGlobalKeys` in `electron/main.mjs`; the settings rows are `GlobalKeyEditor` in `components/SettingsModal.tsx` |
 | Tag suggestions under a title | `Tags` in `components/NoteView.tsx` |
+| Recently deleted (the trash) | `listTrash`, `restoreTrash`, `removeTrash`, `trashFile` and `moveFile` in `server/index.mjs` (`/api/trash…`); the page in `components/TrashView.tsx`; `restoreFromTrash` and `refreshTrash` in `store.ts` |
 | Slash commands, link completion | `slashCommands` and `completions` in `components/Editor.tsx` |
 | The menu bar or right-click menu | `electron/main.mjs` |
 | Colours, spacing, fonts | The tokens at the top of `src/styles.css` |
