@@ -144,7 +144,7 @@ Each canvas card is markdown too.
 - The **canvas** is appended after a marker, as cards in HTML comments. Other markdown tools show the page and ignore the canvas.
 - **Images** are ordinary markdown images; a width is written as `![name|400](path)`.
 
-Beside the notes: `attachments/` (or the name chosen in settings), `.history/<id>/<time>.md` for versions, `.trash/` for deleted notes, and `.margin/config.json` for settings that belong to the folder: the attachments folder name and the tags each notebook gives its notes.
+Beside the notes: `attachments/` (or the name chosen in settings), `.history/<id>/<time>.snapshot` for versions, `.trash/` for deleted notes (as `<time>-<name>.md.deleted`; neither uses `.md`, so synced folders such as Google Drive do not list them as documents, and `renameOldCopies()` in `server/index.mjs` renames ones left by older versions at start-up), and `.margin/config.json` for settings that belong to the folder: the attachments folder name and the tags each notebook gives its notes.
 
 ## Key decisions
 

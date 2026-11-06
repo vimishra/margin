@@ -33,6 +33,10 @@ const PORT = Number(process.env.PORT || 4321)
 const DEV = process.argv.includes('--dev')
 const HISTORY = path.join(VAULT, '.history')
 const TRASH = path.join(VAULT, '.trash')
+// Version snapshots and deleted notes are not saved as .md: a synced folder (Google Drive, whose Docs opens
+// Markdown) would list every one of them as a document. They are still plain text, just under these extensions.
+const SNAPSHOT = '.snapshot'
+const DELETED = '.deleted'
 const CONFIG_FILE = path.join(VAULT, '.margin', 'config.json')
 // Settings that belong to the notes folder itself rather than to one browser or app.
 const config = { attachments: 'attachments', folderTags: {} }
@@ -226,7 +230,7 @@ async function scan() {
 
 async function trashFile(rec) {
   await fs.mkdir(TRASH, { recursive: true })
-  const dest = path.join(TRASH, `${Date.now()}-${path.basename(rec.path)}`)
+  const dest = path.join(TRASH, `${Date.now()}-${path.basename(rec.path)}${DELETED}`)
   await fs.rename(abs(rec.path), dest).catch(() => {})
   notes.delete(rec.id)
 }
@@ -244,8 +248,8 @@ async function listVersions(id) {
   const dir = path.join(HISTORY, id)
   const files = await fs.readdir(dir).catch(() => [])
   return files
-    .filter((f) => f.endsWith('.md'))
-    .map((f) => Number(f.slice(0, -3)))
+    .filter((f) => f.endsWith(SNAPSHOT))
+    .map((f) => Number(f.slice(0, -SNAPSHOT.length)))
     .filter(Number.isFinite)
     .sort((a, b) => b - a)
 }
@@ -256,9 +260,34 @@ async function snapshot(id, previous, content) {
   const versions = await listVersions(id)
   const bucket = Math.floor(Date.now() / BUCKET) * BUCKET
   // Keep the state from before the first tracked edit so there is always something to go back to.
-  if (!versions.length && previous.trim()) await fs.writeFile(path.join(dir, `${bucket - BUCKET}.md`), previous)
-  await fs.writeFile(path.join(dir, `${bucket}.md`), content)
-  for (const old of versions.slice(MAX_VERSIONS)) await fs.rm(path.join(dir, `${old}.md`), { force: true })
+  if (!versions.length && previous.trim()) await fs.writeFile(path.join(dir, `${bucket - BUCKET}${SNAPSHOT}`), previous)
+  await fs.writeFile(path.join(dir, `${bucket}${SNAPSHOT}`), content)
+  for (const old of versions.slice(MAX_VERSIONS)) await fs.rm(path.join(dir, `${old}${SNAPSHOT}`), { force: true })
+}
+
+/**
+ * Before 1.25, snapshots and deleted notes were saved as .md. Rename any left from then, once, at start-up:
+ * `.history/<id>/<time>.md` → `<time>.snapshot`, `.trash/<name>.md` → `<name>.md.deleted`.
+ */
+async function renameOldCopies() {
+  let renamed = 0
+  for (const id of await fs.readdir(HISTORY).catch(() => [])) {
+    const dir = path.join(HISTORY, id)
+    for (const f of await fs.readdir(dir).catch(() => [])) {
+      if (!/^\d+\.md$/.test(f)) continue
+      const to = path.join(dir, f.slice(0, -3) + SNAPSHOT)
+      // A newer snapshot under the new name wins over an old one for the same five minutes.
+      if (await fs.access(to).then(() => true, () => false)) await fs.rm(path.join(dir, f), { force: true })
+      else await fs.rename(path.join(dir, f), to)
+      renamed++
+    }
+  }
+  for (const f of await fs.readdir(TRASH).catch(() => [])) {
+    if (!f.toLowerCase().endsWith('.md')) continue
+    await fs.rename(path.join(TRASH, f), path.join(TRASH, f + DELETED)).catch(() => {})
+    renamed++
+  }
+  if (renamed) console.log(`Renamed ${renamed} version and trash files so they are not listed as documents.`)
 }
 
 // ---------- app ----------
@@ -369,7 +398,7 @@ app.get('/api/notes/:id/versions', h(async (req, res) => {
 }))
 
 app.get('/api/notes/:id/versions/:ts', h(async (req, res) => {
-  const file = path.join(HISTORY, path.basename(req.params.id), `${Number(req.params.ts)}.md`)
+  const file = path.join(HISTORY, path.basename(req.params.id), `${Number(req.params.ts)}${SNAPSHOT}`)
   const content = await fs.readFile(file, 'utf8').catch(() => null)
   if (content === null) throw new HttpError(404, 'Version not found')
   res.json({ content })
@@ -532,6 +561,7 @@ app.use((err, _req, res, _next) => {
   res.status(status).json({ error: err.message || 'Server error' })
 })
 
+await renameOldCopies()
 await scan()
 if (notes.size === 0 && folders.length === 0) {
   for (const n of seedNotes()) {
