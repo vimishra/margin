@@ -203,8 +203,8 @@ mark.find-hit.current{background:#ffab2e}
 <pre><code>&lt;notes folder&gt;/
   Any/Nested/Folders/Note title.md
   attachments/            images, PDFs and other files (name configurable)
-  .history/&lt;note id&gt;/&lt;timestamp&gt;.md
-  .trash/                 deleted notes
+  .history/&lt;note id&gt;/&lt;timestamp&gt;.snapshot
+  .trash/&lt;time&gt;-&lt;name&gt;.md.deleted   deleted notes
   .margin/config.json     settings that belong to the folder
 </code></pre>
 <ul>
@@ -824,6 +824,7 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <h2 id="14-history-trash-export-import">14. History, trash, export, import</h2>
 <h3 id="141-version-history">14.1 Version history</h3>
 <ul>
+<li>Snapshots and deleted notes are plain text but never use the <code>.md</code> extension, so a synced folder (Google Drive, whose Docs lists Markdown files as documents) does not show them as documents. Files left as <code>.md</code> by older versions are renamed when the app starts.</li>
 <li>Each save writes a snapshot of the note into <code>.history/&lt;id&gt;/</code>, at most one per 5-minute window (later saves in the window overwrite it). The state before the first tracked edit is kept too. The newest 200 are kept.</li>
 <li>The history window lists versions by time, shows a diff against the current text, and restores one.</li>
 </ul>

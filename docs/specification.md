@@ -94,8 +94,8 @@ All bodies are JSON unless noted.
 <notes folder>/
   Any/Nested/Folders/Note title.md
   attachments/            images, PDFs and other files (name configurable)
-  .history/<note id>/<timestamp>.md
-  .trash/                 deleted notes
+  .history/<note id>/<timestamp>.snapshot
+  .trash/<time>-<name>.md.deleted   deleted notes
   .margin/config.json     settings that belong to the folder
 ```
 
@@ -673,6 +673,7 @@ A small popover with: a text box that accepts a day in words and shows the date 
 
 ### 14.1 Version history
 
+- Snapshots and deleted notes are plain text but never use the `.md` extension, so a synced folder (Google Drive, whose Docs lists Markdown files as documents) does not show them as documents. Files left as `.md` by older versions are renamed when the app starts.
 - Each save writes a snapshot of the note into `.history/<id>/`, at most one per 5-minute window (later saves in the window overwrite it). The state before the first tracked edit is kept too. The newest 200 are kept.
 - The history window lists versions by time, shows a diff against the current text, and restores one.
 

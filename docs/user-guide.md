@@ -794,7 +794,9 @@ Each pane has its own tabs. The pane you last clicked is the active one, marked 
 
 **Version history** (⌥V) keeps a snapshot for every five minutes of editing. Pick a version to see what changed, then **Restore this version**.
 
-**Deleting** a note moves it to the `.trash` folder inside your notes folder. A message offers Undo for a few seconds.
+**Deleting** a note moves it to the `.trash` folder inside your notes folder. A message offers Undo for a few seconds. To bring one back later, take `.deleted` off the end of its name and move it back among your notes.
+
+Snapshots and deleted notes are saved as `.snapshot` and `.deleted` files, not `.md`. So if your notes folder is in Google Drive, they do not show up as documents in Google Docs; only your notes do.
 
 **Export** (the download button on a note):
 
@@ -1155,8 +1157,8 @@ vault/
   Meetings/2026/Oct/…         meeting notes, filed by date
   Templates/…                 your templates
   attachments/                images, PDFs and other files
-  .history/                   version snapshots
-  .trash/                     deleted notes
+  .history/                   version snapshots (.snapshot files)
+  .trash/                     deleted notes (.deleted files)
   .margin/config.json         the attachments folder name
 ```
 

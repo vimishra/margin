@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.25.0 (2026-11-06)
+
+### Changed
+
+- **Version history and deleted notes no longer show up as documents in Google Drive.** Snapshots are now saved as `.snapshot` files and deleted notes as `.deleted` files, instead of `.md`, so Google Docs (which lists Markdown files) shows only your notes. Existing ones are renamed when Margin starts. Version history works as before. Update Margin on every computer that uses the same notes folder: an older version keeps adding `.md` copies, and does not see the renamed history.
+
 ## 1.24.0 (2026-11-03)
 
 ### Changed
