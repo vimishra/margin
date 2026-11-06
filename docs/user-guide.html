@@ -983,8 +983,19 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 <p>Each pane has its own tabs. The pane you last clicked is the active one, marked with a coloured line along the top; search, jump to heading, list shortcuts and ⌘W apply to it. Drag the divider to resize; double-click it for equal halves.</p>
 <h2 id="history-trash-and-export">History, trash and export</h2>
 <p><strong>Version history</strong> (⌥V) keeps a snapshot for every five minutes of editing. Pick a version to see what changed, then <strong>Restore this version</strong>.</p>
-<p><strong>Deleting</strong> a note moves it to the trash. A message offers Undo for a few seconds.</p>
-<p><strong>Where history and deleted notes are kept:</strong> on this computer, not in your notes folder, so a notes folder in Google Drive (or any synced folder) holds only your notes, and Google Docs does not list copies of them. Each computer keeps its own history of the edits made on it. Settings → <strong>History and deleted notes</strong> → <strong>Copy path</strong> gives the folder; on a Mac it is in <code>~/Library/Application Support/Margin/Notes folders/</code>. To bring a deleted note back, find it in <code>trash/</code> there, take <code>.deleted</code> off the end of its name, and move it into your notes folder.</p>
+<p><strong>Deleting</strong> a note moves it to the trash. A message offers <strong>Undo</strong> for a few seconds, which puts it straight back.</p>
+<h3 id="recently-deleted">Recently deleted</h3>
+<p>Everything you delete waits in <strong>Recently deleted</strong>, in the sidebar under Scratch (shown while anything is in it), or ⌘K → &quot;Recently deleted&quot;. Deleting a notebook sends each of its notes there too.</p>
+<ul>
+<li>The list is newest first: each note's title, the notebook it came from, when it was deleted and a line of its text. Type in the box to narrow it.</li>
+<li><strong>Click a note</strong> (or press Enter) to read it, to be sure it is the one you want.</li>
+<li><strong>Restore</strong> puts it back in the notebook it came from, with its version history, and leaves you where you are; the message that follows offers <strong>Open</strong>. If that notebook now has a note with the same name, the restored one is called &quot;… (restored)&quot;, so nothing is overwritten. If the notebook is gone, it is made again.</li>
+<li><strong>×</strong> deletes one note for good, after asking. <strong>Empty trash</strong> deletes them all, after asking.</li>
+<li>Notes deleted before Margin 1.27 do not record their notebook (&quot;Notebook not known&quot;); Restore puts those at the top level.</li>
+<li>Deleted notes stay until you remove them. To have old ones cleared away by themselves, set Settings → Files &amp; data → <strong>Remove deleted notes after</strong> to 30 days, 90 days or a year; they are removed when Margin opens.</li>
+</ul>
+<p><strong>Recently deleted is per computer.</strong> It lists the notes deleted on this computer; a note deleted on your other Mac is in that Mac's Recently deleted.</p>
+<p><strong>Where history and deleted notes are kept:</strong> on this computer, not in your notes folder, so a notes folder in Google Drive (or any synced folder) holds only your notes, and Google Docs does not list copies of them. Each computer keeps its own history of the edits made on it. Settings → <strong>History and deleted notes</strong> → <strong>Copy path</strong> gives the folder; on a Mac it is in <code>~/Library/Application Support/Margin/Notes folders/</code>. You should not need it: Recently deleted and version history (⌥V) cover both.</p>
 <p><strong>Export</strong> (the download button on a note):</p>
 <ul>
 <li><strong>Markdown</strong>, <strong>Web page (.html)</strong> and <strong>Word (.doc)</strong> save a file.</li>
@@ -1367,7 +1378,7 @@ margin-tasks open --no-due --notebook Work --paths
 </tr>
 <tr>
 <td>Files &amp; data</td>
-<td>Notes folder, attachments folder, image naming, Obsidian import, reset</td>
+<td>Notes folder, attachments folder, image naming, how long deleted notes are kept, where history and deleted notes are, Obsidian import, reset</td>
 </tr>
 <tr>
 <td>Shortcuts</td>
@@ -1663,7 +1674,7 @@ margin-tasks open --no-due --notebook Work --paths
 </tr>
 <tr>
 <td>A note disappeared</td>
-<td>Look in the trash: Settings → History and deleted notes → Copy path, then its <code>trash/</code> folder. Scratch notes go there when they expire.</td>
+<td>Look in <strong>Recently deleted</strong> in the sidebar (or ⌘K → Recently deleted) and Restore it. Scratch notes go there when they expire. A note deleted on your other computer is in that computer's Recently deleted.</td>
 </tr>
 <tr>
 <td>A note will not open, or Margin stops responding when you open it</td>

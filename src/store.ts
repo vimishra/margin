@@ -82,6 +82,8 @@ export interface Settings {
   /** Sidebar sections the user has switched off; see SIDEBAR_SECTIONS. */
   hiddenSections: string[]
   tabs: boolean
+  /** Deleted notes older than this many days are removed from the trash for good. 0 keeps them. */
+  trashDays: number
   /** At most this many tabs per pane: opening one more closes the least recently used. 0 means no limit. */
   maxTabs: number
   accent: string
@@ -154,6 +156,7 @@ export const DEFAULT_SETTINGS: Settings = {
   hiddenSections: [],
   tabs: true,
   maxTabs: 0,
+  trashDays: 0,
   accent: 'sky',
   font: 'system',
   codeFont: 'system',
@@ -202,6 +205,7 @@ export const SIDEBAR_SECTIONS: [string, string][] = [
   ['tasks', 'Tasks'],
   ['research', 'Research'],
   ['scratch', 'Scratch'],
+  ['trash', 'Recently deleted'],
   ['pinned', 'Pinned'],
   ['recent', 'Recent'],
   ['notebooks', 'Notebooks'],
@@ -251,6 +255,8 @@ interface State {
   vault: string
   /** Where this computer keeps the notes folder's version history and deleted notes (outside the notes folder). */
   local: string
+  /** How many notes are in this computer's trash for this notes folder. */
+  trashCount: number
   /** Name of the folder inside the vault where images and other files are stored. */
   attachmentsFolder: string
   /** Tags that notes take on when created in, or moved into, a notebook. Kept in the notes folder's own config. */
@@ -309,6 +315,7 @@ export function parseHash(hash: string): Route {
     case 'all':
     case 'scratch':
     case 'research':
+    case 'trash':
       return { name }
     case 'tasks':
       return arg ? { name, view: arg } : { name }
@@ -362,6 +369,7 @@ export const useStore = create<State>(() => ({
   error: null,
   vault: '',
   local: '',
+  trashCount: 0,
   attachmentsFolder: 'attachments',
   folderTags: {},
   notes: {},
@@ -559,8 +567,40 @@ export async function load() {
       if (settings.startPage === 'last' && last) return openNote(last)
     }
     enterRoute(get().route)
+    if (first) {
+      // With the setting on, deleted notes older than it are removed for good.
+      const days = get().settings.trashDays
+      if (days > 0) await api.emptyTrash(days).catch(() => {})
+      void refreshTrash()
+    }
   } catch (e) {
     set({ error: (e as Error).message, loaded: true })
+  }
+}
+
+/** Count what is in the trash, for the sidebar. */
+export async function refreshTrash() {
+  try {
+    set({ trashCount: (await api.trash()).items.length })
+  } catch {
+    /* leave the count as it was */
+  }
+}
+
+/** Put a deleted note back where it came from, and open it. */
+export async function restoreFromTrash(file: string, open = true) {
+  try {
+    const res = await api.restoreTrash(file)
+    set({ notes: mergeNotes(res.notes), folders: res.folders })
+    void refreshTrash()
+    if (res.note) {
+      toast(`Restored “${res.note.title}”${res.note.folder ? ` to ${res.note.folder}` : ''}`, open ? undefined : { label: 'Open', run: () => openNote(res.note!.id) })
+      if (open) openNote(res.note.id)
+    }
+    return res.note
+  } catch (e) {
+    toast(`Could not restore: ${(e as Error).message}`)
+    return null
   }
 }
 
@@ -833,11 +873,13 @@ export async function deleteNote(id: string) {
     pending.delete(id)
     if (!pending.size) set({ dirty: false })
   }
+  let trashed: string | null = null
   try {
-    await api.deleteNote(id)
+    trashed = (await api.deleteNote(id)).trashed
   } catch (e) {
     return toast(`Could not delete: ${(e as Error).message}`)
   }
+  void refreshTrash()
   set((s) => {
     const notes = { ...s.notes }
     delete notes[id]
@@ -845,9 +887,10 @@ export async function deleteNote(id: string) {
   })
   if (get().sideTabs.includes(id) || get().side === id) closeSideTab(id)
   closeTab(id)
+  // Undo takes the very file back out of the trash, so the note keeps its id and version history.
   toast(`Moved “${note.title}” to trash`, {
     label: 'Undo',
-    run: () => createNote(note, false),
+    run: () => (trashed ? void restoreFromTrash(trashed) : void createNote(note, false)),
   })
 }
 
@@ -1502,6 +1545,7 @@ export async function deleteFolder(path: string) {
   if (ok === null) return
   try {
     const res = await api.deleteFolder(path)
+    void refreshTrash()
     moveFolderTags(path, null)
     set((s) => ({ notes: mergeNotes(res.notes), folders: res.folders, tabs: s.tabs.filter((id) => res.notes.some((n) => n.id === id)) }))
     const r = get().route

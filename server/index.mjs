@@ -239,17 +239,115 @@ async function scan() {
   await purgeExpired()
 }
 
-async function trashFile(rec) {
+/**
+ * Move a file, also between disks: the notes folder can be on Google Drive and the trash on this computer, where
+ * a plain rename fails. Copies, then removes the original only once the copy is in place.
+ */
+async function moveFile(from, to) {
+  await fs.mkdir(path.dirname(to), { recursive: true })
+  try {
+    await fs.rename(from, to)
+  } catch (e) {
+    if (e.code !== 'EXDEV' && e.code !== 'EPERM' && e.code !== 'ENOTSUP') throw e
+    await fs.copyFile(from, to)
+    await fs.rm(from)
+  }
+}
+
+// ---------- trash ----------
+// Each deleted note is a file `<time>-<name>.md.deleted` in TRASH. Where it came from (its path in the notes
+// folder) is kept in TRASH/index.json, so Restore can put it back in its notebook.
+
+const TRASH_INDEX = () => path.join(TRASH, 'index.json')
+async function readTrashIndex() {
+  try {
+    return JSON.parse(await fs.readFile(TRASH_INDEX(), 'utf8'))
+  } catch {
+    return {}
+  }
+}
+async function writeTrashIndex(index) {
   await fs.mkdir(TRASH, { recursive: true })
-  const dest = path.join(TRASH, `${Date.now()}-${path.basename(rec.path)}${DELETED}`)
-  await fs.rename(abs(rec.path), dest).catch(() => {})
+  await fs.writeFile(TRASH_INDEX(), JSON.stringify(index, null, 1))
+}
+
+/** Move a note to the trash. Throws if it cannot be moved, so nothing goes on as if it had been. */
+async function trashFile(rec) {
+  const name = `${Date.now()}-${path.basename(rec.path)}${DELETED}`
+  await moveFile(abs(rec.path), path.join(TRASH, name))
+  const index = await readTrashIndex()
+  index[name] = { path: rec.path, title: rec.title }
+  await writeTrashIndex(index)
   notes.delete(rec.id)
+  return name
+}
+
+/** A trashed file by its name, checked to be one of the trash's own files. */
+function trashPath(name) {
+  const file = path.basename(String(name || ''))
+  if (!file.endsWith(DELETED)) throw new HttpError(400, 'Not a deleted note')
+  return path.join(TRASH, file)
+}
+
+/** What the trash holds, newest first: title, notebook it came from ('' when not known), when, a line of text. */
+async function listTrash() {
+  const index = await readTrashIndex()
+  const out = []
+  for (const file of await fs.readdir(TRASH).catch(() => [])) {
+    if (!file.endsWith(DELETED)) continue
+    const raw = await fs.readFile(path.join(TRASH, file), 'utf8').catch(() => null)
+    if (raw === null) continue
+    const { data, content } = parseFile(raw)
+    const m = /^(\d+)-(.*?)(\.md)?\.deleted$/.exec(file)
+    const from = index[file]?.path
+    const folder = from ? path.posix.dirname(from) : null
+    const text = content.replace(/^#+\s+/gm, '').replace(/[*_`>#\[\]]/g, '').replace(/\s+/g, ' ').trim()
+    out.push({
+      file,
+      title: index[file]?.title || (data.title ? String(data.title) : m ? m[2] : file),
+      folder: folder === null ? null : folder === '.' ? '' : folder,
+      deleted: m ? Number(m[1]) : 0,
+      snippet: text.slice(0, 160),
+    })
+  }
+  return out.sort((a, b) => b.deleted - a.deleted)
+}
+
+/** Put a deleted note back where it was (a note with its name there already: " (restored)" is added). */
+async function restoreTrash(name) {
+  const file = trashPath(name)
+  if (!(await exists(file))) throw new HttpError(404, 'That note is no longer in the trash')
+  const index = await readTrashIndex()
+  const was = index[path.basename(file)]?.path
+  const base = path.basename(file).replace(/^\d+-/, '').replace(/(\.md)?\.deleted$/, '')
+  const folder = was ? existingFolder(sanitizeFolder(path.posix.dirname(was) === '.' ? '' : path.posix.dirname(was))) : ''
+  let rel = path.posix.join(folder, sanitizeName(base) + '.md')
+  if (await exists(abs(rel))) rel = await freePath(folder, `${sanitizeName(base)} (restored)`)
+  await moveFile(file, abs(rel))
+  delete index[path.basename(file)]
+  await writeTrashIndex(index)
+  await scan()
+  // Its id is in the file, so its version history comes back with it; a note with that id already here gets a new one.
+  const rec = [...notes.values()].find((r) => r.path === rel)
+  return rec ? publicNote(rec) : null
+}
+
+async function removeTrash(names) {
+  const index = await readTrashIndex()
+  for (const name of names) {
+    await fs.rm(trashPath(name), { force: true })
+    delete index[path.basename(name)]
+  }
+  await writeTrashIndex(index)
 }
 
 async function purgeExpired() {
   const now = Date.now()
   for (const rec of [...notes.values()]) {
-    if (rec.type === 'scratch' && rec.expires && new Date(rec.expires).getTime() < now) await trashFile(rec)
+    if (rec.type === 'scratch' && rec.expires && new Date(rec.expires).getTime() < now) {
+      // Left for the next look if it cannot be moved now; reading the notes must not fail over it.
+      await trashFile(rec).catch((e) => console.error(`Could not move expired scratch note ${rec.path} to the trash: ${e.message}`))
+    }
   }
 }
 
@@ -426,8 +524,37 @@ app.put('/api/notes/:id', h(async (req, res) => {
 
 app.delete('/api/notes/:id', h(async (req, res) => {
   const rec = notes.get(req.params.id)
-  if (rec) await trashFile(rec)
-  res.json({ ok: true })
+  const trashed = rec ? await trashFile(rec) : null
+  res.json({ ok: true, trashed })
+}))
+
+app.get('/api/trash', h(async (_req, res) => {
+  res.json({ items: await listTrash() })
+}))
+
+app.get('/api/trash/:file', h(async (req, res) => {
+  const raw = await fs.readFile(trashPath(req.params.file), 'utf8').catch(() => null)
+  if (raw === null) throw new HttpError(404, 'That note is no longer in the trash')
+  res.json({ content: parseFile(raw).content })
+}))
+
+app.post('/api/trash/:file/restore', h(async (req, res) => {
+  const note = await restoreTrash(req.params.file)
+  res.json({ note, notes: [...notes.values()].map(publicNote), folders })
+}))
+
+app.delete('/api/trash/:file', h(async (req, res) => {
+  await removeTrash([req.params.file])
+  res.json({ items: await listTrash() })
+}))
+
+/** Empty the trash, or, with `days`, remove only what was deleted longer ago than that. */
+app.post('/api/trash/empty', h(async (req, res) => {
+  const days = Number(req.body?.days) || 0
+  const before = days > 0 ? Date.now() - days * 86400000 : Infinity
+  const items = await listTrash()
+  await removeTrash(items.filter((i) => i.deleted < before).map((i) => i.file))
+  res.json({ items: await listTrash() })
 }))
 
 app.get('/api/notes/:id/versions', h(async (req, res) => {

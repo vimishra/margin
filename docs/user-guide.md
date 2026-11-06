@@ -794,9 +794,22 @@ Each pane has its own tabs. The pane you last clicked is the active one, marked 
 
 **Version history** (⌥V) keeps a snapshot for every five minutes of editing. Pick a version to see what changed, then **Restore this version**.
 
-**Deleting** a note moves it to the trash. A message offers Undo for a few seconds.
+**Deleting** a note moves it to the trash. A message offers **Undo** for a few seconds, which puts it straight back.
 
-**Where history and deleted notes are kept:** on this computer, not in your notes folder, so a notes folder in Google Drive (or any synced folder) holds only your notes, and Google Docs does not list copies of them. Each computer keeps its own history of the edits made on it. Settings → **History and deleted notes** → **Copy path** gives the folder; on a Mac it is in `~/Library/Application Support/Margin/Notes folders/`. To bring a deleted note back, find it in `trash/` there, take `.deleted` off the end of its name, and move it into your notes folder.
+### Recently deleted
+
+Everything you delete waits in **Recently deleted**, in the sidebar under Scratch (shown while anything is in it), or ⌘K → "Recently deleted". Deleting a notebook sends each of its notes there too.
+
+- The list is newest first: each note's title, the notebook it came from, when it was deleted and a line of its text. Type in the box to narrow it.
+- **Click a note** (or press Enter) to read it, to be sure it is the one you want.
+- **Restore** puts it back in the notebook it came from, with its version history, and leaves you where you are; the message that follows offers **Open**. If that notebook now has a note with the same name, the restored one is called "… (restored)", so nothing is overwritten. If the notebook is gone, it is made again.
+- **×** deletes one note for good, after asking. **Empty trash** deletes them all, after asking.
+- Notes deleted before Margin 1.27 do not record their notebook ("Notebook not known"); Restore puts those at the top level.
+- Deleted notes stay until you remove them. To have old ones cleared away by themselves, set Settings → Files & data → **Remove deleted notes after** to 30 days, 90 days or a year; they are removed when Margin opens.
+
+**Recently deleted is per computer.** It lists the notes deleted on this computer; a note deleted on your other Mac is in that Mac's Recently deleted.
+
+**Where history and deleted notes are kept:** on this computer, not in your notes folder, so a notes folder in Google Drive (or any synced folder) holds only your notes, and Google Docs does not list copies of them. Each computer keeps its own history of the edits made on it. Settings → **History and deleted notes** → **Copy path** gives the folder; on a Mac it is in `~/Library/Application Support/Margin/Notes folders/`. You should not need it: Recently deleted and version history (⌥V) cover both.
 
 **Export** (the download button on a note):
 
@@ -1055,7 +1068,7 @@ Two settings live inside the app and cannot be read from outside it. If you rena
 | Daily notes | Canvas or page, the daily notebook, a template for new days |
 | Templates & meetings | Template and meeting notebooks, how meetings are filed, the meeting template |
 | Capture & scratch | Timestamps on captures, scratch expiry |
-| Files & data | Notes folder, attachments folder, image naming, Obsidian import, reset |
+| Files & data | Notes folder, attachments folder, image naming, how long deleted notes are kept, where history and deleted notes are, Obsidian import, reset |
 | Shortcuts | Every shortcut; click one and press new keys. At the top, **From any app**: the keys that open Quick task and Quick capture even when Margin is in the background (desktop app only) |
 
 **Text style colours** have a light-theme and a dark-theme picker. Leave the dark one on Auto and it uses a lightened version of your light colour, so a dark heading colour stays readable on a dark background.
@@ -1172,7 +1185,7 @@ You can edit the files in any other program, or add `.md` files to the folder. M
 | --- | --- |
 | "Port 4321 is already in use" | Margin is already running. Open http://localhost:4321, or stop the other copy. |
 | A change you made is missing | Open version history (⌥V) and restore an earlier version. |
-| A note disappeared | Look in the trash: Settings → History and deleted notes → Copy path, then its `trash/` folder. Scratch notes go there when they expire. |
+| A note disappeared | Look in **Recently deleted** in the sidebar (or ⌘K → Recently deleted) and Restore it. Scratch notes go there when they expire. A note deleted on your other computer is in that computer's Recently deleted. |
 | A note will not open, or Margin stops responding when you open it | See **A note that will not open** below. |
 | A shortcut does nothing | Check Settings → Shortcuts. Another action may have taken those keys. For the keys under **From any app**, a note there says if another app or the system holds them. |
 | Text is not rendering | Check the mode buttons at the top right of the note; Markdown source shows raw text. |

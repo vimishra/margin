@@ -29,6 +29,8 @@ export type Route =
   | { name: 'tasks'; view?: string }
   | { name: 'scratch' }
   | { name: 'research' }
+  /** Recently deleted notes, on this computer. */
+  | { name: 'trash' }
   | { name: 'folder'; path: string }
   | { name: 'tag'; tag: string }
   | { name: 'note'; id: string }

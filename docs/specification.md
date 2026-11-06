@@ -679,6 +679,14 @@ A small popover with: a text box that accepts a day in words and shows the date 
 
 Deleted notes and folders move to this computer's trash folder for the notes folder (see 14.1). Expired scratch notes go there too. Settings shows that folder's path, with a button to copy it.
 
+- Moving between the notes folder and the trash works across disks (copy, then remove the original only once the copy is in place). If a note cannot be moved, deleting it fails with a message and nothing else happens; deleting a notebook stops before its folder is removed.
+- The trash keeps, for each deleted note, the path it had (`trash/index.json`), so it can go back to its notebook.
+- **Recently deleted** (`#/trash`; sidebar entry under Scratch while the trash holds anything, hideable like the other sections; ⌘K "Go to Recently deleted", shortcut assignable): the trashed notes, newest first, with title, the notebook they came from ("Notebook not known" for notes trashed before this was recorded), when deleted, and a line of text; a filter box; ↑ ↓ (J K) to move, Enter to show the note read-only under its row, `/` to filter.
+- **Restore** moves the file back into its notebook (made again if missing; top level when not known), keeping its id and so its version history. If a file of that name exists there, it is restored as "<name> (restored)". A message offers Open.
+- **Undo** after deleting restores the same file from the trash.
+- **Delete for good** (one note) and **Empty trash** (all) ask first.
+- Setting **Remove deleted notes after** (never, the default; 30 days, 90 days, 1 year): when the app opens, trashed notes deleted longer ago than that are removed.
+
 ### 14.3 Export
 
 From a note: Markdown file, HTML page (self-contained), PDF (saved directly in the desktop app; print dialog in a browser), Word-compatible `.doc`, and "Copy for Google Docs" (rich text on the clipboard).
