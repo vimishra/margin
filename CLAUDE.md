@@ -24,7 +24,7 @@ Changes under `server/` or `electron/` need a restart; `src/` reloads in `npm ru
 
 The owner's real notes (work meetings) are in `~/Documents/Vault`, set as `vaultDir` in `~/Library/Application Support/Margin/config.json`. Both `npm run app` and `npm run dev` open that folder unless `VAULT_DIR` is set, and so does the `margin` preview config. `vault/` in the project is the fallback when no folder is chosen; it is git-ignored and must stay that way.
 
-- Test against a throwaway folder: `PORT=4477 VAULT_DIR=<scratch dir> node server/index.mjs --dev`. For the browser preview, add a launch config that runs `env VAULT_DIR=<scratch dir> PORT=4490 node server/index.mjs --dev`; the plain `margin` config opens the real notes.
+- Test against a throwaway folder: `PORT=4477 VAULT_DIR=<scratch dir> MARGIN_DATA_DIR=<another scratch dir> node server/index.mjs --dev`. Without `MARGIN_DATA_DIR` the server keeps that folder's version history and trash in `~/Library/Application Support/Margin/Notes folders/`, beside the owner's real ones. For the browser preview, add a launch config that runs `env VAULT_DIR=<scratch dir> PORT=4490 node server/index.mjs --dev`; the plain `margin` config opens the real notes.
 - Or, in the running app, create a note titled `zz …` through the API, test on it, and delete it afterwards. Restore `localStorage` keys (`margin.settings`, `margin.tabs`, `margin.mode`, `margin.theme`) you changed.
 - Do not type into, rename or reformat existing notes while testing.
 

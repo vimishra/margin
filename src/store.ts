@@ -249,6 +249,8 @@ interface State {
   loaded: boolean
   error: string | null
   vault: string
+  /** Where this computer keeps the notes folder's version history and deleted notes (outside the notes folder). */
+  local: string
   /** Name of the folder inside the vault where images and other files are stored. */
   attachmentsFolder: string
   /** Tags that notes take on when created in, or moved into, a notebook. Kept in the notes folder's own config. */
@@ -359,6 +361,7 @@ export const useStore = create<State>(() => ({
   loaded: false,
   error: null,
   vault: '',
+  local: '',
   attachmentsFolder: 'attachments',
   folderTags: {},
   notes: {},
@@ -547,7 +550,7 @@ export async function load() {
   try {
     const data = await api.state()
     const first = !get().loaded
-    set({ notes: mergeNotes(data.notes), folders: data.folders, vault: data.vault, attachmentsFolder: data.config?.attachments || 'attachments', folderTags: data.config?.folderTags || {}, loaded: true, error: null })
+    set({ notes: mergeNotes(data.notes), folders: data.folders, vault: data.vault, local: data.local || '', attachmentsFolder: data.config?.attachments || 'attachments', folderTags: data.config?.folderTags || {}, loaded: true, error: null })
     // Opened without a specific page in the address: go to the start page chosen in settings.
     const { settings, recent, notes } = get()
     if (first && !location.hash.replace(/^#\/?/, '')) {
@@ -1491,7 +1494,7 @@ export async function deleteFolder(path: string) {
   const count = Object.values(get().notes).filter((n) => n.folder === path || n.folder.startsWith(path + '/')).length
   const ok = await ask({
     title: `Delete “${path}”?`,
-    message: count ? `${count} note${count === 1 ? '' : 's'} inside will be moved to the vault's .trash folder.` : 'This notebook is empty.',
+    message: count ? `${count} note${count === 1 ? '' : 's'} inside will be moved to the trash (Settings → History and deleted notes).` : 'This notebook is empty.',
     confirmLabel: 'Delete',
     danger: true,
     input: false,

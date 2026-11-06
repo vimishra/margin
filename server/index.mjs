@@ -15,13 +15,17 @@ import { importObsidian } from './obsidian.mjs'
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // The notes folder: VAULT_DIR if given, else the folder chosen in the desktop app, else ./vault.
 // The desktop app always passes VAULT_DIR, so this lookup only matters when run from a terminal.
-function desktopVault() {
+/** The desktop app's own folder: ~/Library/Application Support/Margin on a Mac. */
+function appFolder() {
   const base =
     process.platform === 'darwin' ? path.join(os.homedir(), 'Library', 'Application Support')
     : process.platform === 'win32' ? process.env.APPDATA || path.join(os.homedir(), 'AppData', 'Roaming')
     : process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config')
+  return path.join(base, 'Margin')
+}
+function desktopVault() {
   try {
-    const dir = JSON.parse(fssync.readFileSync(path.join(base, 'Margin', 'config.json'), 'utf8')).vaultDir
+    const dir = JSON.parse(fssync.readFileSync(path.join(appFolder(), 'config.json'), 'utf8')).vaultDir
     if (typeof dir !== 'string' || !dir) return null
     if (fssync.existsSync(dir)) return dir
     console.warn(`\n  The notes folder chosen in the desktop app is missing: ${dir}\n  Using ./vault instead.`)
@@ -31,10 +35,17 @@ function desktopVault() {
 const VAULT = path.resolve(process.env.VAULT_DIR || desktopVault() || path.join(ROOT, 'vault'))
 const PORT = Number(process.env.PORT || 4321)
 const DEV = process.argv.includes('--dev')
-const HISTORY = path.join(VAULT, '.history')
-const TRASH = path.join(VAULT, '.trash')
-// Version snapshots and deleted notes are not saved as .md: a synced folder (Google Drive, whose Docs opens
-// Markdown) would list every one of them as a document. They are still plain text, just under these extensions.
+// Version snapshots and deleted notes are kept on this computer, outside the notes folder, so a synced notes folder
+// (Google Drive, whose Docs lists anything that reads as Markdown) is not filled with copies of every note. They are
+// in the app's own folder (MARGIN_DATA_DIR, which the desktop app sets to its profile), one folder per notes folder.
+const DATA = path.resolve(process.env.MARGIN_DATA_DIR || appFolder())
+const LOCAL = path.join(DATA, 'Notes folders', `${path.basename(VAULT).replace(/[^\w .-]/g, '_') || 'notes'} ${crypto.createHash('sha1').update(VAULT).digest('hex').slice(0, 8)}`)
+const HISTORY = path.join(LOCAL, 'history')
+const TRASH = path.join(LOCAL, 'trash')
+// Where they were kept before 1.26, inside the notes folder; moved out at start-up.
+const OLD_HISTORY = path.join(VAULT, '.history')
+const OLD_TRASH = path.join(VAULT, '.trash')
+// Their extensions, not .md, so nothing opens them as notes.
 const SNAPSHOT = '.snapshot'
 const DELETED = '.deleted'
 const CONFIG_FILE = path.join(VAULT, '.margin', 'config.json')
@@ -266,6 +277,33 @@ async function snapshot(id, previous, content) {
 }
 
 /**
+ * Before 1.26, snapshots and deleted notes were kept in .history and .trash inside the notes folder. Move them here,
+ * once, at start-up, file by file (the notes folder may be on another disk, such as Google Drive, where a rename
+ * would fail), then remove the old folders. A file already here with the same name wins.
+ */
+async function moveOldFolders() {
+  let moved = 0
+  const walk = async (from, to) => {
+    for (const e of await fs.readdir(from, { withFileTypes: true }).catch(() => [])) {
+      const a = path.join(from, e.name)
+      const b = path.join(to, e.name)
+      if (e.isDirectory()) await walk(a, b)
+      else if (e.isFile()) {
+        await fs.mkdir(to, { recursive: true })
+        if (!(await fs.access(b).then(() => true, () => false))) await fs.copyFile(a, b)
+        moved++
+      }
+    }
+  }
+  for (const [from, to] of [[OLD_HISTORY, HISTORY], [OLD_TRASH, TRASH]]) {
+    if (!fssync.existsSync(from)) continue
+    await walk(from, to)
+    await fs.rm(from, { recursive: true, force: true })
+  }
+  if (moved) console.log(`Moved ${moved} version and trash files out of the notes folder, to ${LOCAL}`)
+}
+
+/**
  * Before 1.25, snapshots and deleted notes were saved as .md. Rename any left from then, once, at start-up:
  * `.history/<id>/<time>.md` → `<time>.snapshot`, `.trash/<name>.md` → `<name>.md.deleted`.
  */
@@ -297,7 +335,7 @@ app.use('/api', express.json({ limit: '25mb' }))
 
 app.get('/api/state', h(async (_req, res) => {
   await scan()
-  res.json({ notes: [...notes.values()].map(publicNote), folders, vault: VAULT, config })
+  res.json({ notes: [...notes.values()].map(publicNote), folders, vault: VAULT, local: LOCAL, config })
 }))
 
 app.post('/api/notes', h(async (req, res) => {
@@ -561,6 +599,7 @@ app.use((err, _req, res, _next) => {
   res.status(status).json({ error: err.message || 'Server error' })
 })
 
+await moveOldFolders()
 await renameOldCopies()
 await scan()
 if (notes.size === 0 && folders.length === 0) {

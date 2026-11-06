@@ -573,6 +573,8 @@ if (!app.requestSingleInstanceLock()) {
     const port = await freePort(BASE_PORT)
     process.env.VAULT_DIR = vault
     process.env.PORT = String(port)
+    // Version history and deleted notes are kept in this app's own folder (its profile, so --user-data-dir moves them).
+    process.env.MARGIN_DATA_DIR = app.getPath('userData')
     const server = await import('../server/index.mjs')
     await server.ready
     origin = `http://127.0.0.1:${port}`

@@ -794,9 +794,9 @@ Each pane has its own tabs. The pane you last clicked is the active one, marked 
 
 **Version history** (⌥V) keeps a snapshot for every five minutes of editing. Pick a version to see what changed, then **Restore this version**.
 
-**Deleting** a note moves it to the `.trash` folder inside your notes folder. A message offers Undo for a few seconds. To bring one back later, take `.deleted` off the end of its name and move it back among your notes.
+**Deleting** a note moves it to the trash. A message offers Undo for a few seconds.
 
-Snapshots and deleted notes are saved as `.snapshot` and `.deleted` files, not `.md`. So if your notes folder is in Google Drive, they do not show up as documents in Google Docs; only your notes do.
+**Where history and deleted notes are kept:** on this computer, not in your notes folder, so a notes folder in Google Drive (or any synced folder) holds only your notes, and Google Docs does not list copies of them. Each computer keeps its own history of the edits made on it. Settings → **History and deleted notes** → **Copy path** gives the folder; on a Mac it is in `~/Library/Application Support/Margin/Notes folders/`. To bring a deleted note back, find it in `trash/` there, take `.deleted` off the end of its name, and move it into your notes folder.
 
 **Export** (the download button on a note):
 
@@ -1157,8 +1157,6 @@ vault/
   Meetings/2026/Oct/…         meeting notes, filed by date
   Templates/…                 your templates
   attachments/                images, PDFs and other files
-  .history/                   version snapshots (.snapshot files)
-  .trash/                     deleted notes (.deleted files)
   .margin/config.json         the attachments folder name
 ```
 
@@ -1174,7 +1172,7 @@ You can edit the files in any other program, or add `.md` files to the folder. M
 | --- | --- |
 | "Port 4321 is already in use" | Margin is already running. Open http://localhost:4321, or stop the other copy. |
 | A change you made is missing | Open version history (⌥V) and restore an earlier version. |
-| A note disappeared | Look in the `.trash` folder inside your notes folder. Scratch notes go there when they expire. |
+| A note disappeared | Look in the trash: Settings → History and deleted notes → Copy path, then its `trash/` folder. Scratch notes go there when they expire. |
 | A note will not open, or Margin stops responding when you open it | See **A note that will not open** below. |
 | A shortcut does nothing | Check Settings → Shortcuts. Another action may have taken those keys. For the keys under **From any app**, a note there says if another app or the system holds them. |
 | Text is not rendering | Check the mode buttons at the top right of the note; Markdown source shows raw text. |

@@ -18,7 +18,7 @@ export interface VaultConfig {
 }
 
 export const api = {
-  state: () => request<{ notes: Note[]; folders: string[]; vault: string; config?: VaultConfig }>('/api/state'),
+  state: () => request<{ notes: Note[]; folders: string[]; vault: string; local?: string; config?: VaultConfig }>('/api/state'),
   setConfig: (config: Partial<VaultConfig>) => request<{ config: VaultConfig; folders: string[] }>('/api/config', json('PUT', config)),
   createNote: (note: Partial<Note>) => request<{ note: Note; folders: string[] }>('/api/notes', json('POST', note)),
   updateNote: (id: string, patch: NotePatch, keepalive = false) =>
