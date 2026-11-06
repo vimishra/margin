@@ -983,8 +983,8 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 <p>Each pane has its own tabs. The pane you last clicked is the active one, marked with a coloured line along the top; search, jump to heading, list shortcuts and ⌘W apply to it. Drag the divider to resize; double-click it for equal halves.</p>
 <h2 id="history-trash-and-export">History, trash and export</h2>
 <p><strong>Version history</strong> (⌥V) keeps a snapshot for every five minutes of editing. Pick a version to see what changed, then <strong>Restore this version</strong>.</p>
-<p><strong>Deleting</strong> a note moves it to the <code>.trash</code> folder inside your notes folder. A message offers Undo for a few seconds. To bring one back later, take <code>.deleted</code> off the end of its name and move it back among your notes.</p>
-<p>Snapshots and deleted notes are saved as <code>.snapshot</code> and <code>.deleted</code> files, not <code>.md</code>. So if your notes folder is in Google Drive, they do not show up as documents in Google Docs; only your notes do.</p>
+<p><strong>Deleting</strong> a note moves it to the trash. A message offers Undo for a few seconds.</p>
+<p><strong>Where history and deleted notes are kept:</strong> on this computer, not in your notes folder, so a notes folder in Google Drive (or any synced folder) holds only your notes, and Google Docs does not list copies of them. Each computer keeps its own history of the edits made on it. Settings → <strong>History and deleted notes</strong> → <strong>Copy path</strong> gives the folder; on a Mac it is in <code>~/Library/Application Support/Margin/Notes folders/</code>. To bring a deleted note back, find it in <code>trash/</code> there, take <code>.deleted</code> off the end of its name, and move it into your notes folder.</p>
 <p><strong>Export</strong> (the download button on a note):</p>
 <ul>
 <li><strong>Markdown</strong>, <strong>Web page (.html)</strong> and <strong>Word (.doc)</strong> save a file.</li>
@@ -1640,8 +1640,6 @@ margin-tasks open --no-due --notebook Work --paths
   Meetings/2026/Oct/…         meeting notes, filed by date
   Templates/…                 your templates
   attachments/                images, PDFs and other files
-  .history/                   version snapshots (.snapshot files)
-  .trash/                     deleted notes (.deleted files)
   .margin/config.json         the attachments folder name
 </code></pre>
 <p>A note is markdown with a few lines at the top for its tags, dates and so on. A canvas is stored at the end of the note as cards wrapped in comments, so the file still reads sensibly elsewhere.</p>
@@ -1665,7 +1663,7 @@ margin-tasks open --no-due --notebook Work --paths
 </tr>
 <tr>
 <td>A note disappeared</td>
-<td>Look in the <code>.trash</code> folder inside your notes folder. Scratch notes go there when they expire.</td>
+<td>Look in the trash: Settings → History and deleted notes → Copy path, then its <code>trash/</code> folder. Scratch notes go there when they expire.</td>
 </tr>
 <tr>
 <td>A note will not open, or Margin stops responding when you open it</td>

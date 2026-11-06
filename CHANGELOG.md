@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.26.0 (2026-11-06)
+
+### Changed
+
+- **Version history and deleted notes are kept on this computer, not in the notes folder.** Google Docs listed the history snapshots even under their new extension, because it recognises Markdown by what is inside. Now your notes folder (and Google Drive) holds only your notes, notebooks and attachments. History and deleted notes live in Margin's own folder on each computer (Settings → **History and deleted notes** → **Copy path**). When 1.26 starts, it moves any `.history` and `.trash` folders out of the notes folder, so they disappear from Drive. Each computer now keeps its own history of the edits made on it.
+
 ## 1.25.0 (2026-11-06)
 
 ### Changed

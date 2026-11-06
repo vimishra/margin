@@ -374,6 +374,7 @@ export function SettingsModal() {
   const mode = useStore((st) => st.mode)
   const width = useStore((st) => st.width)
   const vault = useStore((st) => st.vault)
+  const local = useStore((st) => st.local)
   const attachmentsFolder = useStore((st) => st.attachmentsFolder)
   const pane = useStore((st) => st.pane)
   const noteCount = useStore((st) => Object.keys(st.notes).length)
@@ -792,7 +793,7 @@ export function SettingsModal() {
                 <Row label="Name pasted images after the note" hint="A pasted image is saved as the note's title and the time, like “Atlas kickoff 2026-10-06 1654.png”, in place of “image-5d92af.png”. Files you drop in keep their own names.">
                   <Toggle label="Name pasted images after the note" value={s.imageNoteName} onChange={set('imageNoteName')} />
                 </Row>
-                <Row label="In this folder" hint="Version snapshots are in .history/, deleted notes in .trash/.">
+                <Row label="In this folder" hint="Only your notes, notebooks and attachments. Version history and deleted notes are kept on this computer instead (below), so a synced folder such as Google Drive holds no copies of them.">
                   <span className="set-value">
                     {noteCount} notes · {folderCount} notebooks
                   </span>
@@ -800,6 +801,13 @@ export function SettingsModal() {
                 <Row label="Version history" hint="A snapshot is kept for every 5 minutes of editing, up to 200 per note.">
                   <span className="set-value">Always on</span>
                 </Row>
+                {local && (
+                  <Row label="History and deleted notes" hint="Kept on this computer only, for this notes folder: version snapshots in history/, deleted notes in trash/. Each computer keeps its own.">
+                    <button className="btn ghost sm" title={local} onClick={() => navigator.clipboard.writeText(local).then(() => toast('Path copied'), () => toast('Could not copy the path'))}>
+                      Copy path
+                    </button>
+                  </Row>
+                )}
                 <Row label="Import from Obsidian" hint="Copies an Obsidian vault into your notes folder: notes, images, PDFs and canvases. The Obsidian folder is not changed.">
                   <button className="btn sm" onClick={() => (ui({ prefs: false }), void importFromObsidian())}>
                     Import…

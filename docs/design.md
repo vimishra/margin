@@ -144,7 +144,9 @@ Each canvas card is markdown too.
 - The **canvas** is appended after a marker, as cards in HTML comments. Other markdown tools show the page and ignore the canvas.
 - **Images** are ordinary markdown images; a width is written as `![name|400](path)`.
 
-Beside the notes: `attachments/` (or the name chosen in settings), `.history/<id>/<time>.snapshot` for versions, `.trash/` for deleted notes (as `<time>-<name>.md.deleted`; neither uses `.md`, so synced folders such as Google Drive do not list them as documents, and `renameOldCopies()` in `server/index.mjs` renames ones left by older versions at start-up), and `.margin/config.json` for settings that belong to the folder: the attachments folder name and the tags each notebook gives its notes.
+Beside the notes: `attachments/` (or the name chosen in settings) and `.margin/config.json` for settings that belong to the folder: the attachments folder name and the tags each notebook gives its notes.
+
+Not in the notes folder: version history and deleted notes. A synced notes folder would otherwise carry a copy of every note many times over, and Google Docs lists anything that reads as Markdown. They are kept per computer in the app's data folder (`MARGIN_DATA_DIR`, which `electron/main.mjs` sets to its `userData` profile; the server falls back to `~/Library/Application Support/Margin`): `Notes folders/<folder name> <8 hex of its path's sha1>/history/<id>/<time>.snapshot` and `…/trash/<time>-<name>.md.deleted`. At start-up `moveOldFolders()` copies any `.history/` and `.trash/` left in the notes folder by versions before 1.26 into it, file by file (the notes folder can be on another disk), and removes them; `renameOldCopies()` then renames leftover `.md` copies. `/api/state` returns the folder as `local`, shown in Settings.
 
 ## Key decisions
 

@@ -203,8 +203,6 @@ mark.find-hit.current{background:#ffab2e}
 <pre><code>&lt;notes folder&gt;/
   Any/Nested/Folders/Note title.md
   attachments/            images, PDFs and other files (name configurable)
-  .history/&lt;note id&gt;/&lt;timestamp&gt;.snapshot
-  .trash/&lt;time&gt;-&lt;name&gt;.md.deleted   deleted notes
   .margin/config.json     settings that belong to the folder
 </code></pre>
 <ul>
@@ -824,12 +822,12 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <h2 id="14-history-trash-export-import">14. History, trash, export, import</h2>
 <h3 id="141-version-history">14.1 Version history</h3>
 <ul>
-<li>Snapshots and deleted notes are plain text but never use the <code>.md</code> extension, so a synced folder (Google Drive, whose Docs lists Markdown files as documents) does not show them as documents. Files left as <code>.md</code> by older versions are renamed when the app starts.</li>
-<li>Each save writes a snapshot of the note into <code>.history/&lt;id&gt;/</code>, at most one per 5-minute window (later saves in the window overwrite it). The state before the first tracked edit is kept too. The newest 200 are kept.</li>
+<li>Version history and deleted notes are kept <strong>on each computer, outside the notes folder</strong>, so a synced notes folder holds no copies of notes (Google Docs lists anything that reads as Markdown, whatever its extension). They are in the app's own data folder (on a Mac, <code>~/Library/Application Support/Margin/Notes folders/&lt;notes folder name and code&gt;/</code>, with <code>history/&lt;note id&gt;/&lt;timestamp&gt;.snapshot</code> and <code>trash/&lt;time&gt;-&lt;name&gt;.md.deleted</code>), one folder per notes folder, named after it with a short code from its full path. Each computer keeps its own. When the app starts, it moves any <code>.history/</code> and <code>.trash/</code> left inside the notes folder by older versions into that folder (keeping files already there) and removes them, and renames <code>.md</code> files there to these extensions.</li>
+<li>Each save writes a snapshot of the note into its history folder, at most one per 5-minute window (later saves in the window overwrite it). The state before the first tracked edit is kept too. The newest 200 are kept.</li>
 <li>The history window lists versions by time, shows a diff against the current text, and restores one.</li>
 </ul>
 <h3 id="142-trash">14.2 Trash</h3>
-<p>Deleted notes and folders move to <code>.trash/</code> in the notes folder. Expired scratch notes go there too.</p>
+<p>Deleted notes and folders move to this computer's trash folder for the notes folder (see 14.1). Expired scratch notes go there too. Settings shows that folder's path, with a button to copy it.</p>
 <h3 id="143-export">14.3 Export</h3>
 <p>From a note: Markdown file, HTML page (self-contained), PDF (saved directly in the desktop app; print dialog in a browser), Word-compatible <code>.doc</code>, and &quot;Copy for Google Docs&quot; (rich text on the clipboard).</p>
 <h3 id="144-import-from-obsidian">14.4 Import from Obsidian</h3>
@@ -1633,7 +1631,7 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <li>Every note is a <code>.md</code> file that opens correctly in a plain text editor, with frontmatter as in section 3.2.</li>
 <li>Unknown frontmatter keys survive a save.</li>
 <li>Renaming a note updates <code>[[links]]</code> to it in other notes.</li>
-<li>Deleting puts the file in <code>.trash</code>; history files appear in <code>.history</code>.</li>
+<li>Deleting puts the file in this computer's trash folder for the notes folder; nothing but notes, notebooks, attachments and <code>.margin/</code> is left in the notes folder.</li>
 </ul>
 <p><strong>Editing</strong></p>
 <ul>

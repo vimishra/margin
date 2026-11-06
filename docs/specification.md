@@ -94,8 +94,6 @@ All bodies are JSON unless noted.
 <notes folder>/
   Any/Nested/Folders/Note title.md
   attachments/            images, PDFs and other files (name configurable)
-  .history/<note id>/<timestamp>.snapshot
-  .trash/<time>-<name>.md.deleted   deleted notes
   .margin/config.json     settings that belong to the folder
 ```
 
@@ -673,13 +671,13 @@ A small popover with: a text box that accepts a day in words and shows the date 
 
 ### 14.1 Version history
 
-- Snapshots and deleted notes are plain text but never use the `.md` extension, so a synced folder (Google Drive, whose Docs lists Markdown files as documents) does not show them as documents. Files left as `.md` by older versions are renamed when the app starts.
-- Each save writes a snapshot of the note into `.history/<id>/`, at most one per 5-minute window (later saves in the window overwrite it). The state before the first tracked edit is kept too. The newest 200 are kept.
+- Version history and deleted notes are kept **on each computer, outside the notes folder**, so a synced notes folder holds no copies of notes (Google Docs lists anything that reads as Markdown, whatever its extension). They are in the app's own data folder (on a Mac, `~/Library/Application Support/Margin/Notes folders/<notes folder name and code>/`, with `history/<note id>/<timestamp>.snapshot` and `trash/<time>-<name>.md.deleted`), one folder per notes folder, named after it with a short code from its full path. Each computer keeps its own. When the app starts, it moves any `.history/` and `.trash/` left inside the notes folder by older versions into that folder (keeping files already there) and removes them, and renames `.md` files there to these extensions.
+- Each save writes a snapshot of the note into its history folder, at most one per 5-minute window (later saves in the window overwrite it). The state before the first tracked edit is kept too. The newest 200 are kept.
 - The history window lists versions by time, shows a diff against the current text, and restores one.
 
 ### 14.2 Trash
 
-Deleted notes and folders move to `.trash/` in the notes folder. Expired scratch notes go there too.
+Deleted notes and folders move to this computer's trash folder for the notes folder (see 14.1). Expired scratch notes go there too. Settings shows that folder's path, with a button to copy it.
 
 ### 14.3 Export
 
@@ -932,7 +930,7 @@ A build meets this specification when all of these hold.
 - Every note is a `.md` file that opens correctly in a plain text editor, with frontmatter as in section 3.2.
 - Unknown frontmatter keys survive a save.
 - Renaming a note updates `[[links]]` to it in other notes.
-- Deleting puts the file in `.trash`; history files appear in `.history`.
+- Deleting puts the file in this computer's trash folder for the notes folder; nothing but notes, notebooks, attachments and `.margin/` is left in the notes folder.
 
 **Editing**
 
