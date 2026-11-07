@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
-import { AlignLeft, Archive, Bell, BookmarkPlus, Box, CalendarClock, CalendarDays, Check, ChevronDown, ChevronRight, FileText, Flag, FolderInput, ListChecks, ListTree, MoreHorizontal, Repeat, Search, SquareX, Star, Users } from 'lucide-react'
+import { AlignLeft, Archive, Bell, BookmarkPlus, Box, CalendarClock, CalendarDays, Check, ChevronDown, ChevronRight, FileText, Flag, FolderInput, ListChecks, ListTree, MoreHorizontal, Repeat, Search, SquareCheck, SquareX, Star, Users } from 'lucide-react'
 import type { Note } from '../types'
 import { deleteTaskView, go, openDatePicker, openFromClick, openMenu, openNoteAt, openSideAt, renameTaskView, rescheduleTasks, saveTaskView, ensureInboxNote, inboxNotebook, moveTasksToNote, ui, updateTask, updateTaskView, useStore, type MenuItem } from '../store'
 import { hint } from '../shortcuts'
@@ -34,6 +34,30 @@ function pickDate(anchor: Element, task: Task, field: 'due' | 'scheduled') {
     someday: planning ? (task.someday ? 'on' : 'off') : undefined,
     onPick: (date) => updateTask(task, { raw: withDetails(task.raw, planning && date === 'someday' ? { someday: true } : { [field]: date }) }),
   })
+}
+
+/**
+ * The right-click menu of a task in the Tasks view, tasks blocks and the panel under daily notes: everything the
+ * row's buttons and keys do, with the keys shown. Margin draws it itself, so it is the same in the browser.
+ */
+function taskMenu(task: Task, row: Element): MenuItem[] {
+  const now = today()
+  return [
+    task.cancelled
+      ? { label: 'Reopen task', hint: 'C', icon: <SquareX size={14} />, onSelect: () => updateTask(task, { cancelled: false }) }
+      : { label: task.done ? 'Mark as not done' : 'Mark as done', hint: 'Space', icon: <SquareCheck size={14} />, onSelect: () => updateTask(task, { done: !task.done }) },
+    ...(task.cancelled ? [] : [{ label: 'Cancel task', hint: 'C', icon: <SquareX size={14} />, onSelect: () => updateTask(task, { cancelled: true }) }]),
+    { separator: true },
+    { label: 'Move to today', hint: 'T', icon: <Star size={14} />, onSelect: () => updateTask(task, { raw: withDetails(task.raw, { scheduled: now }) }) },
+    { label: 'When…', hint: 'S', icon: <CalendarClock size={14} />, onSelect: () => pickDate(row, task, 'scheduled') },
+    { label: 'Due date…', hint: 'D', icon: <CalendarDays size={14} />, onSelect: () => pickDate(row, task, 'due') },
+    { label: 'Move to another note…', hint: 'M', icon: <FolderInput size={14} />, onSelect: () => moveToNote(task) },
+    { separator: true },
+    ...priorityMenu(task),
+    { separator: true },
+    { label: 'Open in its note', hint: '↵', icon: <FileText size={14} />, onSelect: () => openNoteAt(task.noteId, task.raw, [], true) },
+    { label: 'Open to the side', hint: '⇧↵', onSelect: () => openSideAt(task.noteId, task.raw, true) },
+  ]
 }
 
 const priorityMenu = (task: Task): MenuItem[] =>
@@ -76,7 +100,7 @@ export function TaskRow({ task, note, showNote = true, active = false, star = fa
   }
   const late = (d?: string) => !task.done && !!d && d < now
   return (
-    <div className={cx('task', task.done && 'done', task.cancelled && 'cancelled', `pri-${task.priority}`, active && 'active')} onMouseMove={onHover}>
+    <div className={cx('task', task.done && 'done', task.cancelled && 'cancelled', `pri-${task.priority}`, active && 'active')} onMouseMove={onHover} onContextMenu={(e) => (onHover?.(), openMenu(e, taskMenu(task, e.currentTarget)))}>
       <input type="checkbox" className={task.cancelled ? 'box-cancelled' : undefined} checked={task.done} title={task.cancelled ? 'Cancelled. Click to reopen.' : task.done ? 'Mark as not done' : 'Mark as done'} onChange={() => updateTask(task, { done: !task.done })} />
       <div className="task-main" onClick={open} title="Open in its note">
         <span className="task-text">

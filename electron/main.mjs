@@ -474,6 +474,8 @@ function createWindow() {
     } catch {
       /* page not ready: show the basic menu */
     }
+    // The page showed its own menu (a task in the Tasks view).
+    if (ctx.handled) return
     const act = (action) => () => win.webContents.send('context-action', action)
     const sep = { type: 'separator' }
     const items = []
@@ -482,6 +484,22 @@ function createWindow() {
       for (const word of p.dictionarySuggestions.slice(0, 6)) items.push({ label: word, click: () => win.webContents.replaceMisspelling(word) })
       if (!p.dictionarySuggestions.length) items.push({ label: 'No Guesses Found', enabled: false })
       items.push({ label: `Learn “${p.misspelledWord}”`, click: () => win.webContents.session.addWordToSpellCheckerDictionary(p.misspelledWord) }, sep)
+    }
+
+    // On a task line (or a selection of tasks), what can be done to the task comes first.
+    if (ctx.tasks) {
+      const t = ctx.tasks
+      const task = (label, kind) => ({ label, accelerator: accelerators[kind] || undefined, registerAccelerator: false, click: act({ type: 'format', kind }) })
+      const several = t.count > 1 ? ' Tasks' : ''
+      items.push(
+        ...(t.allCancelled ? [task(`Reopen${several || ' Task'}`, 'taskCancel')] : [task(t.allDone ? 'Mark as Not Done' : 'Mark as Done', 'done'), task(`Cancel${several || ' Task'}`, 'taskCancel')]),
+        sep,
+        task('Move to Today', 'taskToday'),
+        task('When…', 'taskWhen'),
+        task('Due Date…', 'taskDue'),
+        task('Change Priority', 'taskPriority'),
+        sep,
+      )
     }
 
     if (ctx.note) {

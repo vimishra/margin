@@ -558,7 +558,7 @@ Paste or drop an image, PDF or any file into a note. It is saved in your attachm
 
 ### Right-click and the Format menu
 
-In the desktop app, right-clicking in a note offers spelling suggestions, Cut, Copy and Paste, Look Up, "Search Notes for…", and Format, Paragraph and Insert menus. Right-clicking a link offers Open, Open to the Side and Copy Link.
+In the desktop app, right-clicking a task (or a selection of tasks) puts what you can do to it at the top of the menu: **Mark as Done** (or Not Done), **Cancel Task** (or Reopen), **Move to Today**, **When…**, **Due Date…** and **Change Priority**. They act on the task you clicked, not wherever the cursor was, and on every selected task when you click inside a selection. Right-clicking in a note also offers spelling suggestions, Cut, Copy and Paste, Look Up, "Search Notes for…", and Format, Paragraph and Insert menus. Right-clicking a link offers Open, Open to the Side and Copy Link.
 
 The same commands are in the menu bar under **Format**, for the note you are editing, in one list with no submenus. Lines divide it into groups:
 
@@ -976,6 +976,7 @@ Type `@remind(` and then a day and time in words, such as `fri 2pm`, `tomorrow 9
 - **Hover** a task for four buttons: priority, when (planned day or Someday), due date, and move to another note. Clicking a date label changes it too.
 - **Rescheduling:** the when and due-date buttons open a small calendar. Click a day, or type one in words (`fri`, `14 oct`, `in 3 days`) and press Enter. The arrow keys move the highlighted day, PgUp and PgDn change month, and Today, Tomorrow and Next week are one click. The when calendar also has **Someday**. **Remove** clears the date, or takes a task out of Someday.
 - **Click** a task to open its note at that line. ⌘-click opens the note to the side.
+- **Right-click** a task for a menu of everything above: mark as done, cancel, move to today, when, due date, move to another note, priority, and open (or open to the side). It works the same in the browser, in tasks blocks and in the panel under daily notes.
 - **Notes:** a task with lines indented under it in its note (context, links, bullets, such as the notes Quick task saves) shows a blue notes icon after its text (solid blue while the notes are showing). Hover the icon to read them, or click it (or press **N**) to show them under the task. They are read from the note as it is, so editing them means editing those lines in the note. Sub-tasks are listed on their own and are not repeated in the notes. This also works in the task panel under daily notes.
 
 With the keyboard:

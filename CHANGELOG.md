@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.31.0 (2026-11-07)
+
+### Added
+
+- **Right-click a task to act on it.** In a note (desktop app), the menu now starts with Mark as Done (or Not Done), Cancel Task (or Reopen), Move to Today, When…, Due Date… and Change Priority, acting on the task you clicked, or on every task in a selection when you click inside it. In the Tasks view, tasks blocks and the daily note's task panel, right-clicking a task opens a menu with everything its buttons and keys do, including Move to another note and Open to the side; it works in the browser too.
+
 ## 1.30.0 (2026-11-07)
 
 ### Added

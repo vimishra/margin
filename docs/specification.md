@@ -1,6 +1,6 @@
 # Margin product specification
 
-This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.30.0.
+This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.31.0.
 
 It is written to be handed to a developer or a coding tool. Where a detail is a free choice for the implementer, it says so; everything else is a requirement.
 
@@ -326,6 +326,8 @@ An Emacs-style incremental search:
 ### 5.13 Other editor behaviour
 
 - Spell check (setting, on) with suggestions in the right-click menu in the desktop app.
+- **Task items in the right-click menu** (desktop app): when the click is on a task line, or inside a selection holding tasks, the menu starts with: Mark as Done (Mark as Not Done when every one is ticked or cancelled) and Cancel Task (only Reopen Task when every one is cancelled; "Tasks" for several), then Move to Today, When…, Due Date…, Change Priority, each with its shortcut. A click outside the selection first moves the cursor to the clicked line (only when that line is a task), so they act on it; inside a selection they act on every task in it. The Tick and Cancel items are also in the Paragraph submenu.
+- **Right-click on a task row** (Tasks view, tasks blocks, the daily note's task panel; drawn by the app, so also in a browser): Mark as done or Mark as not done (Reopen task when cancelled), Cancel task, Move to today, When…, Due date…, Move to another note…, the four priorities (the current one marked), Open in its note, Open to the side; each with its key. The desktop app shows no system menu over it.
 - Auto-closing brackets and quotes (setting, on).
 - Bold ⌘B, italic ⌘I, wrap in a note link ⌘⇧K, undo and redo. Wrapping commands leave whitespace at either end of the selection outside the marks (a selected `word ` becomes `**word** `); with nothing selected they insert placeholder text inside the marks. Bold, italic, strikethrough and inline code are toggles: when the selection, or an empty cursor strictly between the marks, is inside text with that style (as the markdown parser reads it, so `__bold__` and `***both***` count), its opening and closing marks are removed and the selection keeps covering the same text; bold-italic loses only the chosen style. A cursor just outside the marks wraps as usual.
 - **Timestamps** inserted by capture are written as `**4:54 PM** : text`, bold time, then space, colon, space.
@@ -622,7 +624,7 @@ A task with `@repeat(rule)` comes back when it is ticked.
 
 A cancelled task has `-` in its box (`- [-] …`). It is finished with: out of every list but the Logbook, where it shows a "Cancelled" chip (with its day) instead of "Done"; it sinks and is archived as a ticked task is.
 
-- **Cancel or reopen** (command "Task: cancel or reopen", default ⌘⌥↵ in the desktop app and the browser; in the Format menu and the editor's right-click Paragraph menu; key C and a hover button in the Tasks view): on a selection, every task is cancelled unless all are cancelled already, in which case they are reopened. Cancelling writes `@cancelled(<today>)` at the end of the line (when recording the day is on), replacing any `@done`; reopening sets the box to a space and removes the date. Ticking or clicking the box of a cancelled task reopens it. A ticked task can be cancelled.
+- **Cancel or reopen** (command "Task: cancel or reopen", default ⌘⌥↵ in the desktop app and the browser; in the Format menu and the editor's right-click menu; key C, a hover button and the right-click menu in the Tasks view): on a selection, every task is cancelled unless all are cancelled already, in which case they are reopened. Cancelling writes `@cancelled(<today>)` at the end of the line (when recording the day is on), replacing any `@done`; reopening sets the box to a space and removes the date. Ticking or clicking the box of a cancelled task reopens it. A ticked task can be cancelled.
 - **Appearance:** the box is drawn with a cross (no tick), the text greyed (lighter than a done task) and struck through, in the editor, read mode, the Tasks view and tasks blocks. In read mode, clicking its box reopens it.
 - **Repeating:** cancelling counts as ticking for `@repeat`: the next occurrence is added and the cancelled line kept, without its `@repeat`.
 - **Exports** show it with a crossed box. The command-line tool lists it with `[-]`, `done` true and `cancelled` true, `done_on` its cancelled day.
