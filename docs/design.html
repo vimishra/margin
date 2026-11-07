@@ -319,6 +319,10 @@ Each canvas card is markdown too.
 <td><code>listTrash</code>, <code>restoreTrash</code>, <code>removeTrash</code>, <code>trashFile</code> and <code>moveFile</code> in <code>server/index.mjs</code> (<code>/api/trash…</code>); the page in <code>components/TrashView.tsx</code>; <code>restoreFromTrash</code> and <code>refreshTrash</code> in <code>store.ts</code></td>
 </tr>
 <tr>
+<td>Cancelled tasks (<code>[-]</code>)</td>
+<td><code>setLineCancelled</code> and <code>lineCancelChanges</code> in <code>lib/tasks.ts</code> (and <code>tools/margin_tasks.py</code>); <code>toggleCancel</code> in <code>lists.ts</code>; the box in <code>livePreview.ts</code> (<code>CheckboxWidget</code>), the <code>cancelled_tasks</code> rule in <code>lib/markdown.ts</code>, <code>TaskRow</code> in <code>TasksView.tsx</code>; styles <code>box-cancelled</code> and <code>cm-task-cancelled</code></td>
+</tr>
+<tr>
 <td>Repeating tasks</td>
 <td>The rules and next dates in <code>lib/repeat.ts</code>; <code>afterTick</code> there is called by every tick path (<code>dispatchTick</code> in <code>lists.ts</code> for the editor's checkbox and shortcut, <code>Preview.tsx</code>, <code>updateTask</code> in <code>store.ts</code>); <code>@repeat</code> is read in <code>lib/tasks.ts</code> and <code>tools/margin_tasks.py</code></td>
 </tr>

@@ -985,7 +985,7 @@ async function addToDaily(body: string, withTime: boolean): Promise<Note | null>
   else {
     const [head, ...rest] = body.split('\n')
     // Something typed as a task ("- [ ] call Sam") goes in as that task, not as a timestamped line.
-    const first = /^\s*[-*+]\s+\[[ xX]\]\s+\S/.test(head) ? head.trim() : `- ${withTime ? `**${timeNow()}** : ` : ''}${head}`
+    const first = /^\s*[-*+]\s+\[[ xX-]\]\s+\S/.test(head) ? head.trim() : `- ${withTime ? `**${timeNow()}** : ` : ''}${head}`
     const entry = [first, ...rest.map((l) => '  ' + l)].join('\n')
     const idx = current.content.indexOf('\n\n<!-- canvas -->')
     const page = idx < 0 ? current.content : current.content.slice(0, idx)
@@ -1384,12 +1384,12 @@ export function rescheduleTasks(tasks: Task[], date: string) {
 }
 
 /** Tick a task, or change its text, wherever it lives. */
-export function updateTask(task: Task, change: { done?: boolean; raw?: string }) {
+export function updateTask(task: Task, change: { done?: boolean; cancelled?: boolean; raw?: string }) {
   const note = get().notes[task.noteId]
   let content = note && rewriteTask(note.content, task, { ...change, stamp: get().settings.logCompletion })
   if (!note || content == null) return toast('That task has changed since this list was drawn. Try again.')
   // Ticked: a repeating task comes back, and the ticked one goes to the end of its list with the lines under it.
-  if (change.done) content = afterTick(content.split('\n'), [task.line], { sink: get().settings.sinkDoneTasks }).join('\n')
+  if (change.done || change.cancelled) content = afterTick(content.split('\n'), [task.line], { sink: get().settings.sinkDoneTasks }).join('\n')
   updateNote(note.id, { content })
 }
 

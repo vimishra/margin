@@ -79,7 +79,7 @@ export function backlinks(notes: Notes, target: Note): Backlink[] {
       .split('\n')
       .filter((l) => l.toLowerCase().includes(needle) && !l.startsWith('<!--'))
       .slice(0, 3)
-      .map((l) => l.replace(/^\s*([-*+]|\d+\.|>|#{1,6})\s+(\[[ xX]\]\s+)?/, '').trim())
+      .map((l) => l.replace(/^\s*([-*+]|\d+\.|>|#{1,6})\s+(\[[ xX-]\]\s+)?/, '').trim())
     out.push({ note: n, lines })
   }
   return out.sort((a, b) => b.note.updated.localeCompare(a.note.updated))
@@ -120,7 +120,7 @@ export function unlinkedMentions(notes: Notes, target: Note): Mention[] {
     if (!found.length) continue
     const lines = [...new Set(found.map((r) => n.content.slice(n.content.lastIndexOf('\n', r.from - 1) + 1, (n.content.indexOf('\n', r.to) + 1 || n.content.length + 1) - 1)))]
       .slice(0, 3)
-      .map((l) => l.replace(/^\s*([-*+]|\d+\.|>|#{1,6})\s+(\[[ xX]\]\s+)?/, '').trim())
+      .map((l) => l.replace(/^\s*([-*+]|\d+\.|>|#{1,6})\s+(\[[ xX-]\]\s+)?/, '').trim())
     out.push({ note: n, lines, count: found.length })
   }
   return out.sort((a, b) => b.note.updated.localeCompare(a.note.updated))

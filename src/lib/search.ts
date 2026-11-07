@@ -133,7 +133,7 @@ const plainBody = (note: Note) => note.content.replace(/<!--[\s\S]*?-->/g, ' ')
 function excerpt(note: Note, terms: string[]): string {
   const body = plainBody(note)
     .replace(/\[\[([^\]|]*\|)?([^\]]*)\]\]/g, '$2')
-    .replace(/^\s*(#{1,6}|>|[-*+]|\d+\.)\s+(\[[ xX]\]\s+)?/gm, '')
+    .replace(/^\s*(#{1,6}|>|[-*+]|\d+\.)\s+(\[[ xX-]\]\s+)?/gm, '')
     .replace(/[*_`]/g, '')
     .replace(/\s+/g, ' ')
   const lower = body.toLowerCase()

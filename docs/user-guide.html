@@ -176,6 +176,7 @@ mark.find-hit.current{background:#ffab2e}
 <li><a href="#tasks">Tasks</a>
 <ul>
 <li><a href="#details-on-a-task">Details on a task</a></li>
+<li><a href="#cancelling-a-task">Cancelling a task</a></li>
 <li><a href="#repeating-tasks">Repeating tasks</a></li>
 <li><a href="#reminders">Reminders</a></li>
 <li><a href="#the-tasks-view">The Tasks view</a></li>
@@ -1128,6 +1129,11 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 <td>Written for you when you tick the task</td>
 </tr>
 <tr>
+<td>Cancelled</td>
+<td><code>- [-] …</code> with <code>@cancelled(2026-10-07)</code></td>
+<td>Dropped rather than done; see <a href="#cancelling-a-task">Cancelling a task</a></td>
+</tr>
+<tr>
 <td>Repeats</td>
 <td><code>@repeat(weekly)</code></td>
 <td>Comes back when ticked; see <a href="#repeating-tasks">Repeating tasks</a></td>
@@ -1167,9 +1173,25 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 <td>⌘↵</td>
 <td>Tick or untick</td>
 </tr>
+<tr>
+<td>⌘⌥↵</td>
+<td>Cancel, or reopen a cancelled task</td>
+</tr>
 </tbody>
 </table></div><p>Move to today and Priority apply to every task in a selection. The same four are in ⌘K under &quot;Task:&quot;, and all of them can be changed in Settings → Shortcuts. In the browser version they are ⌥⇧T, ⌥⇧S, ⌥⇧D and ⌥⇧P.</p>
 <p>In the editor the details show as small labels. A due date turns red once it has passed. A planned day that is today or earlier is highlighted, because the task is in Today.</p>
+<h3 id="cancelling-a-task">Cancelling a task</h3>
+<p>Some tasks are not done but dropped: plans changed, someone else did it, it no longer matters. Cancel them instead of ticking them, so you can still tell later what was done and what was let go.</p>
+<pre><code>- [-] Book the panel @due(2026-11-10) @cancelled(2026-11-07)
+</code></pre>
+<ul>
+<li><strong>To cancel:</strong> with the cursor on the task, press ⌘⌥↵ (or <strong>Task: cancel or reopen</strong> in ⌘K, or right-click → Paragraph → Cancel or Reopen Task). In the Tasks view, press <strong>C</strong>, or use the ✕ button that appears on hover. A selection of tasks is cancelled together.</li>
+<li><strong>What it does:</strong> the box becomes <code>[-]</code>, shown as a box with a cross; the task is greyed and struck through, and the day is written as <code>@cancelled(date)</code> (unless you turned off recording the day in Settings). It leaves Today, Anytime and the other lists, sinks to the end of its list like a ticked one, and shows in the Logbook marked <strong>Cancelled</strong>. Archiving moves it with the ticked ones.</li>
+<li><strong>To reopen:</strong> do the same again, or click its box. It becomes an open task, without the date.</li>
+<li><strong>A repeating task</strong> that you cancel skips that time: the next one still comes.</li>
+<li><code>margin-tasks</code> shows cancelled tasks as <code>[-]</code> and in the Logbook, with a <code>cancelled</code> field in its JSON and CSV.</li>
+<li>Other apps: Obsidian shows <code>[-]</code> as a task too; GitHub and plain markdown viewers show it as a list item starting with &quot;[-]&quot;.</li>
+</ul>
 <h3 id="repeating-tasks">Repeating tasks</h3>
 <p>Add <code>@repeat(…)</code> to a task, and ticking it brings it back:</p>
 <pre><code>- [ ] Weekly report @due(2026-11-06) @repeat(weekly)
@@ -1287,6 +1309,10 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 <td>Show or hide the task's notes</td>
 </tr>
 <tr>
+<td>C</td>
+<td>Cancel, or reopen a cancelled task</td>
+</tr>
+<tr>
 <td>1 to 9, 0</td>
 <td>Switch list</td>
 </tr>
@@ -1360,7 +1386,7 @@ today #atlas
 </tr>
 <tr>
 <td><code>group: date</code>, <code>group: project</code>, <code>group: priority</code></td>
-<td>Grouped under headings</td>
+<td>Grouped under headings: Overdue, Today, Tomorrow and so on; each project, as the Tasks view groups them (a meeting's actions under the project it links to); or P1, P2, P3</td>
 </tr>
 <tr>
 <td><code>limit 10</code></td>
@@ -1373,6 +1399,7 @@ today #atlas
 <li><strong>A project note:</strong> <code>[[Atlas Migration]] group: date</code> at the top shows what is left, including actions written in its meetings.</li>
 <li><strong>A weekly review template:</strong> <code>logbook this week</code> and <code>overdue</code> show what got done and what slipped.</li>
 </ul>
+<p>While you type the filter, Margin suggests the list names (with what each shows), your tags after <code>#</code>, notes after <code>[[</code>, and the choices after <code>group:</code> and <code>from:</code>.</p>
 <p>Anything the block does not understand is listed under it, and a link to a note that does not exist is pointed out. A block written for Obsidian's Tasks plugin (<code>not done</code>, <code>due before tomorrow</code>) is left alone with a note saying so. In other apps, and in GitHub, the block is just the lines you wrote; exports (PDF, HTML, Word) show the tasks as they were when you exported.</p>
 <h3 id="archiving-finished-tasks">Archiving finished tasks</h3>
 <p>Ticked tasks stay in their notes, struck through, and the <strong>Logbook</strong> lists them all with the day each was done. To clear them out of the way in a note, archive them: they move into an <strong>Archive</strong> section at the end of the same note, which opens folded, and they stay in the Logbook. Nothing is archived unless you ask.</p>

@@ -2,6 +2,17 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.30.0 (2026-11-07)
+
+### Added
+
+- **Cancelling a task.** For a task that is dropped rather than done: ⌘⌥↵ in a note (or **Task: cancel or reopen** in ⌘K, the Format menu, or right-click → Paragraph), **C** or the ✕ button in the Tasks view. It is written as `- [-] … @cancelled(date)`, shown with a crossed box and greyed out, leaves every list but the Logbook (marked **Cancelled**), and sinks and is archived like a ticked task. Do it again, or click its box, to reopen it. Cancelling a repeating task skips that time. `margin-tasks` shows cancelled tasks as `[-]`, with a new `cancelled` field.
+- **Suggestions while typing a tasks block's filter:** list names with what each shows, your tags after `#` (also at the start of the line), notes after `[[`, and the choices after `group:` and `from:`.
+
+### Changed
+
+- **`group: project` in a tasks block groups as the Tasks view does:** a meeting's actions go under the project the meeting links to, and tasks from daily notes under "Daily notes".
+
 ## 1.29.0 (2026-11-07)
 
 ### Added

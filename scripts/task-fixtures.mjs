@@ -64,6 +64,7 @@ const expected = {
     key: key(t),
     text: t.text,
     done: t.done,
+    cancelled: t.cancelled,
     priority: tasks.priorityLabel(t.priority) || null,
     tags: t.tags,
     planned: t.scheduled ?? null,

@@ -171,7 +171,7 @@ def check(path, vault):
         problems += report("widest table", f"{max(widest - 1, 0)} columns, starting line {wide_at}", widest - 1 > WIDE_TABLE)
         report("table rows with a different number of cells", len(ragged), False, ragged)
 
-    tasks = [i + offset + 1 for i, l in enumerate(body) if re.match(r"^(\s*(?:>\s*)*(?:[-*+]|\d+[.)])\s+\[)([ xX])(\]\s+)(.*)$", l)]
+    tasks = [i + offset + 1 for i, l in enumerate(body) if re.match(r"^(\s*(?:>\s*)*(?:[-*+]|\d+[.)])\s+\[)([ xX-])(\]\s+)(.*)$", l)]
     report("tasks", len(tasks))
     links = len(re.findall(r"\[\[[^\]\n]*\]\]", joined))
     broken = [i + offset + 1 for i, l in enumerate(body) if l.count("[[") != l.count("]]")]

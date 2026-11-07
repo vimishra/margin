@@ -79,7 +79,7 @@ export function snippet(content: string, length = 160): string {
     .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
     .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
     .replace(/\[\[([^\]|]*\|)?([^\]]*)\]\]/g, '$2')
-    .replace(/^\s*[-*+]\s+\[[ xX]\]\s*/gm, '')
+    .replace(/^\s*[-*+]\s+\[[ xX-]\]\s*/gm, '')
     .replace(/^\s*(#{1,6}|>|[-*+]|\d+\.)\s+/gm, '')
     .replace(/[*_`~|]/g, '')
     .replace(/\s+/g, ' ')

@@ -2,11 +2,11 @@
 // keep numbered lists numbered, and switch lines between list kinds.
 import type { EditorView } from '@codemirror/view'
 import { ChangeSet, type ChangeSpec } from '@codemirror/state'
-import { lineDoneChanges } from '../lib/tasks'
+import { lineCancelChanges, lineDoneChanges } from '../lib/tasks'
 import { afterTick } from '../lib/repeat'
 import { useStore } from '../store'
 
-const ITEM = /^(\s*)([-*+]|\d+[.)])(\s+)(\[[ xX]\]\s+)?/
+const ITEM = /^(\s*)([-*+]|\d+[.)])(\s+)(\[[ xX-]\]\s+)?/
 
 interface Item {
   indent: number
@@ -261,7 +261,7 @@ export function toggleDone(view: EditorView, stamp = false) {
   const boxes: boolean[] = []
   for (let n = state.doc.lineAt(sel.from).number; n <= state.doc.lineAt(sel.to).number; n++) {
     const line = state.doc.line(n)
-    const m = /^(\s*(?:>\s*)*(?:[-*+]|\d+[.)])\s+\[)([ xX])\]/.exec(line.text)
+    const m = /^(\s*(?:>\s*)*(?:[-*+]|\d+[.)])\s+\[)([ xX-])\]/.exec(line.text)
     if (!m) continue
     boxes.push(m[2] !== ' ')
     changes.push({ from: line.from + m[1].length, to: line.from + m[1].length + 1, insert: '' })
@@ -275,6 +275,26 @@ export function toggleDone(view: EditorView, stamp = false) {
     return (lineDoneChanges(line.text, done, stamp) ?? []).map((x) => ({ from: line.from + x.from, to: line.from + x.to, insert: x.insert }))
   })
   dispatchTick(view, edits, changes.map((c) => state.doc.lineAt(c.from).number), done)
+  return true
+}
+
+/**
+ * Cancel the tasks in the selection ("[-]", recording the day when `stamp` is on), or reopen them when they are all
+ * cancelled already. A cancelled task is finished with, so a repeating one comes back and it sinks, as when ticked.
+ * False when there is no task in the selection.
+ */
+export function toggleCancel(view: EditorView, stamp = false) {
+  const { state } = view
+  const sel = state.selection.main
+  const lines: number[] = []
+  for (let n = state.doc.lineAt(sel.from).number; n <= state.doc.lineAt(sel.to).number; n++) if (/^\s*(?:>\s*)*(?:[-*+]|\d+[.)])\s+\[[ xX-]\]/.test(state.doc.line(n).text)) lines.push(n)
+  if (!lines.length) return false
+  const cancel = !lines.every((n) => /^\s*(?:>\s*)*(?:[-*+]|\d+[.)])\s+\[-\]/.test(state.doc.line(n).text))
+  const edits = lines.flatMap((n) => {
+    const line = state.doc.line(n)
+    return (lineCancelChanges(line.text, cancel, stamp) ?? []).map((x) => ({ from: line.from + x.from, to: line.from + x.to, insert: x.insert }))
+  })
+  dispatchTick(view, edits, lines, cancel)
   return true
 }
 

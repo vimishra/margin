@@ -15,7 +15,10 @@ export interface Task {
   noteId: string
   /** Index of the task's line in the note's content. */
   line: number
+  /** Finished with: ticked ("[x]") or cancelled ("[-]"). Every list treats the two alike. */
   done: boolean
+  /** Dropped rather than done: "[-]". `done` is true as well. */
+  cancelled: boolean
   /** Everything after the checkbox, as written. */
   raw: string
   /** The task without its priority and dates. */
@@ -27,7 +30,7 @@ export interface Task {
   /** Planned for "someday": kept out of Today, Upcoming and Anytime. */
   someday: boolean
   due?: string
-  /** The day it was ticked, when that was recorded. */
+  /** The day it was ticked (or cancelled), when that was recorded. */
   completed?: string
   /** How it repeats, as written in "@repeat(…)": ticking it adds the next one (lib/repeat.ts). */
   repeat?: string
@@ -39,7 +42,7 @@ export interface Task {
   inInbox?: boolean
 }
 
-export const TASK_LINE = /^(\s*(?:>\s*)*(?:[-*+]|\d+[.)])\s+\[)([ xX])(\]\s+)(.*)$/
+export const TASK_LINE = /^(\s*(?:>\s*)*(?:[-*+]|\d+[.)])\s+\[)([ xX-])(\]\s+)(.*)$/
 const DATE = '\\d{4}-\\d{2}-\\d{2}'
 const PRIORITY = /(^|\s)[Pp]([123])(?=\s|$)/
 /** How a priority is written: P1 is the highest. */
@@ -47,13 +50,14 @@ export const priorityLabel = (priority: number) => (priority ? `P${4 - priority}
 const SCHEDULED = new RegExp(`(^|\\s)>(${DATE}|[Ss]omeday)(?=\\s|$)`)
 const DUE = new RegExp(`(^|\\s)@due\\((${DATE})\\)`)
 const DONE = new RegExp(`(^|\\s)@done\\((${DATE})\\)`)
+const CANCELLED = new RegExp(`(^|\\s)@cancelled\\((${DATE})\\)`)
 const REPEAT = /(^|\s)@repeat\(([^)\n]+)\)/
 const TIME = '\\d{1,2}:\\d{2}'
 const REMIND = new RegExp(`(^|\\s)@remind\\((${DATE})(?:[ T](${TIME}))?\\)`)
 const TAG = /(?:^|[\s(])#([A-Za-z][\w/-]*)/g
 /** The same details, for highlighting them where they are written. */
-// Groups: 1 priority, 2 planned day, 3 due date, 4 "someday", 5 day it was done, 6 how it repeats, 7 reminder day.
-export const TASK_TOKENS = new RegExp(`(?<=^|\\s)(?:[Pp]([123])(?=\\s|$)|>(${DATE})(?=\\s|$)|@due\\((${DATE})\\)|>([Ss]omeday)(?=\\s|$)|@done\\((${DATE})\\)|@repeat\\(([^)\\n]+)\\)|@remind\\((${DATE})(?:[ T]${TIME})?\\))`, 'g')
+// Groups: 1 priority, 2 planned day, 3 due date, 4 "someday", 5 day it was done (or cancelled), 6 how it repeats, 7 reminder day.
+export const TASK_TOKENS = new RegExp(`(?<=^|\\s)(?:[Pp]([123])(?=\\s|$)|>(${DATE})(?=\\s|$)|@due\\((${DATE})\\)|>([Ss]omeday)(?=\\s|$)|@(?:done|cancelled)\\((${DATE})\\)|@repeat\\(([^)\\n]+)\\)|@remind\\((${DATE})(?:[ T]${TIME})?\\))`, 'g')
 
 export const PRIORITIES = ['None', 'Low', 'Medium', 'High']
 
@@ -64,11 +68,11 @@ export function parseTaskText(raw: string): Pick<Task, 'text' | 'priority' | 'ta
   const someday = planned?.toLowerCase() === 'someday'
   const scheduled = someday ? undefined : planned
   const due = DUE.exec(raw)?.[2]
-  const completed = DONE.exec(raw)?.[2]
+  const completed = DONE.exec(raw)?.[2] ?? CANCELLED.exec(raw)?.[2]
   const repeat = REPEAT.exec(raw)?.[2].trim() || undefined
   const r = REMIND.exec(raw)
   const remind = r ? `${r[2]} ${(r[3] ?? '09:00').padStart(5, '0')}` : undefined
-  const text = raw.replace(PRIORITY, '$1').replace(SCHEDULED, '$1').replace(DUE, '$1').replace(DONE, '$1').replace(REPEAT, '$1').replace(REMIND, '$1').replace(/\s{2,}/g, ' ').trim()
+  const text = raw.replace(PRIORITY, '$1').replace(SCHEDULED, '$1').replace(DUE, '$1').replace(DONE, '$1').replace(CANCELLED, '$1').replace(REPEAT, '$1').replace(REMIND, '$1').replace(/\s{2,}/g, ' ').trim()
   const tags = [...new Set([...text.matchAll(TAG)].map((m) => m[1]))]
   return { text, priority, tags, scheduled, someday, due, completed, repeat, remind }
 }
@@ -86,7 +90,10 @@ export function withDetails(raw: string, patch: { priority?: number; scheduled?:
   const repeat = patch.repeat === undefined ? now.repeat : patch.repeat
   const remind = patch.remind === undefined ? now.remind : patch.remind
   const planned = someday ? '>someday' : scheduled ? `>${scheduled}` : ''
-  return [now.text, priorityLabel(priority), planned, due ? `@due(${due})` : '', repeat ? `@repeat(${repeat})` : '', remind ? `@remind(${remind})` : '', now.completed ? `@done(${now.completed})` : ''].filter(Boolean).join(' ')
+  const done = DONE.exec(raw)?.[2]
+  const cancelled = CANCELLED.exec(raw)?.[2]
+  const closed = done ? `@done(${done})` : cancelled ? `@cancelled(${cancelled})` : ''
+  return [now.text, priorityLabel(priority), planned, due ? `@due(${due})` : '', repeat ? `@repeat(${repeat})` : '', remind ? `@remind(${remind})` : '', closed].filter(Boolean).join(' ')
 }
 
 /**
@@ -147,9 +154,9 @@ export function parseRemind(words: string, dayFirst = true, now = today()): stri
 }
 
 /** The task's text with "@done(date)" added at the end, or taken away. Nothing else on the line moves. */
-export function withCompleted(raw: string, date: string | null): string {
-  const without = raw.replace(DONE, '').trimEnd()
-  return date ? `${without} @done(${date})` : without
+export function withCompleted(raw: string, date: string | null, as: 'done' | 'cancelled' = 'done'): string {
+  const without = raw.replace(DONE, '').replace(CANCELLED, '').trimEnd()
+  return date ? `${without} @${as}(${date})` : without
 }
 
 /**
@@ -168,19 +175,41 @@ export function setLineDone(line: string, done: boolean, stamp: boolean, now = t
 }
 
 /**
+ * A whole line with its task cancelled ("[-]", recording the day as "@cancelled(date)" when `stamp` is on), or
+ * reopened when it was cancelled. A ticked task can be cancelled too. Null when the line is not a task.
+ */
+export function setLineCancelled(line: string, cancelled: boolean, stamp: boolean, now = today()): string | null {
+  const m = TASK_LINE.exec(line)
+  if (!m) return null
+  if ((m[2] === '-') === cancelled) return line
+  if (!cancelled) return m[1] + ' ' + m[3] + withCompleted(m[4], null)
+  return m[1] + '-' + m[3] + (stamp && m[4].trim() ? withCompleted(m[4], now, 'cancelled') : withCompleted(m[4], null))
+}
+
+/** The smallest edits that turn one version of a task line into another: the box, and the end of the line. */
+function boxChanges(line: string, next: string): { from: number; to: number; insert: string }[] {
+  const start = TASK_LINE.exec(line)![1].length
+  const changes = [{ from: start, to: start + 1, insert: next[start] }]
+  let same = start + 1
+  while (same < line.length && same < next.length && line[same] === next[same]) same++
+  if (same < line.length || same < next.length) changes.push({ from: same, to: line.length, insert: next.slice(same) })
+  return changes
+}
+
+/** The same change as setLineCancelled, as the smallest edits to the line. Null when the line is not a task. */
+export function lineCancelChanges(line: string, cancelled: boolean, stamp: boolean, now = today()): { from: number; to: number; insert: string }[] | null {
+  const next = setLineCancelled(line, cancelled, stamp, now)
+  return next == null ? null : boxChanges(line, next)
+}
+
+/**
  * The same change as setLineDone, as the smallest edits to the line (offsets from its start):
  * the mark in the box, and the end of the line where "@done(date)" goes. Editing only those keeps
  * the cursor where it was. Null when the line is not a task.
  */
 export function lineDoneChanges(line: string, done: boolean, stamp: boolean, now = today()): { from: number; to: number; insert: string }[] | null {
   const next = setLineDone(line, done, stamp, now)
-  if (next == null) return null
-  const start = TASK_LINE.exec(line)![1].length
-  const changes = [{ from: start, to: start + 1, insert: done ? 'x' : ' ' }]
-  let same = start + 1
-  while (same < line.length && same < next.length && line[same] === next[same]) same++
-  if (same < line.length || same < next.length) changes.push({ from: same, to: line.length, insert: next.slice(same) })
-  return changes
+  return next == null ? null : boxChanges(line, next)
 }
 
 const cache = new Map<string, { content: string; tasks: Task[] }>()
@@ -201,7 +230,7 @@ export function tasksOf(note: Note): Task[] {
       else if (line.startsWith('<!-- card')) heading = ''
       const m = TASK_LINE.exec(line)
       if (!m || !m[4].trim()) return
-      tasks.push({ noteId: note.id, line: index, done: m[2] !== ' ', raw: m[4], heading, ...parseTaskText(m[4]) })
+      tasks.push({ noteId: note.id, line: index, done: m[2] !== ' ', cancelled: m[2] === '-', raw: m[4], heading, ...parseTaskText(m[4]) })
     })
   }
   cache.set(note.id, { content: note.content, tasks })
@@ -242,12 +271,13 @@ export function allTasks(notes: Record<string, Note>, templatesFolder: string, i
  * The note's content with one task line replaced, or null if that line is no longer the same task.
  * Ticking with `stamp` on records the day; unticking takes the day away.
  */
-export function rewriteTask(content: string, task: Task, change: { done?: boolean; raw?: string; stamp?: boolean }): string | null {
+export function rewriteTask(content: string, task: Task, change: { done?: boolean; cancelled?: boolean; raw?: string; stamp?: boolean }): string | null {
   const lines = content.split('\n')
   const m = TASK_LINE.exec(lines[task.line] ?? '')
   if (!m || m[4] !== task.raw) return null
   let line = m[1] + m[2] + m[3] + (change.raw ?? m[4])
   if (change.done !== undefined) line = setLineDone(line, change.done, !!change.stamp) ?? line
+  if (change.cancelled !== undefined) line = setLineCancelled(line, change.cancelled, !!change.stamp) ?? line
   lines[task.line] = line
   return lines.join('\n')
 }

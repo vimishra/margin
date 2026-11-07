@@ -118,6 +118,7 @@ The guide has two main parts, because Margin does two different jobs. **Part 1**
 
 - [Tasks](#tasks)
   - [Details on a task](#details-on-a-task)
+  - [Cancelling a task](#cancelling-a-task)
   - [Repeating tasks](#repeating-tasks)
   - [Reminders](#reminders)
   - [The Tasks view](#the-tasks-view)
@@ -882,6 +883,7 @@ Details are written on the task's own line, as plain text, so they stay readable
 | Someday | `>someday` | Parked; out of Today, Upcoming and Anytime |
 | Due date | `@due(2026-10-10)` | The deadline |
 | Done on | `@done(2026-10-07)` | Written for you when you tick the task |
+| Cancelled | `- [-] …` with `@cancelled(2026-10-07)` | Dropped rather than done; see [Cancelling a task](#cancelling-a-task) |
 | Repeats | `@repeat(weekly)` | Comes back when ticked; see [Repeating tasks](#repeating-tasks) |
 | Reminder | `@remind(2026-10-08 14:30)` | A notification at that time; see [Reminders](#reminders) |
 
@@ -896,10 +898,26 @@ With the cursor on a task in a note, these keys change its details without typin
 | ⌘⇧D | Due date: opens the calendar |
 | ⌘⇧P | Priority: steps through P1, P2, P3 and none |
 | ⌘↵ | Tick or untick |
+| ⌘⌥↵ | Cancel, or reopen a cancelled task |
 
 Move to today and Priority apply to every task in a selection. The same four are in ⌘K under "Task:", and all of them can be changed in Settings → Shortcuts. In the browser version they are ⌥⇧T, ⌥⇧S, ⌥⇧D and ⌥⇧P.
 
 In the editor the details show as small labels. A due date turns red once it has passed. A planned day that is today or earlier is highlighted, because the task is in Today.
+
+### Cancelling a task
+
+Some tasks are not done but dropped: plans changed, someone else did it, it no longer matters. Cancel them instead of ticking them, so you can still tell later what was done and what was let go.
+
+```
+- [-] Book the panel @due(2026-11-10) @cancelled(2026-11-07)
+```
+
+- **To cancel:** with the cursor on the task, press ⌘⌥↵ (or **Task: cancel or reopen** in ⌘K, or right-click → Paragraph → Cancel or Reopen Task). In the Tasks view, press **C**, or use the ✕ button that appears on hover. A selection of tasks is cancelled together.
+- **What it does:** the box becomes `[-]`, shown as a box with a cross; the task is greyed and struck through, and the day is written as `@cancelled(date)` (unless you turned off recording the day in Settings). It leaves Today, Anytime and the other lists, sinks to the end of its list like a ticked one, and shows in the Logbook marked **Cancelled**. Archiving moves it with the ticked ones.
+- **To reopen:** do the same again, or click its box. It becomes an open task, without the date.
+- **A repeating task** that you cancel skips that time: the next one still comes.
+- `margin-tasks` shows cancelled tasks as `[-]` and in the Logbook, with a `cancelled` field in its JSON and CSV.
+- Other apps: Obsidian shows `[-]` as a task too; GitHub and plain markdown viewers show it as a list item starting with "[-]".
 
 ### Repeating tasks
 
@@ -974,6 +992,7 @@ With the keyboard:
 | P | Priority |
 | M | Move to another note (a project), under its Open Threads heading |
 | N | Show or hide the task's notes |
+| C | Cancel, or reopen a cancelled task |
 | 1 to 9, 0 | Switch list |
 | / | Narrow down; ↓ or ↵ goes back to the list |
 
@@ -1036,7 +1055,7 @@ The block takes the same words as the Tasks view's narrow-down box, plus a few o
 | `#atlas`, `p2`, words | As in the Tasks view: that tag, that priority or higher, those words in the task or its note's title |
 | `[[Priya]]` | Tasks in the note Priya, tasks that link to it on their own line, and tasks in meeting notes that link to it, as the Tasks view finds a project's tasks |
 | `from: daily`, `from: notes` | Only tasks written in daily notes, or only those not |
-| `group: date`, `group: project`, `group: priority` | Grouped under headings |
+| `group: date`, `group: project`, `group: priority` | Grouped under headings: Overdue, Today, Tomorrow and so on; each project, as the Tasks view groups them (a meeting's actions under the project it links to); or P1, P2, P3 |
 | `limit 10` | At most that many, the most urgent first |
 
 Some uses:
@@ -1044,6 +1063,8 @@ Some uses:
 - **A person's note:** `[[Priya]]` lists everything open that involves Priya, from any meeting or daily note: the agenda for your next 1:1, kept for you.
 - **A project note:** `[[Atlas Migration]] group: date` at the top shows what is left, including actions written in its meetings.
 - **A weekly review template:** `logbook this week` and `overdue` show what got done and what slipped.
+
+While you type the filter, Margin suggests the list names (with what each shows), your tags after `#`, notes after `[[`, and the choices after `group:` and `from:`.
 
 Anything the block does not understand is listed under it, and a link to a note that does not exist is pointed out. A block written for Obsidian's Tasks plugin (`not done`, `due before tomorrow`) is left alone with a note saying so. In other apps, and in GitHub, the block is just the lines you wrote; exports (PDF, HTML, Word) show the tasks as they were when you exported.
 

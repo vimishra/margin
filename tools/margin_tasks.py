@@ -26,12 +26,13 @@ VERSION = "1.2"
 # ---------------------------------------------------------------- parsing (mirrors src/lib/tasks.ts)
 
 # JavaScript's \w and \d are ASCII-only, so the classes are spelled out rather than using Python's wider ones.
-TASK_LINE = re.compile(r"^(\s*(?:>\s*)*(?:[-*+]|[0-9]+[.)])\s+\[)([ xX])(\]\s+)(.*)$")
+TASK_LINE = re.compile(r"^(\s*(?:>\s*)*(?:[-*+]|[0-9]+[.)])\s+\[)([ xX-])(\]\s+)(.*)$")
 DATE = r"[0-9]{4}-[0-9]{2}-[0-9]{2}"
 PRIORITY = re.compile(r"(^|\s)[Pp]([123])(?=\s|$)")
 SCHEDULED = re.compile(r"(^|\s)>(" + DATE + r"|[Ss]omeday)(?=\s|$)")
 DUE = re.compile(r"(^|\s)@due\((" + DATE + r")\)")
 DONE = re.compile(r"(^|\s)@done\((" + DATE + r")\)")
+CANCELLED = re.compile(r"(^|\s)@cancelled\((" + DATE + r")\)")
 REPEAT = re.compile(r"(^|\s)@repeat\(([^)\n]+)\)")
 REMIND = re.compile(r"(^|\s)@remind\((" + DATE + r")(?:[ T]([0-9]{1,2}:[0-9]{2}))?\)")
 TAG = re.compile(r"(?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)")
@@ -58,12 +59,13 @@ ALIASES = {"done": "logbook", "nodate": "undated", "no-date": "undated", "this-w
 
 
 class Task:
-    __slots__ = ("note", "index", "done", "raw", "text", "priority", "tags", "planned", "someday", "due", "done_on", "repeat", "remind", "heading")
+    __slots__ = ("note", "index", "done", "cancelled", "raw", "text", "priority", "tags", "planned", "someday", "due", "done_on", "repeat", "remind", "heading")
 
-    def __init__(self, note: "Note", index: int, done: bool, raw: str, heading: str):
+    def __init__(self, note: "Note", index: int, done: bool, raw: str, heading: str, cancelled: bool = False):
         self.note = note
         self.index = index  # line within the note's content, from 0, as the app counts it
-        self.done = done
+        self.done = done  # finished with: ticked "[x]" or cancelled "[-]"
+        self.cancelled = cancelled
         self.raw = raw
         self.heading = heading
         written = PRIORITY.search(raw)
@@ -74,14 +76,14 @@ class Task:
         self.planned = None if self.someday else value
         due = DUE.search(raw)
         self.due = due.group(2) if due else None
-        done_on = DONE.search(raw)
+        done_on = DONE.search(raw) or CANCELLED.search(raw)
         self.done_on = done_on.group(2) if done_on else None
         repeat = REPEAT.search(raw)
         self.repeat = repeat.group(2).strip() or None if repeat else None
         remind = REMIND.search(raw)
         self.remind = "%s %s" % (remind.group(2), (remind.group(3) or "09:00").rjust(5, "0")) if remind else None
         text = raw
-        for pattern in (PRIORITY, SCHEDULED, DUE, DONE, REPEAT, REMIND):
+        for pattern in (PRIORITY, SCHEDULED, DUE, DONE, CANCELLED, REPEAT, REMIND):
             text = pattern.sub(lambda m: m.group(1), text, count=1)
         self.text = re.sub(r"\s{2,}", " ", text).strip()
         seen: List[str] = []
@@ -142,7 +144,7 @@ class Note:
             m = TASK_LINE.match(line)
             if not m or not m.group(4).strip():
                 continue
-            out.append(Task(self, index, m.group(2) != " ", m.group(4), heading))
+            out.append(Task(self, index, m.group(2) != " ", m.group(4), heading, m.group(2) == "-"))
         return out
 
 
@@ -397,6 +399,7 @@ def record(t: Task, now: str, inbox: str = "Inbox") -> Dict[str, object]:
     return {
         "text": t.text,
         "done": t.done,
+        "cancelled": t.cancelled,
         "priority": t.priority_label or None,
         "tags": t.tags,
         "planned": t.planned,
@@ -437,7 +440,7 @@ def print_table(tasks: List[Task], now: str, color: bool, group: str) -> None:
         if t.remind and not t.done:
             parts.append("remind " + t.remind)
         if t.done_on:
-            parts.append("done " + t.done_on)
+            parts.append(("cancelled " if t.cancelled else "done ") + t.done_on)
         return "  ".join(parts)
 
     def bucket(t: Task) -> str:
@@ -467,7 +470,7 @@ def print_table(tasks: List[Task], now: str, color: bool, group: str) -> None:
                 print()
             print(paint("1", b))
             last = b
-        box = "[x]" if t.done else "[ ]"
+        box = "[-]" if t.cancelled else "[x]" if t.done else "[ ]"
         pri = paint("33" if t.priority == 2 else "31" if t.priority == 3 else "2", t.priority_label.ljust(width))
         where = t.note.title + (" › " + t.heading if t.heading and t.heading != t.note.title else "")
         bits = [box] + ([pri] if width else []) + [paint("2" if t.done else "0", t.text)]
@@ -593,7 +596,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         json.dump([record(t, now, args.inbox) for t in tasks], sys.stdout, indent=2, ensure_ascii=False)
         print()
     elif args.csv:
-        fields = ["done", "priority", "text", "tags", "planned", "someday", "due", "done_on", "repeat", "remind", "note", "notebook", "heading", "relpath", "line"]
+        fields = ["done", "priority", "text", "tags", "planned", "someday", "due", "done_on", "cancelled", "repeat", "remind", "note", "notebook", "heading", "relpath", "line"]
         w = csv.writer(sys.stdout)
         w.writerow(fields)
         for t in tasks:
@@ -602,7 +605,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             w.writerow(["" if r[k] is None else r[k] for k in fields])
     elif args.paths:
         for t in tasks:
-            print("%s:%d: [%s] %s" % (t.note.path, t.line, "x" if t.done else " ", t.raw))
+            print("%s:%d: [%s] %s" % (t.note.path, t.line, "-" if t.cancelled else "x" if t.done else " ", t.raw))
     elif args.format:
         template = args.format.encode("utf-8").decode("unicode_escape") if "\\" in args.format else args.format
         for t in tasks:

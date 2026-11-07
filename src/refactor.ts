@@ -72,7 +72,7 @@ export async function extractToNote(sel: { from: number; to: number; line: numbe
   if (sel.to > sel.from) {
     text = page.slice(sel.from, sel.to)
     const firstHeading = sections(text)[0]
-    suggested = firstHeading?.title ?? text.split('\n').find((l) => l.trim())?.replace(/^\s*([-*+>]|\d+[.)])?\s*(\[[ xX]\]\s*)?/, '').slice(0, 60).trim() ?? ''
+    suggested = firstHeading?.title ?? text.split('\n').find((l) => l.trim())?.replace(/^\s*([-*+>]|\d+[.)])?\s*(\[[ xX-]\]\s*)?/, '').slice(0, 60).trim() ?? ''
     rebuild = (link) => page.slice(0, sel.from) + link + page.slice(sel.to)
   } else {
     const s = sectionAtLine(page, sel.line)

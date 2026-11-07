@@ -5,7 +5,7 @@ import { createRoot, type Root } from 'react-dom/client'
 import { ListChecks, Pencil } from 'lucide-react'
 import { useStore } from '../store'
 import { describeQuery, parseTaskQuery, runTaskQuery, type BlockGroup, type TaskContext } from '../lib/taskQuery'
-import { priorityLabel, shortDate, weekRange, type Task } from '../lib/tasks'
+import { priorityLabel, projectsOf, shortDate, weekRange, type ProjectFolders, type Task } from '../lib/tasks'
 import { renderInline } from '../lib/markdown'
 import { displayTitle, today } from '../lib/util'
 import type { Note } from '../types'
@@ -26,24 +26,33 @@ function contextOf(s: Pick<State, 'notes' | 'settings'>): TaskContext {
   }
 }
 
-/** The tasks in groups, in the order the groups come: [label, tasks][]; one unlabelled group when not grouped. */
-function grouped(tasks: Task[], group: BlockGroup, notes: Record<string, Note>, weekStart: number): [string, Task[]][] {
-  if (group === 'none') return [['', tasks]]
+/**
+ * The tasks in groups, in the order the groups come; one unlabelled group when not grouped. By project, as the Tasks
+ * view does: a task goes under its project, a meeting's actions under the projects the meeting links, tasks in daily
+ * notes under "Daily notes" (so a task can be under more than one); `noteId` is the project's note.
+ */
+function grouped(tasks: Task[], group: BlockGroup, notes: Record<string, Note>, weekStart: number, folders: ProjectFolders): { label: string; tasks: Task[]; noteId?: string }[] {
+  if (group === 'none') return [{ label: '', tasks }]
   const now = today()
   const weekEnd = weekRange(now, weekStart)[1]
-  const groups = new Map<string, { label: string; tasks: Task[] }>()
-  for (const t of tasks) {
-    const [key, label] =
-      group === 'date'
-        ? dateBucket(t, now, weekEnd)
-        : group === 'priority'
-          ? [String(9 - t.priority), t.priority ? priorityLabel(t.priority) : 'No priority']
-          : [displayTitle(notes[t.noteId]).toLowerCase(), displayTitle(notes[t.noteId])]
-    const g = groups.get(key) ?? { label, tasks: [] }
+  const groups = new Map<string, { label: string; tasks: Task[]; noteId?: string }>()
+  const add = (key: string, label: string, t: Task, noteId?: string) => {
+    const g = groups.get(key) ?? { label, tasks: [], noteId }
     g.tasks.push(t)
     groups.set(key, g)
   }
-  return [...groups.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([, g]) => [g.label, g.tasks])
+  for (const t of tasks) {
+    if (group === 'date') add(...dateBucket(t, now, weekEnd), t)
+    else if (group === 'priority') add(String(9 - t.priority), t.priority ? priorityLabel(t.priority) : 'No priority', t)
+    else
+      for (const id of projectsOf(t, notes, folders)) {
+        const home = notes[id]
+        if (!home) continue
+        if (home.type === 'daily') add('2', 'Daily notes', t)
+        else add(`1${(home.folder || '').toLowerCase()}\u0000${displayTitle(home).toLowerCase()}\u0000${id}`, displayTitle(home), t, id)
+      }
+  }
+  return [...groups.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([, g]) => g)
 }
 
 export function TaskBlock({ source, onEdit }: { source: string; onEdit?: () => void }) {
@@ -56,7 +65,7 @@ export function TaskBlock({ source, onEdit }: { source: string; onEdit?: () => v
     return query.limit || result.tasks.length <= MOST ? result : { ...result, tasks: result.tasks.slice(0, MOST) }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, notes, settings.templatesFolder, settings.inboxFolder, settings.meetingsFolder, settings.weekStart])
-  const groups = grouped(tasks, query.group, notes, ctx.weekStart)
+  const groups = grouped(tasks, query.group, notes, ctx.weekStart, settings)
   const open = tasks.filter((t) => !t.done).length
 
   return (
@@ -76,10 +85,11 @@ export function TaskBlock({ source, onEdit }: { source: string; onEdit?: () => v
           <p className="task-block-note">This is a query for Obsidian's Tasks plugin, which Margin does not run. Write the filter as in the Tasks view, for example <code>today #atlas p2</code>.</p>
         ) : (
           <>
-            {groups.map(([label, list]) => (
-              <Fragment key={label || 'all'}>
-                {label && <h4 className="task-block-group">{label}</h4>}
-                {list.map((t) => notes[t.noteId] && <TaskRow key={`${t.noteId}:${t.line}`} task={t} note={notes[t.noteId]} showNote={query.group !== 'note'} />)}
+            {groups.map((g) => (
+              <Fragment key={(g.noteId ?? '') + g.label || 'all'}>
+                {g.label && <h4 className="task-block-group">{g.label}</h4>}
+                {/* Under its project, a task shows its note only when it was written somewhere else (a meeting, a day). */}
+                {g.tasks.map((t) => notes[t.noteId] && <TaskRow key={`${t.noteId}:${t.line}`} task={t} note={notes[t.noteId]} showNote={query.group !== 'note' || t.noteId !== g.noteId} />)}
               </Fragment>
             ))}
             {!tasks.length && <p className="task-block-note">No tasks match.</p>}
@@ -115,18 +125,18 @@ export function taskBlockSnapshot(source: string): string {
   const ctx = contextOf(s)
   const { tasks } = runTaskQuery(query, ctx)
   const shown = query.limit ? tasks : tasks.slice(0, MOST)
-  const rows = (list: Task[]) =>
+  const rows = (list: Task[], groupNote?: string) =>
     list
       .map((t) => {
         const note = s.notes[t.noteId]
-        const meta = [t.priority ? priorityLabel(t.priority) : '', t.scheduled ? `planned ${shortDate(t.scheduled)}` : '', t.due ? `due ${shortDate(t.due)}` : '', t.done && t.completed ? `done ${shortDate(t.completed)}` : '', query.group !== 'note' && note ? displayTitle(note) : '']
+        const meta = [t.priority ? priorityLabel(t.priority) : '', t.scheduled ? `planned ${shortDate(t.scheduled)}` : '', t.due ? `due ${shortDate(t.due)}` : '', t.cancelled ? `cancelled${t.completed ? ' ' + shortDate(t.completed) : ''}` : t.done && t.completed ? `done ${shortDate(t.completed)}` : '', (query.group !== 'note' || t.noteId !== groupNote) && note ? displayTitle(note) : '']
           .filter(Boolean)
           .join(' · ')
-        return `<li class="task-list-item"><input type="checkbox" disabled${t.done ? ' checked' : ''}> ${renderInline(t.text)}${meta ? ` <span style="color:#8a867f;font-size:.85em">— ${esc(meta)}</span>` : ''}</li>`
+        return `<li class="task-list-item${t.cancelled ? ' cancelled' : ''}"><input type="checkbox" disabled${t.done ? ' checked' : ''}${t.cancelled ? ' class="box-cancelled"' : ''}> ${renderInline(t.text)}${meta ? ` <span style="color:#8a867f;font-size:.85em">— ${esc(meta)}</span>` : ''}</li>`
       })
       .join('')
-  const body = grouped(shown, query.group, s.notes, ctx.weekStart)
-    .map(([label, list]) => (label ? `<p><strong>${esc(label)}</strong></p>` : '') + `<ul class="contains-task-list">${rows(list)}</ul>`)
+  const body = grouped(shown, query.group, s.notes, ctx.weekStart, s.settings)
+    .map((g) => (g.label ? `<p><strong>${esc(g.label)}</strong></p>` : '') + `<ul class="contains-task-list">${rows(g.tasks, g.noteId)}</ul>`)
     .join('')
   return `<div class="task-block-export"><p style="color:#8a867f;font-size:.85em">${esc(describeQuery(query))}</p>${shown.length ? body : '<p><em>No tasks match.</em></p>'}</div>`
 }

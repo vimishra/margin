@@ -1,6 +1,6 @@
 # Margin product specification
 
-This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.29.0.
+This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.30.0.
 
 It is written to be handed to a developer or a coding tool. Where a detail is a free choice for the implementer, it says so; everything else is a requirement.
 
@@ -559,7 +559,7 @@ A line is a task when it matches:
 ^(\s*(?:>\s*)*(?:[-*+]|\d+[.)])\s+\[)([ xX])(\]\s+)(.*)$
 ```
 
-and the text after the box is not blank. `x` or `X` means done. Lines inside fenced code blocks (``` or ~~~) are ignored. Tasks in the Templates notebook are left out of every list. Tasks on canvas cards count.
+and the text after the box is not blank. `x` or `X` means done; `-` means cancelled, which every list treats as finished (see [12.3d](#123d-cancelling)). Lines inside fenced code blocks (``` or ~~~) are ignored. Tasks in the Templates notebook are left out of every list. Tasks on canvas cards count.
 
 Details are written on the same line as plain text:
 
@@ -570,6 +570,7 @@ Details are written on the same line as plain text:
 | Someday | `>someday`, in the same place as a planned day |
 | Due date | `@due(2026-10-10)` |
 | Done on | `@done(2026-10-07)` |
+| Cancelled on | `@cancelled(2026-10-07)`; it counts as the day finished, for the Logbook and archiving |
 | Repeats | `@repeat(weekly)` ([12.3b](#123b-repeating-tasks)) |
 | Reminder | `@remind(2026-10-08 14:30)`; a day alone means 09:00 ([12.3c](#123c-reminders)) |
 | Tags | `#atlas`, as for note tags |
@@ -581,6 +582,7 @@ priority   (^|\s)[Pp]([123])(?=\s|$)
 planned    (^|\s)>(\d{4}-\d{2}-\d{2}|[Ss]omeday)(?=\s|$)
 due        (^|\s)@due\((\d{4}-\d{2}-\d{2})\)
 done on    (^|\s)@done\((\d{4}-\d{2}-\d{2})\)
+cancelled  (^|\s)@cancelled\((\d{4}-\d{2}-\d{2})\)
 repeat     (^|\s)@repeat\(([^)\n]+)\)
 remind     (^|\s)@remind\((\d{4}-\d{2}-\d{2})(?:[ T](\d{1,2}:\d{2}))?\)
 tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
@@ -588,7 +590,7 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 
 `\d` and the tag characters are ASCII only.
 
-Only the first occurrence of each counts. The task's display text is the line with those six details removed and spaces collapsed. A reminder is kept as `YYYY-MM-DD HH:MM` (the hour padded to two digits). Neither a repeat nor a reminder changes which lists a task is in. Each task also records the nearest heading above it.
+Only the first occurrence of each counts. The task's display text is the line with those seven details removed and spaces collapsed. A reminder is kept as `YYYY-MM-DD HH:MM` (the hour padded to two digits). Neither a repeat nor a reminder changes which lists a task is in. Each task also records the nearest heading above it.
 
 When the app rewrites a task's details it writes: text, priority, planned day or `>someday`, due date, repeat, reminder, done date, in that order. A planned day and Someday replace each other.
 
@@ -615,6 +617,15 @@ A task with `@repeat(rule)` comes back when it is ticked.
 - **On ticking** (every way of ticking: the editor's checkbox and shortcut, the read-only view, the Tasks view, tasks blocks): a new open copy goes in the task's place, with its lines indented under it (sub-tasks unticked, their done days removed), its done day removed, and its due day, planned day and reminder moved by the same number of days so their gaps stay; a task with no date gets the next date as its planned day (a Someday task stays Someday with no date). The ticked line, with its block, follows the copy, without its `@repeat`, so it is the record of that time and does not repeat again; it then sinks as usual. In the editor this is one change: one Undo puts it all back.
 - Unticking the record does not remove the copy.
 - In the Tasks view and tasks blocks an open repeating task shows a chip with a repeat icon and its rule.
+
+### 12.3d Cancelling
+
+A cancelled task has `-` in its box (`- [-] …`). It is finished with: out of every list but the Logbook, where it shows a "Cancelled" chip (with its day) instead of "Done"; it sinks and is archived as a ticked task is.
+
+- **Cancel or reopen** (command "Task: cancel or reopen", default ⌘⌥↵ in the desktop app and the browser; in the Format menu and the editor's right-click Paragraph menu; key C and a hover button in the Tasks view): on a selection, every task is cancelled unless all are cancelled already, in which case they are reopened. Cancelling writes `@cancelled(<today>)` at the end of the line (when recording the day is on), replacing any `@done`; reopening sets the box to a space and removes the date. Ticking or clicking the box of a cancelled task reopens it. A ticked task can be cancelled.
+- **Appearance:** the box is drawn with a cross (no tick), the text greyed (lighter than a done task) and struck through, in the editor, read mode, the Tasks view and tasks blocks. In read mode, clicking its box reopens it.
+- **Repeating:** cancelling counts as ticking for `@repeat`: the next occurrence is added and the cancelled line kept, without its `@repeat`.
+- **Exports** show it with a crossed box. The command-line tool lists it with `[-]`, `done` true and `cancelled` true, `done_on` its cancelled day.
 
 ### 12.3c Reminders
 
@@ -691,7 +702,8 @@ A fenced code block whose info string is `tasks` is a live list of tasks. Its te
 - **Filter words**, in any order, on one or more lines (lines starting `//` are ignored): one list name (`inbox`, `today`, `upcoming`, `anytime`, `someday`, `logbook` or `done`, `overdue`, `this week` or `week`, `next 30 days` or `month`, `no date` or `undated`, `all open` or `open`; default all open; a second is reported); `#tag`, `p1`–`p3` and words as in the Tasks view's narrow-down; `[[Title]]` links (several allowed; tasks in that note, tasks whose own line links to it, and tasks in a meeting note that links to it); `from: all|notes|daily`; `group: none|date|project|note|priority`; `limit N` or `limit: N`. Any other `word: value` is reported as not understood. A link to no note is reported.
 - **Obsidian Tasks queries** (lines such as `not done`, `due before …`, `sort by …`, `path includes …`) are recognised and shown with a note that Margin does not run them.
 - **Order:** as the Tasks view (most urgent first; the Logbook latest first). Without a limit, at most 200 are shown, with the number left out.
-- **Shown** as a panel like the daily note's task panel: a header with a list icon, the filter described (list, links, words), the count open (or done, for the Logbook) and, in the editor, a pencil button; then the task rows of the Tasks view (tick, priority, when, due, move, click to open), under group headings when grouped, with the task's note unless grouped by note.
+- **Shown** as a panel like the daily note's task panel: a header with a list icon, the filter described (list, links, words), the count open (or done, for the Logbook) and, in the editor, a pencil button; then the task rows of the Tasks view (tick, priority, when, due, move, click to open), under group headings when grouped, each with its note. Grouped by date, under the Tasks view's date headings; by priority, under P1, P2, P3, No priority; by project, under the projects the Tasks view would list it under (its project note, the projects a task line or a meeting note links to, otherwise its own note; daily notes under one "Daily notes" heading), headings ordered by notebook then title, a task showing its own note only when that is not the project.
+- **Suggestions** while typing on a filter line: tags after `#` (also at the start of the line, unlike elsewhere), note titles after `[[`, the list names (matching the words before the cursor, so `next 3` offers `next 30 days`) with each list's description, `group:`, `from:` and `limit`, and the values after `group:` (date, project, priority, none) and `from:` (daily, notes, all).
 - **Editor:** the block is replaced by the panel unless the cursor or selection is on one of its lines; the pencil puts the cursor at the end of the filter line. An unclosed fence stays text.
 - **Read mode:** the same panel, without the pencil; ticking it changes the task's own note, never the note holding the block.
 - **Exports:** the tasks at the time of export as a disabled checkbox list, each with priority, dates and note, under the filter described.
@@ -949,7 +961,7 @@ margin-tasks [LIST] [options]
 - **Narrowing** (all must hold): `--tag TAG` (repeatable; matches nested tags), `--note-tag TAG`, `--priority p1|p2|p3|none` (that level or higher; `--exact-priority` for only that level), `--due-before|after|on DAY`, `--planned-before|after|on DAY`, `--done-before|after|on DAY`, `--has-due`, `--no-due`, `--notebook NAME` (and those inside it), `--note TEXT` (title contains), `--source all|notes|daily`, `-q TEXT` (the Tasks view's narrow-down syntax).
 - **DAY:** `YYYY-MM-DD`, `today`, `tomorrow`, `yesterday`, `+N`, `-N`, or a weekday name meaning the next one.
 - **Output:** a plain listing by default (checkbox, priority, text, dates, note and heading; colour when writing to a terminal); `--json`; `--csv`; `--paths` (`path:line: [ ] task`); `--format TEMPLATE` with the JSON field names; `--count`.
-- **JSON fields:** `text`, `done`, `priority`, `tags`, `planned`, `someday`, `due`, `done_on`, `repeat`, `remind`, `overdue`, `in_today`, `in_inbox`, `note`, `notebook`, `note_type`, `note_tags`, `heading`, `path`, `relpath`, `line` (1-based, in the file), `raw`.
+- **JSON fields:** `text`, `done`, `cancelled`, `priority`, `tags`, `planned`, `someday`, `due`, `done_on`, `repeat`, `remind`, `overdue`, `in_today`, `in_inbox`, `note`, `notebook`, `note_type`, `note_tags`, `heading`, `path`, `relpath`, `line` (1-based, in the file), `raw`.
 - **Order:** `--sort urgency|due|planned|priority|note|done`, `--reverse`, `--limit N`, `--group none|date|note|notebook|priority`.
 - **Other:** `--today DAY` to pretend it is another day, `--week-start sunday|monday`, `--no-color`, `--version`, `--help`.
 - **Exit codes:** 0 on success, 1 when the folder cannot be found or read, 2 for a bad argument.

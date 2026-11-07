@@ -59,7 +59,7 @@ class SharedCases(unittest.TestCase):
         for key, w in want.items():
             t = got[key]
             mine = {
-                "key": key, "text": t.text, "done": t.done, "priority": t.priority_label or None, "tags": t.tags,
+                "key": key, "text": t.text, "done": t.done, "cancelled": t.cancelled, "priority": t.priority_label or None, "tags": t.tags,
                 "planned": t.planned, "someday": t.someday, "due": t.due, "done_on": t.done_on, "repeat": t.repeat, "remind": t.remind, "heading": t.heading,
                 "overdue": mt.is_overdue(t, NOW), "in_today": mt.is_today(t, NOW), "in_inbox": mt.in_inbox(t, INBOX),
             }
@@ -106,7 +106,7 @@ class SharedCases(unittest.TestCase):
         self.assertEqual(texts("open", "--due-before", NOW), ["Book venue"])
         done = texts("logbook", "--done-after", "-2")
         self.assertEqual(done[0], "Capital X counts as done")  # the most recent day first
-        self.assertEqual(sorted(done[1:]), ["Done from the Inbox", "Done yesterday", "Logged and done"])
+        self.assertEqual(sorted(done[1:]), ["Book the old venue", "Done from the Inbox", "Done yesterday", "Logged and done"])  # cancelled ones are in the Logbook too
         self.assertEqual(texts("open", "--source", "daily", "--priority", "p1"), ["Daily top item"])
         self.assertEqual(texts("open", "--note-tag", "meeting", "--priority", "p3"), ["Me: follow up"])
         self.assertEqual(texts("open", "--priority", "none", "--has-due", "--notebook", "Work/Meetings"), ["Sunday of this week", "Priya: send numbers #atlas"])  # planned for the 11th comes before due on the 12th

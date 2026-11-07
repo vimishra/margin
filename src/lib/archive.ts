@@ -134,7 +134,7 @@ export function archiveTasks(page: string, opts: ArchiveOptions = {}): { page: s
     }
     if (parentOpen) continue
     if (opts.before) {
-      const done = /@done\((\d{4}-\d{2}-\d{2})\)/.exec(m[4])
+      const done = /@(?:done|cancelled)\((\d{4}-\d{2}-\d{2})\)/.exec(m[4])
       if (!done || done[1] >= opts.before) continue
     }
     const end = Math.min(blockEnd(lines, i), to)

@@ -84,6 +84,27 @@ function build(math: boolean): MarkdownIt {
     },
   })
   md.use(taskLists, { enabled: true })
+  // A cancelled task, "[-]", which the task-list plugin does not know: a box with a cross, the item greyed.
+  md.core.ruler.push('cancelled_tasks', (state) => {
+    const tokens = state.tokens
+    for (let i = 2; i < tokens.length; i++) {
+      const t = tokens[i]
+      if (t.type !== 'inline' || !t.content.startsWith('[-] ') || tokens[i - 1].type !== 'paragraph_open' || tokens[i - 2].type !== 'list_item_open') continue
+      const first = t.children?.[0]
+      if (!first || first.type !== 'text' || !first.content.startsWith('[-] ')) continue
+      first.content = first.content.slice(4)
+      const box = new state.Token('html_inline', '', 0)
+      box.content = '<input class="task-list-item-checkbox box-cancelled" type="checkbox" checked title="Cancelled. Click to reopen.">'
+      t.children!.unshift(box)
+      tokens[i - 2].attrJoin('class', 'task-list-item cancelled')
+      for (let j = i - 3; j >= 0; j--) {
+        if (tokens[j].level === tokens[i - 2].level - 1 && /^(bullet|ordered)_list_open$/.test(tokens[j].type)) {
+          if (!/contains-task-list/.test(tokens[j].attrGet('class') || '')) tokens[j].attrJoin('class', 'contains-task-list')
+          break
+        }
+      }
+    }
+  })
   if (math) md.use(((katexPlugin as any).default ?? katexPlugin) as any, { throwOnError: false })
   md.inline.ruler.before('link', 'wikilink', wikilink)
   md.inline.ruler.push('hashtag', hashtag)
@@ -215,7 +236,7 @@ export function toggleTask(src: string, index: number, stamp = false): string {
   return src
     .split('\n')
     .map((line) => {
-      const m = /^(\s*(?:>\s*)*(?:[-*+]|\d+[.)])\s+)\[([ xX])\]/.exec(line)
+      const m = /^(\s*(?:>\s*)*(?:[-*+]|\d+[.)])\s+)\[([ xX-])\]/.exec(line)
       if (!m || ++i !== index) return line
       return setLineDone(line, m[2] === ' ', stamp) ?? `${m[1]}[${m[2] === ' ' ? 'x' : ' '}]${line.slice(m[0].length)}`
     })

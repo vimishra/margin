@@ -43,6 +43,13 @@ const LISTS: [string, TaskFilter][] = [
   ['open', 'open'],
 ]
 
+/** What a block can be filled in with, for suggestions as it is typed: each list's name as written, and what it shows. */
+export const BLOCK_LISTS: [string, string][] = TASK_FILTERS.map(([, label, about]) => [label.toLowerCase(), about])
+export const BLOCK_SETTINGS: Record<'group' | 'from', [string, string][]> = {
+  group: [['date', 'Under Overdue, Today, Tomorrow, Later'], ['project', "Under each task's project or note"], ['priority', 'Under P1, P2, P3'], ['none', 'One list']],
+  from: [['daily', 'Only tasks written in daily notes'], ['notes', 'Leave out tasks written in daily notes'], ['all', 'Every note']],
+}
+
 const GROUPS: Record<string, BlockGroup> = { none: 'none', date: 'date', note: 'note', project: 'note', priority: 'priority' }
 const SOURCES: Record<string, TaskSource> = { all: 'all', notes: 'notes', daily: 'daily' }
 

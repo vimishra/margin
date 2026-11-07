@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { Archive, CalendarClock, CalendarDays, CheckSquare, CornerDownLeft, FilePlus2, Folder, FolderPlus, Hash, LayoutTemplate, Search, Square, Users, Plus } from 'lucide-react'
+import { Archive, CalendarClock, CalendarDays, CheckSquare, CornerDownLeft, FilePlus2, Folder, FolderPlus, Hash, LayoutTemplate, Search, Square, SquareX, Users, Plus } from 'lucide-react'
 import { createNote, go, moveTaskToNewNote, moveTaskToNote, newProjectPlace, OPEN_THREADS, openSide, openSideAt, openDaily, newFromTemplate, newMeeting, newTemplate, openNote, openNoteAt, templates, toast, ui, updateNote, useStore, type PaletteState, applyTags } from '../store'
 import { commands } from '../commands'
 import { mergeIntoNote, moveSectionToNote } from '../refactor'
@@ -322,7 +322,7 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
       out.push({
         key: `task:${t.noteId}:${t.line}`,
         group: 'Tasks',
-        icon: t.done ? <CheckSquare size={16} /> : <Square size={16} />,
+        icon: t.cancelled ? <SquareX size={16} /> : t.done ? <CheckSquare size={16} /> : <Square size={16} />,
         title: (
           <span className={cx('palette-task', t.done && 'done')}>
             {t.priority > 0 && <b className="task-pri">{priorityLabel(t.priority)}</b>}
@@ -347,7 +347,7 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
                 <CalendarDays size={12} /> Due {shortDate(t.due)}
               </span>
             )}
-            {t.done && t.completed && <span className="task-chip done-on">Done {shortDate(t.completed)}</span>}
+            {t.done && (t.completed || t.cancelled) && <span className="task-chip done-on">{t.cancelled ? 'Cancelled' : 'Done'}{t.completed ? ` ${shortDate(t.completed)}` : ''}</span>}
           </>
         ),
         // As from the Tasks view: the cursor lands at the end of the task, with nothing selected.

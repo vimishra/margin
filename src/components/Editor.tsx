@@ -31,11 +31,12 @@ import { tagCounts } from '../lib/links'
 import { parseDatePhrase } from '../lib/dates'
 import { TASK_LINE, parseRemind, parseTaskText, withDetails } from '../lib/tasks'
 import { parseRepeat } from '../lib/repeat'
+import { BLOCK_LISTS, BLOCK_SETTINGS } from '../lib/taskQuery'
 import { dailyLabel, isYmd, longDate, today, tagHue } from '../lib/util'
 import { livePreview } from './livePreview'
 import { cycleNote, cycleSection, externalChange, foldBelowHere, foldCommand, folding, foldOnlySectionsAndLists, foldToLevel, restoreFolds } from './folding'
 import { cellsFromClipboard, serializeTable, tableFromCells } from './tableWidget'
-import { type ListKind, moveListItem, shiftListItem, toggleDone, toggleList } from './lists'
+import { type ListKind, moveListItem, shiftListItem, toggleCancel, toggleDone, toggleList } from './lists'
 import { syntaxTree } from '@codemirror/language'
 
 export interface EditorHandle {
@@ -48,6 +49,8 @@ export interface EditorHandle {
   toggleList(kind: ListKind): void
   /** Tick or untick the task under the cursor. */
   toggleDone(): void
+  /** Cancel the task under the cursor, or reopen it when it is cancelled. */
+  toggleCancel(): void
   /** Change a detail of the task under the cursor: its priority, due date or planned day, or plan it for today. */
   taskEdit(kind: 'priority' | 'due' | 'when' | 'today'): void
   scrollToLine(line: number): void
@@ -252,6 +255,62 @@ function numberAfter(view: EditorView, lineNumber: number, indent: number): stri
   return '1. '
 }
 
+/** Whether the cursor is on a filter line of a ```tasks block (not on its fences). */
+function inTaskBlock(state: EditorState, pos: number): boolean {
+  for (let n: ReturnType<ReturnType<typeof syntaxTree>['resolveInner']> | null = syntaxTree(state).resolveInner(pos, -1); n; n = n.parent) {
+    if (n.name !== 'FencedCode') continue
+    const info = n.getChild('CodeInfo')
+    if (!info || state.sliceDoc(info.from, info.to).trim().toLowerCase() !== 'tasks') return false
+    const line = state.doc.lineAt(pos)
+    const last = state.doc.lineAt(n.to)
+    return line.number > state.doc.lineAt(n.from).number && !(line.number === last.number && /^\s*(```|~~~)/.test(last.text))
+  }
+  return false
+}
+
+/**
+ * Suggestions inside a ```tasks block: tags (even at the start of a line, where elsewhere "#" starts a heading),
+ * the list names with what each shows, and the values after "group:" and "from:". Links ("[[") are suggested as
+ * everywhere. False when the cursor is not in a block, null when there is nothing to suggest.
+ */
+function taskBlockCompletions(ctx: CompletionContext) {
+  if (!inTaskBlock(ctx.state, ctx.pos)) return false
+  const tag = ctx.matchBefore(/(?<![\w&])#[\w/-]*/)
+  if (tag) {
+    return { from: tag.from + 1, options: tagCounts(useStore.getState().notes).map(([label, n]) => ({ label, detail: `${n} note${n === 1 ? '' : 's'}` })), validFor: /^[\w/-]*$/ }
+  }
+  const setting = ctx.matchBefore(/\b(group|from):\s*[a-z]*$/i)
+  if (setting) {
+    const key = /^(group|from)/i.exec(setting.text)![1].toLowerCase() as 'group' | 'from'
+    const start = setting.from + setting.text.length - /[a-z]*$/i.exec(setting.text)![0].length
+    return { from: start, options: BLOCK_SETTINGS[key].map(([label, detail], i) => ({ label, detail, boost: -i })), validFor: /^[a-z]*$/i }
+  }
+  // A list name, which can be several words ("next 30 days"): the longest run of words before the cursor that
+  // starts one. With nothing typed, only when asked for (⌃Space).
+  const line = ctx.state.doc.lineAt(ctx.pos)
+  const before = ctx.state.sliceDoc(line.from, ctx.pos)
+  const words = /(?:^|\s)((?:[a-z0-9]+ ){0,2}[a-z0-9]*)$/i.exec(before)
+  const typed = words ? words[1] : ''
+  for (let cut = 0; cut <= typed.length; cut = typed.indexOf(' ', cut) + 1 || typed.length + 1) {
+    const part = typed.slice(cut).toLowerCase()
+    if (!part && !ctx.explicit) break
+    const lists = BLOCK_LISTS.filter(([name]) => name.startsWith(part) && name !== part)
+    const settings = ['group:', 'from:', 'limit '].filter((s) => part && s.startsWith(part))
+    if (lists.length || settings.length) {
+      return {
+        from: ctx.pos - part.length,
+        filter: false,
+        options: [
+          ...lists.map(([label, detail], i) => ({ label, detail, type: 'keyword', boost: -i })),
+          ...settings.map((label) => ({ label, detail: label === 'limit ' ? 'At most this many, e.g. limit 10' : label === 'group:' ? 'date, project or priority' : 'daily or notes' })),
+        ],
+      }
+    }
+    if (cut >= typed.length) break
+  }
+  return null
+}
+
 /** Suggestions in the task capture box: the same as on a task line in a note, plus priorities, without slash commands. */
 export const captureCompletions = (ctx: CompletionContext) => completions(ctx, true)
 
@@ -347,6 +406,8 @@ function completions(ctx: CompletionContext, capture = false) {
     }
     return { from: pri.from, options: ['High', 'Medium', 'Low'].map((name, i) => ({ label: `P${i + 1}`, detail: `${name} priority`, apply: apply(`P${i + 1}`) })), validFor: /^P[1-3]?$/ }
   }
+  const block = !capture && taskBlockCompletions(ctx)
+  if (block !== false) return block
   const slash = !capture && slashCommands(ctx)
   if (slash) return slash
   const tag = ctx.matchBefore(/(?<![\w&])#[\w/-]*/)
@@ -789,6 +850,9 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
     },
     toggleDone() {
       if (viewRef.current && !toggleDone(viewRef.current, useStore.getState().settings.logCompletion)) toast('The cursor is not on a task')
+    },
+    toggleCancel() {
+      if (viewRef.current && !toggleCancel(viewRef.current, useStore.getState().settings.logCompletion)) toast('The cursor is not on a task')
     },
     toggleList(kind) {
       if (viewRef.current) toggleList(viewRef.current, kind)

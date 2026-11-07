@@ -207,23 +207,24 @@ class BulletWidget extends WidgetType {
 }
 
 class CheckboxWidget extends WidgetType {
-  constructor(readonly checked: boolean) {
+  constructor(readonly checked: boolean, readonly cancelled = false) {
     super()
   }
   eq(other: CheckboxWidget) {
-    return other.checked === this.checked
+    return other.checked === this.checked && other.cancelled === this.cancelled
   }
   toDOM(view: EditorView) {
     const box = document.createElement('input')
     box.type = 'checkbox'
-    box.className = 'cm-checkbox'
+    box.className = this.cancelled ? 'cm-checkbox box-cancelled' : 'cm-checkbox'
     box.checked = this.checked
+    if (this.cancelled) box.title = 'Cancelled. Click to reopen.'
     box.addEventListener('mousedown', (e) => e.preventDefault())
     box.addEventListener('click', (e) => {
       e.preventDefault()
       const pos = view.posAtDOM(box)
       const text = view.state.sliceDoc(pos, pos + 3)
-      if (!/^\[[ xX]\]$/.test(text)) return
+      if (!/^\[[ xX-]\]$/.test(text)) return
       // Ticking can also record the day at the end of the line.
       const line = view.state.doc.lineAt(pos)
       const edits = lineDoneChanges(line.text, text === '[ ]', useStore.getState().settings.logCompletion)
@@ -439,7 +440,7 @@ function build(state: EditorState, follow: (t: string, side?: boolean) => void):
           depth = Math.max(0, depth)
           if (depth > 0) out.push(Decoration.mark({ class: 'cm-list-indent', attributes: { style: `width: calc(${depth} * var(--list-indent))` } }).range(lineStart, from))
         }
-        const task = /^ \[[ xX]\] /.exec(text.slice(to, to + 5))
+        const task = /^ \[[ xX-]\] /.exec(text.slice(to, to + 5))
         const ordered = node.node.parent?.parent?.name === 'OrderedList'
         const spaced = text[to] === ' '
         // When a long item wraps, its later lines start under its text, not under the marker.
@@ -467,14 +468,14 @@ function build(state: EditorState, follow: (t: string, side?: boolean) => void):
               : m[6] ? 'cm-task-date cm-task-repeat'
               : m[7] ? 'cm-task-date cm-task-remind'
               : `cm-task-date${open && m[2] <= now ? ' now' : ''}`
-            const title = m[1] ? ['', 'High', 'Medium', 'Low'][Number(m[1])] + ' priority' : m[4] ? 'Someday: kept out of Today, Upcoming and Anytime' : m[5] ? 'Done on this day' : m[3] ? 'Due date' : m[6] ? `Repeats: ${m[6]}. Ticking it adds the next one.` : m[7] ? 'Reminder: a notification at this time while Margin is open' : 'Planned for this day'
+            const title = m[1] ? ['', 'High', 'Medium', 'Low'][Number(m[1])] + ' priority' : m[4] ? 'Someday: kept out of Today, Upcoming and Anytime' : m[5] ? (m[0].startsWith('@cancelled') ? 'Cancelled on this day' : 'Done on this day') : m[3] ? 'Due date' : m[6] ? `Repeats: ${m[6]}. Ticking it adds the next one.` : m[7] ? 'Reminder: a notification at this time while Margin is open' : 'Planned for this day'
             out.push(Decoration.mark({ class: cls, attributes: { title } }).range(a, b))
           }
           if (!onLines(from, to)) {
             out.push(hide.range(from, to + 1))
             // The box takes the place of "[ ]" and the space after it, at a fixed width.
-            out.push(Decoration.replace({ widget: new CheckboxWidget(text[to + 2] !== ' ') }).range(to + 1, to + 5))
-            if (text[to + 2] !== ' ') out.push(Decoration.line({ class: 'cm-task-done' }).range(doc.lineAt(from).from))
+            out.push(Decoration.replace({ widget: new CheckboxWidget(text[to + 2] !== ' ', text[to + 2] === '-') }).range(to + 1, to + 5))
+            if (text[to + 2] !== ' ') out.push(Decoration.line({ class: text[to + 2] === '-' ? 'cm-task-done cm-task-cancelled' : 'cm-task-done' }).range(doc.lineAt(from).from))
             hang('var(--task-marker)')
           } else hang('1.85em')
         } else if (ordered) {
@@ -533,7 +534,7 @@ function build(state: EditorState, follow: (t: string, side?: boolean) => void):
     // Only items that are lined up themselves: their marker has nothing but spaces before it.
     if (!mark || !markLine || /\S/.test(text.slice(markLine.from, mark.from))) continue
     const depth = Math.max(0, lists - 1)
-    const marker = /^ \[[ xX]\] /.test(text.slice(mark.to, mark.to + 5))
+    const marker = /^ \[[ xX-]\] /.test(text.slice(mark.to, mark.to + 5))
       ? 'var(--task-marker)'
       : item.parent?.name === 'OrderedList'
         ? `${((mark.to - mark.from - 1) * 0.62 + 0.8).toFixed(2)}em`

@@ -99,7 +99,7 @@ export function repeatLine(line: string, done = today()): { next: string; ticked
   const doneOn = task.completed ?? done
   const anchor = task.due || task.scheduled || task.remind?.slice(0, 10)
   const next = nextOccurrence(rule, anchor, doneOn)
-  let raw = m[4].replace(/(^|\s)@done\(\d{4}-\d{2}-\d{2}\)/, '$1').replace(/\s{2,}/g, ' ').trimEnd()
+  let raw = m[4].replace(/(^|\s)@(?:done|cancelled)\(\d{4}-\d{2}-\d{2}\)/, '$1').replace(/\s{2,}/g, ' ').trimEnd()
   if (anchor) {
     const shift = daysBetween(anchor, next)
     for (const name of ['>', '@due\\(', '@remind\\(']) raw = raw.replace(DATE_IN(name), (_x, lead: string, d: string) => `${lead}${name.replace('\\', '')}${addDays(d, shift)}`)
@@ -112,7 +112,7 @@ export function repeatLine(line: string, done = today()): { next: string; ticked
 function fresh(line: string): string {
   const m = TASK_LINE.exec(line)
   if (!m) return line
-  return `${m[1]} ${m[3]}${m[4].replace(/(^|\s)@done\(\d{4}-\d{2}-\d{2}\)/, '$1').replace(/\s{2,}/g, ' ').trimEnd()}`
+  return `${m[1]} ${m[3]}${m[4].replace(/(^|\s)@(?:done|cancelled)\(\d{4}-\d{2}-\d{2}\)/, '$1').replace(/\s{2,}/g, ' ').trimEnd()}`
 }
 
 /**

@@ -59,6 +59,7 @@ export const SHORTCUT_DEFS: ShortcutDef[] = [
   { id: 'numbered', label: 'Numbered list', group: 'In a note', web: 'Mod+Shift+7' },
   { id: 'task', label: 'Task list', group: 'In a note', web: 'Mod+Shift+9' },
   { id: 'done', label: 'Tick or untick the task', group: 'In a note', web: 'Mod+Enter' },
+  { id: 'taskCancel', label: 'Task: cancel or reopen', group: 'In a note', web: 'Mod+Alt+Enter' },
   { id: 'taskToday', label: 'Task: move to today (plan it for today)', group: 'In a note', web: 'Alt+Shift+T', desktop: 'Mod+Alt+T' },
   { id: 'taskWhen', label: 'Task: when (planned day or Someday)', group: 'In a note', web: 'Alt+Shift+S', desktop: 'Mod+Shift+S' },
   { id: 'taskDue', label: 'Task: due date', group: 'In a note', web: 'Alt+Shift+D', desktop: 'Mod+Shift+D' },

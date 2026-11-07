@@ -1814,6 +1814,22 @@ button.crumb:hover {
   text-decoration: line-through;
   text-decoration-color: var(--text-4);
 }
+/* A cancelled task ("[-]"): greyer than a done one, and a box with a cross instead of a tick. */
+.cm-task-cancelled,
+.task.cancelled .task-text,
+.md .task-list-item.cancelled {
+  color: var(--text-4);
+}
+input[type='checkbox'].box-cancelled {
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  border: 1.5px solid var(--text-4);
+  border-radius: 3px;
+  background:
+    linear-gradient(45deg, transparent 42%, var(--text-3) 42% 58%, transparent 58%) center / 62% 62% no-repeat,
+    linear-gradient(-45deg, transparent 42%, var(--text-3) 42% 58%, transparent 58%) center / 62% 62% no-repeat;
+}
 .cm-wikilink-pill {
   color: var(--accent-text);
   background: var(--accent-soft);

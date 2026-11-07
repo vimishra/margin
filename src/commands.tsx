@@ -47,6 +47,7 @@ import {
   CalendarPlus,
   ChevronsDownUp,
   ChevronsUpDown,
+  SquareX,
 } from 'lucide-react'
 import { pickMergeTarget, turnIntoNotebook } from './refactor'
 import { archiveEverywhere, archiveHere, archiveProject } from './archive'
@@ -146,6 +147,7 @@ export function commands(): Command[] {
       { id: 'taskDue', label: 'Task: due date…', icon: i(CalendarDays), keywords: 'deadline', run: () => format('taskDue') },
       { id: 'taskPriority', label: 'Task: change priority', icon: i(ListChecks), keywords: 'p1 p2 p3 importance', run: () => format('taskPriority') },
       { id: 'done', label: 'Tick or untick this task', icon: i(ListChecks), keywords: 'complete done check toggle finish', run: () => format('done') },
+      { id: 'taskCancel', label: 'Task: cancel or reopen', icon: i(SquareX), keywords: 'drop abandon won\'t do not doing cancelled reopen', run: () => format('taskCancel') },
       { id: 'foldToggle', label: 'Fold or unfold here', icon: i(ChevronsDownUp), keywords: 'collapse expand section heading list outline', run: () => format('foldToggle') },
       { id: 'fold', label: 'Fold', icon: i(ChevronsDownUp), keywords: 'collapse hide section heading list', run: () => format('fold') },
       { id: 'unfold', label: 'Unfold', icon: i(ChevronsUpDown), keywords: 'expand show section heading list', run: () => format('unfold') },

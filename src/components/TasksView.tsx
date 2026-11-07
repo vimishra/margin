@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
-import { AlignLeft, Archive, Bell, BookmarkPlus, Box, CalendarClock, CalendarDays, Check, ChevronDown, ChevronRight, FileText, Flag, FolderInput, ListChecks, ListTree, MoreHorizontal, Repeat, Search, Star, Users } from 'lucide-react'
+import { AlignLeft, Archive, Bell, BookmarkPlus, Box, CalendarClock, CalendarDays, Check, ChevronDown, ChevronRight, FileText, Flag, FolderInput, ListChecks, ListTree, MoreHorizontal, Repeat, Search, SquareX, Star, Users } from 'lucide-react'
 import type { Note } from '../types'
 import { deleteTaskView, go, openDatePicker, openFromClick, openMenu, openNoteAt, openSideAt, renameTaskView, rescheduleTasks, saveTaskView, ensureInboxNote, inboxNotebook, moveTasksToNote, ui, updateTask, updateTaskView, useStore, type MenuItem } from '../store'
 import { hint } from '../shortcuts'
@@ -76,8 +76,8 @@ export function TaskRow({ task, note, showNote = true, active = false, star = fa
   }
   const late = (d?: string) => !task.done && !!d && d < now
   return (
-    <div className={cx('task', task.done && 'done', `pri-${task.priority}`, active && 'active')} onMouseMove={onHover}>
-      <input type="checkbox" checked={task.done} title={task.done ? 'Mark as not done' : 'Mark as done'} onChange={() => updateTask(task, { done: !task.done })} />
+    <div className={cx('task', task.done && 'done', task.cancelled && 'cancelled', `pri-${task.priority}`, active && 'active')} onMouseMove={onHover}>
+      <input type="checkbox" className={task.cancelled ? 'box-cancelled' : undefined} checked={task.done} title={task.cancelled ? 'Cancelled. Click to reopen.' : task.done ? 'Mark as not done' : 'Mark as done'} onChange={() => updateTask(task, { done: !task.done })} />
       <div className="task-main" onClick={open} title="Open in its note">
         <span className="task-text">
           {star && <Star size={13} fill="currentColor" className="task-star" aria-label="In Today" />}
@@ -95,10 +95,17 @@ export function TaskRow({ task, note, showNote = true, active = false, star = fa
           )}
         </span>
         <span className="task-meta">
-          {task.done && task.completed && (
-            <span className="task-chip done-on" title="The day it was ticked">
-              <Check size={12} /> Done {shortDate(task.completed)}
+          {task.cancelled ? (
+            <span className="task-chip done-on" title="Cancelled: dropped rather than done">
+              <SquareX size={12} /> Cancelled{task.completed ? ` ${shortDate(task.completed)}` : ''}
             </span>
+          ) : (
+            task.done &&
+            task.completed && (
+              <span className="task-chip done-on" title="The day it was ticked">
+                <Check size={12} /> Done {shortDate(task.completed)}
+              </span>
+            )
           )}
           {task.scheduled && (
             <button
@@ -154,6 +161,9 @@ export function TaskRow({ task, note, showNote = true, active = false, star = fa
         </button>
         <button className="icon-btn sm" title="Move to another note (a project)" onClick={(e) => (e.stopPropagation(), moveToNote(task))}>
           <FolderInput size={14} />
+        </button>
+        <button className={cx('icon-btn sm', task.cancelled && 'active')} title={task.cancelled ? 'Reopen' : 'Cancel: drop it without doing it'} onClick={(e) => (e.stopPropagation(), updateTask(task, { cancelled: !task.cancelled }))}>
+          <SquareX size={14} />
         </button>
       </div>
     </div>
@@ -400,6 +410,7 @@ export function TasksView({ view }: { view?: string }) {
         else if (e.key === 'd') (e.preventDefault(), pickDate(rowEl(), task, 'due'))
         else if (e.key === 's') (e.preventDefault(), pickDate(rowEl(), task, 'scheduled'))
         else if (e.key === 'm') (e.preventDefault(), moveToNote(task))
+        else if (e.key === 'c') (e.preventDefault(), updateTask(task, { cancelled: !task.cancelled }))
         else if (e.key === 'n' && taskNotes(notes[task.noteId], task)) (e.preventDefault(), toggleNotes(task))
         else if (e.key === 'p') (e.preventDefault(), openMenu({ currentTarget: rowEl(), clientX: 0, clientY: 0, type: 'key', preventDefault() {} }, priorityMenu(task)))
       }}
@@ -581,7 +592,7 @@ export function TasksView({ view }: { view?: string }) {
         </div>
         {rows.length > 0 && (
           <p className="tasks-keys">
-            <kbd>↑</kbd><kbd>↓</kbd> move · <kbd>Space</kbd> tick · <kbd>↵</kbd> open · <kbd>T</kbd> today · <kbd>D</kbd> due · <kbd>S</kbd> when · <kbd>P</kbd> priority · <kbd>M</kbd> move to note · <kbd>N</kbd> notes · <kbd>/</kbd> narrow down
+            <kbd>↑</kbd><kbd>↓</kbd> move · <kbd>Space</kbd> tick · <kbd>↵</kbd> open · <kbd>T</kbd> today · <kbd>D</kbd> due · <kbd>S</kbd> when · <kbd>P</kbd> priority · <kbd>M</kbd> move to note · <kbd>C</kbd> cancel · <kbd>N</kbd> notes · <kbd>/</kbd> narrow down
           </p>
         )}
       </div>

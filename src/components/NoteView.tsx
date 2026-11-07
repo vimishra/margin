@@ -329,6 +329,7 @@ export function applyFormat(ed: EditorHandle, kind: string) {
     numbered: () => ed.toggleList('numbered'),
     task: () => ed.toggleList('task'),
     done: () => ed.toggleDone(),
+    taskCancel: () => ed.toggleCancel(),
     find: () => ed.find(),
     taskPriority: () => ed.taskEdit('priority'),
     taskDue: () => ed.taskEdit('due'),
