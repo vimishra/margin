@@ -175,10 +175,13 @@ Not in the notes folder: version history and deleted notes. A synced notes folde
 | Quick capture and Quick task | `QuickCapture` in `components/Overlays.tsx`; the one-line task editor in `components/TaskCapture.tsx`, its suggestions in `captureCompletions` (`Editor.tsx`), dates in words in `resolveTaskWords` (`lib/tasks.ts`), saving in `captureTask` (`store.ts`) |
 | Folding | `components/folding.ts`; the commands go through `applyFormat` in `NoteView.tsx` to `EditorHandle.fold`; Tab and ⇧Tab on headings are bound in `Editor.tsx`'s keymap, before the list keys |
 | Extract, move a section, turn into a notebook, merge | `src/refactor.ts`, with the text rules in `lib/refactor.ts`; the note pickers are the `moveSection` and `merge` modes in `components/Palette.tsx` |
-| Ticked tasks sinking, archiving | `lib/archive.ts` (rules) and `src/archive.ts` (commands); every tick path calls the sink: the checkbox in `livePreview.ts`, `toggleDone` in `lists.ts`, `Preview.tsx`, and `updateTask` in `store.ts` |
+| Ticked tasks sinking, archiving | `lib/archive.ts` (rules: `sinkTask`) and `src/archive.ts` (commands); every tick path sinks through `afterTick` in `lib/repeat.ts` |
 | The keys that work from any app | `GLOBAL_DEFAULTS` and `registerGlobalKeys` in `electron/main.mjs`; the settings rows are `GlobalKeyEditor` in `components/SettingsModal.tsx` |
 | Tag suggestions under a title | `Tags` in `components/NoteView.tsx` |
 | Recently deleted (the trash) | `listTrash`, `restoreTrash`, `removeTrash`, `trashFile` and `moveFile` in `server/index.mjs` (`/api/trash…`); the page in `components/TrashView.tsx`; `restoreFromTrash` and `refreshTrash` in `store.ts` |
+| Repeating tasks | The rules and next dates in `lib/repeat.ts`; `afterTick` there is called by every tick path (`dispatchTick` in `lists.ts` for the editor's checkbox and shortcut, `Preview.tsx`, `updateTask` in `store.ts`); `@repeat` is read in `lib/tasks.ts` and `tools/margin_tasks.py` |
+| Reminders | `src/reminders.ts` (checks every 20 s, started in `App.tsx`); the notification in `electron/main.mjs` (`notify` IPC) and `preload.cjs`; `@remind` is read in `lib/tasks.ts` (`parseRemind` for words) and `tools/margin_tasks.py` |
+| Tasks blocks (```` ```tasks ````) | The filter and the choice of tasks in `lib/taskQuery.ts`; the panel in `components/TaskBlock.tsx` (also `mountTaskBlocks` for read mode and `taskBlockSnapshot` for exports); the editor widget `TaskBlockWidget` in `livePreview.ts`; read mode's mount point is the `fence` rule in `lib/markdown.ts` |
 | Slash commands, link completion | `slashCommands` and `completions` in `components/Editor.tsx` |
 | The menu bar or right-click menu | `electron/main.mjs` |
 | Colours, spacing, fonts | The tokens at the top of `src/styles.css` |

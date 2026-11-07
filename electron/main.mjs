@@ -1,6 +1,6 @@
 // Desktop shell: runs the same file-backed server as `npm start` inside the app
 // and shows it in a native window with a menu, standard shortcuts and a notes-folder picker.
-import { app, BrowserWindow, Menu, clipboard, dialog, globalShortcut, ipcMain, session, shell, systemPreferences } from 'electron'
+import { app, BrowserWindow, Menu, Notification, clipboard, dialog, globalShortcut, ipcMain, session, shell, systemPreferences } from 'electron'
 import fs from 'node:fs'
 import net from 'node:net'
 import os from 'node:os'
@@ -614,6 +614,25 @@ if (!app.requestSingleInstanceLock()) {
     }
     ipcMain.handle('accent:get', () => systemAccent())
     systemPreferences.on?.('accent-color-changed', () => win?.webContents.send('accent', systemAccent()))
+    // Task reminders from the page, as system notifications. They are kept until closed: one that is garbage
+    // collected no longer reports its click.
+    const notices = new Set()
+    ipcMain.on('notify', (_e, n) => {
+      if (!n || !Notification.isSupported()) return
+      const notice = new Notification({ title: String(n.title || 'Margin'), body: String(n.body || '') })
+      notices.add(notice)
+      notice.on('click', () => {
+        notices.delete(notice)
+        if (!win) return
+        if (win.isMinimized()) win.restore()
+        win.show()
+        win.focus()
+        app.focus?.({ steal: true })
+        win.webContents.send('notify:click', String(n.id || ''))
+      })
+      notice.on('close', () => notices.delete(notice))
+      notice.show()
+    })
     ipcMain.handle('vault:choose', () => chooseVault())
     ipcMain.handle('vault:reveal', () => shell.openPath(vault))
     ipcMain.handle('vault:reveal-file', (_e, rel) => {

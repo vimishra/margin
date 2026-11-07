@@ -3,6 +3,7 @@ import { parseCanvas, splitContent } from './canvas'
 import { renderMarkdown } from './markdown'
 import { displayTitle, download } from './util'
 import { desktop } from '../desktop'
+import { taskBlockSnapshot } from '../components/TaskBlock'
 
 const DOC_CSS = `
 body{font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;color:#1c1b1a;max-width:760px;margin:48px auto;padding:0 24px}
@@ -51,6 +52,8 @@ async function buildBody(note: Note, opts: { math: boolean; inlineImages: boolea
     p.append(a)
     el.replaceWith(p)
   })
+  // Tasks blocks as they are at the time of export.
+  root.querySelectorAll<HTMLElement>('.task-block-mount').forEach((el) => (el.outerHTML = taskBlockSnapshot(el.dataset.query || '')))
   root.querySelectorAll('input[type=checkbox]').forEach((el) => el.setAttribute('disabled', ''))
   if (opts.inlineImages) {
     await Promise.all(

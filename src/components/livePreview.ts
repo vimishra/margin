@@ -12,7 +12,10 @@ import { ui, useStore } from '../store'
 import { TASK_TOKENS, lineDoneChanges } from '../lib/tasks'
 import { shortLinkHref, shortLinkPattern, shortLinks } from '../lib/shortlinks'
 import { today } from '../lib/util'
-import { sinkTicked } from './lists'
+import { dispatchTick } from './lists'
+import { createElement } from 'react'
+import { createRoot, type Root } from 'react-dom/client'
+import { TaskBlock } from './TaskBlock'
 
 const setFocus = StateEffect.define<boolean>()
 const focusField = StateField.define<boolean>({
@@ -55,6 +58,43 @@ class TableDoneWidget extends WidgetType {
       view.dispatch({ effects: setRawTable.of(null) })
     })
     return button
+  }
+  ignoreEvent() {
+    return true
+  }
+}
+
+/** A ```tasks block shown as its live list of tasks. Its pencil button, or moving the cursor onto it, shows the filter. */
+const taskBlockRoots = new WeakMap<HTMLElement, Root>()
+class TaskBlockWidget extends WidgetType {
+  constructor(readonly query: string) {
+    super()
+  }
+  eq(other: TaskBlockWidget) {
+    return other.query === this.query
+  }
+  toDOM(view: EditorView) {
+    const dom = document.createElement('div')
+    dom.className = 'cm-task-block'
+    const root = createRoot(dom)
+    // The filter is on the line after the opening fence.
+    const edit = () => {
+      const line = view.state.doc.lineAt(view.posAtDOM(dom))
+      const target = line.number < view.state.doc.lines ? view.state.doc.line(line.number + 1) : line
+      view.dispatch({ selection: { anchor: target.to }, scrollIntoView: true })
+      view.focus()
+    }
+    root.render(createElement(TaskBlock, { source: this.query, onEdit: edit }))
+    taskBlockRoots.set(dom, root)
+    return dom
+  }
+  destroy(dom: HTMLElement) {
+    const root = taskBlockRoots.get(dom)
+    // Unmounting while React is rendering warns; do it just after.
+    if (root) setTimeout(() => root.unmount())
+  }
+  get estimatedHeight() {
+    return 120
   }
   ignoreEvent() {
     return true
@@ -187,10 +227,8 @@ class CheckboxWidget extends WidgetType {
       // Ticking can also record the day at the end of the line.
       const line = view.state.doc.lineAt(pos)
       const edits = lineDoneChanges(line.text, text === '[ ]', useStore.getState().settings.logCompletion)
-      if (edits) view.dispatch({ changes: edits.map((x) => ({ from: line.from + x.from, to: line.from + x.to, insert: x.insert })) })
-      else view.dispatch({ changes: { from: pos, to: pos + 3, insert: text === '[ ]' ? '[x]' : '[ ]' } })
-      // Ticked: to the end of its list, so the open ones stay together.
-      if (text === '[ ]' && useStore.getState().settings.sinkDoneTasks) sinkTicked(view, [line.number])
+      // Ticked: a repeating task comes back, and the ticked one goes to the end of its list; one Undo for all of it.
+      dispatchTick(view, edits ? edits.map((x) => ({ from: line.from + x.from, to: line.from + x.to, insert: x.insert })) : { from: pos, to: pos + 3, insert: text === '[ ]' ? '[x]' : '[ ]' }, [line.number], text === '[ ]')
     })
     return box
   }
@@ -323,6 +361,13 @@ function build(state: EditorState, follow: (t: string, side?: boolean) => void):
         const first = doc.lineAt(from)
         const last = doc.lineAt(to)
         const active = onLines(from, to)
+        // A ```tasks block is a live list of tasks until the cursor goes onto it. Unclosed, it stays text.
+        const info = node.node.getChild('CodeInfo')
+        if (info && text.slice(info.from, info.to).trim().toLowerCase() === 'tasks' && !active && last.number > first.number && /^\s*(```|~~~)\s*$/.test(last.text)) {
+          const query = doc.sliceString(doc.line(first.number + 1).from, last.from).replace(/\n$/, '')
+          out.push(Decoration.replace({ widget: new TaskBlockWidget(query), block: true }).range(first.from, last.to))
+          return false
+        }
         for (let n = first.number; n <= last.number; n++) {
           const line = doc.line(n)
           const fence = (n === first.number || n === last.number) && /^\s*(```|~~~)/.test(line.text)
@@ -419,8 +464,10 @@ function build(state: EditorState, follow: (t: string, side?: boolean) => void):
               : m[4] ? 'cm-task-date cm-task-someday'
               : m[5] ? 'cm-task-date cm-task-done-on'
               : m[3] ? `cm-task-date cm-task-due${open && m[3] < now ? ' late' : open && m[3] === now ? ' now' : ''}`
+              : m[6] ? 'cm-task-date cm-task-repeat'
+              : m[7] ? 'cm-task-date cm-task-remind'
               : `cm-task-date${open && m[2] <= now ? ' now' : ''}`
-            const title = m[1] ? ['', 'High', 'Medium', 'Low'][Number(m[1])] + ' priority' : m[4] ? 'Someday: kept out of Today, Upcoming and Anytime' : m[5] ? 'Done on this day' : m[3] ? 'Due date' : 'Planned for this day'
+            const title = m[1] ? ['', 'High', 'Medium', 'Low'][Number(m[1])] + ' priority' : m[4] ? 'Someday: kept out of Today, Upcoming and Anytime' : m[5] ? 'Done on this day' : m[3] ? 'Due date' : m[6] ? `Repeats: ${m[6]}. Ticking it adds the next one.` : m[7] ? 'Reminder: a notification at this time while Margin is open' : 'Planned for this day'
             out.push(Decoration.mark({ class: cls, attributes: { title } }).range(a, b))
           }
           if (!onLines(from, to)) {

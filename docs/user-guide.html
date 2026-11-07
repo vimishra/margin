@@ -123,6 +123,8 @@ mark.find-hit.current{background:#ffab2e}
 <ul>
 <li>Any checkbox in any note is a task, with an optional priority, planned day, due date and tags</li>
 <li>A Tasks view that gathers them all: Inbox, Today, Upcoming, Anytime, Someday, Logbook, Overdue and more</li>
+<li>Tasks blocks: a live, tickable list of tasks inside any note, such as everything open for a person or a project</li>
+<li>Repeating tasks (<code>@repeat(weekly)</code>) that come back when ticked, and reminders (<code>@remind(fri 2pm)</code>) as notifications</li>
 <li>An Inbox, as in Things: captured tasks wait there until you give them a day or move them into a project</li>
 <li>Filters by words, tag and priority; grouping by date, project or priority; and filters you save to the sidebar</li>
 <li>Today's tasks and anything overdue shown at the top of the daily note</li>
@@ -174,8 +176,11 @@ mark.find-hit.current{background:#ffab2e}
 <li><a href="#tasks">Tasks</a>
 <ul>
 <li><a href="#details-on-a-task">Details on a task</a></li>
+<li><a href="#repeating-tasks">Repeating tasks</a></li>
+<li><a href="#reminders">Reminders</a></li>
 <li><a href="#the-tasks-view">The Tasks view</a></li>
 <li><a href="#saved-filters">Saved filters</a></li>
+<li><a href="#tasks-blocks-a-live-list-inside-a-note">Tasks blocks: a live list inside a note</a></li>
 <li><a href="#moving-overdue-tasks">Moving overdue tasks</a></li>
 <li><a href="#the-top-3">The Top 3</a></li>
 <li><a href="#tasks-in-the-daily-note">Tasks in the daily note</a></li>
@@ -1064,6 +1069,16 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 <td><code>@done(2026-10-07)</code></td>
 <td>Written for you when you tick the task</td>
 </tr>
+<tr>
+<td>Repeats</td>
+<td><code>@repeat(weekly)</code></td>
+<td>Comes back when ticked; see <a href="#repeating-tasks">Repeating tasks</a></td>
+</tr>
+<tr>
+<td>Reminder</td>
+<td><code>@remind(2026-10-08 14:30)</code></td>
+<td>A notification at that time; see <a href="#reminders">Reminders</a></td>
+</tr>
 </tbody>
 </table></div><p>You do not have to type dates in full. On a task, type <code>&gt;</code> or <code>@due(</code> and then a day in words (<code>fri</code>, <code>tomorrow</code>, <code>next week</code>, <code>14 oct</code>) and pick the suggestion; after <code>&gt;</code>, <code>some</code> offers <code>someday</code>. The slash commands <code>/due</code>, <code>/plan</code>, <code>/someday</code> and <code>/p1</code> (or <code>/priority</code>) insert the same things.</p>
 <p>With the cursor on a task in a note, these keys change its details without typing them:</p>
@@ -1097,6 +1112,61 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 </tbody>
 </table></div><p>Move to today and Priority apply to every task in a selection. The same four are in ⌘K under &quot;Task:&quot;, and all of them can be changed in Settings → Shortcuts. In the browser version they are ⌥⇧T, ⌥⇧S, ⌥⇧D and ⌥⇧P.</p>
 <p>In the editor the details show as small labels. A due date turns red once it has passed. A planned day that is today or earlier is highlighted, because the task is in Today.</p>
+<h3 id="repeating-tasks">Repeating tasks</h3>
+<p>Add <code>@repeat(…)</code> to a task, and ticking it brings it back:</p>
+<pre><code>- [ ] Weekly report @due(2026-11-06) @repeat(weekly)
+</code></pre>
+<p>Tick it, and a new <strong>Weekly report @due(2026-11-13)</strong> appears in its place. The one you ticked stays below it as the record of that week (with its done day, and without the <code>@repeat</code>, so it does not repeat again), and sinks to the end of the list as usual. In the editor, one ⌘Z puts it all back.</p>
+<div class="table"><table><thead>
+<tr>
+<th>Write</th>
+<th>Comes back</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>daily</code>, <code>weekly</code>, <code>monthly</code>, <code>yearly</code></td>
+<td>Every day, week, month or year</td>
+</tr>
+<tr>
+<td><code>weekdays</code></td>
+<td>Monday to Friday</td>
+</tr>
+<tr>
+<td><code>every 2 weeks</code>, <code>3 days</code>, <code>fortnightly</code>, <code>quarterly</code></td>
+<td>Every so many days, weeks or months</td>
+</tr>
+<tr>
+<td><code>every monday</code>, <code>mon, thu</code>, <code>tuesdays and fridays</code></td>
+<td>On those days of the week</td>
+</tr>
+<tr>
+<td><code>… after done</code>, such as <code>3 days after done</code></td>
+<td>Counted from the day you tick it, not from its date</td>
+</tr>
+</tbody>
+</table></div><p>Type <code>@repeat(</code> for suggestions, or use <strong>/Repeat</strong>.</p>
+<ul>
+<li><strong>Its dates move together.</strong> The due day, planned day and reminder all move by the same number of days, so a task planned two days before its deadline still is.</li>
+<li><strong>Late or early.</strong> On a schedule, the next one is the next date on that schedule after today: a weekly report ticked three weeks late comes back next week, not three times overdue. Ticked early, it comes back at its next turn. With <code>after done</code>, it is counted from the day you tick it, which suits things like watering plants.</li>
+<li><strong>No date?</strong> It is planned for the next date, so it shows in Upcoming until then.</li>
+<li><strong>Sub-tasks come too.</strong> Lines indented under it come back with it, sub-tasks unticked, so a weekly checklist starts fresh each time.</li>
+<li><strong>Months</strong> keep the day of the month; the 31st becomes the 30th in a shorter month.</li>
+<li>To stop it repeating, delete the <code>@repeat(…)</code> from the open one.</li>
+</ul>
+<p>In the Tasks view and tasks blocks, a repeating task shows a ⟳ chip with its rule.</p>
+<h3 id="reminders">Reminders</h3>
+<p>Add <code>@remind(…)</code> to a task, and Margin shows a notification at that time:</p>
+<pre><code>- [ ] Call the bank @remind(2026-11-10 14:30)
+</code></pre>
+<p>Type <code>@remind(</code> and then a day and time in words, such as <code>fri 2pm</code>, <code>tomorrow 9:30</code>, <code>14:00</code> (today) or <code>next monday</code> (at 9:00), and pick the suggestion; or use <strong>/Remind me</strong>. In Quick task you can type the words and leave them: they become a date and time when it saves.</p>
+<ul>
+<li><strong>In the desktop app</strong> it is a system notification with the task's text, its time and its note. Click it to bring Margin forward with the task's note open, the cursor at the end of the task. The first one may make macOS ask whether Margin can show notifications.</li>
+<li><strong>Margin has to be running.</strong> It does not need its window open: closing the window keeps the app running and the reminders coming. If Margin was not running at the time, the reminder shows when it next starts, if that is within a day.</li>
+<li><strong>Once on each computer.</strong> A reminder shows once; change its time to be reminded again. Ticked tasks give none.</li>
+<li><strong>In a browser,</strong> it is a browser notification once you allow them, and a message inside Margin until then.</li>
+<li>A reminder does not change which lists the task is in; give it a planned day too if it should wait in Upcoming. In the Tasks view and tasks blocks it shows as a 🔔 chip with its day and time.</li>
+</ul>
 <h3 id="the-tasks-view">The Tasks view</h3>
 <p><strong>Tasks</strong> in the sidebar (⌘⇧T) gathers every checkbox from every note. Templates are left out.</p>
 <ul>
@@ -1199,6 +1269,53 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 <li>Click <strong>Save filter</strong> and give it a name.</li>
 </ol>
 <p>It appears under Tasks in the sidebar with a live count. Open it and change anything, and an <strong>Update filter</strong> button appears to keep the change. The ⋯ button, or a right-click in the sidebar, renames or deletes it. Saved filters are kept with your settings, so they belong to this app on this computer.</p>
+<h3 id="tasks-blocks-a-live-list-inside-a-note">Tasks blocks: a live list inside a note</h3>
+<p>A <strong>tasks block</strong> shows tasks from all your notes inside the note you are writing, kept up to date as you work. Type <strong>/Tasks block</strong>, or write it by hand:</p>
+<pre><code>```tasks
+today #atlas
+```
+</code></pre>
+<p>Away from the cursor, the block shows the matching tasks, as the Tasks view does: tick them, change their priority or dates with the buttons that appear on hover, or click one to open its note. Ticking a task here ticks it in its own note; the note with the block keeps only those few lines. To change what it shows, click the pencil at its top right (or move the cursor onto it), edit the line, and move away.</p>
+<p>The block takes the same words as the Tasks view's narrow-down box, plus a few of its own, in any order and on one line or several:</p>
+<div class="table"><table><thead>
+<tr>
+<th>Write</th>
+<th>Shows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>today</code>, <code>inbox</code>, <code>upcoming</code>, <code>anytime</code>, <code>someday</code>, <code>logbook</code>, <code>overdue</code>, <code>this week</code>, <code>next 30 days</code>, <code>no date</code>, <code>all open</code></td>
+<td>That list (one per block). Without one: all open tasks.</td>
+</tr>
+<tr>
+<td><code>#atlas</code>, <code>p2</code>, words</td>
+<td>As in the Tasks view: that tag, that priority or higher, those words in the task or its note's title</td>
+</tr>
+<tr>
+<td><code>[[Priya]]</code></td>
+<td>Tasks in the note Priya, tasks that link to it on their own line, and tasks in meeting notes that link to it, as the Tasks view finds a project's tasks</td>
+</tr>
+<tr>
+<td><code>from: daily</code>, <code>from: notes</code></td>
+<td>Only tasks written in daily notes, or only those not</td>
+</tr>
+<tr>
+<td><code>group: date</code>, <code>group: project</code>, <code>group: priority</code></td>
+<td>Grouped under headings</td>
+</tr>
+<tr>
+<td><code>limit 10</code></td>
+<td>At most that many, the most urgent first</td>
+</tr>
+</tbody>
+</table></div><p>Some uses:</p>
+<ul>
+<li><strong>A person's note:</strong> <code>[[Priya]]</code> lists everything open that involves Priya, from any meeting or daily note: the agenda for your next 1:1, kept for you.</li>
+<li><strong>A project note:</strong> <code>[[Atlas Migration]] group: date</code> at the top shows what is left, including actions written in its meetings.</li>
+<li><strong>A weekly review template:</strong> <code>logbook this week</code> and <code>overdue</code> show what got done and what slipped.</li>
+</ul>
+<p>Anything the block does not understand is listed under it, and a link to a note that does not exist is pointed out. A block written for Obsidian's Tasks plugin (<code>not done</code>, <code>due before tomorrow</code>) is left alone with a note saying so. In other apps, and in GitHub, the block is just the lines you wrote; exports (PDF, HTML, Word) show the tasks as they were when you exported.</p>
 <h3 id="archiving-finished-tasks">Archiving finished tasks</h3>
 <p>Ticked tasks stay in their notes, struck through, and the <strong>Logbook</strong> lists them all with the day each was done. To clear them out of the way in a note, archive them: they move into an <strong>Archive</strong> section at the end of the same note, which opens folded, and they stay in the Logbook. Nothing is archived unless you ask.</p>
 <ul>
@@ -1310,7 +1427,7 @@ margin-tasks logbook --done-after -7
 <tbody>
 <tr>
 <td><code>--json</code></td>
-<td>A list of tasks, each with its text, done state, priority, tags, planned day, due date, done date, note, notebook, heading, file path and line number</td>
+<td>A list of tasks, each with its text, done state, priority, tags, planned day, due date, done date, repeat rule (<code>repeat</code>), reminder (<code>remind</code>), note, notebook, heading, file path and line number</td>
 </tr>
 <tr>
 <td><code>--csv</code></td>

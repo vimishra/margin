@@ -1,8 +1,9 @@
 // List editing for the markdown editor: nest and un-nest items with Tab / Shift+Tab,
 // keep numbered lists numbered, and switch lines between list kinds.
 import type { EditorView } from '@codemirror/view'
+import { ChangeSet, type ChangeSpec } from '@codemirror/state'
 import { lineDoneChanges } from '../lib/tasks'
-import { sinkTask } from '../lib/archive'
+import { afterTick } from '../lib/repeat'
 import { useStore } from '../store'
 
 const ITEM = /^(\s*)([-*+]|\d+[.)])(\s+)(\[[ xX]\]\s+)?/
@@ -269,38 +270,41 @@ export function toggleDone(view: EditorView, stamp = false) {
   // A mixed selection is all ticked first; a fully ticked one is cleared.
   const done = !boxes.every(Boolean)
   // Ticking can also add "@done(date)" at the end of the line, and unticking take it off.
-  view.dispatch({
-    changes: changes.flatMap((c) => {
-      const line = state.doc.lineAt(c.from)
-      return (lineDoneChanges(line.text, done, stamp) ?? []).map((x) => ({ from: line.from + x.from, to: line.from + x.to, insert: x.insert }))
-    }),
-    userEvent: 'input',
+  const edits = changes.flatMap((c) => {
+    const line = state.doc.lineAt(c.from)
+    return (lineDoneChanges(line.text, done, stamp) ?? []).map((x) => ({ from: line.from + x.from, to: line.from + x.to, insert: x.insert }))
   })
-  if (done && useStore.getState().settings.sinkDoneTasks) sinkTicked(view, changes.map((c) => state.doc.lineAt(c.from).number))
+  dispatchTick(view, edits, changes.map((c) => state.doc.lineAt(c.from).number), done)
   return true
 }
 
 /**
- * Move each ticked task on these lines (1-based) to the end of its list, with the lines under it, as one change.
- * Lowest first, so the lines above a moved one keep their numbers. The cursor stays where it was on the page, which
- * is now the next task in the list.
+ * Tick or untick, as one change with what follows a tick: a repeating task gets its next time in its place, and,
+ * when the setting is on, each ticked one moves to the end of its list with the lines under it. One change, so one
+ * Undo puts it all back. `changes` only edit inside the lines given (1-based). The cursor stays where it was on the
+ * page, which is now the next task in the list.
  */
-export function sinkTicked(view: EditorView, lineNumbers: number[]) {
-  let lines = view.state.doc.toString().split('\n')
-  let first = Infinity
-  let last = -1
-  for (const n of [...lineNumbers].sort((a, b) => b - a)) {
-    const i = n - 1
-    if (!/^\s*(?:>\s*)*(?:[-*+]|\d+[.)])\s+\[[xX]\]/.test(lines[i] ?? '')) continue
-    const moved = sinkTask(lines, i)
-    if (!moved) continue
-    lines = moved.lines
-    first = Math.min(first, moved.from)
-    last = Math.max(last, moved.to)
+export function dispatchTick(view: EditorView, changes: ChangeSpec, lineNumbers: number[], done: boolean) {
+  const { state } = view
+  let all = state.changes(changes)
+  if (done) {
+    const doc = all.apply(state.doc)
+    const before = doc.toString().split('\n')
+    const lines = afterTick(before, lineNumbers.map((n) => n - 1), { sink: useStore.getState().settings.sinkDoneTasks })
+    if (lines !== before) {
+      let first = 0
+      while (first < before.length && first < lines.length && before[first] === lines[first]) first++
+      let tail = 0
+      while (tail < before.length - first && tail < lines.length - first && before[before.length - 1 - tail] === lines[lines.length - 1 - tail]) tail++
+      if (first < before.length || first < lines.length) {
+        const from = first < doc.lines ? doc.line(first + 1).from : doc.length
+        const to = before.length - tail > first ? doc.line(before.length - tail).to : from
+        const insert = lines.slice(first, lines.length - tail).join('\n')
+        // Only lines added, none replaced: keep the line break after them.
+        const text = to === from && first < doc.lines ? insert + '\n' : insert
+        all = all.compose(ChangeSet.of({ from, to, insert: text }, doc.length))
+      }
+    }
   }
-  if (last < 0) return
-  const { doc } = view.state
-  const from = doc.line(first + 1).from
-  const to = doc.line(last).to
-  view.dispatch({ changes: { from, to, insert: lines.slice(first, last).join('\n') }, selection: { anchor: Math.min(view.state.selection.main.head, from + lines.slice(first, last).join('\n').length) }, userEvent: 'input' })
+  view.dispatch({ changes: all, selection: { anchor: Math.min(state.selection.main.head, all.newLength) }, userEvent: 'input' })
 }

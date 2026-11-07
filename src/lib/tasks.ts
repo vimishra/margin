@@ -29,6 +29,10 @@ export interface Task {
   due?: string
   /** The day it was ticked, when that was recorded. */
   completed?: string
+  /** How it repeats, as written in "@repeat(…)": ticking it adds the next one (lib/repeat.ts). */
+  repeat?: string
+  /** When to be reminded: "YYYY-MM-DD HH:MM", from "@remind(…)". A day without a time means 09:00. */
+  remind?: string
   /** Nearest heading above the task. */
   heading: string
   /** In the Inbox note. Set by allTasks. */
@@ -43,14 +47,17 @@ export const priorityLabel = (priority: number) => (priority ? `P${4 - priority}
 const SCHEDULED = new RegExp(`(^|\\s)>(${DATE}|[Ss]omeday)(?=\\s|$)`)
 const DUE = new RegExp(`(^|\\s)@due\\((${DATE})\\)`)
 const DONE = new RegExp(`(^|\\s)@done\\((${DATE})\\)`)
+const REPEAT = /(^|\s)@repeat\(([^)\n]+)\)/
+const TIME = '\\d{1,2}:\\d{2}'
+const REMIND = new RegExp(`(^|\\s)@remind\\((${DATE})(?:[ T](${TIME}))?\\)`)
 const TAG = /(?:^|[\s(])#([A-Za-z][\w/-]*)/g
 /** The same details, for highlighting them where they are written. */
-// Groups: 1 priority, 2 planned day, 3 due date, 4 "someday", 5 day it was done.
-export const TASK_TOKENS = new RegExp(`(?<=^|\\s)(?:[Pp]([123])(?=\\s|$)|>(${DATE})(?=\\s|$)|@due\\((${DATE})\\)|>([Ss]omeday)(?=\\s|$)|@done\\((${DATE})\\))`, 'g')
+// Groups: 1 priority, 2 planned day, 3 due date, 4 "someday", 5 day it was done, 6 how it repeats, 7 reminder day.
+export const TASK_TOKENS = new RegExp(`(?<=^|\\s)(?:[Pp]([123])(?=\\s|$)|>(${DATE})(?=\\s|$)|@due\\((${DATE})\\)|>([Ss]omeday)(?=\\s|$)|@done\\((${DATE})\\)|@repeat\\(([^)\\n]+)\\)|@remind\\((${DATE})(?:[ T]${TIME})?\\))`, 'g')
 
 export const PRIORITIES = ['None', 'Low', 'Medium', 'High']
 
-export function parseTaskText(raw: string): Pick<Task, 'text' | 'priority' | 'tags' | 'scheduled' | 'someday' | 'due' | 'completed'> {
+export function parseTaskText(raw: string): Pick<Task, 'text' | 'priority' | 'tags' | 'scheduled' | 'someday' | 'due' | 'completed' | 'repeat' | 'remind'> {
   const written = PRIORITY.exec(raw)?.[2]
   const priority = written ? 4 - Number(written) : 0
   const planned = SCHEDULED.exec(raw)?.[2]
@@ -58,23 +65,28 @@ export function parseTaskText(raw: string): Pick<Task, 'text' | 'priority' | 'ta
   const scheduled = someday ? undefined : planned
   const due = DUE.exec(raw)?.[2]
   const completed = DONE.exec(raw)?.[2]
-  const text = raw.replace(PRIORITY, '$1').replace(SCHEDULED, '$1').replace(DUE, '$1').replace(DONE, '$1').replace(/\s{2,}/g, ' ').trim()
+  const repeat = REPEAT.exec(raw)?.[2].trim() || undefined
+  const r = REMIND.exec(raw)
+  const remind = r ? `${r[2]} ${(r[3] ?? '09:00').padStart(5, '0')}` : undefined
+  const text = raw.replace(PRIORITY, '$1').replace(SCHEDULED, '$1').replace(DUE, '$1').replace(DONE, '$1').replace(REPEAT, '$1').replace(REMIND, '$1').replace(/\s{2,}/g, ' ').trim()
   const tags = [...new Set([...text.matchAll(TAG)].map((m) => m[1]))]
-  return { text, priority, tags, scheduled, someday, due, completed }
+  return { text, priority, tags, scheduled, someday, due, completed, repeat, remind }
 }
 
 /**
  * Rewrite the details on a task: priority and dates go at the end of the line, in a fixed order.
  * A planned day and "someday" share one place, so setting either replaces the other.
  */
-export function withDetails(raw: string, patch: { priority?: number; scheduled?: string | null; someday?: boolean; due?: string | null }): string {
+export function withDetails(raw: string, patch: { priority?: number; scheduled?: string | null; someday?: boolean; due?: string | null; repeat?: string | null; remind?: string | null }): string {
   const now = parseTaskText(raw)
   const priority = patch.priority ?? now.priority
   const scheduled = patch.someday ? undefined : patch.scheduled === undefined ? now.scheduled : patch.scheduled
   const someday = patch.someday ?? (patch.scheduled === undefined ? now.someday : false)
   const due = patch.due === undefined ? now.due : patch.due
+  const repeat = patch.repeat === undefined ? now.repeat : patch.repeat
+  const remind = patch.remind === undefined ? now.remind : patch.remind
   const planned = someday ? '>someday' : scheduled ? `>${scheduled}` : ''
-  return [now.text, priorityLabel(priority), planned, due ? `@due(${due})` : '', now.completed ? `@done(${now.completed})` : ''].filter(Boolean).join(' ')
+  return [now.text, priorityLabel(priority), planned, due ? `@due(${due})` : '', repeat ? `@repeat(${repeat})` : '', remind ? `@remind(${remind})` : '', now.completed ? `@done(${now.completed})` : ''].filter(Boolean).join(' ')
 }
 
 /**
@@ -83,10 +95,15 @@ export function withDetails(raw: string, patch: { priority?: number; scheduled?:
  * Anything that is not a date is left as typed. Used when a task is captured, so suggestions need not be picked.
  */
 export function resolveTaskWords(raw: string, dayFirst = true): string {
-  const out = raw.replace(/@due\(([^)]*)\)/g, (m, words: string) => {
-    const date = parseDatePhrase(words.trim(), dayFirst)
-    return date ? `@due(${date})` : m
-  })
+  const out = raw
+    .replace(/@due\(([^)]*)\)/g, (m, words: string) => {
+      const date = parseDatePhrase(words.trim(), dayFirst)
+      return date ? `@due(${date})` : m
+    })
+    .replace(/@remind\(([^)]*)\)/g, (m, words: string) => {
+      const when = parseRemind(words, dayFirst)
+      return when ? `@remind(${when})` : m
+    })
   return out.replace(/(^|\s)>(\S+(?:[ \t]+(?![>@])\S+){0,2})/g, (m, lead: string, words: string) => {
     // Where each of the (up to three) words ends, so the longest that reads as a date can be cut off.
     const ends = [...words.matchAll(/\S+/g)].map((w) => w.index! + w[0].length)
@@ -97,6 +114,36 @@ export function resolveTaskWords(raw: string, dayFirst = true): string {
     }
     return m
   })
+}
+
+/**
+ * A reminder typed in words: "fri 2pm", "tomorrow 9:30", "14:00" (today), "next monday" (at 09:00), or already
+ * "2026-11-10 14:00". Gives "YYYY-MM-DD HH:MM", or null when it is not a day and time.
+ */
+export function parseRemind(words: string, dayFirst = true, now = today()): string | null {
+  let s = words.trim().toLowerCase().replace(/\s+/g, ' ')
+  if (!s) return null
+  let time = '09:00'
+  const t = /(?:^|\s)(?:at\s+)?(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)$|(?:^|\s)(?:at\s+)?(\d{1,2})[:.](\d{2})$|(?:^|[\sT])(\d{1,2}):(\d{2})$/.exec(s)
+  if (t) {
+    let h: number
+    let m: number
+    if (t[3]) {
+      h = Number(t[1]) % 12 + (t[3] === 'pm' ? 12 : 0)
+      m = Number(t[2] ?? 0)
+    } else if (t[4]) {
+      h = Number(t[4])
+      m = Number(t[5])
+    } else {
+      h = Number(t[6])
+      m = Number(t[7])
+    }
+    if (h > 23 || m > 59) return null
+    time = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+    s = s.slice(0, t.index).trim()
+  }
+  const date = s ? parseDatePhrase(s, dayFirst) : t ? now : null
+  return date ? `${date} ${time}` : null
 }
 
 /** The task's text with "@done(date)" added at the end, or taken away. Nothing else on the line moves. */

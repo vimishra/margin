@@ -32,6 +32,8 @@ PRIORITY = re.compile(r"(^|\s)[Pp]([123])(?=\s|$)")
 SCHEDULED = re.compile(r"(^|\s)>(" + DATE + r"|[Ss]omeday)(?=\s|$)")
 DUE = re.compile(r"(^|\s)@due\((" + DATE + r")\)")
 DONE = re.compile(r"(^|\s)@done\((" + DATE + r")\)")
+REPEAT = re.compile(r"(^|\s)@repeat\(([^)\n]+)\)")
+REMIND = re.compile(r"(^|\s)@remind\((" + DATE + r")(?:[ T]([0-9]{1,2}:[0-9]{2}))?\)")
 TAG = re.compile(r"(?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)")
 FENCE = re.compile(r"^\s*(```|~~~)")
 HEADING = re.compile(r"^#{1,6}\s+(.+?)\s*#*$")
@@ -56,7 +58,7 @@ ALIASES = {"done": "logbook", "nodate": "undated", "no-date": "undated", "this-w
 
 
 class Task:
-    __slots__ = ("note", "index", "done", "raw", "text", "priority", "tags", "planned", "someday", "due", "done_on", "heading")
+    __slots__ = ("note", "index", "done", "raw", "text", "priority", "tags", "planned", "someday", "due", "done_on", "repeat", "remind", "heading")
 
     def __init__(self, note: "Note", index: int, done: bool, raw: str, heading: str):
         self.note = note
@@ -74,8 +76,12 @@ class Task:
         self.due = due.group(2) if due else None
         done_on = DONE.search(raw)
         self.done_on = done_on.group(2) if done_on else None
+        repeat = REPEAT.search(raw)
+        self.repeat = repeat.group(2).strip() or None if repeat else None
+        remind = REMIND.search(raw)
+        self.remind = "%s %s" % (remind.group(2), (remind.group(3) or "09:00").rjust(5, "0")) if remind else None
         text = raw
-        for pattern in (PRIORITY, SCHEDULED, DUE, DONE):
+        for pattern in (PRIORITY, SCHEDULED, DUE, DONE, REPEAT, REMIND):
             text = pattern.sub(lambda m: m.group(1), text, count=1)
         self.text = re.sub(r"\s{2,}", " ", text).strip()
         seen: List[str] = []
@@ -397,6 +403,8 @@ def record(t: Task, now: str, inbox: str = "Inbox") -> Dict[str, object]:
         "someday": t.someday,
         "due": t.due,
         "done_on": t.done_on,
+        "repeat": t.repeat,
+        "remind": t.remind,
         "overdue": is_overdue(t, now),
         "in_today": is_today(t, now),
         "in_inbox": in_inbox(t, inbox),
@@ -424,6 +432,10 @@ def print_table(tasks: List[Task], now: str, color: bool, group: str) -> None:
             parts.append(paint("36" if t.planned <= now and not t.done else "0", "plan " + t.planned))
         if t.due:
             parts.append(paint("31" if is_overdue(t, now) else "0", "due " + t.due))
+        if t.repeat and not t.done:
+            parts.append("repeats " + t.repeat)
+        if t.remind and not t.done:
+            parts.append("remind " + t.remind)
         if t.done_on:
             parts.append("done " + t.done_on)
         return "  ".join(parts)
@@ -581,7 +593,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         json.dump([record(t, now, args.inbox) for t in tasks], sys.stdout, indent=2, ensure_ascii=False)
         print()
     elif args.csv:
-        fields = ["done", "priority", "text", "tags", "planned", "someday", "due", "done_on", "note", "notebook", "heading", "relpath", "line"]
+        fields = ["done", "priority", "text", "tags", "planned", "someday", "due", "done_on", "repeat", "remind", "note", "notebook", "heading", "relpath", "line"]
         w = csv.writer(sys.stdout)
         w.writerow(fields)
         for t in tasks:

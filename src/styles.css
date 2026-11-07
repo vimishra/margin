@@ -4451,6 +4451,48 @@ body.resizing {
 .day-tasks-body h4.carried {
   color: var(--text-3);
 }
+/* A ```tasks block in a note: the daily-note panel's look, with its filter as the heading */
+.cm-task-block {
+  padding: 4px 0 8px;
+}
+.task-block {
+  margin: 8px 0 12px;
+}
+.md .task-block-mount {
+  margin: 1em 0;
+}
+.task-block-head {
+  cursor: default;
+}
+.task-block-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.task-block-edit {
+  margin-right: -6px;
+  opacity: 0;
+}
+.task-block:hover .task-block-edit,
+.task-block-edit:focus-visible {
+  opacity: 1;
+}
+.day-tasks-body h4.task-block-group {
+  color: var(--text-3);
+}
+.task-block-note {
+  margin: 4px 0;
+  font-size: 13px;
+  color: var(--text-3);
+}
+.task-block-note.warn {
+  color: var(--danger);
+}
+.md .task-block p,
+.md .task-block h4 {
+  line-height: 1.4;
+}
 .note-body {
   position: relative;
 }

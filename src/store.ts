@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import type { ReactNode } from 'react'
 import { api } from './api'
 import { shortLinks } from './lib/shortlinks'
-import { sinkInText } from './lib/archive'
+import { afterTick } from './lib/repeat'
 import { addToTop3, takeUnfinishedTop3 } from './lib/top3'
 import { desktop } from './desktop'
 import type { Note, NotePatch, NoteType, Route } from './types'
@@ -1388,8 +1388,8 @@ export function updateTask(task: Task, change: { done?: boolean; raw?: string })
   const note = get().notes[task.noteId]
   let content = note && rewriteTask(note.content, task, { ...change, stamp: get().settings.logCompletion })
   if (!note || content == null) return toast('That task has changed since this list was drawn. Try again.')
-  // Ticked: to the end of its list, with the lines under it, so the open ones stay together.
-  if (change.done && get().settings.sinkDoneTasks) content = sinkInText(content, task.line)
+  // Ticked: a repeating task comes back, and the ticked one goes to the end of its list with the lines under it.
+  if (change.done) content = afterTick(content.split('\n'), [task.line], { sink: get().settings.sinkDoneTasks }).join('\n')
   updateNote(note.id, { content })
 }
 

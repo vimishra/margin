@@ -21,7 +21,7 @@ import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirro
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown'
 import { languages } from '@codemirror/language-data'
 import { HighlightStyle, indentOnInput, syntaxHighlighting } from '@codemirror/language'
-import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap, type Completion, type CompletionContext } from '@codemirror/autocomplete'
+import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap, startCompletion, type Completion, type CompletionContext } from '@codemirror/autocomplete'
 import { openSearchPanel, search, searchKeymap } from '@codemirror/search'
 import { tags as t } from '@lezer/highlight'
 import { uploadAsMarkdown } from '../api'
@@ -29,7 +29,8 @@ import { linkHref } from '../lib/markdown'
 import { fillTemplate, openDatePicker, templates, timeNow, toast, useStore } from '../store'
 import { tagCounts } from '../lib/links'
 import { parseDatePhrase } from '../lib/dates'
-import { TASK_LINE, parseTaskText, withDetails } from '../lib/tasks'
+import { TASK_LINE, parseRemind, parseTaskText, withDetails } from '../lib/tasks'
+import { parseRepeat } from '../lib/repeat'
 import { dailyLabel, isYmd, longDate, today, tagHue } from '../lib/util'
 import { livePreview } from './livePreview'
 import { cycleNote, cycleSection, externalChange, foldBelowHere, foldCommand, folding, foldOnlySectionsAndLists, foldToLevel, restoreFolds } from './folding'
@@ -181,6 +182,11 @@ function slashCommands(ctx: CompletionContext) {
   }
   const dayFirst = useStore.getState().settings.dayFirst
   const date = (phrase: string) => () => parseDatePhrase(phrase, dayFirst) || ''
+  /** Insert the start of a detail and open its suggestions straight away. */
+  const suggest = (text: string) => (view: EditorView, c: unknown, from: number, to: number) => {
+    insert(text)(view, c, from, to)
+    startCompletion(view)
+  }
 
   const options: Completion[] = [
     { label: 'Heading 1', detail: '#', apply: block('# '), section: 'Blocks' },
@@ -195,6 +201,7 @@ function slashCommands(ctx: CompletionContext) {
     { label: 'Code block', detail: '```', apply: insert('```‹language›\n\n```\n', true), section: 'Insert' },
     { label: 'Table', detail: '| |', apply: insert('\n| Column 1 | Column 2 |\n| --- | --- |\n|  |  |\n\n', true), section: 'Insert' },
     { label: 'Math block', detail: '$$', apply: insert('$$\n‸\n$$\n', true), section: 'Insert' },
+    { label: 'Tasks block', detail: '```tasks', apply: insert('```tasks\n‹today›\n```\n', true), section: 'Insert' },
     { label: 'Inline math', detail: '$x$', apply: insert('$‹x^2›$'), section: 'Insert' },
     { label: 'Divider', detail: '---', apply: insert('\n---\n\n', true), section: 'Insert' },
     { label: 'Link to a note', detail: '[[ ]]', apply: insert('[[‸]]'), section: 'Insert' },
@@ -219,6 +226,8 @@ function slashCommands(ctx: CompletionContext) {
     { label: 'Plan for tomorrow', detail: '>date', apply: insert(() => `>${date('tomorrow')()}`), section: 'Tasks' },
     { label: 'Plan for a day', detail: 'type a day', apply: insert('>‸'), section: 'Tasks' },
     { label: 'Someday', detail: '>someday', apply: insert('>someday'), section: 'Tasks' },
+    { label: 'Repeat', detail: '@repeat(…)', apply: suggest('@repeat('), section: 'Tasks' },
+    { label: 'Remind me', detail: '@remind(…)', apply: suggest('@remind('), section: 'Tasks' },
     { label: 'P1 high priority', detail: 'P1', apply: insert('P1 '), section: 'Tasks', boost: 2 },
     { label: 'P2 medium priority', detail: 'P2', apply: insert('P2 '), section: 'Tasks', boost: 1 },
     { label: 'P3 low priority', detail: 'P3', apply: insert('P3 '), section: 'Tasks' },
@@ -273,6 +282,38 @@ function completions(ctx: CompletionContext, capture = false) {
       }
     }
     return { from: link.from + 2, options, validFor: (text: string) => /^[^\]\n|]*$/.test(text) && !parseDatePhrase(text, useStore.getState().settings.dayFirst) }
+  }
+  // On a task: "@repeat(" offers the common rules, "@remind(" a day and time in words.
+  const detail = ctx.matchBefore(/@(repeat|remind)\([\w ,./:&-]*$/)
+  if (detail && (capture || TASK_LINE.test(ctx.state.doc.lineAt(detail.from).text))) {
+    const remind = detail.text.startsWith('@remind')
+    const start = detail.from + 8
+    const typed = ctx.state.sliceDoc(start, ctx.pos).trim()
+    const apply = (value: string) => (view: EditorView, _c: unknown, from: number, to: number) => {
+      const close = view.state.sliceDoc(to, to + 1) !== ')' ? ')' : ''
+      view.dispatch({ changes: { from, to, insert: value + close }, selection: { anchor: from + value.length + 1 } })
+    }
+    const dayFirst = useStore.getState().settings.dayFirst
+    if (remind) {
+      const phrases = ['today 17:00', 'tomorrow 9:00', 'monday 9:00', 'friday 9:00', 'next monday 9:00']
+      const options: Completion[] = []
+      const exact = typed ? parseRemind(typed, dayFirst) : null
+      if (exact) options.push({ label: typed, detail: `${longDate(exact.slice(0, 10))}, ${exact.slice(11)}`, type: 'daily', boost: 5, apply: apply(exact) })
+      for (const p of phrases.filter((x) => x.startsWith(typed.toLowerCase()))) {
+        const at = parseRemind(p, dayFirst)
+        if (at && at !== exact) options.push({ label: p, detail: `${longDate(at.slice(0, 10))}, ${at.slice(11)}`, type: 'daily', apply: apply(at) })
+      }
+      if (options.length) return { from: start, filter: false, options }
+      return null
+    }
+    const rules: [string, string][] = [
+      ['daily', 'Every day'], ['weekdays', 'Monday to Friday'], ['weekly', 'Every week, on the same day'], ['every 2 weeks', 'Every other week'],
+      ['monthly', 'Every month, on the same date'], ['yearly', 'Every year'], ['every monday', 'Name the days: mon, thu'], ['3 days after done', 'Counted from the day it is ticked'],
+    ]
+    const options: Completion[] = rules.filter(([r]) => !typed || r.startsWith(typed.toLowerCase())).map(([r, d], i) => ({ label: r, detail: d, boost: -i, apply: apply(r) }))
+    if (typed && parseRepeat(typed) && !rules.some(([r]) => r === typed.toLowerCase())) options.unshift({ label: typed, detail: 'Repeats', boost: 5, apply: apply(typed) })
+    if (options.length) return { from: start, filter: false, options }
+    return null
   }
   // On a task: ">fri" plans it for a day and "@due(fri" sets the deadline; any date phrase works.
   const when = ctx.matchBefore(/(?:(?<=\s)>|@due\()[\w ./-]*$/)

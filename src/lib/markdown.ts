@@ -166,6 +166,13 @@ function build(math: boolean): MarkdownIt {
       if (token.type === 'heading_open' && token.map) token.attrSet('data-line', String(token.map[0]))
     }
   })
+  // A ```tasks block is a live list of tasks: a mount point here, filled in by read mode (TaskBlock.tsx).
+  const fence = md.renderer.rules.fence!
+  md.renderer.rules.fence = (tokens, idx, options, env, self) => {
+    const token = tokens[idx]
+    if (token.info.trim().toLowerCase() === 'tasks') return `<div class="task-block-mount" data-query="${esc(token.content)}"></div>`
+    return fence(tokens, idx, options, env, self)
+  }
   md.renderer.rules.table_open = () => '<div class="table-wrap"><table>'
   md.renderer.rules.table_close = () => '</table></div>'
   return md

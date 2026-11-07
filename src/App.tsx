@@ -5,6 +5,7 @@ import type { Note } from './types'
 import { commands } from './commands'
 import { actionFor, eventCombo, recording, syncDesktopMenu } from './shortcuts'
 import { desktop } from './desktop'
+import { startReminders } from './reminders'
 import { displayTitle, isMac } from './lib/util'
 import { Sidebar } from './components/Sidebar'
 import { TabBar } from './components/TabBar'
@@ -198,6 +199,7 @@ export default function App() {
       else window.dispatchEvent(new CustomEvent('margin:format', { detail: action.kind }))
     })
     syncDesktopMenu()
+    const stopReminders = startReminders()
     // Mac apps quieten their selections when the window is not in front.
     const onFocus = () => document.documentElement.classList.toggle('window-inactive', !document.hasFocus())
     window.addEventListener('focus', onFocus)
@@ -209,6 +211,7 @@ export default function App() {
       window.removeEventListener('mouseup', onMouse, true)
       off?.()
       offContext?.()
+      stopReminders()
       window.removeEventListener('margin:action', onAction)
       window.removeEventListener('focus', onFocus)
       window.removeEventListener('blur', onFocus)

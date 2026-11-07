@@ -57,15 +57,6 @@ export function changedLine(before: string, after: string): number {
   return -1
 }
 
-/** The text after ticking the task on line `i`, with it moved to the end of its list. Unchanged if it is last. */
-export function sinkInText(text: string, i: number): string {
-  const lines = text.split('\n')
-  const done = TASK_LINE.exec(lines[i] ?? '')
-  if (!done || done[2] === ' ') return text
-  const moved = sinkTask(lines, i)
-  return moved ? moved.lines.join('\n') : text
-}
-
 /** Where the Archive section is: its heading line and the end (exclusive) of its section. Null if there is none. */
 export function archiveSection(lines: string[]): { start: number; end: number; level: number } | null {
   const inCode = fenced(lines)

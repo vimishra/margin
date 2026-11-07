@@ -19,6 +19,9 @@ export interface DesktopBridge {
   /** The system's accent colour as "#rrggbb", or null where there is none. */
   accentColor?(): Promise<string | null>
   onAccent?(handler: (color: string | null) => void): () => void
+  /** A system notification (a task's reminder); a click brings the window forward and calls onNotifyClick with the id. */
+  notify?(id: string, title: string, body: string): void
+  onNotifyClick?(handler: (id: string) => void): () => void
 }
 
 declare global {

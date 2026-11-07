@@ -2,6 +2,19 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.28.0 (2026-11-07)
+
+### Added
+
+- **Tasks blocks: a live list of tasks inside a note.** Write a ```` ```tasks ```` block (or **/Tasks block**) with a filter in the Tasks view's words, such as `today #atlas p2`, and the note shows those tasks, kept up to date: tick them, change their dates and priority, or click one to open its note. `[[Priya]]` gathers every open task that involves Priya, from any meeting or daily note, which makes a ready-made agenda for a 1:1; `[[Atlas Migration]] group: date` on a project note shows what is left, including actions written in its meetings. Also `from: daily`, `group: project`, `limit 10`. The note keeps only the filter; exports show the tasks as they were when exported.
+- **Repeating tasks.** Add `@repeat(weekly)`, `@repeat(weekdays)`, `@repeat(every 2 weeks)`, `@repeat(mon, thu)`, `@repeat(3 days after done)` and the like to a task. Ticking it adds the next one in its place, with its dates moved on together (and sub-tasks unticked), and keeps the ticked one as the record. A task ticked late comes back at its next turn, not already overdue.
+- **Reminders.** Add `@remind(fri 2pm)` (or **/Remind me**) to a task and Margin shows a notification at that time while it is running, even with its window closed; click it to go to the task. A reminder missed while Margin was not running shows when it starts, if within a day.
+- `margin-tasks` reads repeats and reminders too: new `repeat` and `remind` fields in its JSON and CSV, and in its listing.
+
+### Changed
+
+- **Ticking a task is one step to undo** in the editor, together with the ticked task moving to the end of its list (and, now, a repeating task coming back). It used to take two.
+
 ## 1.27.0 (2026-11-06)
 
 ### Added

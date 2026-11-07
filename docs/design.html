@@ -304,7 +304,7 @@ Each canvas card is markdown too.
 </tr>
 <tr>
 <td>Ticked tasks sinking, archiving</td>
-<td><code>lib/archive.ts</code> (rules) and <code>src/archive.ts</code> (commands); every tick path calls the sink: the checkbox in <code>livePreview.ts</code>, <code>toggleDone</code> in <code>lists.ts</code>, <code>Preview.tsx</code>, and <code>updateTask</code> in <code>store.ts</code></td>
+<td><code>lib/archive.ts</code> (rules: <code>sinkTask</code>) and <code>src/archive.ts</code> (commands); every tick path sinks through <code>afterTick</code> in <code>lib/repeat.ts</code></td>
 </tr>
 <tr>
 <td>The keys that work from any app</td>
@@ -317,6 +317,18 @@ Each canvas card is markdown too.
 <tr>
 <td>Recently deleted (the trash)</td>
 <td><code>listTrash</code>, <code>restoreTrash</code>, <code>removeTrash</code>, <code>trashFile</code> and <code>moveFile</code> in <code>server/index.mjs</code> (<code>/api/trash…</code>); the page in <code>components/TrashView.tsx</code>; <code>restoreFromTrash</code> and <code>refreshTrash</code> in <code>store.ts</code></td>
+</tr>
+<tr>
+<td>Repeating tasks</td>
+<td>The rules and next dates in <code>lib/repeat.ts</code>; <code>afterTick</code> there is called by every tick path (<code>dispatchTick</code> in <code>lists.ts</code> for the editor's checkbox and shortcut, <code>Preview.tsx</code>, <code>updateTask</code> in <code>store.ts</code>); <code>@repeat</code> is read in <code>lib/tasks.ts</code> and <code>tools/margin_tasks.py</code></td>
+</tr>
+<tr>
+<td>Reminders</td>
+<td><code>src/reminders.ts</code> (checks every 20 s, started in <code>App.tsx</code>); the notification in <code>electron/main.mjs</code> (<code>notify</code> IPC) and <code>preload.cjs</code>; <code>@remind</code> is read in <code>lib/tasks.ts</code> (<code>parseRemind</code> for words) and <code>tools/margin_tasks.py</code></td>
+</tr>
+<tr>
+<td>Tasks blocks (<code>```tasks</code>)</td>
+<td>The filter and the choice of tasks in <code>lib/taskQuery.ts</code>; the panel in <code>components/TaskBlock.tsx</code> (also <code>mountTaskBlocks</code> for read mode and <code>taskBlockSnapshot</code> for exports); the editor widget <code>TaskBlockWidget</code> in <code>livePreview.ts</code>; read mode's mount point is the <code>fence</code> rule in <code>lib/markdown.ts</code></td>
 </tr>
 <tr>
 <td>Slash commands, link completion</td>

@@ -64,6 +64,8 @@ Everything the app does, at a glance. Each heading links to the section that exp
 
 - Any checkbox in any note is a task, with an optional priority, planned day, due date and tags
 - A Tasks view that gathers them all: Inbox, Today, Upcoming, Anytime, Someday, Logbook, Overdue and more
+- Tasks blocks: a live, tickable list of tasks inside any note, such as everything open for a person or a project
+- Repeating tasks (`@repeat(weekly)`) that come back when ticked, and reminders (`@remind(fri 2pm)`) as notifications
 - An Inbox, as in Things: captured tasks wait there until you give them a day or move them into a project
 - Filters by words, tag and priority; grouping by date, project or priority; and filters you save to the sidebar
 - Today's tasks and anything overdue shown at the top of the daily note
@@ -116,8 +118,11 @@ The guide has two main parts, because Margin does two different jobs. **Part 1**
 
 - [Tasks](#tasks)
   - [Details on a task](#details-on-a-task)
+  - [Repeating tasks](#repeating-tasks)
+  - [Reminders](#reminders)
   - [The Tasks view](#the-tasks-view)
   - [Saved filters](#saved-filters)
+  - [Tasks blocks: a live list inside a note](#tasks-blocks-a-live-list-inside-a-note)
   - [Moving overdue tasks](#moving-overdue-tasks)
   - [The Top 3](#the-top-3)
   - [Tasks in the daily note](#tasks-in-the-daily-note)
@@ -864,6 +869,8 @@ Details are written on the task's own line, as plain text, so they stay readable
 | Someday | `>someday` | Parked; out of Today, Upcoming and Anytime |
 | Due date | `@due(2026-10-10)` | The deadline |
 | Done on | `@done(2026-10-07)` | Written for you when you tick the task |
+| Repeats | `@repeat(weekly)` | Comes back when ticked; see [Repeating tasks](#repeating-tasks) |
+| Reminder | `@remind(2026-10-08 14:30)` | A notification at that time; see [Reminders](#reminders) |
 
 You do not have to type dates in full. On a task, type `>` or `@due(` and then a day in words (`fri`, `tomorrow`, `next week`, `14 oct`) and pick the suggestion; after `>`, `some` offers `someday`. The slash commands `/due`, `/plan`, `/someday` and `/p1` (or `/priority`) insert the same things.
 
@@ -880,6 +887,51 @@ With the cursor on a task in a note, these keys change its details without typin
 Move to today and Priority apply to every task in a selection. The same four are in ⌘K under "Task:", and all of them can be changed in Settings → Shortcuts. In the browser version they are ⌥⇧T, ⌥⇧S, ⌥⇧D and ⌥⇧P.
 
 In the editor the details show as small labels. A due date turns red once it has passed. A planned day that is today or earlier is highlighted, because the task is in Today.
+
+### Repeating tasks
+
+Add `@repeat(…)` to a task, and ticking it brings it back:
+
+```
+- [ ] Weekly report @due(2026-11-06) @repeat(weekly)
+```
+
+Tick it, and a new **Weekly report @due(2026-11-13)** appears in its place. The one you ticked stays below it as the record of that week (with its done day, and without the `@repeat`, so it does not repeat again), and sinks to the end of the list as usual. In the editor, one ⌘Z puts it all back.
+
+| Write | Comes back |
+| --- | --- |
+| `daily`, `weekly`, `monthly`, `yearly` | Every day, week, month or year |
+| `weekdays` | Monday to Friday |
+| `every 2 weeks`, `3 days`, `fortnightly`, `quarterly` | Every so many days, weeks or months |
+| `every monday`, `mon, thu`, `tuesdays and fridays` | On those days of the week |
+| `… after done`, such as `3 days after done` | Counted from the day you tick it, not from its date |
+
+Type `@repeat(` for suggestions, or use **/Repeat**.
+
+- **Its dates move together.** The due day, planned day and reminder all move by the same number of days, so a task planned two days before its deadline still is.
+- **Late or early.** On a schedule, the next one is the next date on that schedule after today: a weekly report ticked three weeks late comes back next week, not three times overdue. Ticked early, it comes back at its next turn. With `after done`, it is counted from the day you tick it, which suits things like watering plants.
+- **No date?** It is planned for the next date, so it shows in Upcoming until then.
+- **Sub-tasks come too.** Lines indented under it come back with it, sub-tasks unticked, so a weekly checklist starts fresh each time.
+- **Months** keep the day of the month; the 31st becomes the 30th in a shorter month.
+- To stop it repeating, delete the `@repeat(…)` from the open one.
+
+In the Tasks view and tasks blocks, a repeating task shows a ⟳ chip with its rule.
+
+### Reminders
+
+Add `@remind(…)` to a task, and Margin shows a notification at that time:
+
+```
+- [ ] Call the bank @remind(2026-11-10 14:30)
+```
+
+Type `@remind(` and then a day and time in words, such as `fri 2pm`, `tomorrow 9:30`, `14:00` (today) or `next monday` (at 9:00), and pick the suggestion; or use **/Remind me**. In Quick task you can type the words and leave them: they become a date and time when it saves.
+
+- **In the desktop app** it is a system notification with the task's text, its time and its note. Click it to bring Margin forward with the task's note open, the cursor at the end of the task. The first one may make macOS ask whether Margin can show notifications.
+- **Margin has to be running.** It does not need its window open: closing the window keeps the app running and the reminders coming. If Margin was not running at the time, the reminder shows when it next starts, if that is within a day.
+- **Once on each computer.** A reminder shows once; change its time to be reminded again. Ticked tasks give none.
+- **In a browser,** it is a browser notification once you allow them, and a message inside Margin until then.
+- A reminder does not change which lists the task is in; give it a planned day too if it should wait in Upcoming. In the Tasks view and tasks blocks it shows as a 🔔 chip with its day and time.
 
 ### The Tasks view
 
@@ -950,6 +1002,37 @@ Under **Tasks** in the sidebar are Inbox, Today, Upcoming, Anytime, Someday and 
 2. Click **Save filter** and give it a name.
 
 It appears under Tasks in the sidebar with a live count. Open it and change anything, and an **Update filter** button appears to keep the change. The ⋯ button, or a right-click in the sidebar, renames or deletes it. Saved filters are kept with your settings, so they belong to this app on this computer.
+
+### Tasks blocks: a live list inside a note
+
+A **tasks block** shows tasks from all your notes inside the note you are writing, kept up to date as you work. Type **/Tasks block**, or write it by hand:
+
+````
+```tasks
+today #atlas
+```
+````
+
+Away from the cursor, the block shows the matching tasks, as the Tasks view does: tick them, change their priority or dates with the buttons that appear on hover, or click one to open its note. Ticking a task here ticks it in its own note; the note with the block keeps only those few lines. To change what it shows, click the pencil at its top right (or move the cursor onto it), edit the line, and move away.
+
+The block takes the same words as the Tasks view's narrow-down box, plus a few of its own, in any order and on one line or several:
+
+| Write | Shows |
+| --- | --- |
+| `today`, `inbox`, `upcoming`, `anytime`, `someday`, `logbook`, `overdue`, `this week`, `next 30 days`, `no date`, `all open` | That list (one per block). Without one: all open tasks. |
+| `#atlas`, `p2`, words | As in the Tasks view: that tag, that priority or higher, those words in the task or its note's title |
+| `[[Priya]]` | Tasks in the note Priya, tasks that link to it on their own line, and tasks in meeting notes that link to it, as the Tasks view finds a project's tasks |
+| `from: daily`, `from: notes` | Only tasks written in daily notes, or only those not |
+| `group: date`, `group: project`, `group: priority` | Grouped under headings |
+| `limit 10` | At most that many, the most urgent first |
+
+Some uses:
+
+- **A person's note:** `[[Priya]]` lists everything open that involves Priya, from any meeting or daily note: the agenda for your next 1:1, kept for you.
+- **A project note:** `[[Atlas Migration]] group: date` at the top shows what is left, including actions written in its meetings.
+- **A weekly review template:** `logbook this week` and `overdue` show what got done and what slipped.
+
+Anything the block does not understand is listed under it, and a link to a note that does not exist is pointed out. A block written for Obsidian's Tasks plugin (`not done`, `due before tomorrow`) is left alone with a note saying so. In other apps, and in GitHub, the block is just the lines you wrote; exports (PDF, HTML, Word) show the tasks as they were when you exported.
 
 ### Archiving finished tasks
 
@@ -1032,7 +1115,7 @@ A day can be written as `2026-10-12`, `today`, `tomorrow`, `yesterday`, `+3`, `-
 
 | Option | Gives |
 | --- | --- |
-| `--json` | A list of tasks, each with its text, done state, priority, tags, planned day, due date, done date, note, notebook, heading, file path and line number |
+| `--json` | A list of tasks, each with its text, done state, priority, tags, planned day, due date, done date, repeat rule (`repeat`), reminder (`remind`), note, notebook, heading, file path and line number |
 | `--csv` | The same as rows with a header |
 | `--paths` | `path:line: [ ] task`, the way grep prints, which editors can jump to |
 | `--format "{due}\t{text}"` | One line per task from your own template; the fields are the JSON names |

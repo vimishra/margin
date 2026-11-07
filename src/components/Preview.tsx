@@ -2,9 +2,11 @@ import { memo, useEffect, useMemo, useRef } from 'react'
 import { renderMarkdown, toggleTask } from '../lib/markdown'
 import { resolver, titlesKey } from '../lib/links'
 import { createNote, go, openNote, openSide, ui, useStore, ensureDaily } from '../store'
-import { changedLine, sinkInText } from '../lib/archive'
+import { changedLine } from '../lib/archive'
+import { afterTick } from '../lib/repeat'
 import { isYmd } from '../lib/util'
 import { openDaily } from '../store'
+import { mountTaskBlocks } from './TaskBlock'
 
 /** Open the note a wikilink points to, creating it when it does not exist yet. */
 export async function followLink(target: string, side = false) {
@@ -58,8 +60,12 @@ export const Preview = memo(function Preview({ source, className, onChange }: Pr
     })
   }, [html])
 
+  useEffect(() => (ref.current ? mountTaskBlocks(ref.current) : undefined), [html])
+
   function onClick(e: React.MouseEvent) {
     const el = e.target as HTMLElement
+    // A tasks block handles its own clicks: its tasks belong to other notes.
+    if (el.closest('.task-block-mount')) return
     const wiki = el.closest<HTMLElement>('a.wikilink')
     if (wiki) {
       e.preventDefault()
@@ -81,11 +87,11 @@ export const Preview = memo(function Preview({ source, className, onChange }: Pr
     }
     if (el instanceof HTMLInputElement && el.type === 'checkbox') {
       if (!onChange) return e.preventDefault()
-      const boxes = [...ref.current!.querySelectorAll('input[type=checkbox]')]
+      const boxes = [...ref.current!.querySelectorAll('input[type=checkbox]')].filter((b) => !b.closest('.task-block-mount'))
       const s = useStore.getState().settings
       const next = toggleTask(source, boxes.indexOf(el), s.logCompletion)
-      // Ticked: to the end of its list, as in the editor.
-      onChange(el.checked && s.sinkDoneTasks ? sinkInText(next, changedLine(source, next)) : next)
+      // Ticked: a repeating task comes back, and the ticked one goes to the end of its list, as in the editor.
+      onChange(el.checked ? afterTick(next.split('\n'), [changedLine(source, next)], { sink: s.sinkDoneTasks }).join('\n') : next)
     }
   }
 

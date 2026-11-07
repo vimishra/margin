@@ -70,6 +70,8 @@ const expected = {
     someday: t.someday,
     due: t.due ?? null,
     done_on: t.completed ?? null,
+    repeat: t.repeat ?? null,
+    remind: t.remind ?? null,
     heading: t.heading,
     overdue: tasks.isOverdue(t, cases.today),
     in_today: tasks.isToday(t, cases.today),

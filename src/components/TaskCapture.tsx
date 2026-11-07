@@ -36,6 +36,8 @@ function detailMarks(view: EditorView): DecorationSet {
       : m[4] ? 'cm-task-date cm-task-someday'
       : m[5] ? 'cm-task-date cm-task-done-on'
       : m[3] ? `cm-task-date cm-task-due${m[3] < now ? ' late' : m[3] === now ? ' now' : ''}`
+      : m[6] ? 'cm-task-date cm-task-repeat'
+      : m[7] ? 'cm-task-date cm-task-remind'
       : `cm-task-date${m[2] <= now ? ' now' : ''}`
     out.push(Decoration.mark({ class: cls }).range(m.index!, m.index! + m[0].length))
   }

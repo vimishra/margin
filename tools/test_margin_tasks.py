@@ -60,7 +60,7 @@ class SharedCases(unittest.TestCase):
             t = got[key]
             mine = {
                 "key": key, "text": t.text, "done": t.done, "priority": t.priority_label or None, "tags": t.tags,
-                "planned": t.planned, "someday": t.someday, "due": t.due, "done_on": t.done_on, "heading": t.heading,
+                "planned": t.planned, "someday": t.someday, "due": t.due, "done_on": t.done_on, "repeat": t.repeat, "remind": t.remind, "heading": t.heading,
                 "overdue": mt.is_overdue(t, NOW), "in_today": mt.is_today(t, NOW), "in_inbox": mt.in_inbox(t, INBOX),
             }
             self.assertEqual(mine, w, key)

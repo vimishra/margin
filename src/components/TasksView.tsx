@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
-import { AlignLeft, Archive, BookmarkPlus, Box, CalendarClock, CalendarDays, Check, ChevronDown, ChevronRight, FileText, Flag, FolderInput, ListChecks, ListTree, MoreHorizontal, Search, Star, Users } from 'lucide-react'
+import { AlignLeft, Archive, Bell, BookmarkPlus, Box, CalendarClock, CalendarDays, Check, ChevronDown, ChevronRight, FileText, Flag, FolderInput, ListChecks, ListTree, MoreHorizontal, Repeat, Search, Star, Users } from 'lucide-react'
 import type { Note } from '../types'
 import { deleteTaskView, go, openDatePicker, openFromClick, openMenu, openNoteAt, openSideAt, renameTaskView, rescheduleTasks, saveTaskView, ensureInboxNote, inboxNotebook, moveTasksToNote, ui, updateTask, updateTaskView, useStore, type MenuItem } from '../store'
 import { hint } from '../shortcuts'
@@ -8,7 +8,7 @@ import { renderInline, renderMarkdown } from '../lib/markdown'
 import { PRIORITIES, TASK_FILTERS, TASK_LINE, TASK_SOURCES, allTasks, byUrgency, isCarried, isOn, isOverdue, isToday, nextDate, priorityLabel, projectsOf, sameNotebook, selectTasks, shortDate, weekRange, withDetails, within, type ProjectFolders, type Task, type TaskFilter, type TaskGroup, type TaskSource, type TaskView } from '../lib/tasks'
 import { addDays, cx, displayTitle, firstWeekday, local, today, tagStyle } from '../lib/util'
 
-const weekStartOf = (setting: string) => (setting === 'sunday' ? 0 : setting === 'monday' ? 1 : firstWeekday())
+export const weekStartOf = (setting: string) => (setting === 'sunday' ? 0 : setting === 'monday' ? 1 : firstWeekday())
 
 const GROUPS: [TaskGroup, string][] = [
   ['date', 'Date'],
@@ -119,6 +119,16 @@ export function TaskRow({ task, note, showNote = true, active = false, star = fa
               <CalendarDays size={12} /> Due {shortDate(task.due)}
             </button>
           )}
+          {task.repeat && !task.done && (
+            <span className="task-chip repeat" title={`Repeats: ${task.repeat}. Ticking it adds the next one.`}>
+              <Repeat size={12} /> {task.repeat}
+            </span>
+          )}
+          {task.remind && !task.done && (
+            <span className={cx('task-chip remind', task.remind.slice(0, 10) === now && 'now')} title="Reminder: a notification at this time while Margin is open">
+              <Bell size={12} /> {shortDate(task.remind.slice(0, 10))} {task.remind.slice(11)}
+            </span>
+          )}
           {showNote && (
             <span className="task-where">
               <FileText size={12} className="task-where-icon" />
@@ -150,7 +160,7 @@ export function TaskRow({ task, note, showNote = true, active = false, star = fa
   )
 }
 
-function dateBucket(t: Task, now: string, weekEnd: string): [string, string] {
+export function dateBucket(t: Task, now: string, weekEnd: string): [string, string] {
   // The Logbook is grouped by the day each task was done, the latest first.
   if (t.done) return t.completed ? [`0${t.completed.replace(/\d/g, (c) => String(9 - Number(c)))}`, shortDate(t.completed, now)] : ['1', 'Day not recorded']
   if (t.someday && !t.due) return ['6', 'Someday']

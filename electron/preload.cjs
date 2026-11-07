@@ -31,4 +31,11 @@ contextBridge.exposeInMainWorld('marginDesktop', {
     ipcRenderer.on('accent', listener)
     return () => ipcRenderer.removeListener('accent', listener)
   },
+  /** A task's reminder as a system notification; clicking it brings the window forward and reports the id. */
+  notify: (id, title, body) => ipcRenderer.send('notify', { id, title, body }),
+  onNotifyClick: (handler) => {
+    const listener = (_event, id) => handler(id)
+    ipcRenderer.on('notify:click', listener)
+    return () => ipcRenderer.removeListener('notify:click', listener)
+  },
 })
