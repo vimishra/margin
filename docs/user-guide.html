@@ -88,7 +88,7 @@ mark.find-hit.current{background:#ffab2e}
 <ul>
 <li>Links between notes with <code>[[</code>, completed as you type, including dates such as <code>[[next friday]]</code></li>
 <li>Backlinks, unlinked mentions and outgoing links beside every note</li>
-<li>One search box (⌘K) for notes, text inside notes, tags, dates and every command</li>
+<li>One search box (⌘K) for notes, text inside notes, tags, dates and every command, with exact phrases, <code>in:Notebook</code>, <code>is:meeting</code>, <code>-word</code> and other ways to narrow it</li>
 <li>Search inside the note you are in (⌃S), and jump to any heading (⌘⇧O)</li>
 <li>Company short links such as <code>go/name</code> and <code>b/1234567</code>, clickable as they stand</li>
 </ul>
@@ -726,15 +726,73 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 <h3 id="search-everything-k">Search everything: ⌘K</h3>
 <p>⌘K opens one box that searches, switches notes and runs commands.</p>
 <ul>
-<li><strong>Empty:</strong> recently opened notes. The first is the note you were in before, so ⌘K then Enter flips between two notes.</li>
-<li><strong>Words:</strong> full-text search across all notes. Opening a result scrolls to the match.</li>
-<li><strong>Tasks:</strong> the same words also find tasks. Below the best three notes, a <strong>Tasks</strong> group lists up to five tasks whose text contains every word, open ones first (most urgent first), then finished ones. Each shows its note, priority and dates. <code>#tag</code> and <code>p1</code>–<code>p3</code> narrow them as in the Tasks view: <code>p1 bank</code> finds high-priority tasks mentioning the bank. Enter opens the task's note with the cursor at the end of the task; ⌥↵ opens it in the side pane. To tick or reschedule, use the Tasks view.</li>
-<li><strong><code>#tag</code>:</strong> only notes with that tag.</li>
-<li><strong>A date:</strong> <code>today</code>, <code>tomorrow</code>, <code>friday</code>, <code>next monday</code>, <code>last friday</code>, <code>06/10</code>, <code>6 oct</code>, <code>in 3 days</code>. The first result is that day's daily note.</li>
-<li><strong>A command:</strong> type what you want to do. <code>rename</code>, <code>delete</code>, <code>duplicate</code>, <code>close other</code>, <code>add tag</code>, <code>copy link</code>, <code>export</code>. A matching command appears at the top; press Enter.</li>
-<li><strong>A task list:</strong> <code>inbox</code>, <code>today</code>, <code>upcoming</code>, <code>anytime</code>, <code>someday</code>, <code>logbook</code>, <code>overdue</code> and the others, or the name of a saved filter. <strong>Tasks: Inbox</strong> and the rest appear at the top; Enter opens that list.</li>
-<li><strong><code>&gt;</code>:</strong> commands only.</li>
-<li><strong>⌥↵</strong> opens the selected note in the side pane. <strong>⌘↵</strong> creates a note named with what you typed.</li>
+<li>
+<p><strong>Empty:</strong> recently opened notes. The first is the note you were in before, so ⌘K then Enter flips between two notes.</p>
+</li>
+<li>
+<p><strong>Words:</strong> full-text search across all notes. Opening a result scrolls to the match.</p>
+</li>
+<li>
+<p><strong>Tasks:</strong> the same words also find tasks. Below the best three notes, a <strong>Tasks</strong> group lists up to five tasks whose text contains every word, open ones first (most urgent first), then finished ones. Each shows its note, priority and dates. <code>#tag</code> and <code>p1</code>–<code>p3</code> narrow them as in the Tasks view: <code>p1 bank</code> finds high-priority tasks mentioning the bank. Enter opens the task's note with the cursor at the end of the task; ⌥↵ opens it in the side pane. To tick or reschedule, use the Tasks view.</p>
+</li>
+<li>
+<p><strong><code>#tag</code>:</strong> only notes with that tag.</p>
+</li>
+<li>
+<p><strong>Narrowing down:</strong> a few words of their own narrow any search. Combine them freely with ordinary words:</p>
+<div class="table"><table><thead>
+<tr>
+<th>Type</th>
+<th>Finds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;budget review&quot;</code></td>
+<td>Notes with exactly that phrase</td>
+</tr>
+<tr>
+<td><code>-draft</code>, <code>-&quot;old plan&quot;</code>, <code>-#archive</code></td>
+<td>Leaves out notes with that word, phrase or tag</td>
+</tr>
+<tr>
+<td><code>in:Work</code>, <code>in:&quot;Work/Atlas&quot;</code></td>
+<td>Only notes in that notebook, and the notebooks inside it</td>
+</tr>
+<tr>
+<td><code>title:kickoff</code></td>
+<td>Only notes whose title has that word</td>
+</tr>
+<tr>
+<td><code>is:meeting</code>, <code>is:daily</code>, <code>is:research</code>, <code>is:scratch</code></td>
+<td>Only that kind of note</td>
+</tr>
+<tr>
+<td><code>has:tasks</code></td>
+<td>Only notes with open tasks</td>
+</tr>
+<tr>
+<td><code>after:2026-10-01</code>, <code>before:friday</code></td>
+<td>A daily note's day, or the day a note last changed</td>
+</tr>
+</tbody>
+</table></div><p>For example, <code>is:meeting after:&quot;last monday&quot; priya</code> finds this week's meetings that mention Priya, and <code>in:Work &quot;capacity numbers&quot;</code> finds where that phrase came up at work. The heading over the results says what the search is limited to, and anything it did not understand, such as a misspelt <code>colour:red</code>. Tasks in the results follow the same filters. Opening a result takes you to the phrase you searched for.</p>
+</li>
+<li>
+<p><strong>A date:</strong> <code>today</code>, <code>tomorrow</code>, <code>friday</code>, <code>next monday</code>, <code>last friday</code>, <code>06/10</code>, <code>6 oct</code>, <code>in 3 days</code>. The first result is that day's daily note.</p>
+</li>
+<li>
+<p><strong>A command:</strong> type what you want to do. <code>rename</code>, <code>delete</code>, <code>duplicate</code>, <code>close other</code>, <code>add tag</code>, <code>copy link</code>, <code>export</code>. A matching command appears at the top; press Enter.</p>
+</li>
+<li>
+<p><strong>A task list:</strong> <code>inbox</code>, <code>today</code>, <code>upcoming</code>, <code>anytime</code>, <code>someday</code>, <code>logbook</code>, <code>overdue</code> and the others, or the name of a saved filter. <strong>Tasks: Inbox</strong> and the rest appear at the top; Enter opens that list.</p>
+</li>
+<li>
+<p><strong><code>&gt;</code>:</strong> commands only.</p>
+</li>
+<li>
+<p><strong>⌥↵</strong> opens the selected note in the side pane. <strong>⌘↵</strong> creates a note named with what you typed.</p>
+</li>
 </ul>
 <p>Commands act on the note in the active pane. The ones people reach for most:</p>
 <div class="table"><table><thead>

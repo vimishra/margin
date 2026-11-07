@@ -4542,6 +4542,23 @@ body.resizing {
 .cm-task-date * {
   color: inherit !important;
 }
+/* Each kind of detail in its own colour, as tags are (--tag-l and --tag-bg-a follow the theme): a due date orange,
+   a reminder violet, a repeat teal. A due date today or missed still turns blue or red below. */
+.cm-task-date.cm-task-due,
+.task-chip:where(.due) {
+  color: hsl(28 85% var(--tag-l));
+  background: hsl(28 95% 50% / var(--tag-bg-a));
+}
+.cm-task-date.cm-task-remind,
+.task-chip:where(.remind) {
+  color: hsl(275 60% var(--tag-l));
+  background: hsl(275 70% 55% / var(--tag-bg-a));
+}
+.cm-task-date.cm-task-repeat,
+.task-chip:where(.repeat) {
+  color: hsl(172 70% var(--tag-l));
+  background: hsl(172 70% 40% / var(--tag-bg-a));
+}
 .cm-task-date.now {
   background: var(--accent-soft);
   color: var(--accent-text);

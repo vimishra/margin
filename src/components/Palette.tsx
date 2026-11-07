@@ -3,7 +3,7 @@ import { Archive, CalendarClock, CalendarDays, CheckSquare, CornerDownLeft, File
 import { createNote, go, moveTaskToNewNote, moveTaskToNote, newProjectPlace, OPEN_THREADS, openSide, openSideAt, openDaily, newFromTemplate, newMeeting, newTemplate, openNote, openNoteAt, templates, toast, ui, updateNote, useStore, type PaletteState, applyTags } from '../store'
 import { commands } from '../commands'
 import { mergeIntoNote, moveSectionToNote } from '../refactor'
-import { search } from '../lib/search'
+import { describeSearch, parseSearch, search, taskPasses, type SearchContext } from '../lib/search'
 import { tagCounts } from '../lib/links'
 import { ALT, cx, dailyLabel, displayTitle, longDate, relTime, snippet, today } from '../lib/util'
 import { parseDatePhrase } from '../lib/dates'
@@ -38,11 +38,20 @@ const NOTES_BEFORE_TASKS = 3
  * Tasks whose text has every word typed (and `#tag` or `p1`–`p3`, as in the Tasks view's box): open ones first,
  * most urgent first, then finished ones, newest first, while there is room.
  */
+/** What search needs from the settings. */
+const searchContext = (): SearchContext => {
+  const s = useStore.getState().settings
+  return { meetingsFolder: s.meetingsFolder, dayFirst: s.dayFirst }
+}
+
 function findTasks(notes: Record<string, import('../types').Note>, query: string): Task[] {
-  const words = query.trim()
-  if (words.replace(/[#\s]/g, '').length < 2) return []
+  const ctx = searchContext()
+  const q = parseSearch(query, ctx.dayFirst)
+  // Words, #tags and p1–p3 narrow as in the Tasks view; phrases, exclusions and the note's filters as in search.
+  const words = [...q.words, ...q.tags.map((t) => '#' + t)].join(' ')
+  if (words.replace(/[#\s]/g, '').length < 2 && !q.phrases.some((p) => p.length > 1)) return []
   const { templatesFolder, inboxFolder } = useStore.getState().settings
-  const hits = allTasks(notes, templatesFolder, inboxFolder).filter((t) => matchesQuery(t, '', words))
+  const hits = allTasks(notes, templatesFolder, inboxFolder).filter((t) => notes[t.noteId] && matchesQuery(t, '', words) && taskPasses(t, notes[t.noteId], q, ctx))
   const open = hits.filter((t) => !t.done).sort(byUrgency)
   const done = hits.filter((t) => t.done).sort((a, b) => (b.completed || '').localeCompare(a.completed || ''))
   return [...open, ...done].slice(0, TASK_RESULTS)
@@ -239,7 +248,7 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
       meta: c.hint && <kbd>{c.hint}</kbd>,
       run: c.run,
     })
-    const noteItem = (id: string, group: string, terms: string[] = [], snippetText?: string): Item | null => {
+    const noteItem = (id: string, group: string, terms: string[] = [], snippetText?: string, find = query.trim()): Item | null => {
       const n = notes[id]
       if (!n) return null
       return {
@@ -254,7 +263,7 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
             <span>{relTime(n.updated)}</span>
           </>
         ),
-        run: () => (terms.length ? openNoteAt(id, query.trim(), terms) : openNote(id)),
+        run: () => (terms.length ? openNoteAt(id, find, terms) : openNote(id)),
         noteId: id,
       }
     }
@@ -276,7 +285,11 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
       return [...[...ids, ...fill].map((id) => noteItem(id, 'Recent')!), ...cmds.slice(0, 7).map(commandItem)]
     }
 
-    const hits = search(notes, q, 30)
+    const ctx = searchContext()
+    const hits = search(notes, q, 30, ctx)
+    const parsed = parseSearch(q, ctx.dayFirst)
+    // What the search is limited to, beside the group's name: "Notes · in Work · “budget review”".
+    const limits = [describeSearch(parsed), parsed.unknown.length ? `not understood: ${parsed.unknown.join(', ')}` : ''].filter(Boolean).join(' · ')
     const out: Item[] = []
     // Commands whose name matches every word typed go to the top: "rename", "delete", "close other".
     const words = lower.split(/\s+/).filter(Boolean)
@@ -298,10 +311,10 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
       })
     }
     // The best few notes, then matching tasks, then the rest of the notes.
-    const noteItems = hits.map((h) => noteItem(h.note.id, 'Notes', h.terms, h.snippet)!)
+    const noteItems = hits.map((h) => noteItem(h.note.id, limits ? `Notes · ${limits}` : 'Notes', h.terms, h.snippet, h.find)!)
     out.push(...noteItems.slice(0, NOTES_BEFORE_TASKS))
     const now = today()
-    const terms = q.split(/\s+/).filter((w) => w && !w.startsWith('#') && !/^p[123]$/i.test(w))
+    const terms = [...parsed.phrases, ...parsed.words.filter((w) => !/^p[123]$/i.test(w))]
     for (const t of findTasks(notes, q)) {
       const n = notes[t.noteId]
       if (!n) continue
@@ -330,7 +343,7 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
               </span>
             )}
             {t.due && (
-              <span className={cx('task-chip', late(t.due) && 'late', t.due === now && 'now')}>
+              <span className={cx('task-chip due', late(t.due) && 'late', t.due === now && 'now')}>
                 <CalendarDays size={12} /> Due {shortDate(t.due)}
               </span>
             )}
@@ -351,7 +364,8 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
         }
       }
       out.push(...[...named.slice(4), ...byKeyword].slice(0, 6).map(commandItem))
-      if (!Object.values(notes).some((n) => n.title.toLowerCase() === lower)) {
+      // Not for a search with operators (in:, "…", -word): that is not a title anyone wants.
+      if (!limits && !parsed.unknown.length && !Object.values(notes).some((n) => n.title.toLowerCase() === lower)) {
         out.push({ key: 'create', group: 'Create', icon: <FilePlus2 size={16} />, title: `New note “${q}”`, run: () => createNote({ title: q }) })
       }
     }

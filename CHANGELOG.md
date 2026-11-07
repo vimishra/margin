@@ -2,6 +2,16 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.29.0 (2026-11-07)
+
+### Added
+
+- **Narrowing a search in ⌘K.** `"exact phrase"`; `-word`, `-"phrase"` or `-#tag` to leave things out; `in:Work` (with the notebooks inside it); `title:word`; `is:meeting`, `is:daily`, `is:research`, `is:scratch`; `has:tasks` for notes with open tasks; and `after:` / `before:` with a day. Mix them with ordinary words: `is:meeting after:"last monday" priya`. The heading over the results says what the search is limited to and points out anything it did not understand; tasks in the results follow the same filters; opening a result goes to the phrase searched for.
+
+### Changed
+
+- **Each detail on a task has its own colour**, in notes and as chips in the Tasks view, tasks blocks and ⌘K: a due date orange, a reminder violet, a repeat teal. A due date today is still blue and a missed one red.
+
 ## 1.28.0 (2026-11-07)
 
 ### Added

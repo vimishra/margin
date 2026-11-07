@@ -115,7 +115,7 @@ export function TaskRow({ task, note, showNote = true, active = false, star = fa
             </button>
           )}
           {task.due && (
-            <button className={cx('task-chip', late(task.due) && 'late', task.due === now && 'now')} title="Due date. Click to change." onClick={(e) => (e.stopPropagation(), pickDate(e.currentTarget, task, 'due'))}>
+            <button className={cx('task-chip due', late(task.due) && 'late', task.due === now && 'now')} title="Due date. Click to change." onClick={(e) => (e.stopPropagation(), pickDate(e.currentTarget, task, 'due'))}>
               <CalendarDays size={12} /> Due {shortDate(task.due)}
             </button>
           )}

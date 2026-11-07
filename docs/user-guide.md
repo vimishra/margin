@@ -29,7 +29,7 @@ Everything the app does, at a glance. Each heading links to the section that exp
 
 - Links between notes with `[[`, completed as you type, including dates such as `[[next friday]]`
 - Backlinks, unlinked mentions and outgoing links beside every note
-- One search box (⌘K) for notes, text inside notes, tags, dates and every command
+- One search box (⌘K) for notes, text inside notes, tags, dates and every command, with exact phrases, `in:Notebook`, `is:meeting`, `-word` and other ways to narrow it
 - Search inside the note you are in (⌃S), and jump to any heading (⌘⇧O)
 - Company short links such as `go/name` and `b/1234567`, clickable as they stand
 
@@ -581,6 +581,19 @@ The menu shows each command's shortcut, including ones you have changed in Setti
 - **Words:** full-text search across all notes. Opening a result scrolls to the match.
 - **Tasks:** the same words also find tasks. Below the best three notes, a **Tasks** group lists up to five tasks whose text contains every word, open ones first (most urgent first), then finished ones. Each shows its note, priority and dates. `#tag` and `p1`–`p3` narrow them as in the Tasks view: `p1 bank` finds high-priority tasks mentioning the bank. Enter opens the task's note with the cursor at the end of the task; ⌥↵ opens it in the side pane. To tick or reschedule, use the Tasks view.
 - **`#tag`:** only notes with that tag.
+- **Narrowing down:** a few words of their own narrow any search. Combine them freely with ordinary words:
+
+  | Type | Finds |
+  | --- | --- |
+  | `"budget review"` | Notes with exactly that phrase |
+  | `-draft`, `-"old plan"`, `-#archive` | Leaves out notes with that word, phrase or tag |
+  | `in:Work`, `in:"Work/Atlas"` | Only notes in that notebook, and the notebooks inside it |
+  | `title:kickoff` | Only notes whose title has that word |
+  | `is:meeting`, `is:daily`, `is:research`, `is:scratch` | Only that kind of note |
+  | `has:tasks` | Only notes with open tasks |
+  | `after:2026-10-01`, `before:friday` | A daily note's day, or the day a note last changed |
+
+  For example, `is:meeting after:"last monday" priya` finds this week's meetings that mention Priya, and `in:Work "capacity numbers"` finds where that phrase came up at work. The heading over the results says what the search is limited to, and anything it did not understand, such as a misspelt `colour:red`. Tasks in the results follow the same filters. Opening a result takes you to the phrase you searched for.
 - **A date:** `today`, `tomorrow`, `friday`, `next monday`, `last friday`, `06/10`, `6 oct`, `in 3 days`. The first result is that day's daily note.
 - **A command:** type what you want to do. `rename`, `delete`, `duplicate`, `close other`, `add tag`, `copy link`, `export`. A matching command appears at the top; press Enter.
 - **A task list:** `inbox`, `today`, `upcoming`, `anytime`, `someday`, `logbook`, `overdue` and the others, or the name of a saved filter. **Tasks: Inbox** and the rest appear at the top; Enter opens that list.

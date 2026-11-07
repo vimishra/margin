@@ -182,6 +182,7 @@ Not in the notes folder: version history and deleted notes. A synced notes folde
 | Repeating tasks | The rules and next dates in `lib/repeat.ts`; `afterTick` there is called by every tick path (`dispatchTick` in `lists.ts` for the editor's checkbox and shortcut, `Preview.tsx`, `updateTask` in `store.ts`); `@repeat` is read in `lib/tasks.ts` and `tools/margin_tasks.py` |
 | Reminders | `src/reminders.ts` (checks every 20 s, started in `App.tsx`); the notification in `electron/main.mjs` (`notify` IPC) and `preload.cjs`; `@remind` is read in `lib/tasks.ts` (`parseRemind` for words) and `tools/margin_tasks.py` |
 | Tasks blocks (```` ```tasks ````) | The filter and the choice of tasks in `lib/taskQuery.ts`; the panel in `components/TaskBlock.tsx` (also `mountTaskBlocks` for read mode and `taskBlockSnapshot` for exports); the editor widget `TaskBlockWidget` in `livePreview.ts`; read mode's mount point is the `fence` rule in `lib/markdown.ts` |
+| Search in ⌘K: words, phrases, `in:`, `is:`, `-word` | `parseSearch`, `search` and `taskPasses` in `lib/search.ts`; the results and their group heading in `components/Palette.tsx` |
 | Slash commands, link completion | `slashCommands` and `completions` in `components/Editor.tsx` |
 | The menu bar or right-click menu | `electron/main.mjs` |
 | Colours, spacing, fonts | The tokens at the top of `src/styles.css` |

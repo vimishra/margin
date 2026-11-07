@@ -1,6 +1,6 @@
 # Margin product specification
 
-This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.28.0.
+This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.29.0.
 
 It is written to be handed to a developer or a coding tool. Where a detail is a free choice for the implementer, it says so; everything else is a requirement.
 
@@ -371,8 +371,19 @@ One palette, opened by ⌘K, does three jobs.
 
 - **Empty:** recently opened notes. The first is the note you were in before the current one, so the shortcut followed by Enter flips between two notes.
 - **Words:** full-text search over titles and content, with a snippet. Opening a result scrolls to the first match and flashes that line.
-- **`#tag`:** notes with that tag.
-- **Tasks:** with at least two characters typed, a "Tasks" group after the first three note results lists up to five tasks (templates excluded) whose text contains every typed word; `#tag` and `p1`–`p3` filter as in the Tasks view's box. Open tasks come first in urgency order, then done ones, most recently done first. Each shows the priority badge, the text without markdown marks with the words highlighted, the note (and heading), and its planned, someday, due and done labels. Enter opens the task like the Tasks view does (cursor at the end of its line); ⌥↵ does the same in the side pane. Remaining note results follow under "More notes". Tasks cannot be ticked or rescheduled from here.
+- **`#tag`:** notes with that tag (and tags under it).
+- **Search operators**, combinable with words and with each other, in any order:
+  - `"exact phrase"`: the text appears as typed (case and runs of spaces ignored), in the title or the page. An unclosed quote runs to the end.
+  - `-word`, `-"phrase"`, `-#tag`: leave out notes containing it, or carrying the tag.
+  - `in:Notebook` or `in:"Two words/Sub"` (also `notebook:`): only notes in that notebook or a notebook inside it, compared as folder names are (capitals and stray slashes ignored).
+  - `title:word`: the title contains it.
+  - `tag:name`: as `#name`.
+  - `is:daily`, `is:meeting` (in the meetings notebook), `is:research`, `is:scratch`, `is:note` (any other note); plural accepted. Several are alternatives.
+  - `has:tasks`: notes with at least one open task.
+  - `after:day`, `before:day` (any day in words): a daily note's own day, otherwise the day it last changed, strictly after or before.
+  - Any other `word:value` is shown as not understood; `word:` with nothing after it, and web addresses, are ordinary words.
+  With plain words, results are ranked by the full-text search and then filtered; with only operators, every note that passes is listed, most recently changed first. When operators are used, the Notes group's heading says what the search is limited to ("Notes · in Work · “budget review” · without “draft”"), and the create-a-note item is not offered. Opening a result goes to the first phrase searched for, otherwise to the words.
+- **Tasks:** with at least two characters typed, a "Tasks" group after the first three note results lists up to five tasks (templates excluded) whose text contains every typed word; `#tag` and `p1`–`p3` filter as in the Tasks view's box; phrases and exclusions apply to the task's text, and `in:`, `is:`, `after:` and `before:` to its note. Open tasks come first in urgency order, then done ones, most recently done first. Each shows the priority badge, the text without markdown marks with the words highlighted, the note (and heading), and its planned, someday, due and done labels. Enter opens the task like the Tasks view does (cursor at the end of its line); ⌥↵ does the same in the side pane. Remaining note results follow under "More notes". Tasks cannot be ticked or rescheduled from here.
 - **A date phrase:** that day's daily note first.
 - **Command names:** matching commands rank above notes. Every list of the Tasks view is a command named "Tasks: <list>" (Inbox, Today, …, All open), with that list's icon and colour, and so is every saved filter ("Tasks: <name>"); each opens that list.
 - **`>`:** commands only.
