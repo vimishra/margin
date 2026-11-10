@@ -33,6 +33,8 @@ import { SHORTCUT_DEFS, defaultCombo, eventCombo, formatCombo, isUsable, recordi
 import { cx } from '../lib/util'
 import { desktop, fileManager, type GlobalKeyId, type GlobalKeys } from '../desktop'
 import { FontPicker } from './FontPicker'
+import { api, type TodoistSettings } from '../api'
+import { importFromTodoist, todoistStatus } from '../todoist'
 
 type Section = 'general' | 'appearance' | 'styles' | 'editor' | 'daily' | 'templates' | 'capture' | 'files' | 'shortcuts'
 
@@ -154,6 +156,80 @@ const GLOBAL_KEY_LABELS: [GlobalKeyId, string][] = [
  * The keys that open Quick task and Quick capture from any app, desktop only. They are kept by the desktop app
  * itself, so they work from start-up, and it says whether the system accepted each one.
  */
+/**
+ * Bringing tasks in from Todoist: the token (checked with Todoist, never shown again), which project or label to
+ * take tasks from, on or off for this computer, and what the last check did. Kept by the server on this computer.
+ */
+function TodoistSettingsRows() {
+  const [s, setS] = useState<TodoistSettings | null>(null)
+  const [token, setToken] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [, redraw] = useState(0)
+  useEffect(() => {
+    void api.todoist().then(setS, () => setS(null))
+    const on = () => redraw((n) => n + 1)
+    window.addEventListener('margin:todoist', on)
+    return () => window.removeEventListener('margin:todoist', on)
+  }, [])
+  if (!s) return null
+  const save = async (patch: Partial<TodoistSettings> & { token?: string }) => {
+    setBusy(true)
+    try {
+      const next = await api.setTodoist(patch)
+      setS(next)
+      if (next.projectFound === false && next.project) toast(`No Todoist project called “${next.project}” yet. Make it in Todoist, or use a label instead.`)
+      return next
+    } catch (e) {
+      toast((e as Error).message)
+      return null
+    } finally {
+      setBusy(false)
+    }
+  }
+  const last = todoistStatus()
+  const when = last ? new Date(last.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : ''
+  const report = !last
+    ? 'Not checked yet on this computer.'
+    : last.error
+      ? `Last check, ${when}: ${last.error}`
+      : `Last check, ${when}: ${last.added ? `${last.added} task${last.added === 1 ? '' : 's'} brought in` : 'nothing waiting'}${last.projectMissing ? `; no project called “${s.project}”` : ''}${last.repeating ? `; ${last.repeating} repeating task${last.repeating === 1 ? '' : 's'} left in Todoist` : ''}.`
+  return (
+    <>
+      <Row label="Todoist API token" hint="To bring in tasks you capture in Todoist, for example on your phone. Copy the token from Todoist → Settings → Integrations → Developer. It is kept on this computer only, not in your notes folder." stack>
+        {s.connected ? (
+          <div className="set-path">
+            <code>Connected</code>
+            <button className="btn sm" disabled={busy} onClick={() => void save({ token: '' })}>
+              Remove
+            </button>
+          </div>
+        ) : (
+          <div className="set-path">
+            <input className="set-text" type="password" value={token} placeholder="Paste the API token" spellCheck={false} autoComplete="off" onChange={(e) => setToken(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && token.trim() && void save({ token, enabled: true }).then((n) => n && setToken(''))} />
+            <button className="btn sm" disabled={busy || !token.trim()} onClick={() => void save({ token, enabled: true }).then((n) => n && setToken(''))}>
+              Connect
+            </button>
+          </div>
+        )}
+      </Row>
+      <Row label="Bring in tasks from Todoist" hint="Every few minutes while Margin is running, tasks from the project or with the label below move into your Inbox: added there, then completed in Todoist. Turn it on on one computer only.">
+        <Toggle label="Bring in tasks from Todoist" value={s.enabled} onChange={(v) => (s.connected ? void save({ enabled: v }) : toast('Connect Todoist with its API token first'))} />
+      </Row>
+      <Row label="Todoist project" hint="Tasks in this project come in. Leave it empty to use only the label.">
+        <input key={s.project} className="set-text" defaultValue={s.project} placeholder="Margin" spellCheck={false} onBlur={(e) => e.target.value.trim() !== s.project && void save({ project: e.target.value })} onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()} />
+      </Row>
+      <Row label="Todoist label" hint="Tasks with this label come in too, from any project. Optional.">
+        <input key={s.label} className="set-text" defaultValue={s.label} placeholder="margin" spellCheck={false} onBlur={(e) => e.target.value.trim().replace(/^@/, '') !== s.label && void save({ label: e.target.value })} onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()} />
+      </Row>
+      <Row label="Check Todoist now" hint={report}>
+        <button className="btn sm" disabled={busy || !s.enabled} onClick={() => void importFromTodoist(false).then(() => redraw((n) => n + 1))}>
+          Check now
+        </button>
+      </Row>
+    </>
+  )
+}
+
 function GlobalKeyEditor({ query, inApp }: { query: string; inApp: (combo: string) => string | undefined }) {
   const [state, setState] = useState<GlobalKeys | null>(null)
   const [recordingId, setRecordingId] = useState<GlobalKeyId | null>(null)
@@ -760,6 +836,7 @@ export function SettingsModal() {
                 <Row label="Scratch notebook" hint="Where new scratch notes are saved.">
                   <Text value={s.scratchFolder} onChange={set('scratchFolder')} />
                 </Row>
+                <TodoistSettingsRows />
               </div>
             )}
 

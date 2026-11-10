@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url'
 import os from 'node:os'
 import { seedNotes } from './seed.mjs'
 import { importObsidian } from './obsidian.mjs'
+import { todoistRoutes } from './todoist.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // The notes folder: VAULT_DIR if given, else the folder chosen in the desktop app, else ./vault.
@@ -693,6 +694,9 @@ app.post('/api/import/obsidian', h(async (req, res) => {
   await scan()
   res.json({ ...result, notes: [...notes.values()].map(publicNote), folders })
 }))
+
+// Tasks captured in Todoist, brought into the Inbox (settings and token kept on this computer).
+todoistRoutes(app, h, DATA)
 
 app.use('/api', (_req, _res, next) => next(new HttpError(404, 'Not found')))
 app.use('/files', express.static(VAULT, { dotfiles: 'deny', index: false }))

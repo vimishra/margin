@@ -6,6 +6,7 @@ import { commands } from './commands'
 import { actionFor, eventCombo, recording, syncDesktopMenu } from './shortcuts'
 import { desktop } from './desktop'
 import { startReminders } from './reminders'
+import { startTodoist } from './todoist'
 import { displayTitle, isMac } from './lib/util'
 import { Sidebar } from './components/Sidebar'
 import { TabBar } from './components/TabBar'
@@ -200,6 +201,7 @@ export default function App() {
     })
     syncDesktopMenu()
     const stopReminders = startReminders()
+    const stopTodoist = startTodoist()
     // Mac apps quieten their selections when the window is not in front.
     const onFocus = () => document.documentElement.classList.toggle('window-inactive', !document.hasFocus())
     window.addEventListener('focus', onFocus)
@@ -212,6 +214,7 @@ export default function App() {
       off?.()
       offContext?.()
       stopReminders()
+      stopTodoist()
       window.removeEventListener('margin:action', onAction)
       window.removeEventListener('focus', onFocus)
       window.removeEventListener('blur', onFocus)

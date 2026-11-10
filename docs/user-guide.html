@@ -161,7 +161,11 @@ mark.find-hit.current{background:#ffab2e}
 <li><a href="#writing">Writing</a></li>
 <li><a href="#finding-things">Finding things</a></li>
 <li><a href="#daily-notes-the-calendar-and-the-canvas">Daily notes, the calendar and the canvas</a></li>
-<li><a href="#quick-capture-and-scratch-notes">Quick capture and scratch notes</a></li>
+<li><a href="#quick-capture-and-scratch-notes">Quick capture and scratch notes</a>
+<ul>
+<li><a href="#tasks-from-your-phone-through-todoist">Tasks from your phone, through Todoist</a></li>
+</ul>
+</li>
 <li><a href="#meeting-notes-and-templates">Meeting notes and templates</a></li>
 <li><a href="#people-and-11s">People and 1:1s</a></li>
 <li><a href="#research-notes">Research notes</a></li>
@@ -930,6 +934,64 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 <li>Esc closes a suggestion list first, then the box.</li>
 </ul>
 <p>Captured tasks appear in <strong>Tasks → Inbox</strong>, where you sort them: see <a href="#the-inbox">The Inbox</a>.</p>
+<h3 id="tasks-from-your-phone-through-todoist">Tasks from your phone, through Todoist</h3>
+<p>Margin has no phone app, but tasks you add to <strong>Todoist</strong> on your phone (with its widget, Siri or Google Assistant, or the share sheet) can come into Margin by themselves. Margin moves them: each task is added to your Inbox note and then completed in Todoist, so it is only ever in one place.</p>
+<p><strong>Set it up once:</strong></p>
+<ol>
+<li>In Todoist, make a project called <strong>Margin</strong> (or pick a label, such as <code>margin</code>, if you would rather tag tasks from any project). On the phone, add tasks to that project: in Todoist's quick add, type <code>#Margin</code>, or make it the project for the Todoist widget.</li>
+<li>In Todoist on the web or desktop, open <strong>Settings → Integrations → Developer</strong> and copy the <strong>API token</strong>.</li>
+<li>In Margin, open <strong>Settings → Capture &amp; scratch</strong>, paste the token under <strong>Todoist API token</strong> and choose <strong>Connect</strong>. Margin checks it with Todoist. <strong>Bring in tasks from Todoist</strong> turns on.</li>
+<li>If your project has another name, or you use a label, set <strong>Todoist project</strong> and <strong>Todoist label</strong>. Either or both.</li>
+</ol>
+<p><strong>Then:</strong> every five minutes while Margin is running (also when you come back to its window, and at start), waiting tasks move into the Inbox note. A message says how many came in. <strong>Check now</strong> does it straight away, and the line beside it says what the last check did.</p>
+<p>How a Todoist task comes in:</p>
+<div class="table"><table><thead>
+<tr>
+<th>In Todoist</th>
+<th>In Margin</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The task</td>
+<td>A task in the Inbox note</td>
+</tr>
+<tr>
+<td>p1, p2, p3</td>
+<td><code>P1</code>, <code>P2</code>, <code>P3</code></td>
+</tr>
+<tr>
+<td>A date (the day you plan to do it)</td>
+<td>The planned day, <code>&gt;2026-11-12</code>, so it shows in Today or Upcoming</td>
+</tr>
+<tr>
+<td>A time on that date</td>
+<td>A reminder, <code>@remind(2026-11-12 17:30)</code></td>
+</tr>
+<tr>
+<td>A deadline</td>
+<td>The due date, <code>@due(2026-11-20)</code></td>
+</tr>
+<tr>
+<td>Labels (other than the one you import by)</td>
+<td>Tags, such as <code>#health</code></td>
+</tr>
+<tr>
+<td>The description</td>
+<td>Notes under the task</td>
+</tr>
+<tr>
+<td>Sub-tasks</td>
+<td>Sub-tasks under it</td>
+</tr>
+</tbody>
+</table></div><ul>
+<li><strong>Repeating Todoist tasks are left in Todoist</strong>: completing one there only moves it to its next date, so it would come in again each time. The check says how many it left. Add the repeat in Margin instead (<code>@repeat(…)</code>).</li>
+<li><strong>Margin has to be running</strong> on a computer for tasks to come in; until then they wait safely in Todoist.</li>
+<li><strong>Turn it on on one computer only.</strong> The settings and the token are kept on each computer separately, never in your notes folder; if two computers both brought tasks in, they could both take the same one.</li>
+<li><strong>Nothing is lost if something fails.</strong> Tasks are completed in Todoist only after the Inbox note is saved. If completing fails, Margin remembers it already has them and tries again next time, without adding them twice.</li>
+<li>To stop, turn <strong>Bring in tasks from Todoist</strong> off, or <strong>Remove</strong> the token.</li>
+</ul>
 <p><strong>Scratch notes</strong> (⌘⌥N, or New → Scratch note) are for things you need for a few days. They expire after a week and move to the trash. Each one shows how long it has left, with buttons to extend it or <strong>Keep</strong> it as a normal note.</p>
 <h2 id="meeting-notes-and-templates">Meeting notes and templates</h2>
 <p><strong>New meeting note</strong> (⌘⇧M) asks for the meeting's name, then:</p>

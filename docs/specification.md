@@ -1,6 +1,6 @@
 # Margin product specification
 
-This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.31.0.
+This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.32.0.
 
 It is written to be handed to a developer or a coding tool. Where a detail is a free choice for the implementer, it says so; everything else is a requirement.
 
@@ -628,6 +628,17 @@ A cancelled task has `-` in its box (`- [-] …`). It is finished with: out of e
 - **Appearance:** the box is drawn with a cross (no tick), the text greyed (lighter than a done task) and struck through, in the editor, read mode, the Tasks view and tasks blocks. In read mode, clicking its box reopens it.
 - **Repeating:** cancelling counts as ticking for `@repeat`: the next occurrence is added and the cancelled line kept, without its `@repeat`.
 - **Exports** show it with a crossed box. The command-line tool lists it with `[-]`, `done` true and `cancelled` true, `done_on` its cancelled day.
+
+### 12.3e Bringing tasks in from Todoist
+
+Tasks captured in Todoist (on a phone) are moved into the Inbox note.
+
+- **Settings,** kept by the server on each computer in its own folder (`todoist.json` in the app's data folder, readable only by the user), never in the notes folder: an API token, whether the import is on, a project name (default "Margin") and a label (optional, a leading `@` dropped). The page never receives the token, only whether there is one. A new token is checked with Todoist (a project list request) before it is kept; a refused token is not saved and the error says where to copy it from. After a change the server says whether a project of that name exists (compared ignoring case and surrounding spaces). Removing the token turns the import off. Settings → Capture & scratch has the token field (Connect, or Connected with Remove), the on/off switch, the project and label fields, Check now, and a line describing the last check.
+- **Which tasks:** open tasks in the project, and open tasks with the label, from Todoist API v1 (`GET /tasks` by `project_id` and by `label`, all pages). Repeating tasks (`due.is_recurring`), and sub-tasks of them, are left in Todoist and counted.
+- **When:** at start once the notes have loaded, every 5 minutes while the app runs, and on the window gaining focus if the last check was over a minute ago. One check at a time.
+- **Each check:** tasks already brought in on this computer (their ids remembered for 30 days) are not added again. The others are written at the end of the Inbox note (made if needed) as task lines, one per task, sub-tasks indented two spaces under their parent, in Todoist's order: the text (on one line), the task's other labels as tags (characters other than letters, digits, `_`, `/` and `-` become `-`; leading non-letters dropped; not repeated if already in the text), the priority (Todoist 4, 3, 2 as `P1`, `P2`, `P3`), the date as the planned day `>date`, the deadline as `@due(date)`, a time as `@remind(date HH:MM)` (a floating time as written; a fixed-zone time in this computer's time), and the description's non-blank lines indented under it. The note is then saved and the server's confirmation awaited; only then are all the tasks fetched closed in Todoist, each separately (`POST /tasks/{id}/close`). Ones that fail stay remembered and are closed on a later check. A message says how many were added, with Open.
+- **Errors** (no connection, token refused, Todoist error, the note not saved) leave the tasks in Todoist and are shown on the settings line, and in a message when the check was asked for.
+- `MARGIN_TODOIST_API` points the server at another address, for tests only.
 
 ### 12.3c Reminders
 

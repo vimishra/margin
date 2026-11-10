@@ -1214,6 +1214,24 @@ export async function captureTask(raw: string, notes = '') {
 }
 
 /**
+ * Add lines to the end of the Inbox note and save it at once, waiting for the server to confirm. True when they
+ * are safely in the file, so whatever they came from (Todoist) can let go of them.
+ */
+export async function addToInbox(lines: string): Promise<boolean> {
+  const note = await ensureInboxNote()
+  if (!note) return false
+  appendToNote(get().notes[note.id] ?? note, lines, '', true)
+  const content = get().notes[note.id]?.content
+  if (content === undefined) return false
+  try {
+    await api.updateNote(note.id, { content })
+    return true
+  } catch {
+    return false
+  }
+}
+
+/**
  * Add text as a list item to a note, under `heading` or at the end of the page. With `asIs`, the lines go in
  * exactly as given. Where it went: the line, or -1 for the end. Null when there was nothing to add.
  */

@@ -319,6 +319,10 @@ Each canvas card is markdown too.
 <td><code>listTrash</code>, <code>restoreTrash</code>, <code>removeTrash</code>, <code>trashFile</code> and <code>moveFile</code> in <code>server/index.mjs</code> (<code>/api/trash…</code>); the page in <code>components/TrashView.tsx</code>; <code>restoreFromTrash</code> and <code>refreshTrash</code> in <code>store.ts</code></td>
 </tr>
 <tr>
+<td>Tasks from Todoist</td>
+<td>The Todoist calls and the per-computer settings and token in <code>server/todoist.mjs</code> (<code>/api/todoist…</code>); the task lines in <code>lib/todoist.ts</code>; the checks, saving and closing in <code>src/todoist.ts</code> (started in <code>App.tsx</code>; <code>addToInbox</code> in <code>store.ts</code> saves at once); the settings rows <code>TodoistSettingsRows</code> in <code>components/SettingsModal.tsx</code>. Test against a stand-in server with <code>MARGIN_TODOIST_API</code>.</td>
+</tr>
+<tr>
 <td>Cancelled tasks (<code>[-]</code>)</td>
 <td><code>setLineCancelled</code> and <code>lineCancelChanges</code> in <code>lib/tasks.ts</code> (and <code>tools/margin_tasks.py</code>); <code>toggleCancel</code> in <code>lists.ts</code>; the box in <code>livePreview.ts</code> (<code>CheckboxWidget</code>), the <code>cancelled_tasks</code> rule in <code>lib/markdown.ts</code>, <code>TaskRow</code> in <code>TasksView.tsx</code>; styles <code>box-cancelled</code> and <code>cm-task-cancelled</code></td>
 </tr>

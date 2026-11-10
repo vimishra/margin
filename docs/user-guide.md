@@ -105,6 +105,7 @@ The guide has two main parts, because Margin does two different jobs. **Part 1**
 - [Finding things](#finding-things)
 - [Daily notes, the calendar and the canvas](#daily-notes-the-calendar-and-the-canvas)
 - [Quick capture and scratch notes](#quick-capture-and-scratch-notes)
+  - [Tasks from your phone, through Todoist](#tasks-from-your-phone-through-todoist)
 - [Meeting notes and templates](#meeting-notes-and-templates)
 - [People and 1:1s](#people-and-11s)
 - [Research notes](#research-notes)
@@ -696,6 +697,38 @@ You do not have to pick a suggestion: when the task is saved, `>fri` and `@due(n
 - Esc closes a suggestion list first, then the box.
 
 Captured tasks appear in **Tasks → Inbox**, where you sort them: see [The Inbox](#the-inbox).
+
+### Tasks from your phone, through Todoist
+
+Margin has no phone app, but tasks you add to **Todoist** on your phone (with its widget, Siri or Google Assistant, or the share sheet) can come into Margin by themselves. Margin moves them: each task is added to your Inbox note and then completed in Todoist, so it is only ever in one place.
+
+**Set it up once:**
+
+1. In Todoist, make a project called **Margin** (or pick a label, such as `margin`, if you would rather tag tasks from any project). On the phone, add tasks to that project: in Todoist's quick add, type `#Margin`, or make it the project for the Todoist widget.
+2. In Todoist on the web or desktop, open **Settings → Integrations → Developer** and copy the **API token**.
+3. In Margin, open **Settings → Capture & scratch**, paste the token under **Todoist API token** and choose **Connect**. Margin checks it with Todoist. **Bring in tasks from Todoist** turns on.
+4. If your project has another name, or you use a label, set **Todoist project** and **Todoist label**. Either or both.
+
+**Then:** every five minutes while Margin is running (also when you come back to its window, and at start), waiting tasks move into the Inbox note. A message says how many came in. **Check now** does it straight away, and the line beside it says what the last check did.
+
+How a Todoist task comes in:
+
+| In Todoist | In Margin |
+| --- | --- |
+| The task | A task in the Inbox note |
+| p1, p2, p3 | `P1`, `P2`, `P3` |
+| A date (the day you plan to do it) | The planned day, `>2026-11-12`, so it shows in Today or Upcoming |
+| A time on that date | A reminder, `@remind(2026-11-12 17:30)` |
+| A deadline | The due date, `@due(2026-11-20)` |
+| Labels (other than the one you import by) | Tags, such as `#health` |
+| The description | Notes under the task |
+| Sub-tasks | Sub-tasks under it |
+
+- **Repeating Todoist tasks are left in Todoist**: completing one there only moves it to its next date, so it would come in again each time. The check says how many it left. Add the repeat in Margin instead (`@repeat(…)`).
+- **Margin has to be running** on a computer for tasks to come in; until then they wait safely in Todoist.
+- **Turn it on on one computer only.** The settings and the token are kept on each computer separately, never in your notes folder; if two computers both brought tasks in, they could both take the same one.
+- **Nothing is lost if something fails.** Tasks are completed in Todoist only after the Inbox note is saved. If completing fails, Margin remembers it already has them and tries again next time, without adding them twice.
+- To stop, turn **Bring in tasks from Todoist** off, or **Remove** the token.
 
 **Scratch notes** (⌘⌥N, or New → Scratch note) are for things you need for a few days. They expire after a week and move to the trash. Each one shows how long it has left, with buttons to extend it or **Keep** it as a normal note.
 

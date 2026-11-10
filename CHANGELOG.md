@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.32.0 (2026-11-10)
+
+### Added
+
+- **Tasks from your phone, through Todoist.** Tasks you add to a Todoist project called Margin (or give a label you choose) move into your Inbox note every few minutes while Margin is running: added and saved first, then completed in Todoist, so each is in one place only. Priorities, dates (as the planned day), times (as reminders), deadlines (as due dates), other labels (as tags), descriptions and sub-tasks come with them; repeating Todoist tasks are left there. Set it up in Settings → Capture & scratch with your Todoist API token, which is kept on that computer only, never in your notes folder. Turn it on on one computer.
+
 ## 1.31.0 (2026-11-07)
 
 ### Added

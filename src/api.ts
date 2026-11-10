@@ -27,7 +27,35 @@ export interface TrashItem {
   snippet: string
 }
 
+/** This computer's Todoist import settings, as the server shows them (the token itself never comes back). */
+export interface TodoistSettings {
+  enabled: boolean
+  project: string
+  label: string
+  connected: boolean
+  /** After a change: whether a project of that name was found in Todoist. */
+  projectFound?: boolean | null
+}
+
+/** A task waiting in Todoist to come into Margin. `priority` is Todoist's: 4 is P1, 1 is none. */
+export interface TodoistTask {
+  id: string
+  content: string
+  description: string
+  priority: number
+  due: { date: string; datetime: string | null } | null
+  deadline: string | null
+  labels: string[]
+  parentId: string | null
+  order: number
+  added: string
+}
+
 export const api = {
+  todoist: () => request<TodoistSettings>('/api/todoist'),
+  setTodoist: (patch: Partial<TodoistSettings> & { token?: string }) => request<TodoistSettings>('/api/todoist', json('PUT', patch)),
+  todoistTasks: () => request<{ tasks: TodoistTask[]; repeating: number; projectMissing: boolean }>('/api/todoist/tasks'),
+  closeTodoist: (ids: string[]) => request<{ closed: string[]; failed: string[] }>('/api/todoist/close', json('POST', { ids })),
   state: () => request<{ notes: Note[]; folders: string[]; vault: string; local?: string; config?: VaultConfig }>('/api/state'),
   setConfig: (config: Partial<VaultConfig>) => request<{ config: VaultConfig; folders: string[] }>('/api/config', json('PUT', config)),
   createNote: (note: Partial<Note>) => request<{ note: Note; folders: string[] }>('/api/notes', json('POST', note)),
