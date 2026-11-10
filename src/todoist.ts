@@ -35,7 +35,10 @@ export async function importFromTodoist(quiet = true): Promise<TodoistStatus | n
   const status: TodoistStatus = { at: Date.now(), added: 0, repeating: 0, projectMissing: false }
   try {
     const settings = await api.todoist()
-    if (!settings.enabled || !settings.connected) return null
+    if (!settings.enabled || !settings.connected) {
+      if (!quiet) toast('Todoist is not set up on this computer: Settings → Capture & scratch')
+      return null
+    }
     const { tasks, repeating, projectMissing } = await api.todoistTasks()
     status.repeating = repeating
     status.projectMissing = projectMissing

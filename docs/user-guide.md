@@ -709,7 +709,9 @@ Margin has no phone app, but tasks you add to **Todoist** on your phone (with it
 3. In Margin, open **Settings → Capture & scratch**, paste the token under **Todoist API token** and choose **Connect**. Margin checks it with Todoist. **Bring in tasks from Todoist** turns on.
 4. If your project has another name, or you use a label, set **Todoist project** and **Todoist label**. Either or both.
 
-**Then:** every five minutes while Margin is running (also when you come back to its window, and at start), waiting tasks move into the Inbox note. A message says how many came in. **Check now** does it straight away, and the line beside it says what the last check did.
+**Then:** every five minutes while Margin is running (also when you come back to its window, and at start), waiting tasks move into the Inbox note. A message says how many came in. To check straight away, choose **Todoist: check for new tasks now** in ⌘K (you can give it a shortcut in Settings → Shortcuts), or **Check now** in the settings, where the line beside it says what the last check did.
+
+Every task that comes in is tagged **#todoist**, so you can find the ones you jotted down quickly and reword them: narrow the Tasks view to `#todoist` (and save it as a filter, say "From my phone"), or put a tasks block with `#todoist` in a note. Once a task is reworded, remove the tag.
 
 How a Todoist task comes in:
 
@@ -720,7 +722,7 @@ How a Todoist task comes in:
 | A date (the day you plan to do it) | The planned day, `>2026-11-12`, so it shows in Today or Upcoming |
 | A time on that date | A reminder, `@remind(2026-11-12 17:30)` |
 | A deadline | The due date, `@due(2026-11-20)` |
-| Labels (other than the one you import by) | Tags, such as `#health` |
+| Labels (other than the one you import by) | Tags, such as `#health`, besides `#todoist` |
 | The description | Notes under the task |
 | Sub-tasks | Sub-tasks under it |
 

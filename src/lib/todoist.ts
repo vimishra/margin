@@ -17,19 +17,24 @@ export function remindAt(datetime: string): string {
   return `${datetime.slice(0, 10)} ${datetime.slice(11, 16)}`
 }
 
+/** The tag every task brought in from Todoist gets, so they can be found and reworded later: `#todoist`. */
+export const TODOIST_TAG = '#todoist'
+
 /**
  * One Todoist task as a Margin task line and the notes under it: its date becomes the planned day, a time on it a
  * reminder, its deadline the due date, p1–p3 the same priorities, its labels tags (not the import label), and its
  * description the lines under it.
  */
-export function taskLines(t: TodoistTask, importLabel: string, indent = ''): string[] {
+export function taskLines(t: TodoistTask, importLabel: string, indent = '', tagged = !indent): string[] {
   const text = t.content.replace(/\s*\n\s*/g, ' ').trim() || 'Untitled task'
   const priority = t.priority >= 2 && t.priority <= 4 ? `P${5 - t.priority}` : ''
   const date = t.due?.date?.slice(0, 10)
   const planned = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? `>${date}` : ''
   const remind = t.due?.datetime ? `@remind(${remindAt(t.due.datetime)})` : ''
   const due = t.deadline && /^\d{4}-\d{2}-\d{2}$/.test(t.deadline) ? `@due(${t.deadline})` : ''
-  const tags = t.labels.filter((l) => l.toLowerCase() !== importLabel.toLowerCase()).map(asTag).filter((x) => x && !text.includes(x))
+  const labels = t.labels.filter((l) => l.toLowerCase() !== importLabel.toLowerCase()).map(asTag)
+  // A task that came in (not each of its sub-tasks) is tagged #todoist, once.
+  const tags = [...new Set([...labels, ...(tagged ? [TODOIST_TAG] : [])])].filter((x) => x && !text.toLowerCase().split(/\s+/).includes(x.toLowerCase()))
   const line = `${indent}- [ ] ${[text, ...tags, priority, planned, due, remind].filter(Boolean).join(' ')}`
   const notes = t.description
     .split('\n')

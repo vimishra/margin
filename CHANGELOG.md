@@ -2,6 +2,13 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.33.0 (2026-11-10)
+
+### Added
+
+- **Todoist: check for new tasks now** in ⌘K, to bring tasks in from Todoist straight away instead of waiting for the next check (give it a shortcut in Settings → Shortcuts if you like).
+- **Tasks brought in from Todoist are tagged #todoist**, so the ones you jotted down quickly on the phone are easy to find and reword: narrow the Tasks view to `#todoist` and save it as a filter.
+
 ## 1.32.0 (2026-11-10)
 
 ### Added

@@ -48,8 +48,10 @@ import {
   ChevronsDownUp,
   ChevronsUpDown,
   SquareX,
+  RefreshCw,
 } from 'lucide-react'
 import { pickMergeTarget, turnIntoNotebook } from './refactor'
+import { importFromTodoist } from './todoist'
 import { archiveEverywhere, archiveHere, archiveProject } from './archive'
 import { addTag, closeAllTabs, closeOtherTabs, duplicateNote, renameNote, toast, askPageWidth, closeSide, createFolder, currentNote, openSide, swapPanes, importFromObsidian, carryTop3, newMeeting, newPerson, addMeetingEntry, deleteNote, go, newNote, openDaily, setPref, ui, updateNote, useStore } from './store'
 import { exportHtml, exportMarkdown, exportPdf, exportWord } from './lib/export'
@@ -87,6 +89,7 @@ export function commands(): Command[] {
     { id: 'new', label: 'New note', icon: i(FilePlus2), hint: `${ALT}N`, keywords: 'create page', run: () => newNote('note') },
     { id: 'capture', label: 'Quick capture', icon: i(Zap), hint: `${ALT}C`, keywords: 'jot daily note today', run: () => ui({ capture: 'note' }) },
     { id: 'captureTask', label: 'Quick task', icon: i(ListChecks), keywords: 'capture todo add task inbox things quick entry', run: () => ui({ capture: 'task' }) },
+    { id: 'todoistCheck', label: 'Todoist: check for new tasks now', icon: i(RefreshCw), keywords: 'sync import phone mobile fetch pull inbox', run: () => void importFromTodoist(false) },
     { id: 'daily', label: "Open today's daily note", icon: i(CalendarCheck), hint: `${ALT}D`, keywords: 'journal today', run: () => openDaily() },
     { id: 'scratch', label: 'New scratch note', icon: i(Hourglass), hint: `${ALT}S`, keywords: 'temporary expire', run: () => newNote('scratch') },
     { id: 'canvas', label: 'New canvas', icon: i(LayoutDashboard), keywords: 'board whiteboard', run: () => newNote('canvas') },
