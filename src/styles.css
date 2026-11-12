@@ -5857,6 +5857,18 @@ kbd {
 .task-chip.triage-link {
   color: var(--accent-text);
 }
+.triage-category-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.triage-move-all {
+  opacity: 0;
+}
+.triage-category:hover .triage-move-all,
+.triage-move-all:focus-visible {
+  opacity: 1;
+}
 .task-chip.triage-dest {
   color: var(--text-3);
   background: none;

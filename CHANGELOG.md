@@ -2,6 +2,13 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.36.0 (2026-11-12)
+
+### Added
+
+- **Move all, in Triage.** A button on each category's heading (or A on one of its tasks) moves every open task of the category where your rules send each one, as one step with one Undo. Tasks no rule places go together to a note you pick.
+- **Triage's keys are listed** under "Triage" in the keyboard shortcuts reference.
+
 ## 1.35.0 (2026-11-12)
 
 ### Added

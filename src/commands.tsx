@@ -251,4 +251,19 @@ export const FIXED_SHORTCUTS: [string, [string, string][]][] = [
       [`${MOD}+scroll`, 'Zoom'],
     ],
   ],
+  [
+    'Triage',
+    [
+      ['↑ ↓ / J K', 'Move between tasks'],
+      ['↵', 'Show or hide details'],
+      ['Space / X', 'Complete, or reopen'],
+      ['C', 'Drop, or reopen a dropped task'],
+      ['S / D', 'When / due date'],
+      ['M', 'Move to the note its rules name (or pick one)'],
+      ['⇧M', 'Move to a note you pick'],
+      ['A', 'Move every open task of its category'],
+      ['O', 'Open its first link'],
+      ['/', 'Narrow down'],
+    ],
+  ],
 ]

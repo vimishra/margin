@@ -249,6 +249,10 @@ export type PaletteState = null | {
   task?: Task
   /** For triageMove: the task of the triage note to move. */
   triageTask?: import('./lib/triage').TriageTask
+  /** For triageMove from Move all: the tasks no rule places (all go to the note picked)… */
+  triageTasks?: import('./lib/triage').TriageTask[]
+  /** …and the ones rules place, moved with them as one action. */
+  triagePlan?: import('./triage').MovePlan[]
   /** For moveSection: the section's heading line in the page, and its title, to find it again. */
   section?: { line: number; title: string }
 }

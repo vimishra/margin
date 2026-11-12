@@ -349,6 +349,18 @@ export function removeBlock(text: string, task: Pick<TriageTask, 'line' | 'end'>
   return lines.join('\n')
 }
 
+/** The text with several tasks' blocks taken out (each once, from the bottom up), and nothing else changed. */
+export function removeBlocks(text: string, tasks: Pick<TriageTask, 'line' | 'end'>[]): string {
+  const lines = text.split('\n')
+  const seen = new Set<number>()
+  for (const t of [...tasks].sort((a, b) => b.line - a.line)) {
+    if (seen.has(t.line)) continue
+    seen.add(t.line)
+    lines.splice(t.line, t.end - t.line)
+  }
+  return lines.join('\n')
+}
+
 /** Whether a note already has an open task whose line links to this address (so the task is there already). */
 export function hasOpenTaskLinking(page: string, url: string): boolean {
   if (!url) return false

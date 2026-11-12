@@ -8,7 +8,7 @@ import { createServer } from 'vite'
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
 const vite = await createServer({ root, logLevel: 'error', server: { middlewareMode: true }, appType: 'custom' })
-const { parseTriage, serializeTriage, runTasks, triageCounts, applyTriageAction, changeTaskLine, locateTask, blockLines, removeBlock, hasOpenTaskLinking, insertUnderHeading, resolveDestination, prepareBlock, findNote } = await vite.ssrLoadModule('/src/lib/triage.ts')
+const { parseTriage, serializeTriage, runTasks, triageCounts, applyTriageAction, changeTaskLine, locateTask, blockLines, removeBlock, removeBlocks, hasOpenTaskLinking, insertUnderHeading, resolveDestination, prepareBlock, findNote } = await vite.ssrLoadModule('/src/lib/triage.ts')
 const example = fs.readFileSync(path.join(root, 'tests/triage/example.md'), 'utf8')
 let checks = 0
 const check = (name, fn) => {
@@ -255,6 +255,17 @@ check('move options: words taken off the task line, the "from triage" line added
 check('no note, folder, heading or tag name is written into the code (criterion 12)', () => {
   const sources = ['src/lib/triage.ts', 'src/triage.ts', 'src/components/TriageView.tsx'].map((f) => fs.readFileSync(path.join(root, f), 'utf8'))
   for (const name of ['Payments', 'Workstreams', 'Category One', 'Inbox/Triage', '#quick', 'category-one']) for (const src of sources) assert.ok(!src.includes(name), `${name} appears in the code`)
+})
+
+check('moving a whole category takes out exactly its blocks, whatever order they are given in (criterion 5)', () => {
+  const run = parseTriage(example).runs[0]
+  const one = run.categories[0].groups.flatMap((g) => g.tasks)
+  const left = removeBlocks(example, [one[2], one[0], one[1], one[0]])
+  const removed = new Set(one.flatMap((t) => Array.from({ length: t.end - t.line }, (_x, i) => t.line + i)))
+  assert.equal(left, example.split('\n').filter((_l, i) => !removed.has(i)).join('\n'))
+  // The category's heading and group labels stay, empty.
+  assert.match(left, /### Category One\n\*\*Quick replies\*\*\n\*\*Actions\*\*\n\*\*FYI\*\*/)
+  assert.deepEqual(runTasks(parseTriage(left).runs[0]).map((t) => t.title), ['Another task'])
 })
 
 await vite.close()

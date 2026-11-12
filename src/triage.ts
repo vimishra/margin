@@ -4,7 +4,7 @@
 // refused, and the action is tried once more on the newer note. Every action can be undone from its message.
 import { api, isConflict } from './api'
 import { OPEN_THREADS, addTriageRule, saveNow, takeNote, toast, triageNote, ui, useStore } from './store'
-import { applyTriageAction, blockLines, hasOpenTaskLinking, insertUnderHeading, locateTask, parseTriage, prepareBlock, removeBlock, resolveDestination, ruleLabel, type TriageAction, type TriageTask } from './lib/triage'
+import { applyTriageAction, blockLines, hasOpenTaskLinking, insertUnderHeading, locateTask, parseTriage, prepareBlock, removeBlocks, resolveDestination, ruleLabel, type TriageAction, type TriageTask } from './lib/triage'
 import { shortDate } from './lib/tasks'
 import { joinContent, splitContent } from './lib/canvas'
 import { displayTitle } from './lib/util'
@@ -106,88 +106,128 @@ async function saveFresh(id: string, make: (current: Note) => string | null): Pr
   throw new Error('the note kept changing while saving')
 }
 
+/** One task to move, where to, and why (a rule, for the message). */
+export interface MovePlan {
+  task: TriageTask
+  targetId: string
+  reason?: string
+}
+
 /**
- * Move a task of the triage note into another note: its block, unchanged (so its links stay on the task line and
- * the triage program does not list it again), goes under the Open Threads heading of that note, made if missing;
- * then, only once that is saved, the block is taken out of the triage note. If the note already has an open task
- * with the same link, nothing is added there and the task only leaves the triage note. One Undo puts both back.
+ * Move tasks of the triage note into other notes, as one action with one Undo. Each task's block goes in unchanged
+ * (so its links stay on the task line and the triage program does not list it again) under the configured heading
+ * of its note, made if missing; a note that already has an open task with the same link gets nothing for that task.
+ * Only once every note is saved are the blocks taken out of the triage note, as it is by then. Tasks no longer in
+ * the triage note are left out and counted.
  */
-export async function triageMove(task: TriageTask, targetId: string, reason = ''): Promise<boolean> {
+export async function triageMoveMany(plan: MovePlan[]): Promise<boolean> {
   const triage = triageNote()
-  const target = useStore.getState().notes[targetId]
-  if (!triage || !target) return false
-  if (target.id === triage.id) {
+  const notes = useStore.getState().notes
+  if (!triage || !plan.length) return false
+  if (plan.some((p) => p.targetId === triage.id)) {
     toast('A task cannot be moved into the triage note itself')
     return false
   }
+  const targets = [...new Set(plan.map((p) => p.targetId))].filter((id) => notes[id])
   if (busy) return false
   busy = true
   try {
-    for (const id of [triage.id, target.id]) {
+    for (const id of [triage.id, ...targets]) {
       if (!(await saveNow(id))) {
-        toast(`Your unsaved changes to “${displayTitle(useStore.getState().notes[id] ?? target)}” could not be saved, so nothing was moved.`)
+        toast(`Your unsaved changes to “${displayTitle(notes[id])}” could not be saved, so nothing was moved.`)
         return false
       }
     }
-    // The task as it is in the triage note right now.
+    // The tasks as they are in the triage note right now.
     const { note: tri } = await api.freshNote(triage.id)
-    const found = locateTask(parseTriage(tri.content), task)
-    if (!found) {
-      takeNote(tri)
-      toast('That task is no longer in the triage note: it was rewritten in the meantime. Nothing was moved.')
-      return false
-    }
+    const doc = parseTriage(tri.content)
     const cfg = useStore.getState().triage
     const heading = cfg.heading?.trim() || OPEN_THREADS
-    const block = prepareBlock(blockLines(parseTriage(tri.content), found), cfg)
-    const url = found.links[0]?.url ?? ''
-    // 1. Into the other note first, so a failure in between leaves a copy, never a lost task.
-    let duplicate = false
-    const dest = await saveFresh(target.id, (current) => {
-      const { page, canvas } = splitContent(current.content)
-      if (hasOpenTaskLinking(page, url)) {
-        duplicate = true
-        return current.content
+    const found: { task: TriageTask; targetId: string; reason?: string; block: string[] }[] = []
+    let missing = 0
+    for (const p of plan) {
+      const t = notes[p.targetId] ? locateTask(doc, p.task) : null
+      if (!t || found.some((f) => f.task.line === t.line)) {
+        missing += t ? 0 : 1
+        continue
       }
-      return joinContent(insertUnderHeading(page, block, heading, cfg.position === 'top' ? 'top' : 'bottom'), canvas)
-    })
-    if (!dest) return false
+      found.push({ task: t, targetId: p.targetId, reason: p.reason, block: prepareBlock(blockLines(doc, t), cfg) })
+    }
+    if (!found.length) {
+      takeNote(tri)
+      toast(`${plan.length === 1 ? 'That task is' : 'Those tasks are'} no longer in the triage note: it was rewritten in the meantime. Nothing was moved.`)
+      return false
+    }
+    // 1. Into the other notes first, so a failure in between leaves copies, never lost tasks.
+    const dests: { id: string; before: Note; after: Note }[] = []
+    const duplicates = new Set<TriageTask>()
+    for (const id of [...new Set(found.map((f) => f.targetId))]) {
+      const mine = found.filter((f) => f.targetId === id)
+      const saved = await saveFresh(id, (current) => {
+        const { page, canvas } = splitContent(current.content)
+        let next = page
+        for (const f of mine) {
+          const url = f.task.links[0]?.url ?? ''
+          if (hasOpenTaskLinking(next, url)) duplicates.add(f.task)
+          else next = insertUnderHeading(next, f.block, heading, cfg.position === 'top' ? 'top' : 'bottom')
+        }
+        return next === page ? current.content : joinContent(next, canvas)
+      })
+      if (saved && saved.after.content !== saved.before.content) dests.push({ id, ...saved })
+    }
     // 2. Then out of the triage note, as it is by now (the program may have rewritten it meanwhile).
     const out = await saveFresh(triage.id, (current) => {
-      const again = locateTask(parseTriage(current.content), found)
-      return again ? removeBlock(current.content, again) : current.content
+      const now = parseTriage(current.content)
+      const again = found.map((f) => locateTask(now, f.task)).filter((t): t is TriageTask => !!t)
+      return again.length ? removeBlocks(current.content, again) : current.content
     })
     if (!out) return false
-    const where = `${displayTitle(dest.after)} › ${heading}${reason ? ` (by ${reason})` : ''}`
-    const short = found.title.length > 50 ? found.title.slice(0, 47) + '…' : found.title
-    toast(duplicate ? `“${short}” is already in ${displayTitle(dest.after)}: taken out of the triage note only` : `Moved “${short}” to ${where}`, {
-      label: 'Undo',
-      run: () => void undoMove(triage.id, out, target.id, duplicate ? null : dest),
-    })
+    toast(movedMessage(found, duplicates, missing, heading), { label: 'Undo', run: () => void undoMove(triage.id, out, dests) })
     return true
   } catch (e) {
-    toast(`Could not move the task: ${(e as Error).message}`)
+    toast(`Could not move ${plan.length === 1 ? 'the task' : 'the tasks'}: ${(e as Error).message}`)
     return false
   } finally {
     busy = false
   }
 }
 
+/** What a move did, in a sentence. */
+function movedMessage(found: { task: TriageTask; targetId: string; reason?: string }[], duplicates: Set<TriageTask>, missing: number, heading: string) {
+  const notes = useStore.getState().notes
+  const name = (id: string) => (notes[id] ? displayTitle(notes[id]) : 'a note')
+  const short = (t: string) => (t.length > 50 ? t.slice(0, 47) + '…' : t)
+  const gone = missing ? ` ${missing} ${missing === 1 ? 'was' : 'were'} no longer in the triage note.` : ''
+  if (found.length === 1) {
+    const f = found[0]
+    if (duplicates.has(f.task)) return `“${short(f.task.title)}” is already in ${name(f.targetId)}: taken out of the triage note only`
+    return `Moved “${short(f.task.title)}” to ${name(f.targetId)} › ${heading}${f.reason ? ` (by ${f.reason})` : ''}`
+  }
+  const per = new Map<string, number>()
+  for (const f of found) if (!duplicates.has(f.task)) per.set(f.targetId, (per.get(f.targetId) ?? 0) + 1)
+  const parts = [...per].map(([id, n]) => `${n} to ${name(id)}`)
+  const dup = duplicates.size ? `; ${duplicates.size} already there, taken out of the triage note only` : ''
+  return `Moved ${found.length} tasks: ${parts.join(', ') || 'none added'}${dup}.${gone}`
+}
+
+/** Move one task (M, the picker). */
+export const triageMove = (task: TriageTask, targetId: string, reason = '') => triageMoveMany([{ task, targetId, reason }])
+
 /**
- * Put a move back: the triage note and the other note as they were, but only if neither has changed since (in
- * which case nothing is undone, and the task stays where it went, so it is never lost). The triage note first.
+ * Put a move back: the triage note and every note it added to as they were, but only if none has changed since (in
+ * which case nothing is undone, and the tasks stay where they went, so none is lost). The triage note first.
  */
-async function undoMove(triageId: string, tri: { before: Note; after: Note }, targetId: string, dest: { before: Note; after: Note } | null) {
+async function undoMove(triageId: string, tri: { before: Note; after: Note }, dests: { id: string; before: Note; after: Note }[]) {
   try {
-    const [{ note: t }, d] = await Promise.all([api.freshNote(triageId), dest ? api.freshNote(targetId) : Promise.resolve(null)])
-    if (t.content !== tri.after.content || (dest && d && d.note.content !== dest.after.content)) {
-      return toast('The notes have changed since the move, so it was not undone. The task is still in the note it went to.')
+    const [{ note: t }, ...ds] = await Promise.all([api.freshNote(triageId), ...dests.map((d) => api.freshNote(d.id))])
+    if (t.content !== tri.after.content || ds.some((d, i) => d.note.content !== dests[i].after.content)) {
+      return toast('The notes have changed since the move, so it was not undone. The tasks are still in the notes they went to.')
     }
     const res = await api.updateNote(triageId, { content: tri.before.content, base: t.version })
     takeNote({ ...res.note, content: tri.before.content })
-    if (dest && d) {
-      const r2 = await api.updateNote(targetId, { content: dest.before.content, base: d.note.version })
-      takeNote({ ...r2.note, content: dest.before.content })
+    for (const [i, d] of dests.entries()) {
+      const r = await api.updateNote(d.id, { content: d.before.content, base: ds[i].note.version })
+      takeNote({ ...r.note, content: d.before.content })
     }
     toast('Move undone')
   } catch (e) {
@@ -210,11 +250,33 @@ export function moveByRules(task: TriageTask) {
   else ui({ palette: { mode: 'triageMove', triageTask: task } })
 }
 
-/** Move a task into a note, and from now on send every task of its category there (⌥↵ in the picker). */
-export async function moveAndRemember(task: TriageTask, note: Note) {
-  if (task.category) {
-    const rule = { category: task.category, note: note.path, id: note.id }
+/**
+ * Move tasks into a note picked in the picker (with any already placed by rules, as one action). With `remember`
+ * (⌥↵), from now on every task of their category goes there.
+ */
+export async function moveToPicked(tasks: TriageTask[], note: Note, placed: MovePlan[] = [], remember = false) {
+  const category = tasks[0]?.category ?? ''
+  if (remember && category) {
+    const rule = { category, note: note.path, id: note.id }
     if (await addTriageRule(rule)) toast(`From now on, ${ruleLabel(rule)} goes to ${displayTitle(note)}`)
   }
-  await triageMove(task, note.id, task.category ? `category ${task.category}` : '')
+  await triageMoveMany([...placed, ...tasks.map((task) => ({ task, targetId: note.id, reason: remember && category ? `category ${category}` : '' }))])
+}
+
+/**
+ * Move every open task of a category (in the newest run) where the rules send each one, as one action with one
+ * Undo (Move all, A). Tasks no rule places go together into a note you pick, with the rest, still as one action.
+ */
+export function moveCategory(tasks: TriageTask[]) {
+  const open = tasks.filter((t) => t.state === 'open')
+  if (!open.length) return toast('Nothing open in this category')
+  const plan: MovePlan[] = []
+  const unplaced: TriageTask[] = []
+  for (const t of open) {
+    const dest = destinationOf(t)
+    if (dest) plan.push({ task: t, targetId: dest.note.id, reason: dest.reason })
+    else unplaced.push(t)
+  }
+  if (!unplaced.length) return void triageMoveMany(plan)
+  ui({ palette: { mode: 'triageMove', triageTask: unplaced[0], triageTasks: unplaced, triagePlan: plan } })
 }

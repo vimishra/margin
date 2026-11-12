@@ -4,7 +4,7 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { CalendarClock, CalendarDays, ChevronDown, ChevronRight, ExternalLink, FileText, FolderInput, History, ListFilter, Search, SquareCheck, SquareX } from 'lucide-react'
 import { go, openDatePicker, openMenu, openNote, openNoteAt, triageNote, ui, useStore, type MenuItem } from '../store'
-import { destinationOf, moveByRules, triageAct } from '../triage'
+import { destinationOf, moveByRules, moveCategory, triageAct } from '../triage'
 import { GROUP_ORDER, parseTriage, runTasks, triageCounts, type GroupKind, type TriageCategory, type TriageRun, type TriageTask } from '../lib/triage'
 import { renderInline } from '../lib/markdown'
 import { shortDate } from '../lib/tasks'
@@ -163,6 +163,12 @@ export function TriageView() {
     else if (e.key === 'd') (e.preventDefault(), pickDate(rowEl(task), task, 'due'))
     else if (e.key === 'M' || (e.key === 'm' && e.shiftKey)) (e.preventDefault(), moveTo(task))
     else if (e.key === 'm') (e.preventDefault(), moveByRules(task))
+    else if (e.key === 'a') {
+      // Move all: every open task of the selected task's category, in the newest run.
+      e.preventDefault()
+      const cat = newest?.categories.find((c) => c.name === task.category)
+      if (cat) moveCategory(cat.groups.flatMap((g) => g.tasks))
+    }
   }
 
   const header = (
@@ -276,11 +282,18 @@ export function TriageView() {
               const isFolded = folded.includes(key)
               return (
                 <div key={key} className="task-group triage-category">
-                  <button className="task-group-head" onClick={() => foldToggle(key)} aria-expanded={!isFolded}>
-                    {isFolded ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
-                    <span>{c.name || 'Uncategorised'}</span>
-                    <span className="count">{open}</span>
-                  </button>
+                  <div className="triage-category-head">
+                    <button className="task-group-head" onClick={() => foldToggle(key)} aria-expanded={!isFolded}>
+                      {isFolded ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
+                      <span>{c.name || 'Uncategorised'}</span>
+                      <span className="count">{open}</span>
+                    </button>
+                    {ri === 0 && open > 0 && (
+                      <button className="btn sm triage-move-all" title="Move every open task of this category where your rules send it, as one step with one Undo  A" onClick={() => moveCategory(c.groups.flatMap((g) => g.tasks))}>
+                        <FolderInput size={13} /> Move all
+                      </button>
+                    )}
+                  </div>
                   {!isFolded && (
                     <>
                       {shown.map(({ g, tasks }) => (
@@ -302,7 +315,7 @@ export function TriageView() {
         {!visible.length && <p className="empty-hint">{counts.open ? 'No tasks match.' : 'Nothing open: everything in this run is done, dropped or moved.'}</p>}
         <div className="tasks-keys">
           <kbd>↑</kbd>
-          <kbd>↓</kbd> move · <kbd>Space</kbd> complete · <kbd>C</kbd> drop · <kbd>S</kbd> when · <kbd>D</kbd> due · <kbd>M</kbd> move · <kbd>⇧M</kbd> move to another note · <kbd>↵</kbd> details · <kbd>O</kbd> open link · <kbd>/</kbd> narrow down
+          <kbd>↓</kbd> move · <kbd>Space</kbd> complete · <kbd>C</kbd> drop · <kbd>S</kbd> when · <kbd>D</kbd> due · <kbd>M</kbd> move · <kbd>⇧M</kbd> move to another note · <kbd>A</kbd> move all in the category · <kbd>↵</kbd> details · <kbd>O</kbd> open link · <kbd>/</kbd> narrow down
         </div>
       </div>
     </div>

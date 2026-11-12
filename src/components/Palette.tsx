@@ -4,7 +4,7 @@ import { createNote, go, moveTaskToNewNote, moveTaskToNote, newProjectPlace, OPE
 import { commands } from '../commands'
 import { mergeIntoNote, moveSectionToNote } from '../refactor'
 import { describeSearch, parseSearch, search, taskPasses, type SearchContext } from '../lib/search'
-import { moveAndRemember, triageMove } from '../triage'
+import { moveToPicked } from '../triage'
 import { tagCounts } from '../lib/links'
 import { ALT, cx, dailyLabel, displayTitle, longDate, relTime, snippet, today } from '../lib/util'
 import { parseDatePhrase } from '../lib/dates'
@@ -148,6 +148,8 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
     // A task of the triage note: into which note? (Not the triage note itself.)
     if (state.mode === 'triageMove' && state.triageTask) {
       const task = state.triageTask
+      const many = state.triageTasks ?? [task]
+      const placed = state.triagePlan ?? []
       const triageId = triageNote()?.id
       const heading = useStore.getState().triage.heading?.trim() || OPEN_THREADS
       const templatesFolder = useStore.getState().settings.templatesFolder
@@ -161,9 +163,9 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
           icon: <NoteIcon note={n} />,
           title: displayTitle(n),
           subtitle: `${n.folder ? n.folder.split('/').join(' / ') + ' · ' : ''}under ${heading}${task.category ? ` · ${ALT}↵ always use it for “${task.category}”` : ''}`,
-          run: () => void triageMove(task, n.id),
-          // ⌥↵: move it, and send this category's tasks to this note from now on.
-          ...(task.category ? { noteId: n.id, side: () => void moveAndRemember(task, n) } : {}),
+          run: () => void moveToPicked(many, n, placed),
+          // ⌥↵: move them, and send this category's tasks to this note from now on.
+          ...(task.category ? { noteId: n.id, side: () => void moveToPicked(many, n, placed, true) } : {}),
         }))
       const place = q ? newProjectPlace(q) : null
       if (place?.title && !Object.values(notes).some((n) => n.title.toLowerCase() === place.title.toLowerCase() && n.folder.toLowerCase() === place.folder.toLowerCase())) {
@@ -175,7 +177,7 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
           subtitle: `${place.folder ? `In ${place.folder.split('/').join(' / ')}` : 'At the top level'} · the task goes under ${heading} · type Notebook/Name for another notebook`,
           run: async () => {
             const made = await createNote({ title: place.title, folder: place.folder, content: `## ${heading}` }, false)
-            if (made) await triageMove(task, made.id)
+            if (made) await moveToPicked(many, made, placed)
           },
         }
         if (out.length) out.push(item)
@@ -432,7 +434,7 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
           <input
             autoFocus
             value={query}
-            placeholder={state.mode === 'triageMove' ? `Move “${state.triageTask?.title ?? ''}” to which note?` : state.mode === 'moveTask' ? `Move “${state.task?.text ?? ''}” to which note?` : state.mode === 'moveSection' ? `Move the section “${state.section?.title ?? ''}” to which note?` : state.mode === 'merge' ? `Merge “${notes[state.noteId || ''] ? displayTitle(notes[state.noteId || '']) : ''}” into which note?` : state.mode === 'outline' ? 'Jump to a heading in this note' : state.mode === 'tabs' ? 'Find an open tab' : state.mode === 'template' ? 'New note from which template?' : state.mode === 'tag' ? `Tag “${notes[state.noteId || ''] ? displayTitle(notes[state.noteId || '']) : ''}” with…` : moving ? `Move “${displayTitle(moving)}” to…` : 'Search notes, #tags, a date like “next monday”, or > for commands'}
+            placeholder={state.mode === 'triageMove' ? ((state.triageTasks?.length ?? 1) > 1 ? `Move the ${state.triageTasks!.length} tasks of “${state.triageTask?.category || 'Uncategorised'}” that no rule places to which note?` : `Move “${state.triageTask?.title ?? ''}” to which note?`) : state.mode === 'moveTask' ? `Move “${state.task?.text ?? ''}” to which note?` : state.mode === 'moveSection' ? `Move the section “${state.section?.title ?? ''}” to which note?` : state.mode === 'merge' ? `Merge “${notes[state.noteId || ''] ? displayTitle(notes[state.noteId || '']) : ''}” into which note?` : state.mode === 'outline' ? 'Jump to a heading in this note' : state.mode === 'tabs' ? 'Find an open tab' : state.mode === 'template' ? 'New note from which template?' : state.mode === 'tag' ? `Tag “${notes[state.noteId || ''] ? displayTitle(notes[state.noteId || '']) : ''}” with…` : moving ? `Move “${displayTitle(moving)}” to…` : 'Search notes, #tags, a date like “next monday”, or > for commands'}
             spellCheck={false}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => {
