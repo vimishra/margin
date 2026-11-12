@@ -8,6 +8,7 @@ A fast, local-first note-taking app. Every note is a plain markdown file in a fo
 
 - **[User guide](docs/user-guide.md)** ([HTML](docs/user-guide.html)): everything the app does, with recommended workflows.
 - **[Theory of operations](docs/operations.md)** ([HTML](docs/operations.html)): the routine to follow each morning, meeting, day, week and month.
+- **[Triage guide](docs/triage.md)** ([HTML](docs/triage.html)): turning the suggested tasks your own program writes into tasks in your workstream notes.
 - **[Product specification](docs/specification.md)** ([HTML](docs/specification.html)): everything the app does, written so it could be built again from scratch.
 - **[Design and development flow](docs/design.md)** ([HTML](docs/design.html)): how it is built and how to change it.
 

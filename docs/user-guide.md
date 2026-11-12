@@ -957,6 +957,8 @@ Some tasks are not done but dropped: plans changed, someone else did it, it no l
 
 ### The triage note
 
+This section is the reference; the **[triage guide](triage.md)** (Help → Triage Guide, or the book button at the top of the Triage view) explains it end to end: setting up, a daily routine, rules, what Margin promises, the layout your program must write, and what to do when something looks wrong.
+
 If a program of yours writes a note of suggested tasks (from your mail, chat or bug tracker, say), tell Margin which note it is in **Settings → Triage → Triage note**, as a path in your notes folder such as `Inbox/Triage`. Then:
 
 - **Its tasks stay out of your lists** (Today, Anytime, the counts, tasks blocks and `margin-tasks`) until you move them into one of your own notes. They are suggestions, not commitments.
@@ -1320,7 +1322,7 @@ On Windows and Linux, ⌘ is Ctrl and ⌥ is Alt.
 
 ## Recommended workflows
 
-The full routine is in its own document: **[Theory of operations](operations.md)**. Like this guide it has two parts, one for notes and one for tasks, and each says exactly what to do every morning, during the day, in every meeting, at the end of the day, every week and every month, with the keys for each step. Open it from **Help → Theory of Operations**, or type "routine" in ⌘K.
+The full routine is in its own document: **[Theory of operations](operations.md)**. Like this guide it has two parts, one for notes and one for tasks, and each says exactly what to do every morning, during the day, in every meeting, at the end of the day, every week and every month, with the keys for each step. Open it from **Help → Theory of Operations**, or type "routine" in ⌘K. If you use Triage, the **[triage guide](triage.md)** has its own routine (Help → Triage Guide).
 
 In short, for notes:
 

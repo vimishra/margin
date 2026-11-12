@@ -27,6 +27,7 @@ Shortcuts are for the desktop app. Every one can be changed in Settings → Shor
   - [How tasks work](#how-tasks-work)
   - [Tasks: writing one](#tasks-writing-one)
   - [Tasks: every morning](#tasks-every-morning)
+  - [Tasks: triage](#tasks-triage)
   - [Tasks: during the day](#tasks-during-the-day)
   - [Tasks: in a meeting](#tasks-in-a-meeting)
   - [Tasks: end of the day](#tasks-end-of-the-day)
@@ -43,6 +44,7 @@ The two routines interleave. This is the order they run in; the detail for each 
 | When | Notes | Tasks |
 | --- | --- | --- |
 | Morning, 5 minutes | Open the journal (⌘J) and glance at yesterday's Log | Read today's task panel, clear anything overdue, settle the Top 3 |
+| Morning and after lunch, 10 minutes | | If you use Triage: decide on each suggestion (done, drop, or move it to its workstream) |
 | During the day | Capture with ⌘⇧C; link people and projects as you write | Write anything that needs doing as a task; tick things as you finish |
 | Each meeting | ⌘⇧M, link who and what, bullets under Notes, then Decisions | Write each action as a task, with a due date if one was agreed |
 | End of day, 2 minutes | Read down today's Log once | Tick what is done; empty the Inbox; leave the rest |
@@ -201,6 +203,18 @@ Most tasks need none of these. A task with no dates is in Anytime, something you
 2. **Deal with each overdue task.** Do one of three things: tick it, give it a new due date, or decide it is not happening and delete the line. Do not leave it overdue.
 3. **Look ahead: ⌘⇧T, then 3** for Upcoming. If anything there needs to start today, highlight it and press **T**.
 4. **Settle the Top 3.** In today's note, the Top 3 should hold at most three things that would make today a success. Items carried over from yesterday count. If there are more than three, push the extras to a later day: cursor on the line, ⌘⇧S, pick a day.
+
+## Tasks: triage
+
+Only if a program of yours writes a triage note of suggested tasks (see the [triage guide](triage.md)). Do this each morning after the steps above, and again when a new run has come in (after lunch, say).
+
+1. **Open Triage** (under Tasks in the sidebar) and read the Summary.
+2. **Quick replies first.** Answer each (**O** opens the message), then **Space**.
+3. **Go down the actions with ↓,** one key each: **Space** if done, **C** if you will not do it, **M** if it is real work (it moves to its workstream note, under Open Threads), **S** to give it a day, or just **↓** to leave it.
+4. **A whole category is real work?** **A** moves all of it at once.
+5. **Stop when what is left needs more thought.** The next run carries it over.
+
+Triage is for sorting, not doing: anything longer than a couple of minutes, move it and do it from Today or its workstream note. When you pick a note by hand for a category that will come again, choose it with **⌥↵** so M knows next time.
 
 ## Tasks: during the day
 

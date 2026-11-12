@@ -63,7 +63,7 @@ import { TASK_FILTERS } from './lib/tasks'
 import { listColor, listIcon } from './components/listIcons'
 
 /** Opens one of the guides: a window of its own in the desktop app, a new tab in a browser. */
-export const openGuide = (page: 'user-guide' | 'design' | 'operations') => void window.open(`/docs/${page}.html`, '_blank')
+export const openGuide = (page: 'user-guide' | 'design' | 'operations' | 'triage') => void window.open(`/docs/${page}.html`, '_blank')
 
 export interface Command {
   id: string
@@ -203,6 +203,7 @@ export function commands(): Command[] {
     { id: 'help', label: 'Keyboard shortcuts', icon: i(Keyboard), hint: '?', run: () => ui({ help: true }) },
     { id: 'userGuide', label: 'Help: User guide', icon: i(BookOpen), keywords: 'manual documentation docs how to', run: () => openGuide('user-guide') },
     { id: 'operationsGuide', label: 'Help: Theory of operations (daily, weekly and monthly routine)', icon: i(BookOpen), keywords: 'workflow routine how to use morning meeting week month habits', run: () => openGuide('operations') },
+    { id: 'triageGuide', label: 'Help: Triage guide', icon: i(BookOpen), keywords: 'triage suggestions workstream rules move documentation docs how to', run: () => openGuide('triage') },
     { id: 'designGuide', label: 'Help: Design guide', icon: i(Workflow), keywords: 'architecture documentation docs development', run: () => openGuide('design') },
   )
   // Show each command's current shortcut, which may have been changed in settings.

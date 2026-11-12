@@ -5774,8 +5774,19 @@ kbd {
 }
 
 /* ---------- the Triage view ---------- */
-.triage .triage-open-note {
+/* In a narrow pane the buttons go below the title instead of squeezing it. */
+.triage .list-head {
+  flex-wrap: wrap;
+}
+.triage .list-head .list-title {
+  flex: 1 1 14em;
+  min-width: 0;
+}
+.triage .triage-guide {
   margin-left: auto;
+}
+.triage .triage-guide + .triage-open-note {
+  margin-left: 6px;
 }
 .triage .empty-state {
   margin-top: 48px;

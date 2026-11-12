@@ -2,7 +2,7 @@
 // as runs, categories and groups of suggested tasks. Read-only for now: it shows the newest run, filters it, opens
 // links, and follows the note as the program rewrites it. Acting on tasks comes later; lib/triage.ts reads the note.
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
-import { CalendarClock, CalendarDays, ChevronDown, ChevronRight, ExternalLink, FileText, FolderInput, History, ListFilter, Search, SquareCheck, SquareX } from 'lucide-react'
+import { BookOpen, CalendarClock, CalendarDays, ChevronDown, ChevronRight, ExternalLink, FileText, FolderInput, History, ListFilter, Search, SquareCheck, SquareX } from 'lucide-react'
 import { go, openDatePicker, openMenu, openNote, openNoteAt, triageNote, ui, useStore, type MenuItem } from '../store'
 import { destinationOf, moveByRules, moveCategory, triageAct } from '../triage'
 import { GROUP_ORDER, parseTriage, runTasks, triageCounts, type GroupKind, type TriageCategory, type TriageRun, type TriageTask } from '../lib/triage'
@@ -180,6 +180,9 @@ export function TriageView() {
         <h1>Triage</h1>
         <p>{newest ? `${newest.label ? newest.label + ' · ' : ''}${counts.open} open · ${counts.done} done · ${counts.dropped} dropped` : 'Suggested tasks from your triage note'}</p>
       </div>
+      <button className="icon-btn triage-guide" title="Triage guide: how triage works, and how to set it up" onClick={() => void window.open('/docs/triage.html', '_blank')}>
+        <BookOpen size={16} />
+      </button>
       {note && (
         <button className="btn triage-open-note" title="Open the triage note itself" onClick={() => openNote(note.id)}>
           <FileText size={15} /> Open the note
@@ -205,7 +208,7 @@ export function TriageView() {
       </div>
     </div>
   )
-  if (!path) return empty('No triage note set', 'Tell Margin which note your triage program writes, in Settings → Triage.', ['Open Settings', () => ui({ prefs: true })])
+  if (!path) return empty('No triage note set', 'Tell Margin which note your triage program writes, in Settings → Triage. The book button above opens the triage guide, which explains how triage works and how to set it up.', ['Open Settings', () => ui({ prefs: true })])
   if (!note) return empty('No triage note yet', `There is no note at “${path}” yet. It shows here as soon as your triage program writes it.`, ['Open Settings', () => ui({ prefs: true })])
   if (!doc?.runs.length) return empty('Nothing to triage', 'The triage note has no runs in it yet, or they are not in the expected layout (“## Triage …” headings). Open the note to look.', ['Open the note', () => openNote(note.id)])
 

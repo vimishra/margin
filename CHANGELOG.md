@@ -2,6 +2,19 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.40.0 (2026-11-12)
+
+Triage is complete: the view, acting on tasks, moving them into your notes by rules, and Move all (built up over 1.34.0 to 1.36.0), now with its own guide. This is also the first Linux installer since 1.34.0, so on Linux and the Chromebook it brings everything from 1.35.0 and 1.36.0 below.
+
+### Added
+
+- **The triage guide**, a separate document on handling triage end to end: setting it up, a routine for each morning and after lunch, deciding on each task, moving tasks into workstream notes, how rules are applied (with a sample `.margin/config.json`), what Margin promises never to do to the triage note, the exact layout your triage program must write, every key and setting, and what each message means when something looks wrong. Open it from Help → Triage Guide, ⌘K → "Help: Triage guide", the keyboard shortcuts window, or the book button at the top of the Triage view. It is in the printable guides too.
+- **A triage routine** in the theory of operations ("Tasks: triage"), and links to the guide from the user guide.
+
+### Changed
+
+- In a narrow pane, the Triage view's buttons move below its title instead of squeezing it.
+
 ## 1.36.0 (2026-11-12)
 
 ### Added

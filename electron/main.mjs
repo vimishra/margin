@@ -408,6 +408,7 @@ function buildMenu() {
       submenu: [
         { label: 'User Guide', click: () => openDoc('user-guide') },
         { label: 'Theory of Operations', click: () => openDoc('operations') },
+        { label: 'Triage Guide', click: () => openDoc('triage') },
         { label: 'Design Guide', click: () => openDoc('design') },
         { label: 'Printable Guides…', click: () => printableGuides() },
         { type: 'separator' },

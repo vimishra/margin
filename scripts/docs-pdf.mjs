@@ -12,6 +12,7 @@ const out = path.join(root, 'build', 'Documentation')
 const GUIDES = [
   ['user-guide', 'Margin User Guide'],
   ['operations', 'Margin Theory of Operations'],
+  ['triage', 'Margin Triage Guide'],
   ['design', 'Margin Design Guide'],
   ['specification', 'Margin Specification'],
 ]
