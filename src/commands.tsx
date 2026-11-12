@@ -49,6 +49,7 @@ import {
   ChevronsUpDown,
   SquareX,
   RefreshCw,
+  ListFilter,
 } from 'lucide-react'
 import { pickMergeTarget, turnIntoNotebook } from './refactor'
 import { importFromTodoist } from './todoist'
@@ -121,6 +122,7 @@ export function commands(): Command[] {
     { id: 'archiveAll', label: 'Archive done tasks in all notes…', icon: i(Archive), keywords: 'archive ticked completed finished tasks logbook clean tidy', run: () => void archiveEverywhere() },
     { id: 'all', label: 'Go to All notes', icon: i(Files), hint: `${ALT}A`, run: () => go({ name: 'all' }) },
     { id: 'goscratch', label: 'Go to Scratch', icon: i(Hourglass), run: () => go({ name: 'scratch' }) },
+    { id: 'gotriage', label: 'Go to Triage', icon: i(ListFilter), keywords: 'triage suggestions mail chat bugs review inbox', run: () => go({ name: 'tasks', view: 'triage' }) },
     { id: 'gotrash', label: 'Go to Recently deleted', icon: i(Trash2), keywords: 'trash bin deleted restore undelete recover', run: () => go({ name: 'trash' }) },
     { id: 'research', label: 'Go to Research', icon: i(BookMarked), hint: `${ALT}R`, run: () => go({ name: 'research' }) },
   ]

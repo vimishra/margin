@@ -32,6 +32,7 @@ import {
   SunMoon,
   Trash2,
   Zap,
+  ListFilter,
 } from 'lucide-react'
 import {
   createFolder,
@@ -53,10 +54,12 @@ import {
   ui,
   updateNote,
   useStore,
+  triageNote,
 } from '../store'
 import type { Route } from '../types'
 import { tagCounts } from '../lib/links'
 import { TASK_FILTERS, allTasks, isToday, selectTasks, type TaskFilter, type TaskView } from '../lib/tasks'
+import { parseTriage, runTasks } from '../lib/triage'
 import { ALT, MOD, cx, displayTitle, firstWeekday, local, today, tagStyle } from '../lib/util'
 import { NoteIcon, noteMenu } from './bits'
 import { MiniCalendar } from './MiniCalendar'
@@ -108,12 +111,13 @@ export function Sidebar() {
   const list = useMemo(() => Object.values(notes), [notes])
   const templatesFolder = useStore((s) => s.settings.templatesFolder)
   const inboxFolder = useStore((s) => s.settings.inboxFolder)
+  const triagePath = useStore((s) => s.triage.note)
   const taskViews = useStore((s) => s.settings.taskViews)
   const weekSetting = useStore((s) => s.settings.weekStart)
   const taskView = route.name === 'tasks' ? route.view : undefined
   // Lists shown under Tasks: the ones from Things, Overdue while anything is, then the filters saved from the Tasks view.
   const { dueNow, taskLists } = useMemo(() => {
-    const all = allTasks(notes, templatesFolder, inboxFolder)
+    const all = allTasks(notes, templatesFolder, inboxFolder, triagePath ? [triagePath] : [])
     const weekStart = weekSetting === 'sunday' ? 0 : weekSetting === 'monday' ? 1 : firstWeekday()
     const count = (v: Pick<TaskView, 'filter' | 'query' | 'source'>) => selectTasks(all, notes, v, weekStart).length
     const builtIn = (['inbox', 'today', 'upcoming', 'anytime', 'someday', 'done', 'overdue'] as TaskFilter[])
@@ -126,7 +130,15 @@ export function Sidebar() {
     const saved = taskViews.map((v) => ({ id: `s:${v.id}`, label: v.name, title: 'Saved filter. Right-click to rename or delete.', count: count(v), warn: false, savedId: v.id as string | undefined }))
     // As in Things, the number beside Tasks is what is in Today, which includes anything overdue.
     return { dueNow: all.filter((t) => isToday(t)).length, taskLists: [...builtIn, ...saved] }
-  }, [notes, templatesFolder, inboxFolder, taskViews, weekSetting])
+  }, [notes, templatesFolder, inboxFolder, taskViews, weekSetting, triagePath])
+  // Open suggestions in the newest run of the triage note; null when no triage note is set.
+  const triageOpen = useMemo(() => {
+    if (!triagePath) return null
+    const note = triageNote()
+    const run = note ? parseTriage(note.content).runs[0] : undefined
+    return run ? runTasks(run).filter((t) => t.state === 'open').length : 0
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [notes, triagePath])
   const tree = useMemo(() => buildTree(folders), [folders])
   const counts = useMemo(() => {
     const m = new Map<string, number>()
@@ -267,6 +279,15 @@ export function Sidebar() {
           {shown('tasks') && (
             <>
               <NavItem icon={<ListChecks size={16} />} label="Tasks" count={dueNow || undefined} active={is('tasks') && !taskView} hint={hint('tasks')} onClick={() => go({ name: 'tasks' })} />
+              {triageOpen !== null && (
+                <button className={cx('nav-item sub', taskView === 'triage' && 'active')} title="Suggested tasks from your triage note" onClick={() => go({ name: 'tasks', view: 'triage' })}>
+                  <span className="nav-icon list-triage">
+                    <ListFilter size={13} />
+                  </span>
+                  <span className="nav-label">Triage</span>
+                  {triageOpen > 0 && <span className="count">{triageOpen}</span>}
+                </button>
+              )}
               {taskLists.map((v) => (
                 <button
                   key={v.id}

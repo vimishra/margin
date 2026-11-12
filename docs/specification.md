@@ -1,6 +1,6 @@
 # Margin product specification
 
-This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.33.0.
+This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.34.0.
 
 It is written to be handed to a developer or a coding tool. Where a detail is a free choice for the implementer, it says so; everything else is a requirement.
 
@@ -85,6 +85,9 @@ All bodies are JSON unless noted.
 - Typing updates the note in memory immediately and schedules a save 450 ms later. Saves for one note never overlap: a second waits for the first. Title and folder changes save at once.
 - When the window is hidden or closed, pending saves are sent immediately.
 - A "Saving… / Saved" indicator shows in the note's header.
+- **Versions.** Each note carries the version of its file (a hash of the file's bytes as last read or written). A save of new content sends the version it was made from. The server first re-reads the file; if it has changed on disk since that version, the save is refused (409) and the note as it is now is sent back. The front end then shows that version and a message that stays until closed: the note "was changed outside Margin, so your last change was not saved", with **Use mine**, which saves the refused content over the newer version. Saves that change only other fields (pin, tags, title) are applied to the file as it is on disk, never to an older copy in memory. Renaming a note updates links in other notes from their files as they are on disk.
+- **Atomic writes.** A note is written to a hidden temporary file beside it and renamed over it, so no reader ever sees half a note. Hidden files are ignored when scanning.
+- **Notes changed outside Margin** while on screen (the note in each pane, the journal day in use, and the triage note) are checked against their files every 10 seconds while the window is visible, and replaced in memory when changed, unless they have unsaved changes (whose save is then refused, as above).
 
 ## 3. Data: the notes folder
 
@@ -94,7 +97,8 @@ All bodies are JSON unless noted.
 <notes folder>/
   Any/Nested/Folders/Note title.md
   attachments/            images, PDFs and other files (name configurable)
-  .margin/config.json     settings that belong to the folder
+  .margin/config.json     settings that belong to the folder (attachments folder, notebook tags, triage note);
+                          read again whenever the state is fetched, so it can be edited by hand
 ```
 
 - A **notebook** is a folder. Notebooks nest.
@@ -628,6 +632,24 @@ A cancelled task has `-` in its box (`- [-] …`). It is finished with: out of e
 - **Appearance:** the box is drawn with a cross (no tick), the text greyed (lighter than a done task) and struck through, in the editor, read mode, the Tasks view and tasks blocks. In read mode, clicking its box reopens it.
 - **Repeating:** cancelling counts as ticking for `@repeat`: the next occurrence is added and the cancelled line kept, without its `@repeat`.
 - **Exports** show it with a crossed box. The command-line tool lists it with `[-]`, `done` true and `cancelled` true, `done_on` its cancelled day.
+
+### 12.3f The triage note
+
+A note that a program outside Margin writes with suggested tasks, and rewrites several times a day (by writing a temporary file and renaming it over the note). Its path in the notes folder is the setting `triage.note` in `.margin/config.json` (Settings → Triage → Triage note; compared ignoring capitals, slashes at either end, and a missing `.md`; a path leaving the folder is refused).
+
+- Its tasks are left out of every task list, the counts, tasks blocks, reminders, the Tasks group in ⌘K and the command-line tool (which reads the same setting), until they are moved into another note.
+- Margin never changes its layout: ticking, unticking, cancelling or reopening a task there (in the editor, read mode or elsewhere) changes only the box and Margin's own date mark; the task does not sink and a repeat is not added. Archiving skips it, and archiving it directly is refused with a message.
+- It is one of the notes checked against its file every 10 seconds (see 2.2), and saves to it are refused when the file has changed since the version they were made from.
+
+**The Triage view** (route `#/tasks/triage`; sidebar entry under Tasks when a triage note is set, with the count of open tasks in the newest run; command "Go to Triage", no default shortcut) shows the triage note read-only.
+
+- **Reading the note** (never changing it): a run starts at a line matching `^## Triage\b`, the rest of the line its label; runs are listed in file order, the first being the newest. Any other `## ` heading ends a run. In a run, a line exactly `**Summary**` before any category starts the summary, its `- ` bullets read until a blank line. `^### +(.+?)\s*$` starts a category. A whole line `^\*\*(.+?)\*\*\s*$` starts a group, of kind quick (label starts "Quick"), action (starts "Action"), fyi (starts "FYI") or other; tasks under a category with no label are an "other" group with no label, and tasks before any category belong to an unnamed category shown as "Uncategorised". A task is a line `^- \[( |x|X|-)\] ` at the left edge (open, done, dropped) plus the following non-blank lines that begin with whitespace (its details). A `- ` line under an FYI group is an information line. Everything else is kept and ignored. Front matter is skipped; CRLF line ends are read the same as LF; the lines are kept exactly, so writing them back gives the same bytes.
+- **A task's parts:** its links (every markdown link, label and address), its tags (`#word`), its priority (a standalone `P1`–`P4`, 1 highest), Margin's own details (planned day, Someday, due, done day) by the task rules, its title (the text without those, without the links and the " - " before them; a title may itself contain " - "), its details (lines without their indent and a leading "- "), and "carried from" (a detail line `_carried from <label>_`, not shown as a detail). Its identity is its first link's address and its title (lower case, spaces collapsed); identical tasks get a number after the first.
+- **Layout:** header with the newest run's label and counts (open, done, dropped) and an "Open the note" button; the Summary, foldable; filters; then the newest run's tasks by category (foldable, open count), by group in the order quick, action, other, each with its label. Rows: a read-only box (crossed when dropped), the priority badge (P4 grey), the title on one line, a chip per link (label; opens the address in the browser), planned and due chips, tag pills, a "carried" chip whose tooltip names the run. Clicking a row or ↵ shows its details, the links in full and where it was carried from. FYI lines are folded at the end of each category.
+- **Filters:** free text (title, category, group, tags, link labels, details), category, kind (quick, action, other), priority (P1, or Pn or higher). **Done & dropped** shows closed tasks; **Older runs** shows earlier runs below, each headed "Earlier run: <label>". The filters, toggles and folds are kept in local storage.
+- **Keys:** ↑ ↓ or J K, Home, End, ↵ (details), O (open the first link), / or Mod+F (the filter box); Esc, ↓ or ↵ in the box returns to the list.
+- **Following the note:** it re-reads the note whenever its file changes (see 2.2), keeping the selection and opened details by task identity, the folds by category name (in the newest run), the filters and the scroll position.
+- **Empty states:** no triage note set (with Open Settings); no note at the path (it appears when written); no runs in the note (with Open the note); no tasks matching.
 
 ### 12.3e Bringing tasks in from Todoist
 

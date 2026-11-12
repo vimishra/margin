@@ -319,6 +319,18 @@ Each canvas card is markdown too.
 <td><code>listTrash</code>, <code>restoreTrash</code>, <code>removeTrash</code>, <code>trashFile</code> and <code>moveFile</code> in <code>server/index.mjs</code> (<code>/api/trash…</code>); the page in <code>components/TrashView.tsx</code>; <code>restoreFromTrash</code> and <code>refreshTrash</code> in <code>store.ts</code></td>
 </tr>
 <tr>
+<td>Saving safely: versions, refused saves, atomic writes, outside changes</td>
+<td>Server: <code>syncFromDisk</code>, <code>writeRecord</code> (temp file and rename) and the version check in <code>PUT /api/notes/:id</code>, <code>POST /api/versions</code>. Page: <code>flush</code> sends <code>base</code>, <code>conflict</code> shows the newer version with Use mine (a sticky <code>toast</code>), <code>watchNotes</code> checks notes on screen every 10 s (<code>store.ts</code>)</td>
+</tr>
+<tr>
+<td>The triage note</td>
+<td>The setting <code>triage.note</code> in <code>.margin/config.json</code> (<code>cleanNotePath</code>, <code>reloadConfig</code> in <code>server/index.mjs</code>; <code>triage</code> in the store, <code>setTriageNote</code>, <code>triageNote</code>, <code>hiddenTaskNotes</code>, <code>isProtectedNote</code>); left out by <code>allTasks(…, hidden)</code> in <code>lib/tasks.ts</code> and <code>read_notes</code> in <code>tools/margin_tasks.py</code>; ticks there skip <code>afterTick</code> (<code>editorNote</code> facet in <code>lists.ts</code>, <code>Preview</code>'s <code>noteId</code>, <code>updateTask</code>); archiving skips it (<code>src/archive.ts</code>); the row <code>TriageNoteRow</code> in Settings → Triage</td>
+</tr>
+<tr>
+<td>The Triage view</td>
+<td>Reading the note in <code>lib/triage.ts</code> (<code>parseTriage</code>, <code>readTaskLine</code>, <code>triageId</code>; tests in <code>scripts/triage-check.mjs</code> with <code>tests/triage/example.md</code>, <code>npm run test:triage</code>); the view in <code>components/TriageView.tsx</code>; the route <code>#/tasks/triage</code> in <code>App.tsx</code>; the sidebar entry and count in <code>Sidebar.tsx</code>; the command <code>gotriage</code></td>
+</tr>
+<tr>
 <td>Tasks from Todoist</td>
 <td>The Todoist calls and the per-computer settings and token in <code>server/todoist.mjs</code> (<code>/api/todoist…</code>); the task lines in <code>lib/todoist.ts</code>; the checks, saving and closing in <code>src/todoist.ts</code> (started in <code>App.tsx</code>; <code>addToInbox</code> in <code>store.ts</code> saves at once); the settings rows <code>TodoistSettingsRows</code> in <code>components/SettingsModal.tsx</code>. Test against a stand-in server with <code>MARGIN_TODOIST_API</code>.</td>
 </tr>

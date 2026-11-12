@@ -331,14 +331,26 @@ def find_vault(explicit: Optional[str]) -> str:
     raise SystemExit("margin-tasks: could not find your notes folder. Pass --vault PATH, or set MARGIN_VAULT.")
 
 
+def note_path_key(p: str) -> str:
+    """A note path as compared for leaving notes out: no leading or trailing slashes, ".md" added, capitals ignored."""
+    s = p.strip().replace("\\", "/").strip("/").lower()
+    return s + ".md" if s and not s.endswith(".md") else s
+
+
 def read_notes(root: str) -> List[Note]:
+    """The notes in the folder, except the triage note (an outside program's suggestions, not your tasks yet)."""
     if not os.path.isdir(root):
         raise SystemExit("margin-tasks: %s is not a folder." % root)
     attachments = {"attachments"}
+    hidden = set()
     try:
         with open(os.path.join(root, ".margin", "config.json"), encoding="utf-8") as f:
-            attachments.add(str(json.load(f).get("attachments", "attachments")).lower())
-    except (OSError, ValueError):
+            config = json.load(f)
+        attachments.add(str(config.get("attachments", "attachments")).lower())
+        triage = config.get("triage") if isinstance(config.get("triage"), dict) else {}
+        if isinstance(triage.get("note"), str) and note_path_key(triage["note"]):
+            hidden.add(note_path_key(triage["note"]))
+    except (OSError, ValueError, AttributeError):
         pass
     notes: List[Note] = []
     for folder, dirs, files in os.walk(root):
@@ -350,6 +362,8 @@ def read_notes(root: str) -> List[Note]:
             if name.startswith(".") or not name.lower().endswith(".md"):
                 continue
             relpath = (rel + "/" + name) if rel else name
+            if note_path_key(relpath) in hidden:
+                continue
             try:
                 with open(os.path.join(folder, name), encoding="utf-8") as f:
                     notes.append(Note(root, relpath, f.read()))

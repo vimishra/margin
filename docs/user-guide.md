@@ -120,6 +120,7 @@ The guide has two main parts, because Margin does two different jobs. **Part 1**
 - [Tasks](#tasks)
   - [Details on a task](#details-on-a-task)
   - [Cancelling a task](#cancelling-a-task)
+  - [The triage note](#the-triage-note)
   - [Repeating tasks](#repeating-tasks)
   - [Reminders](#reminders)
   - [The Tasks view](#the-tasks-view)
@@ -954,6 +955,25 @@ Some tasks are not done but dropped: plans changed, someone else did it, it no l
 - `margin-tasks` shows cancelled tasks as `[-]` and in the Logbook, with a `cancelled` field in its JSON and CSV.
 - Other apps: Obsidian shows `[-]` as a task too; GitHub and plain markdown viewers show it as a list item starting with "[-]".
 
+### The triage note
+
+If a program of yours writes a note of suggested tasks (from your mail, chat or bug tracker, say), tell Margin which note it is in **Settings → Triage → Triage note**, as a path in your notes folder such as `Inbox/Triage`. Then:
+
+- **Its tasks stay out of your lists** (Today, Anytime, the counts, tasks blocks and `margin-tasks`) until you move them into one of your own notes. They are suggestions, not commitments.
+- **Margin keeps its layout exactly as the program wrote it.** Ticking or cancelling a task there changes only its box and adds the date, without moving it, and archiving leaves the note alone.
+- **Margin keeps up with it.** While the note is on screen, Margin checks its file every few seconds and shows the program's latest version. If the program rewrites it while you are typing in it, your change is not saved over the newer version; a message offers **Use mine** instead.
+
+The setting is kept in your notes folder, in `.margin/config.json`, so you can also edit it there with any text editor while Margin is running.
+
+**The Triage view** shows the note laid out for review: **Triage** under Tasks in the sidebar (with the number of open suggestions), or ⌘K → *Go to Triage*. It reads the layout your program writes: runs (`## Triage <label>`, newest first), each with an optional `**Summary**` list, then categories (`### <name>`), groups (`**Quick replies**`, `**Actions**`, `**FYI**` or any other label), and tasks (`- [ ]`, `- [x]`, or `- [-]` for dropped) with indented detail lines.
+
+- **At the top:** the newest run's label, its counts (open, done, dropped) and its Summary, which you can fold.
+- **Below:** the open tasks of the newest run, by category (each can be folded), then by group: quick replies first, then actions, then the rest. Each task shows its priority (P1 to P4), a chip for each of its links (mail, chat, bug; click to open it in your browser), its planned and due dates, its tags, and **carried** when it came over from an earlier run (point at it to see which). Click a task, or press ↵, for its details: the lines under it, its links in full, and where it was carried from. **FYI** lines are folded away at the end of each category.
+- **Narrow it down** with the box (words, `#tag`, `mail`…) and the category, kind and priority menus. **Done & dropped** also shows tasks already dealt with, and **Older runs** shows earlier runs below the newest.
+- **Keys:** ↑ ↓ (or J K) move, ↵ shows details, **O** opens the task's first link, / or ⌘F goes to the box.
+- **It follows the note.** When your program rewrites it, the view changes within a few seconds and keeps your place: the task you were on, the details you had open, what is folded and what you typed in the box. The filters and toggles are remembered on this computer.
+- **For now it only shows the tasks.** To complete or move one, use **Open the note** and edit it there. Completing, dropping and moving tasks from the view itself are coming next.
+
 ### Repeating tasks
 
 Add `@repeat(…)` to a task, and ticking it brings it back:
@@ -1338,6 +1358,7 @@ You can edit the files in any other program, or add `.md` files to the folder. M
 | --- | --- |
 | "Port 4321 is already in use" | Margin is already running. Open http://localhost:4321, or stop the other copy. |
 | A change you made is missing | Open version history (⌥V) and restore an earlier version. |
+| A message says a note "was changed outside Margin" | Another program, or a sync service, changed the note's file while you were editing it. Margin did not save over it: the note now shows the newer version. Choose **Use mine** to put your version back over it, or close the message (×) to keep the newer one. |
 | A note disappeared | Look in **Recently deleted** in the sidebar (or ⌘K → Recently deleted) and Restore it. Scratch notes go there when they expire. A note deleted on your other computer is in that computer's Recently deleted. |
 | A note will not open, or Margin stops responding when you open it | See **A note that will not open** below. |
 | A shortcut does nothing | Check Settings → Shortcuts. Another action may have taken those keys. For the keys under **From any app**, a note there says if another app or the system holds them. |

@@ -2,7 +2,7 @@
 // open (in the desktop app, also while its window is closed but the app is running). Each reminder is shown once on
 // this computer; one missed while Margin was not running is shown when it starts, if it is less than a day old.
 import { desktop } from './desktop'
-import { openNoteAt, toast, useStore } from './store'
+import { hiddenTaskNotes, openNoteAt, toast, useStore } from './store'
 import { allTasks, type Task } from './lib/tasks'
 import { displayTitle, local } from './lib/util'
 
@@ -48,7 +48,7 @@ export function checkReminders(now = Date.now()) {
   if (!s.loaded) return
   const seen = local.get<Record<string, number>>(SEEN, {})
   let changed = false
-  for (const t of allTasks(s.notes, s.settings.templatesFolder, s.settings.inboxFolder)) {
+  for (const t of allTasks(s.notes, s.settings.templatesFolder, s.settings.inboxFolder, hiddenTaskNotes())) {
     if (t.done || !t.remind) continue
     const at = timeOf(t.remind)
     const key = keyOf(t)

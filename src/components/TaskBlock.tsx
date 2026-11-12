@@ -16,9 +16,10 @@ const MOST = 200
 
 type State = ReturnType<typeof useStore.getState>
 
-function contextOf(s: Pick<State, 'notes' | 'settings'>): TaskContext {
+function contextOf(s: Pick<State, 'notes' | 'settings' | 'triage'>): TaskContext {
   return {
     notes: s.notes,
+    hidden: s.triage.note ? [s.triage.note] : [],
     templatesFolder: s.settings.templatesFolder,
     inboxFolder: s.settings.inboxFolder,
     meetingsFolder: s.settings.meetingsFolder,
@@ -58,13 +59,14 @@ function grouped(tasks: Task[], group: BlockGroup, notes: Record<string, Note>, 
 export function TaskBlock({ source, onEdit }: { source: string; onEdit?: () => void }) {
   const notes = useStore((s) => s.notes)
   const settings = useStore((s) => s.settings)
+  const triage = useStore((s) => s.triage)
   const query = useMemo(() => parseTaskQuery(source), [source])
-  const ctx = contextOf({ notes, settings })
+  const ctx = contextOf({ notes, settings, triage })
   const { tasks, total, missing } = useMemo(() => {
     const result = runTaskQuery(query, ctx)
     return query.limit || result.tasks.length <= MOST ? result : { ...result, tasks: result.tasks.slice(0, MOST) }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, notes, settings.templatesFolder, settings.inboxFolder, settings.meetingsFolder, settings.weekStart])
+  }, [query, notes, settings.templatesFolder, settings.inboxFolder, settings.meetingsFolder, settings.weekStart, triage.note])
   const groups = grouped(tasks, query.group, notes, ctx.weekStart, settings)
   const open = tasks.filter((t) => !t.done).length
 

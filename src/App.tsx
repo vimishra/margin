@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { FileQuestion } from 'lucide-react'
-import { SIDEBAR_WIDTH, closeSideTab, closeTab, cycleTab, go, load, paneTabs, setSidebarWidth, setSideWidth, ui, useStore } from './store'
+import { SIDEBAR_WIDTH, closeSideTab, closeTab, cycleTab, go, load, paneTabs, setSidebarWidth, setSideWidth, ui, useStore, watchNotes } from './store'
 import type { Note } from './types'
 import { commands } from './commands'
 import { actionFor, eventCombo, recording, syncDesktopMenu } from './shortcuts'
@@ -15,6 +15,7 @@ import { CalendarView } from './components/CalendarView'
 import { ListView } from './components/ListView'
 import { TrashView } from './components/TrashView'
 import { TasksView } from './components/TasksView'
+import { TriageView } from './components/TriageView'
 import { JournalView } from './components/JournalView'
 import { DatePicker } from './components/DatePicker'
 import { NoteView } from './components/NoteView'
@@ -202,6 +203,7 @@ export default function App() {
     syncDesktopMenu()
     const stopReminders = startReminders()
     const stopTodoist = startTodoist()
+    const stopWatching = watchNotes()
     // Mac apps quieten their selections when the window is not in front.
     const onFocus = () => document.documentElement.classList.toggle('window-inactive', !document.hasFocus())
     window.addEventListener('focus', onFocus)
@@ -215,6 +217,7 @@ export default function App() {
       offContext?.()
       stopReminders()
       stopTodoist()
+      stopWatching()
       window.removeEventListener('margin:action', onAction)
       window.removeEventListener('focus', onFocus)
       window.removeEventListener('blur', onFocus)
@@ -241,6 +244,7 @@ export default function App() {
   else if (route.name === 'home') view = <HomeView />
   else if (route.name === 'calendar') view = <CalendarView />
   else if (route.name === 'journal') view = <JournalView />
+  else if (route.name === 'tasks' && route.view === 'triage') view = <TriageView />
   else if (route.name === 'tasks') view = <TasksView view={route.view} />
   else if (route.name === 'trash') view = <TrashView />
   else if (route.name === 'note')

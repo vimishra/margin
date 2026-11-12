@@ -172,6 +172,8 @@ function toRecord(rel, raw, stat) {
     view: data.view === 'canvas' ? 'canvas' : undefined,
     content,
     extra,
+    // The file as it was read, to tell whether it has changed on disk since (see syncFromDisk and PUT /api/notes).
+    version: sha(raw).slice(0, 16),
   }
 }
 
@@ -194,10 +196,41 @@ function publicNote(rec) {
   return { ...rest, folder: folder === '.' ? '' : folder.split(path.sep).join('/') }
 }
 
+/**
+ * Write a note atomically: to a hidden file beside it, then renamed over it, so nothing (a sync client, the program
+ * that writes the triage note, a crash) ever sees a half-written note. Records the version written.
+ */
 async function writeRecord(rec) {
   const file = abs(rec.path)
+  const text = serialize(rec)
   await fs.mkdir(path.dirname(file), { recursive: true })
-  await fs.writeFile(file, serialize(rec))
+  const tmp = path.join(path.dirname(file), `.${path.basename(file)}.${process.pid}.${Date.now()}.tmp`)
+  try {
+    await fs.writeFile(tmp, text)
+    await fs.rename(tmp, file)
+  } catch (e) {
+    await fs.rm(tmp, { force: true }).catch(() => {})
+    throw e
+  }
+  rec.version = sha(text).slice(0, 16)
+}
+
+/**
+ * Bring a note in memory up to date with its file, when something outside Margin has changed it since it was read
+ * or written (another program, a sync client). True when it had changed.
+ */
+async function syncFromDisk(rec) {
+  let raw
+  let stat
+  try {
+    ;[raw, stat] = await Promise.all([fs.readFile(abs(rec.path), 'utf8'), fs.stat(abs(rec.path))])
+  } catch {
+    return false
+  }
+  if (sha(raw).slice(0, 16) === rec.version) return false
+  const fresh = toRecord(rec.path, raw, stat)
+  Object.assign(rec, fresh, { id: rec.id, path: rec.path })
+  return true
 }
 
 /** A free path for `title` inside `folder`; `current` is the note's own path (allowed). */
@@ -432,7 +465,27 @@ async function renameOldCopies() {
 const app = express()
 app.use('/api', express.json({ limit: '25mb' }))
 
+/** Read the notes folder's settings again: they can be edited by hand while Margin runs. */
+function reloadConfig() {
+  try {
+    const next = JSON.parse(fssync.readFileSync(CONFIG_FILE, 'utf8'))
+    if (!next || typeof next !== 'object' || Array.isArray(next)) return
+    // Replaced, not merged, so a setting removed from the file is gone here too.
+    for (const k of Object.keys(config)) delete config[k]
+    Object.assign(config, { attachments: 'attachments', folderTags: {} }, next)
+  } catch {
+    /* missing or being written: keep what we have */
+  }
+}
+
+/** A note's path in the notes folder as given in settings: forward slashes, nothing outside the folder. */
+function cleanNotePath(p) {
+  const parts = String(p ?? '').replace(/\\/g, '/').split('/').map((s) => s.trim()).filter((s) => s && s !== '.')
+  return parts.includes('..') ? '' : parts.join('/')
+}
+
 app.get('/api/state', h(async (_req, res) => {
+  reloadConfig()
   await scan()
   res.json({ notes: [...notes.values()].map(publicNote), folders, vault: VAULT, local: LOCAL, config })
 }))
@@ -475,6 +528,12 @@ app.put('/api/notes/:id', h(async (req, res) => {
   const rec = notes.get(req.params.id)
   if (!rec) throw new HttpError(404, 'Note not found')
   const b = req.body || {}
+  // A save says which version of the note it was made from (`base`). If the file has changed on disk since, the
+  // save is refused and the note as it is now is sent back, so a newer version is never overwritten by an older one.
+  await syncFromDisk(rec)
+  if (typeof b.content === 'string' && typeof b.base === 'string' && b.base && b.base !== rec.version) {
+    return res.status(409).json({ error: `“${rec.title}” was changed outside Margin.`, note: publicNote(rec) })
+  }
   const touched = []
   const previous = rec.content
   const oldTitle = rec.title
@@ -512,6 +571,7 @@ app.put('/api/notes/:id', h(async (req, res) => {
     const re = new RegExp(`\\[\\[${esc}(\\]\\]|\\||#)`, 'gi')
     for (const other of notes.values()) {
       if (other.id === rec.id) continue
+      await syncFromDisk(other)
       const replaced = other.content.replace(re, (_m, tail) => `[[${rec.title}${tail}`)
       if (replaced !== other.content) {
         other.content = replaced
@@ -665,6 +725,16 @@ app.put('/api/config', h(async (req, res) => {
     }
     config.folderTags = next
   }
+  // The triage note (written by an outside program) and, later, how its tasks are moved: kept as given, merged.
+  if (req.body?.triage && typeof req.body.triage === 'object') {
+    const next = { ...(config.triage && typeof config.triage === 'object' ? config.triage : {}) }
+    if ('note' in req.body.triage) {
+      const note = cleanNotePath(req.body.triage.note)
+      if (note) next.note = note
+      else delete next.note
+    }
+    config.triage = next
+  }
   await fs.mkdir(path.dirname(CONFIG_FILE), { recursive: true })
   await fs.writeFile(CONFIG_FILE, JSON.stringify(config, null, 2))
   if (typeof req.body?.attachments === 'string') await scan()
@@ -693,6 +763,19 @@ app.post('/api/import/obsidian', h(async (req, res) => {
   })
   await scan()
   res.json({ ...result, notes: [...notes.values()].map(publicNote), folders })
+}))
+
+// The notes on screen, checked against their files: the ones changed on disk since the page got them come back.
+app.post('/api/versions', h(async (req, res) => {
+  const want = req.body?.versions && typeof req.body.versions === 'object' ? req.body.versions : {}
+  const changed = []
+  for (const [id, version] of Object.entries(want)) {
+    const rec = notes.get(id)
+    if (!rec) continue
+    await syncFromDisk(rec)
+    if (rec.version !== version) changed.push(publicNote(rec))
+  }
+  res.json({ changed })
 }))
 
 // Tasks captured in Todoist, brought into the Inbox (settings and token kept on this computer).

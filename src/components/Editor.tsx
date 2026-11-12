@@ -36,7 +36,7 @@ import { dailyLabel, isYmd, longDate, today, tagHue } from '../lib/util'
 import { livePreview } from './livePreview'
 import { cycleNote, cycleSection, externalChange, foldBelowHere, foldCommand, folding, foldOnlySectionsAndLists, foldToLevel, restoreFolds } from './folding'
 import { cellsFromClipboard, serializeTable, tableFromCells } from './tableWidget'
-import { type ListKind, moveListItem, shiftListItem, toggleCancel, toggleDone, toggleList } from './lists'
+import { type ListKind, editorNote, moveListItem, shiftListItem, toggleCancel, toggleDone, toggleList } from './lists'
 import { syntaxTree } from '@codemirror/language'
 
 export interface EditorHandle {
@@ -641,6 +641,7 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
           flashField,
           markdown({ base: markdownLanguage, codeLanguages: languages, extensions: [foldOnlySectionsAndLists] }),
           folding(foldKey),
+          editorNote.of(foldKey ?? ''),
           syntaxHighlighting(highlight),
           marks,
           isearchHighlight,

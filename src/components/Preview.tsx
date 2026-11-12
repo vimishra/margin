@@ -1,7 +1,7 @@
 import { memo, useEffect, useMemo, useRef } from 'react'
 import { renderMarkdown, toggleTask } from '../lib/markdown'
 import { resolver, titlesKey } from '../lib/links'
-import { createNote, go, openNote, openSide, ui, useStore, ensureDaily } from '../store'
+import { createNote, go, isProtectedNote, openNote, openSide, ui, useStore, ensureDaily } from '../store'
 import { changedLine } from '../lib/archive'
 import { afterTick } from '../lib/repeat'
 import { isYmd } from '../lib/util'
@@ -27,9 +27,11 @@ interface Props {
   className?: string
   /** Called with new markdown when a task checkbox is ticked. */
   onChange?: (source: string) => void
+  /** The note shown, when it is one: ticking in a note an outside program owns changes only the box. */
+  noteId?: string
 }
 
-export const Preview = memo(function Preview({ source, className, onChange }: Props) {
+export const Preview = memo(function Preview({ source, className, onChange, noteId }: Props) {
   const ref = useRef<HTMLDivElement>(null)
   // Re-render links when the set of note titles changes, not on every keystroke elsewhere.
   const titles = useStore((s) => titlesKey(s.notes))
@@ -91,7 +93,7 @@ export const Preview = memo(function Preview({ source, className, onChange }: Pr
       const s = useStore.getState().settings
       const next = toggleTask(source, boxes.indexOf(el), s.logCompletion)
       // Ticked: a repeating task comes back, and the ticked one goes to the end of its list, as in the editor.
-      onChange(el.checked ? afterTick(next.split('\n'), [changedLine(source, next)], { sink: s.sinkDoneTasks }).join('\n') : next)
+      onChange(el.checked && !isProtectedNote(noteId) ? afterTick(next.split('\n'), [changedLine(source, next)], { sink: s.sinkDoneTasks }).join('\n') : next)
     }
   }
 

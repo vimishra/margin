@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Archive, CalendarClock, CalendarDays, CheckSquare, CornerDownLeft, FilePlus2, Folder, FolderPlus, Hash, LayoutTemplate, Search, Square, SquareX, Users, Plus } from 'lucide-react'
-import { createNote, go, moveTaskToNewNote, moveTaskToNote, newProjectPlace, OPEN_THREADS, openSide, openSideAt, openDaily, newFromTemplate, newMeeting, newTemplate, openNote, openNoteAt, templates, toast, ui, updateNote, useStore, type PaletteState, applyTags } from '../store'
+import { createNote, go, moveTaskToNewNote, moveTaskToNote, newProjectPlace, OPEN_THREADS, openSide, openSideAt, openDaily, newFromTemplate, newMeeting, newTemplate, openNote, openNoteAt, templates, toast, ui, updateNote, useStore, type PaletteState, applyTags, hiddenTaskNotes } from '../store'
 import { commands } from '../commands'
 import { mergeIntoNote, moveSectionToNote } from '../refactor'
 import { describeSearch, parseSearch, search, taskPasses, type SearchContext } from '../lib/search'
@@ -51,7 +51,7 @@ function findTasks(notes: Record<string, import('../types').Note>, query: string
   const words = [...q.words, ...q.tags.map((t) => '#' + t)].join(' ')
   if (words.replace(/[#\s]/g, '').length < 2 && !q.phrases.some((p) => p.length > 1)) return []
   const { templatesFolder, inboxFolder } = useStore.getState().settings
-  const hits = allTasks(notes, templatesFolder, inboxFolder).filter((t) => notes[t.noteId] && matchesQuery(t, '', words) && taskPasses(t, notes[t.noteId], q, ctx))
+  const hits = allTasks(notes, templatesFolder, inboxFolder, hiddenTaskNotes()).filter((t) => notes[t.noteId] && matchesQuery(t, '', words) && taskPasses(t, notes[t.noteId], q, ctx))
   const open = hits.filter((t) => !t.done).sort(byUrgency)
   const done = hits.filter((t) => t.done).sort((a, b) => (b.completed || '').localeCompare(a.completed || ''))
   return [...open, ...done].slice(0, TASK_RESULTS)

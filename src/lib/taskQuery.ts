@@ -104,6 +104,8 @@ export interface TaskContext {
   meetingsFolder: string
   weekStart: number
   now?: string
+  /** Notes left out of task lists (the triage note), by path. */
+  hidden?: string[]
 }
 
 /**
@@ -113,7 +115,7 @@ export interface TaskContext {
  */
 export function runTaskQuery(q: TaskQuery, ctx: TaskContext): { tasks: Task[]; total: number; missing: string[] } {
   const now = ctx.now ?? today()
-  let tasks = selectTasks(allTasks(ctx.notes, ctx.templatesFolder, ctx.inboxFolder), ctx.notes, { filter: q.filter, query: q.words, source: q.source }, ctx.weekStart, now)
+  let tasks = selectTasks(allTasks(ctx.notes, ctx.templatesFolder, ctx.inboxFolder, ctx.hidden ?? []), ctx.notes, { filter: q.filter, query: q.words, source: q.source }, ctx.weekStart, now)
   const missing: string[] = []
   if (q.links.length) {
     const find = resolver(ctx.notes)

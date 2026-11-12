@@ -1,7 +1,7 @@
 // Archiving: ticked tasks into an "## Archive" section at the end of their note (one section, one note, or every
 // note), and finished project notes into the Archive notebook. Each offers one Undo.
 import { api } from './api'
-import { ask, currentNote, toast, updateNote, useStore } from './store'
+import { ask, currentNote, isProtectedNote, toast, updateNote, useStore } from './store'
 import { archiveTasks } from './lib/archive'
 import { joinContent, splitContent } from './lib/canvas'
 import { addDays, displayTitle, today } from './lib/util'
@@ -39,6 +39,7 @@ function archiveNote(note: Note, opts: { line?: number; before?: string }): numb
 export function archiveHere(scope: 'section' | 'note', line?: number) {
   const note = currentNote()
   if (!note) return
+  if (isProtectedNote(note.id)) return toast('This is the triage note: archiving would change its layout, which the program that writes it relies on')
   const before = { [note.id]: { content: note.content } }
   const count = archiveNote(note, scope === 'section' ? { line: line ?? 0 } : {})
   if (!count) return toast(scope === 'section' ? 'No ticked tasks to archive in this section' : 'No ticked tasks to archive in this note')
@@ -48,7 +49,7 @@ export function archiveHere(scope: 'section' | 'note', line?: number) {
 /** The notes "archive in all notes" goes through: not daily notes, templates or scratch notes. */
 function archivable(n: Note) {
   const s = state().settings
-  return n.type !== 'daily' && n.type !== 'scratch' && n.folder !== s.templatesFolder && !n.folder.startsWith(s.templatesFolder + '/')
+  return n.type !== 'daily' && n.type !== 'scratch' && n.folder !== s.templatesFolder && !n.folder.startsWith(s.templatesFolder + '/') && !isProtectedNote(n.id)
 }
 
 /** Archive, in every note, the tasks ticked at least the set number of days ago, after saying how many. */

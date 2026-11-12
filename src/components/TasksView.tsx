@@ -322,7 +322,8 @@ export function TasksView({ view }: { view?: string }) {
     setClosed({})
   }, [view])
 
-  const tasks = useMemo(() => allTasks(notes, settings.templatesFolder, settings.inboxFolder), [notes, settings.templatesFolder, settings.inboxFolder])
+  const triagePath = useStore((s) => s.triage.note)
+  const tasks = useMemo(() => allTasks(notes, settings.templatesFolder, settings.inboxFolder, triagePath ? [triagePath] : []), [notes, settings.templatesFolder, settings.inboxFolder, triagePath])
   const counts = useMemo(
     () => Object.fromEntries(TASK_FILTERS.map(([f]) => [f, selectTasks(tasks, notes, { filter: f, query: '', source }, weekStart, now).length])),
     [tasks, notes, source, weekStart, now],
@@ -632,13 +633,14 @@ export function DayTasks({ note, floating = false }: { note: Note; floating?: bo
   const notes = useStore((s) => s.notes)
   const templatesFolder = useStore((s) => s.settings.templatesFolder)
   const inboxFolder = useStore((s) => s.settings.inboxFolder)
+  const triagePath = useStore((s) => s.triage.note)
   // Over a canvas it starts folded away, so it does not cover the cards.
   const key = floating ? 'dayTasksOpenCanvas' : 'dayTasksOpen'
   const [open, setOpen] = useState(() => local.get(key, !floating))
   const date = note.title
   const now = today()
   const { due, late, carried } = useMemo(() => {
-    const elsewhere = allTasks(notes, templatesFolder, inboxFolder).filter((t) => t.noteId !== note.id)
+    const elsewhere = allTasks(notes, templatesFolder, inboxFolder, triagePath ? [triagePath] : []).filter((t) => t.noteId !== note.id)
     const isNow = date === now
     return {
       due: elsewhere.filter((t) => isOn(t, date)).sort((a, b) => Number(a.done) - Number(b.done) || byUrgency(a, b)),

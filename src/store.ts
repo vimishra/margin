@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { ReactNode } from 'react'
-import { api } from './api'
+import { api, isConflict, type TriageConfig } from './api'
 import { shortLinks } from './lib/shortlinks'
 import { afterTick } from './lib/repeat'
 import { addToTop3, takeUnfinishedTop3 } from './lib/top3'
@@ -8,12 +8,14 @@ import { desktop } from './desktop'
 import type { Note, NotePatch, NoteType, Route } from './types'
 import { appendCard } from './lib/canvas'
 import { clock, displayTitle, isYmd, local, today, parseYmd, ymd, dailyLabel } from './lib/util'
-import { INBOX_NOTE_TITLE, TASK_LINE, isInboxNote, isProjectNote, rewriteTask, shortDate, withDetails, type SavedTaskView, type Task, type TaskView } from './lib/tasks'
+import { INBOX_NOTE_TITLE, TASK_LINE, isInboxNote, notePathKey, isProjectNote, rewriteTask, shortDate, withDetails, type SavedTaskView, type Task, type TaskView } from './lib/tasks'
 
 export interface Toast {
   id: number
   text: string
   action?: { label: string; run: () => void }
+  /** Stays until its button or its × is used, for something that must not be missed (a save that was refused). */
+  sticky?: boolean
 }
 
 export interface MenuItem {
@@ -261,6 +263,8 @@ interface State {
   attachmentsFolder: string
   /** Tags that notes take on when created in, or moved into, a notebook. Kept in the notes folder's own config. */
   folderTags: Record<string, string[]>
+  /** The triage note an outside program writes, from the notes folder's settings (`.margin/config.json`). */
+  triage: TriageConfig
   notes: Record<string, Note>
   folders: string[]
   route: Route
@@ -372,6 +376,7 @@ export const useStore = create<State>(() => ({
   trashCount: 0,
   attachmentsFolder: 'attachments',
   folderTags: {},
+  triage: {},
   notes: {},
   folders: [],
   route: parseHash(location.hash),
@@ -527,6 +532,7 @@ window.addEventListener('hashchange', () => enterRoute(parseHash(location.hash))
 // ---------- loading ----------
 
 const same = (a: Note, b: Note) =>
+  a.version === b.version &&
   a.content === b.content &&
   a.updated === b.updated &&
   a.path === b.path &&
@@ -558,7 +564,7 @@ export async function load() {
   try {
     const data = await api.state()
     const first = !get().loaded
-    set({ notes: mergeNotes(data.notes), folders: data.folders, vault: data.vault, local: data.local || '', attachmentsFolder: data.config?.attachments || 'attachments', folderTags: data.config?.folderTags || {}, loaded: true, error: null })
+    set({ notes: mergeNotes(data.notes), folders: data.folders, vault: data.vault, local: data.local || '', attachmentsFolder: data.config?.attachments || 'attachments', folderTags: data.config?.folderTags || {}, triage: data.config?.triage || {}, loaded: true, error: null })
     // Opened without a specific page in the address: go to the start page chosen in settings.
     const { settings, recent, notes } = get()
     if (first && !location.hash.replace(/^#\/?/, '')) {
@@ -610,10 +616,63 @@ export async function refresh() {
   try {
     const data = await api.state()
     if (pending.size) return
-    set({ notes: mergeNotes(data.notes), folders: data.folders, error: null })
+    // The folder's settings can be edited by hand while Margin runs: take in the triage note too.
+    set({ notes: mergeNotes(data.notes), folders: data.folders, triage: data.config?.triage || {}, error: null })
   } catch {
     /* server unreachable: keep what we have */
   }
+}
+
+/** The notes whose tasks are not yours yet (the triage note), by path: left out of task lists, sinking and archiving. */
+export function hiddenTaskNotes(): string[] {
+  const note = get().triage.note
+  return note ? [note] : []
+}
+
+/** The triage note, if it is set and exists. */
+export function triageNote(): Note | undefined {
+  const key = get().triage.note
+  return key ? Object.values(get().notes).find((n) => notePathKey(n.path) === notePathKey(key)) : undefined
+}
+
+/** Whether a note's structure belongs to an outside program (the triage note): ticking there neither sinks nor repeats. */
+export const isProtectedNote = (id: string | undefined) => !!id && triageNote()?.id === id
+
+/** Set which note is the triage note (its path in the notes folder; '' for none). Saved in the folder's settings. */
+export async function setTriageNote(path: string) {
+  try {
+    const res = await api.setConfig({ triage: { note: path } })
+    set({ triage: res.config.triage || {} })
+    return res.config.triage?.note ?? ''
+  } catch (e) {
+    toast((e as Error).message)
+    return null
+  }
+}
+
+/**
+ * Check the notes on screen, and the triage note, against their files every 10 seconds while the window is
+ * visible, and take in any changed outside Margin. A note with unsaved changes is left alone: its save is refused
+ * and handled by `conflict`. Returns a function that stops it.
+ */
+export function watchNotes(): () => void {
+  const check = async () => {
+    if (document.visibilityState !== 'visible' || !get().loaded) return
+    const s = get()
+    const ids = new Set<string>([s.route.name === 'note' ? s.route.id : '', s.side ?? '', s.journalNote ?? '', triageNote()?.id ?? ''].filter(Boolean))
+    const versions: Record<string, string> = {}
+    for (const id of ids) if (s.notes[id]?.version && !pending.has(id)) versions[id] = s.notes[id].version!
+    if (!Object.keys(versions).length) return
+    try {
+      const { changed } = await api.changedNotes(versions)
+      const fresh = changed.filter((n) => !pending.has(n.id))
+      if (fresh.length) set((st) => ({ notes: { ...st.notes, ...Object.fromEntries(fresh.map((n) => [n.id, n])) } }))
+    } catch {
+      /* server unreachable: try again next time */
+    }
+  }
+  const timer = window.setInterval(() => void check(), 10_000)
+  return () => clearInterval(timer)
 }
 
 // ---------- saving ----------
@@ -642,7 +701,8 @@ async function flush(id: string) {
   p.patch = {}
   p.inflight = true
   try {
-    const res = await api.updateNote(id, patch)
+    // New content says which version of the file it was made from, so a newer file is never overwritten.
+    const res = await api.updateNote(id, patch.content === undefined ? patch : { ...patch, base: get().notes[id]?.version })
     set((s) => {
       const local = s.notes[id]
       if (!local) return s
@@ -653,7 +713,8 @@ async function flush(id: string) {
       return { notes }
     })
   } catch (e) {
-    toast(`Could not save: ${(e as Error).message}`)
+    if (isConflict(e)) conflict(id, patch, e.body.note)
+    else toast(`Could not save: ${(e as Error).message}`)
   } finally {
     p.inflight = false
     if (Object.keys(p.patch).length) {
@@ -665,11 +726,32 @@ async function flush(id: string) {
   }
 }
 
+/**
+ * A save refused because the file changed on disk (another program, a sync) after the version it was made from:
+ * show the note as it is now, and offer to put back what was typed. Nothing is overwritten without asking.
+ */
+function conflict(id: string, patch: NotePatch, current: Note) {
+  const p = pending.get(id)
+  // Anything typed while the refused save was on its way was made from the old version too.
+  const mine = p?.patch.content ?? patch.content
+  if (p) {
+    clearTimeout(p.timer)
+    p.patch = {}
+  }
+  set((s) => ({ notes: { ...s.notes, [id]: current } }))
+  if (mine === undefined || mine === current.content) return
+  toast(
+    `“${displayTitle(current)}” was changed outside Margin, so your last change was not saved. It now shows the newer version.`,
+    { label: 'Use mine', run: () => updateNote(id, { content: mine }) },
+    { sticky: true },
+  )
+}
+
 function flushAllNow() {
   for (const [id, p] of pending) {
     if (!Object.keys(p.patch).length) continue
     clearTimeout(p.timer)
-    api.updateNote(id, p.patch, true).catch(() => {})
+    api.updateNote(id, p.patch.content === undefined ? p.patch : { ...p.patch, base: get().notes[id]?.version }, true).catch(() => {})
     p.patch = {}
   }
 }
@@ -1224,9 +1306,11 @@ export async function addToInbox(lines: string): Promise<boolean> {
   const content = get().notes[note.id]?.content
   if (content === undefined) return false
   try {
-    await api.updateNote(note.id, { content })
+    const res = await api.updateNote(note.id, { content, base: get().notes[note.id]?.version })
+    set((s) => ({ notes: { ...s.notes, [note.id]: { ...res.note, content: s.notes[note.id]?.content ?? content } } }))
     return true
-  } catch {
+  } catch (e) {
+    if (isConflict(e)) set((s) => ({ notes: { ...s.notes, [note.id]: e.body.note } }))
     return false
   }
 }
@@ -1407,7 +1491,7 @@ export function updateTask(task: Task, change: { done?: boolean; cancelled?: boo
   let content = note && rewriteTask(note.content, task, { ...change, stamp: get().settings.logCompletion })
   if (!note || content == null) return toast('That task has changed since this list was drawn. Try again.')
   // Ticked: a repeating task comes back, and the ticked one goes to the end of its list with the lines under it.
-  if (change.done || change.cancelled) content = afterTick(content.split('\n'), [task.line], { sink: get().settings.sinkDoneTasks }).join('\n')
+  if ((change.done || change.cancelled) && !isProtectedNote(task.noteId)) content = afterTick(content.split('\n'), [task.line], { sink: get().settings.sinkDoneTasks }).join('\n')
   updateNote(note.id, { content })
 }
 
@@ -1577,10 +1661,11 @@ export async function deleteFolder(path: string) {
 // ---------- ui ----------
 
 let toastId = 0
-export function toast(text: string, action?: Toast['action']) {
+export function toast(text: string, action?: Toast['action'], opts: { sticky?: boolean } = {}) {
   const id = ++toastId
-  set((s) => ({ toasts: [...s.toasts.slice(-2), { id, text, action }] }))
-  setTimeout(() => dismissToast(id), action ? 7000 : 3500)
+  // At most three at a time; a sticky one is never pushed out by ordinary ones.
+  set((s) => ({ toasts: [...s.toasts.filter((t) => t.sticky), ...s.toasts.filter((t) => !t.sticky).slice(-2), { id, text, action, sticky: opts.sticky }] }))
+  if (!opts.sticky) setTimeout(() => dismissToast(id), action ? 7000 : 3500)
 }
 export const dismissToast = (id: number) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) }))
 

@@ -181,6 +181,7 @@ mark.find-hit.current{background:#ffab2e}
 <ul>
 <li><a href="#details-on-a-task">Details on a task</a></li>
 <li><a href="#cancelling-a-task">Cancelling a task</a></li>
+<li><a href="#the-triage-note">The triage note</a></li>
 <li><a href="#repeating-tasks">Repeating tasks</a></li>
 <li><a href="#reminders">Reminders</a></li>
 <li><a href="#the-tasks-view">The Tasks view</a></li>
@@ -1255,6 +1256,23 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 <li><code>margin-tasks</code> shows cancelled tasks as <code>[-]</code> and in the Logbook, with a <code>cancelled</code> field in its JSON and CSV.</li>
 <li>Other apps: Obsidian shows <code>[-]</code> as a task too; GitHub and plain markdown viewers show it as a list item starting with &quot;[-]&quot;.</li>
 </ul>
+<h3 id="the-triage-note">The triage note</h3>
+<p>If a program of yours writes a note of suggested tasks (from your mail, chat or bug tracker, say), tell Margin which note it is in <strong>Settings → Triage → Triage note</strong>, as a path in your notes folder such as <code>Inbox/Triage</code>. Then:</p>
+<ul>
+<li><strong>Its tasks stay out of your lists</strong> (Today, Anytime, the counts, tasks blocks and <code>margin-tasks</code>) until you move them into one of your own notes. They are suggestions, not commitments.</li>
+<li><strong>Margin keeps its layout exactly as the program wrote it.</strong> Ticking or cancelling a task there changes only its box and adds the date, without moving it, and archiving leaves the note alone.</li>
+<li><strong>Margin keeps up with it.</strong> While the note is on screen, Margin checks its file every few seconds and shows the program's latest version. If the program rewrites it while you are typing in it, your change is not saved over the newer version; a message offers <strong>Use mine</strong> instead.</li>
+</ul>
+<p>The setting is kept in your notes folder, in <code>.margin/config.json</code>, so you can also edit it there with any text editor while Margin is running.</p>
+<p><strong>The Triage view</strong> shows the note laid out for review: <strong>Triage</strong> under Tasks in the sidebar (with the number of open suggestions), or ⌘K → <em>Go to Triage</em>. It reads the layout your program writes: runs (<code>## Triage &lt;label&gt;</code>, newest first), each with an optional <code>**Summary**</code> list, then categories (<code>### &lt;name&gt;</code>), groups (<code>**Quick replies**</code>, <code>**Actions**</code>, <code>**FYI**</code> or any other label), and tasks (<code>- [ ]</code>, <code>- [x]</code>, or <code>- [-]</code> for dropped) with indented detail lines.</p>
+<ul>
+<li><strong>At the top:</strong> the newest run's label, its counts (open, done, dropped) and its Summary, which you can fold.</li>
+<li><strong>Below:</strong> the open tasks of the newest run, by category (each can be folded), then by group: quick replies first, then actions, then the rest. Each task shows its priority (P1 to P4), a chip for each of its links (mail, chat, bug; click to open it in your browser), its planned and due dates, its tags, and <strong>carried</strong> when it came over from an earlier run (point at it to see which). Click a task, or press ↵, for its details: the lines under it, its links in full, and where it was carried from. <strong>FYI</strong> lines are folded away at the end of each category.</li>
+<li><strong>Narrow it down</strong> with the box (words, <code>#tag</code>, <code>mail</code>…) and the category, kind and priority menus. <strong>Done &amp; dropped</strong> also shows tasks already dealt with, and <strong>Older runs</strong> shows earlier runs below the newest.</li>
+<li><strong>Keys:</strong> ↑ ↓ (or J K) move, ↵ shows details, <strong>O</strong> opens the task's first link, / or ⌘F goes to the box.</li>
+<li><strong>It follows the note.</strong> When your program rewrites it, the view changes within a few seconds and keeps your place: the task you were on, the details you had open, what is folded and what you typed in the box. The filters and toggles are remembered on this computer.</li>
+<li><strong>For now it only shows the tasks.</strong> To complete or move one, use <strong>Open the note</strong> and edit it there. Completing, dropping and moving tasks from the view itself are coming next.</li>
+</ul>
 <h3 id="repeating-tasks">Repeating tasks</h3>
 <p>Add <code>@repeat(…)</code> to a task, and ticking it brings it back:</p>
 <pre><code>- [ ] Weekly report @due(2026-11-06) @repeat(weekly)
@@ -1937,6 +1955,10 @@ margin-tasks open --no-due --notebook Work --paths
 <tr>
 <td>A change you made is missing</td>
 <td>Open version history (⌥V) and restore an earlier version.</td>
+</tr>
+<tr>
+<td>A message says a note &quot;was changed outside Margin&quot;</td>
+<td>Another program, or a sync service, changed the note's file while you were editing it. Margin did not save over it: the note now shows the newer version. Choose <strong>Use mine</strong> to put your version back over it, or close the message (×) to keep the newer one.</td>
 </tr>
 <tr>
 <td>A note disappeared</td>

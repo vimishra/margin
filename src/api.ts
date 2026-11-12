@@ -4,7 +4,8 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...init })
   if (!res.ok) {
     const body = await res.json().catch(() => ({}))
-    throw new Error(body.error || res.statusText)
+    // The status and the whole answer go with the error: a refused save (409) carries the note as it is now.
+    throw Object.assign(new Error(body.error || res.statusText), { status: res.status, body })
   }
   return res.json()
 }
@@ -15,7 +16,16 @@ const json = (method: string, body?: unknown): RequestInit => ({ method, body: J
 export interface VaultConfig {
   attachments: string
   folderTags?: Record<string, string[]>
+  /** The triage note an outside program writes (its path in the notes folder), and later how its tasks are moved. */
+  triage?: TriageConfig
 }
+
+export interface TriageConfig {
+  note?: string
+}
+
+/** A refused save: the note was changed on disk after the version the save was made from. */
+export const isConflict = (e: unknown): e is Error & { status: 409; body: { note: Note } } => (e as { status?: number })?.status === 409 && !!(e as { body?: { note?: Note } }).body?.note
 
 /** A deleted note in this computer's trash. `folder` is the notebook it came from ('' top level, null not known). */
 export interface TrashItem {
@@ -59,8 +69,11 @@ export const api = {
   state: () => request<{ notes: Note[]; folders: string[]; vault: string; local?: string; config?: VaultConfig }>('/api/state'),
   setConfig: (config: Partial<VaultConfig>) => request<{ config: VaultConfig; folders: string[] }>('/api/config', json('PUT', config)),
   createNote: (note: Partial<Note>) => request<{ note: Note; folders: string[] }>('/api/notes', json('POST', note)),
-  updateNote: (id: string, patch: NotePatch, keepalive = false) =>
+  /** Save changes to a note. `base` is the version the new content was made from; the save is refused (409) if the file has changed since. */
+  updateNote: (id: string, patch: NotePatch & { base?: string }, keepalive = false) =>
     request<{ note: Note; touched: Note[] }>(`/api/notes/${id}`, { ...json('PUT', patch), keepalive }),
+  /** The notes, of those given with the versions the page has, whose files have changed since. */
+  changedNotes: (versions: Record<string, string>) => request<{ changed: Note[] }>('/api/versions', json('POST', { versions })),
   deleteNote: (id: string) => request<{ ok: true; trashed: string | null }>(`/api/notes/${id}`, { method: 'DELETE' }),
   trash: () => request<{ items: TrashItem[] }>('/api/trash'),
   trashContent: (file: string) => request<{ content: string }>(`/api/trash/${encodeURIComponent(file)}`),

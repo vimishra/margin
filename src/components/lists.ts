@@ -1,10 +1,13 @@
 // List editing for the markdown editor: nest and un-nest items with Tab / Shift+Tab,
 // keep numbered lists numbered, and switch lines between list kinds.
 import type { EditorView } from '@codemirror/view'
-import { ChangeSet, type ChangeSpec } from '@codemirror/state'
+import { ChangeSet, Facet, type ChangeSpec } from '@codemirror/state'
 import { lineCancelChanges, lineDoneChanges } from '../lib/tasks'
 import { afterTick } from '../lib/repeat'
-import { useStore } from '../store'
+import { isProtectedNote, useStore } from '../store'
+
+/** The id of the note an editor shows, for tick behaviour that depends on the note (see `isProtectedNote`). */
+export const editorNote = Facet.define<string, string>({ combine: (values) => values[0] ?? '' })
 
 const ITEM = /^(\s*)([-*+]|\d+[.)])(\s+)(\[[ xX-]\]\s+)?/
 
@@ -307,7 +310,8 @@ export function toggleCancel(view: EditorView, stamp = false) {
 export function dispatchTick(view: EditorView, changes: ChangeSpec, lineNumbers: number[], done: boolean) {
   const { state } = view
   let all = state.changes(changes)
-  if (done) {
+  // In a note an outside program owns (the triage note), only the box changes: nothing moves, nothing is added.
+  if (done && !isProtectedNote(state.facet(editorNote))) {
     const doc = all.apply(state.doc)
     const before = doc.toString().split('\n')
     const lines = afterTick(before, lineNumbers.map((n) => n - 1), { sink: useStore.getState().settings.sinkDoneTasks })

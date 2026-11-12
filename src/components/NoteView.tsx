@@ -649,7 +649,7 @@ export function NoteView({ note, slot = 'main' }: { note: Note; slot?: 'main' | 
                 {mode === 'read' && (
                   <div className="reading" onDoubleClick={() => setPref('mode', 'edit')}>
                     {page.trim() ? (
-                      <Preview source={page} onChange={setPage} />
+                      <Preview source={page} onChange={setPage} noteId={note.id} />
                     ) : (
                       <p className="empty-hint">Nothing here yet. Press {hint('mode')} to start writing.</p>
                     )}

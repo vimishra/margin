@@ -55,7 +55,7 @@ for (const { path: rel, raw } of cases.notes) {
 }
 
 const key = (t) => `${notes[t.noteId].path}:${offsets[t.noteId] + t.line + 1}`
-const all = tasks.allTasks(notes, cases.templates, cases.inbox)
+const all = tasks.allTasks(notes, cases.templates, cases.inbox, cases.hidden ?? [])
 const LISTS = { inbox: 'inbox', today: 'today', upcoming: 'upcoming', anytime: 'anytime', someday: 'someday', logbook: 'done', overdue: 'overdue', week: 'week', month: 'month', undated: 'undated', open: 'open' }
 const select = (list, query) => tasks.selectTasks(all, notes, { filter: LISTS[list], query, source: 'all' }, cases.weekStart, cases.today).map(key)
 

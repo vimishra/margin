@@ -55,6 +55,10 @@
   {
    "path": "Personal/Routines.md",
    "raw": "# Routines\n\n- [ ] Weekly report @due(2026-10-09) @repeat(weekly)\n- [ ] Water the plants >2026-10-08 @repeat(3 days after done) P2\n- [ ] Call the bank @remind(2026-10-08 14:30) #money\n- [ ] Dentist @remind(2026-10-12) >2026-10-12\n- [ ] Stand-up notes @repeat(weekdays) @remind(2026-10-08T9:05)\n- [x] Weekly report @due(2026-10-02) @done(2026-10-02)\n- [ ] Broken @repeat() and @remind(tomorrow) stay as text\n- [-] Book the old venue @due(2026-10-09) @cancelled(2026-10-07)\n- [-] Dropped without a date P2\n- [-] Cancelled repeat @repeat(weekly) @cancelled(2026-10-06) >2026-10-06\n  - [ ] Sub-task of a cancelled one\n"
+  },
+  {
+   "path": "Inbox/Triage.md",
+   "raw": "---\nid: tri4ge0001\ntags:\n  - triage\n---\n## Triage Mon 5 Jan, 11:00\n\n### Category One\n**Actions**\n- [ ] Suggested by the triage job P1 >2026-10-08 @due(2026-10-08) #atlas\n- [x] An old suggestion @done(2026-10-07)\n"
   }
  ],
  "queries": [
@@ -1547,5 +1551,8 @@
    }
   ]
  },
- "inbox": "Inbox"
+ "inbox": "Inbox",
+ "hidden": [
+  "inbox/triage"
+ ]
 }

@@ -24,6 +24,11 @@ export function Toasts() {
               {t.action.label}
             </button>
           )}
+          {t.sticky && (
+            <button className="toast-close" title="Close" aria-label="Close" onClick={() => dismissToast(t.id)}>
+              <X size={14} />
+            </button>
+          )}
         </div>
       ))}
     </div>

@@ -2,6 +2,17 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.34.0 (2026-11-12)
+
+### Added
+
+- **The Triage view.** Set the note your triage program writes in Settings → Triage, and **Triage** under Tasks shows it laid out for review: the newest run's summary and counts, then its open tasks by category and kind (quick replies, actions, other), each with its priority, a chip per link (mail, chat, bug) that opens it, its dates, tags and a "carried" marker; details open in place, FYI lines are folded away. Filter by words, category, kind and priority; show done and dropped tasks or older runs; move with ↑ ↓, ↵ for details, O to open a link. It follows the note as your program rewrites it, keeping your place. Read-only for now: acting on tasks from the view comes next.
+- **The triage note's tasks stay out of your lists** (Today, Anytime, counts, tasks blocks, reminders, ⌘K and `margin-tasks`) until you move them into your own notes, and Margin never rearranges that note: ticking there changes only the box, and archiving leaves it alone.
+
+### Changed
+
+- **Margin no longer saves over a newer version of a note.** If a note's file changes on disk while you edit it (another program, Google Drive, another computer), your save is not written over it: the note shows the newer version, with a message offering **Use mine**, which stays until you choose or close it. Notes on screen are checked against their files every 10 seconds, so outside changes appear without switching windows. Notes are written atomically (to a hidden file, then renamed), so nothing ever sees half a note.
+
 ## 1.33.0 (2026-11-10)
 
 ### Added

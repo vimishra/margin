@@ -254,16 +254,27 @@ export function isInboxNote(note: Pick<Note, 'folder' | 'title'>, inboxFolder: s
 let lastNotes: Record<string, Note> | null = null
 let lastFolder = ''
 let lastInbox = ''
+let lastHidden = ''
 let lastAll: Task[] = []
+
+/** A note path as compared for `hidden`: no leading or trailing slashes, ".md" added, capitals ignored. */
+export const notePathKey = (p: string) => {
+  const s = p.trim().replace(/\\/g, '/').replace(/^\/+|\/+$/g, '').toLowerCase()
+  return s && !s.endsWith('.md') ? s + '.md' : s
+}
 /** Every task in every note, except the ones in templates. Tasks in the Inbox note are marked `inInbox`. */
-export function allTasks(notes: Record<string, Note>, templatesFolder: string, inboxFolder = ''): Task[] {
-  if (notes === lastNotes && templatesFolder === lastFolder && inboxFolder === lastInbox) return lastAll
+export function allTasks(notes: Record<string, Note>, templatesFolder: string, inboxFolder = '', hidden: string[] = []): Task[] {
+  // Notes whose tasks are not yours yet (the triage note an outside program writes), by their path in the folder.
+  const skip = new Set(hidden.map(notePathKey).filter(Boolean))
+  const hiddenKey = [...skip].sort().join('\n')
+  if (notes === lastNotes && templatesFolder === lastFolder && inboxFolder === lastInbox && hiddenKey === lastHidden) return lastAll
   lastAll = Object.values(notes).flatMap((n) =>
-    n.folder === templatesFolder ? [] : isInboxNote(n, inboxFolder) ? tasksOf(n).map((t) => ({ ...t, inInbox: true })) : tasksOf(n),
+    n.folder === templatesFolder || (skip.size && skip.has(notePathKey(n.path))) ? [] : isInboxNote(n, inboxFolder) ? tasksOf(n).map((t) => ({ ...t, inInbox: true })) : tasksOf(n),
   )
   lastNotes = notes
   lastFolder = templatesFolder
   lastInbox = inboxFolder
+  lastHidden = hiddenKey
   return lastAll
 }
 

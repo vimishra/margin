@@ -32,6 +32,11 @@ class SharedCases(unittest.TestCase):
             os.makedirs(os.path.dirname(path), exist_ok=True)
             with open(path, "w", encoding="utf-8", newline="") as out:
                 out.write(note["raw"])
+        # The triage note named in the folder's settings is left out, as in the app.
+        if CASES.get("hidden"):
+            os.makedirs(os.path.join(cls.dir.name, ".margin"), exist_ok=True)
+            with open(os.path.join(cls.dir.name, ".margin", "config.json"), "w", encoding="utf-8") as out:
+                json.dump({"triage": {"note": CASES["hidden"][0]}}, out)
         # Things the tool must ignore: hidden folders, the attachments folder, files that are not notes.
         for extra in (".history/x/1.md", ".trash/old.md", "attachments/readme.md", "Work/notes.txt"):
             path = os.path.join(cls.dir.name, *extra.split("/"))

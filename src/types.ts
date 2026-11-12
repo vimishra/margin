@@ -16,6 +16,8 @@ export interface Note {
   status?: string
   view?: 'canvas' | ''
   content: string
+  /** The version of the file this copy was read or saved as; a save sends it, and is refused if the file changed since. */
+  version?: string
 }
 
 export type NotePatch = Partial<Omit<Note, 'id' | 'path' | 'created' | 'updated'>>

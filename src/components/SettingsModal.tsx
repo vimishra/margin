@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { CalendarDays, Check, Moon, Sun, Search, LayoutTemplate, FolderCog, Keyboard, Palette, PenLine, RotateCcw, Settings2, SlidersHorizontal, Type, X, Zap } from 'lucide-react'
+import { CalendarDays, Check, ListFilter, Moon, Sun, Search, LayoutTemplate, FolderCog, Keyboard, Palette, PenLine, RotateCcw, Settings2, SlidersHorizontal, Type, X, Zap } from 'lucide-react'
 import {
   ACCENTS,
   systemAccent,
@@ -19,6 +19,7 @@ import {
   resetSettings,
   setPref,
   setSetting,
+  setTriageNote,
   toast,
   ui,
   useStore,
@@ -31,12 +32,13 @@ import {
 import { FIXED_SHORTCUTS } from '../commands'
 import { SHORTCUT_DEFS, defaultCombo, eventCombo, formatCombo, isUsable, recording, syncDesktopMenu } from '../shortcuts'
 import { cx } from '../lib/util'
+import { notePathKey } from '../lib/tasks'
 import { desktop, fileManager, type GlobalKeyId, type GlobalKeys } from '../desktop'
 import { FontPicker } from './FontPicker'
 import { api, type TodoistSettings } from '../api'
 import { importFromTodoist, todoistStatus } from '../todoist'
 
-type Section = 'general' | 'appearance' | 'styles' | 'editor' | 'daily' | 'templates' | 'capture' | 'files' | 'shortcuts'
+type Section = 'general' | 'appearance' | 'styles' | 'editor' | 'daily' | 'templates' | 'capture' | 'triage' | 'files' | 'shortcuts'
 
 const SECTIONS: [Section, string, React.ReactNode][] = [
   ['general', 'General', <SlidersHorizontal size={16} />],
@@ -46,6 +48,7 @@ const SECTIONS: [Section, string, React.ReactNode][] = [
   ['daily', 'Daily notes', <CalendarDays size={16} />],
   ['templates', 'Templates & meetings', <LayoutTemplate size={16} />],
   ['capture', 'Capture & scratch', <Zap size={16} />],
+  ['triage', 'Triage', <ListFilter size={16} />],
   ['files', 'Files & data', <FolderCog size={16} />],
   ['shortcuts', 'Shortcuts', <Keyboard size={16} />],
 ]
@@ -160,6 +163,29 @@ const GLOBAL_KEY_LABELS: [GlobalKeyId, string][] = [
  * Bringing tasks in from Todoist: the token (checked with Todoist, never shown again), which project or label to
  * take tasks from, on or off for this computer, and what the last check did. Kept by the server on this computer.
  */
+/** Which note is the triage note: written by an outside program, kept out of task lists, never reordered by Margin. */
+function TriageNoteRow() {
+  const path = useStore((s) => s.triage.note) ?? ''
+  const notes = useStore((s) => s.notes)
+  const found = path ? Object.values(notes).some((n) => notePathKey(n.path) === notePathKey(path)) : true
+  return (
+    <Row
+      label="Triage note"
+      hint={`The note a program of yours writes with suggested tasks, as a path in your notes folder, such as Inbox/Triage. Its tasks stay out of Today, Anytime and your other lists until you move them into a note, and Margin never reorders it: ticking there changes only the box, and archiving leaves it alone. Saved in the notes folder (.margin/config.json), so it can also be edited there.${path && !found ? ' No note at that path yet.' : ''}`}
+    >
+      <input
+        key={path}
+        className="set-text"
+        defaultValue={path}
+        placeholder="Inbox/Triage"
+        spellCheck={false}
+        onBlur={(e) => e.target.value.trim() !== path && void setTriageNote(e.target.value.trim())}
+        onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
+      />
+    </Row>
+  )
+}
+
 function TodoistSettingsRows() {
   const [s, setS] = useState<TodoistSettings | null>(null)
   const [token, setToken] = useState('')
@@ -837,6 +863,13 @@ export function SettingsModal() {
                   <Text value={s.scratchFolder} onChange={set('scratchFolder')} />
                 </Row>
                 <TodoistSettingsRows />
+              </div>
+            )}
+
+            {show('triage') && (
+              <div className="set-section">
+                {searching && <h4 className="set-section-title">Triage</h4>}
+                <TriageNoteRow />
               </div>
             )}
 
