@@ -3,7 +3,7 @@
 // links, and follows the note as the program rewrites it. Acting on tasks comes later; lib/triage.ts reads the note.
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { BookOpen, CalendarClock, CalendarDays, ChevronDown, ChevronRight, ExternalLink, FileText, FolderInput, History, ListFilter, Search, SquareCheck, SquareX } from 'lucide-react'
-import { go, openDatePicker, openMenu, openNote, openNoteAt, triageNote, ui, useStore, type MenuItem } from '../store'
+import { go, openDatePicker, openMenu, openNote, openNoteAt, triageNote, ui, usePageWidthStyle, useStore, type MenuItem } from '../store'
 import { destinationOf, moveByRules, moveCategory, triageAct } from '../triage'
 import { GROUP_ORDER, parseTriage, runTasks, triageCounts, type GroupKind, type TriageCategory, type TriageRun, type TriageTask } from '../lib/triage'
 import { renderInline } from '../lib/markdown'
@@ -75,6 +75,7 @@ function triageMenu(t: TriageTask, row: Element, readOnly: boolean, noteId: stri
 
 export function TriageView() {
   const path = useStore((s) => s.triage.note)
+  const pageWidth = usePageWidthStyle()
   const notes = useStore((s) => s.notes)
   const note = useMemo(() => (path ? triageNote() : undefined), [path, notes])
   const doc = useMemo(() => (note ? parseTriage(note.content) : null), [note])
@@ -194,7 +195,7 @@ export function TriageView() {
   // Nothing to show: say why, calmly.
   const empty = (title: string, text: string, action?: [string, () => void]) => (
     <div ref={page} className="page" tabIndex={-1}>
-      <div className="page-inner list tasks triage">
+      <div className="page-inner list tasks triage" style={pageWidth}>
         {header}
         <div className="empty-state">
           <h3>{title}</h3>
@@ -217,7 +218,7 @@ export function TriageView() {
 
   return (
     <div ref={page} className="page" tabIndex={-1} onKeyDown={onKey}>
-      <div className="page-inner list tasks triage">
+      <div className="page-inner list tasks triage" style={pageWidth}>
         {header}
 
         {newest!.summary.length > 0 && (

@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { AlignLeft, Archive, Bell, BookmarkPlus, Box, CalendarClock, CalendarDays, Check, ChevronDown, ChevronRight, FileText, Flag, FolderInput, ListChecks, ListTree, MoreHorizontal, Repeat, Search, SquareCheck, SquareX, Star, Users } from 'lucide-react'
 import type { Note } from '../types'
-import { deleteTaskView, go, openDatePicker, openFromClick, openMenu, openNoteAt, openSideAt, renameTaskView, rescheduleTasks, saveTaskView, ensureInboxNote, inboxNotebook, moveTasksToNote, ui, updateTask, updateTaskView, useStore, type MenuItem } from '../store'
+import { deleteTaskView, go, openDatePicker, openFromClick, openMenu, openNoteAt, openSideAt, renameTaskView, rescheduleTasks, saveTaskView, ensureInboxNote, inboxNotebook, moveTasksToNote, ui, updateTask, updateTaskView, usePageWidthStyle, useStore, type MenuItem } from '../store'
 import { hint } from '../shortcuts'
 import { archiveEverywhere } from '../archive'
 import { renderInline, renderMarkdown } from '../lib/markdown'
@@ -279,6 +279,7 @@ function projectGroups(shown: Task[], all: Task[], notes: Record<string, Note>, 
 export function TasksView({ view }: { view?: string }) {
   const notes = useStore((s) => s.notes)
   const settings = useStore((s) => s.settings)
+  const pageWidth = usePageWidthStyle()
   // The address decides the list: a built-in one ("today"), or a saved filter ("s:<id>").
   const saved = view?.startsWith('s:') ? settings.taskViews.find((v) => `s:${v.id}` === view) : undefined
   const builtIn = TASK_FILTERS.find(([f]) => f === view)?.[0]
@@ -440,7 +441,7 @@ export function TasksView({ view }: { view?: string }) {
         else if (e.key === 'p') (e.preventDefault(), openMenu({ currentTarget: rowEl(), clientX: 0, clientY: 0, type: 'key', preventDefault() {} }, priorityMenu(task)))
       }}
     >
-      <div className="page-inner list tasks">
+      <div className="page-inner list tasks" style={pageWidth}>
         <header className="list-head">
           <span className="list-icon">
             <ListChecks size={20} />

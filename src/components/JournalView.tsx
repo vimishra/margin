@@ -1,12 +1,12 @@
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { BookOpenText, ExternalLink, LayoutDashboard } from 'lucide-react'
 import type { Note } from '../types'
-import { ensureDaily, openFromClick, setPref, updateNote, useStore } from '../store'
+import { ensureDaily, openFromClick, pageMaxWidth, setPref, updateNote, useStore } from '../store'
 import { joinContent, splitContent } from '../lib/canvas'
 import { cx, dailyLabel, isYmd, longDate, today } from '../lib/util'
 import { Editor, type EditorHandle } from './Editor'
 import { Preview, followLink } from './Preview'
-import { applyFormat, charWidth } from './NoteView'
+import { applyFormat } from './NoteView'
 import { DayTasks } from './TasksView'
 
 const STEP = 7
@@ -121,7 +121,7 @@ export function JournalView() {
   return (
     <div className="note journal">
       <div className="note-scroll" ref={scroller} onScroll={loadMore}>
-        <div className="doc" style={{ maxWidth: width ? Math.round(width * charWidth(mode === 'source', settings)) + 144 : 'none' }}>
+        <div className="doc" style={{ maxWidth: pageMaxWidth(width, mode === 'source', settings) }}>
           <header className="journal-head">
             <BookOpenText size={18} />
             <h1>Journal</h1>

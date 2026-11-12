@@ -240,6 +240,41 @@ export function fontCss(family: string, mono = false): string {
   return `"${family.replace(/["\\]/g, '')}", ${fallback}`
 }
 
+const measured: Record<string, number> = {}
+/** Average width in pixels of one character of body text, so "90 characters per line" means what it says. */
+export function charWidth(mono: boolean, settings: Settings): number {
+  const size = mono ? 14 : settings.fontSize
+  const key = `${mono}:${settings.font}:${settings.codeFont}:${size}`
+  if (!measured[key]) {
+    const sample = 'The quick brown fox jumps over the lazy dog, then stops to read 42 pages of notes.'
+    const ctx = document.createElement('canvas').getContext('2d')
+    // Canvas cannot resolve CSS variables, so substitute the app's base font stack.
+    const base = getComputedStyle(document.documentElement).getPropertyValue('--font')
+    const family = (mono ? fontCss(settings.codeFont, true) : fontCss(settings.font)).replace('var(--font)', base)
+    if (ctx) {
+      ctx.font = `${size}px ${family}`
+      measured[key] = ctx.measureText(sample).width / sample.length
+    }
+    if (!measured[key]) measured[key] = size * (mono ? 0.6 : 0.48)
+  }
+  return measured[key]
+}
+
+/**
+ * The widest a page may be for the page width setting (characters per line; 0 is full width):
+ * notes, the journal and the task lists all use it, so they line up.
+ */
+export function pageMaxWidth(width: number, mono: boolean, settings: Settings): number | 'none' {
+  return width ? Math.round(width * charWidth(mono, settings)) + 144 : 'none'
+}
+
+/** The page width for list pages (the Tasks and Triage views), as a style. */
+export function usePageWidthStyle(): { maxWidth: number | 'none' } {
+  const width = useStore((s) => s.width)
+  const settings = useStore((s) => s.settings)
+  return { maxWidth: pageMaxWidth(width, false, settings) }
+}
+
 export type PaletteState = null | {
   mode: 'search' | 'move' | 'template' | 'outline' | 'tag' | 'moveTask' | 'moveSection' | 'merge' | 'tabs' | 'triageMove'
   /** For tabs: which pane's tabs to list. */

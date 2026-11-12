@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.40.1 (2026-11-12)
+
+### Fixed
+
+- **The Tasks and Triage views follow the page width setting**, like notes and the journal (they were always 980 pixels wide). Narrow, Standard, Wide, Extra wide, Full width and a custom width all apply.
+
 ## 1.40.0 (2026-11-12)
 
 Triage is complete: the view, acting on tasks, moving them into your notes by rules, and Move all (built up over 1.34.0 to 1.36.0), now with its own guide. This is also the first Linux installer since 1.34.0, so on Linux and the Chromebook it brings everything from 1.35.0 and 1.36.0 below.

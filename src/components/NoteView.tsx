@@ -39,7 +39,7 @@ import {
   X,
 } from 'lucide-react'
 import type { Note } from '../types'
-import { timeNow, deleteNote, duplicateNote, go, openDaily, openMenu, openSide, pageWidthMenu, setActivePane, setPref, swapPanes, toast, ui, updateNote, useStore, type Mode, type Settings, fontCss } from '../store'
+import { timeNow, deleteNote, duplicateNote, go, openDaily, openMenu, openSide, pageWidthMenu, setActivePane, setPref, swapPanes, toast, ui, updateNote, useStore, type Mode, pageMaxWidth } from '../store'
 import { extractToNote, pickSectionTarget } from '../refactor'
 import { archiveHere } from '../archive'
 import { joinContent, splitContent } from '../lib/canvas'
@@ -55,26 +55,6 @@ import { desktop } from '../desktop'
 import { hint } from '../shortcuts'
 
 const DAY = 86400000
-
-const measured: Record<string, number> = {}
-/** Average width in pixels of one character of body text, so "90 characters per line" means what it says. */
-export function charWidth(mono: boolean, settings: Settings): number {
-  const size = mono ? 14 : settings.fontSize
-  const key = `${mono}:${settings.font}:${settings.codeFont}:${size}`
-  if (!measured[key]) {
-    const sample = 'The quick brown fox jumps over the lazy dog, then stops to read 42 pages of notes.'
-    const ctx = document.createElement('canvas').getContext('2d')
-    // Canvas cannot resolve CSS variables, so substitute the app's base font stack.
-    const base = getComputedStyle(document.documentElement).getPropertyValue('--font')
-    const family = (mono ? fontCss(settings.codeFont, true) : fontCss(settings.font)).replace('var(--font)', base)
-    if (ctx) {
-      ctx.font = `${size}px ${family}`
-      measured[key] = ctx.measureText(sample).width / sample.length
-    }
-    if (!measured[key]) measured[key] = size * (mono ? 0.6 : 0.48)
-  }
-  return measured[key]
-}
 
 function exportItems(note: Note) {
   const run = (fn: (n: Note) => unknown, done?: string) => async () => {
@@ -597,7 +577,7 @@ export function NoteView({ note, slot = 'main' }: { note: Note; slot?: 'main' | 
           </>
         ) : (
           <div className="note-scroll" ref={scroller}>
-            <div className="doc" style={{ maxWidth: width ? Math.round(width * charWidth(mode === 'source', settings)) + 144 : 'none' }}>
+            <div className="doc" style={{ maxWidth: pageMaxWidth(width, mode === 'source', settings) }}>
               {isDaily ? (
                 <div className="daily-head">
                   <div className="daily-nav">

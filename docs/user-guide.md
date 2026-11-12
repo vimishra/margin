@@ -1262,7 +1262,7 @@ Two settings live inside the app and cannot be read from outside it. If you rena
 
 **Text style colours** have a light-theme and a dark-theme picker. Leave the dark one on Auto and it uses a lightened version of your light colour, so a dark heading colour stays readable on a dark background.
 
-Page width is measured in characters per line. Settings are kept per app: the desktop app and a browser each have their own.
+Page width is measured in characters per line, and applies to notes, the journal, and the Tasks and Triage views alike. Settings are kept per app: the desktop app and a browser each have their own.
 
 ## Shortcuts
 
