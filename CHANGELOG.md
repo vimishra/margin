@@ -2,6 +2,15 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.35.0 (2026-11-12)
+
+### Added
+
+- **Act on triage tasks from the Triage view.** Space completes a task (again to reopen it), C drops it, S and D set when and when it is due; also on hover buttons and a right-click menu, each with Undo. Only the task's box and date change in the triage note.
+- **Move triage tasks into your notes.** M moves a task, with its detail lines and its links, under Open Threads in a workstream or project note (made there if missing), then takes it out of the triage note; ⇧M lets you choose the note, or make a new one. A task already in the note (same link, still open) is not added twice. Undo puts both notes back.
+- **Rules for where tasks go** (Settings → Triage): by category, tag or words in the title, then a note named like the category in your workstream notebook, then a default note. The Triage view shows where M will send each task; ⌥↵ in the picker remembers a note for a category. Also: the heading moved tasks go under, top or bottom of it, words to take off (such as #quick), and a "from triage" line. All kept in `.margin/config.json`, editable by hand.
+- Every triage action works on the note as it is on disk at that moment, so a run written by your triage program in between is never overwritten: if the task is gone, nothing changes and you are told.
+
 ## 1.34.0 (2026-11-12)
 
 ### Added

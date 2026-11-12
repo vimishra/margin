@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Archive, CalendarClock, CalendarDays, CheckSquare, CornerDownLeft, FilePlus2, Folder, FolderPlus, Hash, LayoutTemplate, Search, Square, SquareX, Users, Plus } from 'lucide-react'
-import { createNote, go, moveTaskToNewNote, moveTaskToNote, newProjectPlace, OPEN_THREADS, openSide, openSideAt, openDaily, newFromTemplate, newMeeting, newTemplate, openNote, openNoteAt, templates, toast, ui, updateNote, useStore, type PaletteState, applyTags, hiddenTaskNotes } from '../store'
+import { createNote, go, moveTaskToNewNote, moveTaskToNote, newProjectPlace, OPEN_THREADS, openSide, openSideAt, openDaily, newFromTemplate, newMeeting, newTemplate, openNote, openNoteAt, templates, toast, ui, updateNote, useStore, type PaletteState, applyTags, hiddenTaskNotes, triageNote } from '../store'
 import { commands } from '../commands'
 import { mergeIntoNote, moveSectionToNote } from '../refactor'
 import { describeSearch, parseSearch, search, taskPasses, type SearchContext } from '../lib/search'
+import { moveAndRemember, triageMove } from '../triage'
 import { tagCounts } from '../lib/links'
 import { ALT, cx, dailyLabel, displayTitle, longDate, relTime, snippet, today } from '../lib/util'
 import { parseDatePhrase } from '../lib/dates'
@@ -140,6 +141,45 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
         // Several words mean several tags, so that is what Enter does.
         if (words.length > 1) out.unshift(item)
         else out.push(item)
+      }
+      return out
+    }
+
+    // A task of the triage note: into which note? (Not the triage note itself.)
+    if (state.mode === 'triageMove' && state.triageTask) {
+      const task = state.triageTask
+      const triageId = triageNote()?.id
+      const heading = useStore.getState().triage.heading?.trim() || OPEN_THREADS
+      const templatesFolder = useStore.getState().settings.templatesFolder
+      const out: Item[] = Object.values(notes)
+        .filter((n) => n.id !== triageId && n.type !== 'scratch' && n.folder !== templatesFolder && (!lower || displayTitle(n).toLowerCase().includes(lower) || n.folder.toLowerCase().includes(lower)))
+        .sort((a, b) => b.updated.localeCompare(a.updated))
+        .slice(0, 50)
+        .map((n) => ({
+          key: n.id,
+          group: lower ? 'Notes' : 'Recently edited',
+          icon: <NoteIcon note={n} />,
+          title: displayTitle(n),
+          subtitle: `${n.folder ? n.folder.split('/').join(' / ') + ' · ' : ''}under ${heading}${task.category ? ` · ${ALT}↵ always use it for “${task.category}”` : ''}`,
+          run: () => void triageMove(task, n.id),
+          // ⌥↵: move it, and send this category's tasks to this note from now on.
+          ...(task.category ? { noteId: n.id, side: () => void moveAndRemember(task, n) } : {}),
+        }))
+      const place = q ? newProjectPlace(q) : null
+      if (place?.title && !Object.values(notes).some((n) => n.title.toLowerCase() === place.title.toLowerCase() && n.folder.toLowerCase() === place.folder.toLowerCase())) {
+        const item: Item = {
+          key: 'new',
+          group: 'New note',
+          icon: <FilePlus2 size={16} />,
+          title: `New note “${place.title}”`,
+          subtitle: `${place.folder ? `In ${place.folder.split('/').join(' / ')}` : 'At the top level'} · the task goes under ${heading} · type Notebook/Name for another notebook`,
+          run: async () => {
+            const made = await createNote({ title: place.title, folder: place.folder, content: `## ${heading}` }, false)
+            if (made) await triageMove(task, made.id)
+          },
+        }
+        if (out.length) out.push(item)
+        else out.unshift(item)
       }
       return out
     }
@@ -392,7 +432,7 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
           <input
             autoFocus
             value={query}
-            placeholder={state.mode === 'moveTask' ? `Move “${state.task?.text ?? ''}” to which note?` : state.mode === 'moveSection' ? `Move the section “${state.section?.title ?? ''}” to which note?` : state.mode === 'merge' ? `Merge “${notes[state.noteId || ''] ? displayTitle(notes[state.noteId || '']) : ''}” into which note?` : state.mode === 'outline' ? 'Jump to a heading in this note' : state.mode === 'tabs' ? 'Find an open tab' : state.mode === 'template' ? 'New note from which template?' : state.mode === 'tag' ? `Tag “${notes[state.noteId || ''] ? displayTitle(notes[state.noteId || '']) : ''}” with…` : moving ? `Move “${displayTitle(moving)}” to…` : 'Search notes, #tags, a date like “next monday”, or > for commands'}
+            placeholder={state.mode === 'triageMove' ? `Move “${state.triageTask?.title ?? ''}” to which note?` : state.mode === 'moveTask' ? `Move “${state.task?.text ?? ''}” to which note?` : state.mode === 'moveSection' ? `Move the section “${state.section?.title ?? ''}” to which note?` : state.mode === 'merge' ? `Merge “${notes[state.noteId || ''] ? displayTitle(notes[state.noteId || '']) : ''}” into which note?` : state.mode === 'outline' ? 'Jump to a heading in this note' : state.mode === 'tabs' ? 'Find an open tab' : state.mode === 'template' ? 'New note from which template?' : state.mode === 'tag' ? `Tag “${notes[state.noteId || ''] ? displayTitle(notes[state.noteId || '']) : ''}” with…` : moving ? `Move “${displayTitle(moving)}” to…` : 'Search notes, #tags, a date like “next monday”, or > for commands'}
             spellCheck={false}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => {

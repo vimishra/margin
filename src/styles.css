@@ -5857,6 +5857,11 @@ kbd {
 .task-chip.triage-link {
   color: var(--accent-text);
 }
+.task-chip.triage-dest {
+  color: var(--text-3);
+  background: none;
+  border: var(--hair) dashed var(--border-strong, var(--border));
+}
 .task-chip.triage-carried {
   color: var(--text-3);
   background: none;
@@ -5873,4 +5878,38 @@ kbd {
   font-size: 12px;
   color: var(--text-3);
   overflow-wrap: anywhere;
+}
+
+/* Settings → Triage: the rules list */
+.triage-rules {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+}
+.triage-rule {
+  display: grid;
+  grid-template-columns: auto 1fr auto 1.3fr auto;
+  align-items: center;
+  gap: 6px;
+}
+.triage-rule .set-text,
+.triage-rule .set-select {
+  width: 100%;
+  min-width: 0;
+}
+.triage-arrow {
+  color: var(--text-3);
+}
+.triage-rule-tools {
+  display: flex;
+  gap: 2px;
+}
+.triage-broken {
+  grid-column: 1 / -1;
+  color: var(--danger);
+}
+.triage-rules > .btn {
+  align-self: flex-start;
 }

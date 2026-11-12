@@ -478,6 +478,35 @@ function reloadConfig() {
   }
 }
 
+/**
+ * The triage settings, from what the page sends merged into what there is: each key given replaces the old one,
+ * cleaned; an empty value removes it. `rules` are { category | tag | title, note (a path), id? }, in order.
+ */
+function cleanTriage(body, current) {
+  const next = { ...(current && typeof current === 'object' ? current : {}) }
+  const text = (v) => (typeof v === 'string' ? v.trim() : '')
+  const set = (key, value) => (value === '' || value === undefined || value === null || (Array.isArray(value) && !value.length) ? delete next[key] : (next[key] = value))
+  if ('note' in body) set('note', cleanNotePath(body.note))
+  if ('default' in body) set('default', cleanNotePath(body.default))
+  if ('workstreamNotebook' in body) set('workstreamNotebook', cleanNotePath(body.workstreamNotebook))
+  if ('heading' in body) set('heading', text(body.heading).replace(/^#+\s*/, ''))
+  if ('position' in body) set('position', body.position === 'top' ? 'top' : '')
+  if ('addLine' in body) set('addLine', body.addLine === true ? true : '')
+  if ('strip' in body) set('strip', Array.isArray(body.strip) ? [...new Set(body.strip.map(text).filter(Boolean))] : [])
+  if ('rules' in body && Array.isArray(body.rules)) {
+    const rules = []
+    for (const r of body.rules) {
+      if (!r || typeof r !== 'object') continue
+      const kind = ['category', 'tag', 'title'].find((k) => text(r[k]))
+      const note = cleanNotePath(r.note)
+      if (!kind || !note) continue
+      rules.push({ [kind]: text(r[kind]), note, ...(text(r.id) ? { id: text(r.id) } : {}) })
+    }
+    set('rules', rules)
+  }
+  return next
+}
+
 /** A note's path in the notes folder as given in settings: forward slashes, nothing outside the folder. */
 function cleanNotePath(p) {
   const parts = String(p ?? '').replace(/\\/g, '/').split('/').map((s) => s.trim()).filter((s) => s && s !== '.')
@@ -618,6 +647,14 @@ app.post('/api/trash/empty', h(async (req, res) => {
   res.json({ items: await listTrash() })
 }))
 
+// One note as it is on disk right now (read again if it changed), for actions that must not work from an old copy.
+app.get('/api/notes/:id/fresh', h(async (req, res) => {
+  const rec = notes.get(req.params.id)
+  if (!rec) throw new HttpError(404, 'Note not found')
+  await syncFromDisk(rec)
+  res.json({ note: publicNote(rec) })
+}))
+
 app.get('/api/notes/:id/versions', h(async (req, res) => {
   const versions = await listVersions(path.basename(req.params.id))
   res.json({ versions })
@@ -726,15 +763,7 @@ app.put('/api/config', h(async (req, res) => {
     config.folderTags = next
   }
   // The triage note (written by an outside program) and, later, how its tasks are moved: kept as given, merged.
-  if (req.body?.triage && typeof req.body.triage === 'object') {
-    const next = { ...(config.triage && typeof config.triage === 'object' ? config.triage : {}) }
-    if ('note' in req.body.triage) {
-      const note = cleanNotePath(req.body.triage.note)
-      if (note) next.note = note
-      else delete next.note
-    }
-    config.triage = next
-  }
+  if (req.body?.triage && typeof req.body.triage === 'object') config.triage = cleanTriage(req.body.triage, config.triage)
   await fs.mkdir(path.dirname(CONFIG_FILE), { recursive: true })
   await fs.writeFile(CONFIG_FILE, JSON.stringify(config, null, 2))
   if (typeof req.body?.attachments === 'string') await scan()

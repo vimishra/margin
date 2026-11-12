@@ -2,8 +2,9 @@
 // as runs, categories and groups of suggested tasks. Read-only for now: it shows the newest run, filters it, opens
 // links, and follows the note as the program rewrites it. Acting on tasks comes later; lib/triage.ts reads the note.
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
-import { CalendarClock, CalendarDays, ChevronDown, ChevronRight, ExternalLink, FileText, History, ListFilter, Search } from 'lucide-react'
-import { go, openNote, triageNote, ui, useStore } from '../store'
+import { CalendarClock, CalendarDays, ChevronDown, ChevronRight, ExternalLink, FileText, FolderInput, History, ListFilter, Search, SquareCheck, SquareX } from 'lucide-react'
+import { go, openDatePicker, openMenu, openNote, openNoteAt, triageNote, ui, useStore, type MenuItem } from '../store'
+import { destinationOf, moveByRules, triageAct } from '../triage'
 import { GROUP_ORDER, parseTriage, runTasks, triageCounts, type GroupKind, type TriageCategory, type TriageRun, type TriageTask } from '../lib/triage'
 import { renderInline } from '../lib/markdown'
 import { shortDate } from '../lib/tasks'
@@ -21,6 +22,56 @@ const openLink = (url: string) => window.open(url, '_blank', 'noopener')
 
 /** The words the free-text filter looks in. */
 const haystack = (t: TriageTask) => [t.title, t.category, t.groupLabel, ...t.tags.map((x) => '#' + x), ...t.links.map((l) => l.label), ...t.details].join(' ').toLowerCase()
+
+/** Complete an open task, or reopen a finished one (the box, Space or X). */
+const toggleDone = (t: TriageTask) => void triageAct(t, t.state === 'open' ? { kind: 'complete' } : { kind: 'reopen' })
+/** Pick a note to move a task into (⇧M, or M when no rule decides). */
+const moveTo = (t: TriageTask) => ui({ palette: { mode: 'triageMove', triageTask: t } })
+
+/** Drop an open or done task, or reopen a dropped one (C). */
+const toggleDrop = (t: TriageTask) => void triageAct(t, t.state === 'dropped' ? { kind: 'reopen' } : { kind: 'drop' })
+
+/** The calendar for a task's planned day (with Someday) or due date, under the element given. */
+function pickDate(anchor: Element, t: TriageTask, field: 'planned' | 'due') {
+  const planning = field === 'planned'
+  openDatePicker({ currentTarget: anchor }, {
+    title: planning ? 'When' : 'Due date',
+    value: planning ? t.planned : t.due,
+    removeLabel: !planning ? 'Remove due date' : t.someday ? 'Take out of Someday' : 'Remove planned day',
+    someday: planning ? (t.someday ? 'on' : 'off') : undefined,
+    onPick: (date) => void triageAct(t, planning ? (date === 'someday' ? { kind: 'planned', date: null, someday: true } : { kind: 'planned', date }) : { kind: 'due', date }),
+  })
+}
+
+/** The right-click menu of a task: everything its keys do. Earlier runs offer only opening. */
+function triageMenu(t: TriageTask, row: Element, readOnly: boolean, noteId: string | undefined): MenuItem[] {
+  const acts: MenuItem[] = readOnly
+    ? []
+    : [
+        t.state === 'open'
+          ? { label: 'Complete', hint: 'Space', icon: <SquareCheck size={14} />, onSelect: () => toggleDone(t) }
+          : { label: 'Reopen', hint: t.state === 'dropped' ? 'C' : 'Space', icon: <SquareCheck size={14} />, onSelect: () => void triageAct(t, { kind: 'reopen' }) },
+        ...(t.state === 'dropped' ? [] : [{ label: 'Drop', hint: 'C', icon: <SquareX size={14} />, onSelect: () => toggleDrop(t) }]),
+        { separator: true },
+        { label: 'When…', hint: 'S', icon: <CalendarClock size={14} />, onSelect: () => pickDate(row, t, 'planned') },
+        { label: 'Due date…', hint: 'D', icon: <CalendarDays size={14} />, onSelect: () => pickDate(row, t, 'due') },
+        ...(() => {
+          const dest = destinationOf(t)
+          return dest
+            ? [
+                { label: `Move to ${dest.note.title}`, hint: 'M', icon: <FolderInput size={14} />, onSelect: () => moveByRules(t) },
+                { label: 'Move to another note…', hint: '⇧M', onSelect: () => moveTo(t) },
+              ]
+            : [{ label: 'Move to a note…', hint: 'M', icon: <FolderInput size={14} />, onSelect: () => moveTo(t) }]
+        })(),
+        { separator: true },
+      ]
+  return [
+    ...acts,
+    ...t.links.map((l, i) => ({ label: `Open ${l.label}`, hint: i === 0 ? 'O' : undefined, icon: <ExternalLink size={14} />, onSelect: () => openLink(l.url) })),
+    ...(noteId ? [{ label: 'Show in the triage note', icon: <FileText size={14} />, onSelect: () => openNoteAt(noteId, t.rawLines[0].replace(/\r$/, ''), [], true) }] : []),
+  ]
+}
 
 export function TriageView() {
   const path = useStore((s) => s.triage.note)
@@ -64,9 +115,16 @@ export function TriageView() {
   const counts = newest ? triageCounts(runTasks(newest)) : { open: 0, done: 0, dropped: 0 }
   const categories = newest ? [...new Set(newest.categories.map((c) => c.name))] : []
 
-  // Keep a selected task selected through a rewrite of the note; otherwise start at the first.
+  // Keep a selected task selected through a rewrite of the note. When it leaves the list (completed, dropped),
+  // the one that took its place is selected, so you can go on down the list.
+  const lastIds = useRef<string[]>([])
   useEffect(() => {
-    if (!visible.some((t) => t.id === selected)) setSelected(visible[0]?.id ?? '')
+    const ids = visible.map((t) => t.id)
+    if (!ids.includes(selected)) {
+      const was = lastIds.current.indexOf(selected)
+      setSelected(ids[Math.min(Math.max(was, 0), ids.length - 1)] ?? '')
+    }
+    lastIds.current = ids
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible.map((t) => t.id).join('\n')])
 
@@ -78,6 +136,7 @@ export function TriageView() {
       page.current?.querySelector(`[data-triage="${CSS.escape(next.id)}"]`)?.scrollIntoView({ block: 'nearest' })
     }
   }
+  const rowEl = (t: TriageTask) => page.current?.querySelector(`[data-triage="${CSS.escape(t.id)}"]`) ?? page.current!
   const toggleExpanded = (id: string) => setExpanded((s) => (s.has(id) ? new Set([...s].filter((x) => x !== id)) : new Set([...s, id])))
   const onKey = (e: React.KeyboardEvent) => {
     if ((e.target as HTMLElement).closest('input, select, textarea')) {
@@ -96,6 +155,14 @@ export function TriageView() {
     else if (e.key === 'End') (e.preventDefault(), move(visible.length))
     else if (task && e.key === 'Enter') (e.preventDefault(), toggleExpanded(task.id))
     else if (task && e.key === 'o' && task.links[0]) (e.preventDefault(), openLink(task.links[0].url))
+    // Actions: only on the newest run; earlier runs are history.
+    else if (!task || task.run !== newest?.label) return
+    else if (e.key === ' ' || e.key === 'x') (e.preventDefault(), toggleDone(task))
+    else if (e.key === 'c') (e.preventDefault(), toggleDrop(task))
+    else if (e.key === 's') (e.preventDefault(), pickDate(rowEl(task), task, 'planned'))
+    else if (e.key === 'd') (e.preventDefault(), pickDate(rowEl(task), task, 'due'))
+    else if (e.key === 'M' || (e.key === 'm' && e.shiftKey)) (e.preventDefault(), moveTo(task))
+    else if (e.key === 'm') (e.preventDefault(), moveByRules(task))
   }
 
   const header = (
@@ -220,7 +287,7 @@ export function TriageView() {
                         <Fragment key={`${g.kind}:${g.label}`}>
                           {g.label && <h4 className="triage-group">{g.label}</h4>}
                           {tasks.map((t) => (
-                            <TriageRow key={t.id} task={t} now={now} active={t.id === selected} open={expanded.has(t.id)} onSelect={() => setSelected(t.id)} onToggle={() => (setSelected(t.id), toggleExpanded(t.id))} />
+                            <TriageRow key={t.id} task={t} now={now} readOnly={ri > 0} noteId={note.id} active={t.id === selected} open={expanded.has(t.id)} onSelect={() => setSelected(t.id)} onToggle={() => (setSelected(t.id), toggleExpanded(t.id))} />
                           ))}
                         </Fragment>
                       ))}
@@ -235,7 +302,7 @@ export function TriageView() {
         {!visible.length && <p className="empty-hint">{counts.open ? 'No tasks match.' : 'Nothing open: everything in this run is done, dropped or moved.'}</p>}
         <div className="tasks-keys">
           <kbd>↑</kbd>
-          <kbd>↓</kbd> move · <kbd>↵</kbd> details · <kbd>O</kbd> open link · <kbd>/</kbd> narrow down · actions on tasks come soon
+          <kbd>↓</kbd> move · <kbd>Space</kbd> complete · <kbd>C</kbd> drop · <kbd>S</kbd> when · <kbd>D</kbd> due · <kbd>M</kbd> move · <kbd>⇧M</kbd> move to another note · <kbd>↵</kbd> details · <kbd>O</kbd> open link · <kbd>/</kbd> narrow down
         </div>
       </div>
     </div>
@@ -267,15 +334,28 @@ function Fyi({ lines, folded, onToggle }: { lines: string[]; folded: boolean; on
   )
 }
 
-function TriageRow({ task: t, now, active, open, onSelect, onToggle }: { task: TriageTask; now: string; active: boolean; open: boolean; onSelect: () => void; onToggle: () => void }) {
+function TriageRow({ task: t, now, readOnly, noteId, active, open, onSelect, onToggle }: { task: TriageTask; now: string; readOnly: boolean; noteId: string; active: boolean; open: boolean; onSelect: () => void; onToggle: () => void }) {
   const title = useMemo(() => renderInline(t.title), [t.title])
+  const triageCfg = useStore((s) => s.triage)
+  const notesCount = useStore((s) => Object.keys(s.notes).length)
+  // Where M sends it, for the button's tooltip and a hint in the row.
+  const dest = useMemo(() => (readOnly ? null : destinationOf(t)), [t, triageCfg, notesCount, readOnly])
   return (
     <div
       data-triage={t.id}
       className={cx('task', 'triage-task', t.state !== 'open' && 'done', t.state === 'dropped' && 'cancelled', `pri-${t.priority > 3 ? 0 : t.priority ? 4 - t.priority : 0}`, active && 'active', open && 'expanded')}
       onMouseMove={onSelect}
+      onContextMenu={(e) => (onSelect(), openMenu(e, triageMenu(t, e.currentTarget, readOnly, noteId)))}
     >
-      <input type="checkbox" className={t.state === 'dropped' ? 'box-cancelled' : undefined} checked={t.state !== 'open'} readOnly disabled title={t.state === 'open' ? 'Open' : t.state === 'done' ? 'Done' : 'Dropped'} />
+      <input
+        type="checkbox"
+        className={t.state === 'dropped' ? 'box-cancelled' : undefined}
+        checked={t.state !== 'open'}
+        disabled={readOnly}
+        readOnly={readOnly}
+        title={readOnly ? 'An earlier run: shown as it was' : t.state === 'open' ? 'Complete' : t.state === 'done' ? 'Done. Click to reopen.' : 'Dropped. Click to reopen.'}
+        onChange={() => toggleDone(t)}
+      />
       <div className="task-main" onClick={(e) => !(e.target as HTMLElement).closest('a, button') && onToggle()} title={open ? 'Hide details' : 'Show details'}>
         <span className={cx('task-text', !open && 'one-line')}>
           {t.priority > 0 && <b className={cx('task-pri', `triage-p${t.priority}`)}>P{t.priority}</b>}
@@ -292,6 +372,7 @@ function TriageRow({ task: t, now, active, open, onSelect, onToggle }: { task: T
               <CalendarClock size={12} /> {shortDate(t.planned)}
             </span>
           )}
+          {t.someday && <span className="task-chip someday">Someday</span>}
           {t.due && (
             <span className={cx('task-chip due', t.state === 'open' && t.due < now && 'late', t.due === now && 'now')}>
               <CalendarDays size={12} /> Due {shortDate(t.due)}
@@ -302,6 +383,11 @@ function TriageRow({ task: t, now, active, open, onSelect, onToggle }: { task: T
               #{tag}
             </a>
           ))}
+          {dest && t.state === 'open' && (
+            <span className="task-chip triage-dest" title={`M moves it to ${dest.note.title}, by ${dest.reason}`}>
+              <FolderInput size={12} /> {dest.note.title}
+            </span>
+          )}
           {t.carriedFrom && (
             <span className="task-chip triage-carried" title={`Carried over from the run of ${t.carriedFrom}`}>
               <History size={12} /> carried
@@ -328,6 +414,22 @@ function TriageRow({ task: t, now, active, open, onSelect, onToggle }: { task: T
           </div>
         )}
       </div>
+      {!readOnly && (
+        <div className="task-actions">
+          <button className={cx('icon-btn sm', t.state === 'dropped' && 'active')} title={t.state === 'dropped' ? 'Reopen  C' : 'Drop: not doing it  C'} onClick={(e) => (e.stopPropagation(), toggleDrop(t))}>
+            <SquareX size={14} />
+          </button>
+          <button className={cx('icon-btn sm', (t.planned || t.someday) && 'active')} title="When: plan for a day, or Someday  S" onClick={(e) => (e.stopPropagation(), pickDate(e.currentTarget, t, 'planned'))}>
+            <CalendarClock size={14} />
+          </button>
+          <button className={cx('icon-btn sm', t.due && 'active')} title="Due date  D" onClick={(e) => (e.stopPropagation(), pickDate(e.currentTarget, t, 'due'))}>
+            <CalendarDays size={14} />
+          </button>
+          <button className="icon-btn sm" title={dest ? `Move to ${dest.note.title} (by ${dest.reason})  M` : 'Move to a note (a workstream, a project)  M'} onClick={(e) => (e.stopPropagation(), moveByRules(t))}>
+            <FolderInput size={14} />
+          </button>
+        </div>
+      )}
     </div>
   )
 }

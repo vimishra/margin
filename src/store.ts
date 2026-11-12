@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { ReactNode } from 'react'
-import { api, isConflict, type TriageConfig } from './api'
+import { api, isConflict, type TriageConfig, type TriageRule } from './api'
 import { shortLinks } from './lib/shortlinks'
 import { afterTick } from './lib/repeat'
 import { addToTop3, takeUnfinishedTop3 } from './lib/top3'
@@ -241,12 +241,14 @@ export function fontCss(family: string, mono = false): string {
 }
 
 export type PaletteState = null | {
-  mode: 'search' | 'move' | 'template' | 'outline' | 'tag' | 'moveTask' | 'moveSection' | 'merge' | 'tabs'
+  mode: 'search' | 'move' | 'template' | 'outline' | 'tag' | 'moveTask' | 'moveSection' | 'merge' | 'tabs' | 'triageMove'
   /** For tabs: which pane's tabs to list. */
   pane?: 'main' | 'side'
   noteId?: string
   query?: string
   task?: Task
+  /** For triageMove: the task of the triage note to move. */
+  triageTask?: import('./lib/triage').TriageTask
   /** For moveSection: the section's heading line in the page, and its title, to find it again. */
   section?: { line: number; title: string }
 }
@@ -640,14 +642,27 @@ export const isProtectedNote = (id: string | undefined) => !!id && triageNote()?
 
 /** Set which note is the triage note (its path in the notes folder; '' for none). Saved in the folder's settings. */
 export async function setTriageNote(path: string) {
+  const t = await setTriage({ note: path })
+  return t ? (t.note ?? '') : null
+}
+
+/** Change the triage settings (each key given replaces the old one). Saved in the notes folder's settings. */
+export async function setTriage(patch: Partial<TriageConfig>): Promise<TriageConfig | null> {
   try {
-    const res = await api.setConfig({ triage: { note: path } })
+    const res = await api.setConfig({ triage: patch })
     set({ triage: res.config.triage || {} })
-    return res.config.triage?.note ?? ''
+    return res.config.triage || {}
   } catch (e) {
     toast((e as Error).message)
     return null
   }
+}
+
+/** Add a rule at the end of the triage rules, replacing one for the same category, tag or words. */
+export async function addTriageRule(rule: TriageRule) {
+  const key = (r: TriageRule) => `${r.category ? 'c' : r.tag ? 't' : 'w'}:${(r.category ?? r.tag ?? r.title ?? '').toLowerCase()}`
+  const rules = (get().triage.rules ?? []).filter((r) => key(r) !== key(rule))
+  return setTriage({ rules: [...rules, rule] })
 }
 
 /**
@@ -683,6 +698,27 @@ interface Pending {
   inflight: boolean
 }
 const pending = new Map<string, Pending>()
+/** Notes whose last save was refused because the file had changed (see `conflict`). */
+const refused = new Set<string>()
+
+/**
+ * Save a note's unsaved changes now and wait for them. False when a save was refused (the file had changed) or
+ * failed, so whatever depends on the file being as shown should not go ahead.
+ */
+export async function saveNow(id: string): Promise<boolean> {
+  refused.delete(id)
+  for (let i = 0; i < 40 && pending.has(id); i++) {
+    const p = pending.get(id)!
+    if (p.inflight || !Object.keys(p.patch).length) await new Promise((r) => setTimeout(r, 50))
+    else await flush(id)
+  }
+  return !pending.has(id) && !refused.has(id)
+}
+
+/** Take in a note as the server has it (after a change made on the server's copy). */
+export function takeNote(note: Note) {
+  if (!pending.has(note.id)) set((s) => ({ notes: { ...s.notes, [note.id]: note } }))
+}
 
 function schedule(id: string, patch: NotePatch, delay: number) {
   const p = pending.get(id) ?? { patch: {}, timer: 0, inflight: false }
@@ -714,7 +750,10 @@ async function flush(id: string) {
     })
   } catch (e) {
     if (isConflict(e)) conflict(id, patch, e.body.note)
-    else toast(`Could not save: ${(e as Error).message}`)
+    else {
+      refused.add(id)
+      toast(`Could not save: ${(e as Error).message}`)
+    }
   } finally {
     p.inflight = false
     if (Object.keys(p.patch).length) {
@@ -731,6 +770,7 @@ async function flush(id: string) {
  * show the note as it is now, and offer to put back what was typed. Nothing is overwritten without asking.
  */
 function conflict(id: string, patch: NotePatch, current: Note) {
+  refused.add(id)
   const p = pending.get(id)
   // Anything typed while the refused save was on its way was made from the old version too.
   const mine = p?.patch.content ?? patch.content

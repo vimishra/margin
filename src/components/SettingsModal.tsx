@@ -19,6 +19,7 @@ import {
   resetSettings,
   setPref,
   setSetting,
+  setTriage,
   setTriageNote,
   toast,
   ui,
@@ -35,7 +36,7 @@ import { cx } from '../lib/util'
 import { notePathKey } from '../lib/tasks'
 import { desktop, fileManager, type GlobalKeyId, type GlobalKeys } from '../desktop'
 import { FontPicker } from './FontPicker'
-import { api, type TodoistSettings } from '../api'
+import { api, type TodoistSettings, type TriageRule } from '../api'
 import { importFromTodoist, todoistStatus } from '../todoist'
 
 type Section = 'general' | 'appearance' | 'styles' | 'editor' | 'daily' | 'templates' | 'capture' | 'triage' | 'files' | 'shortcuts'
@@ -183,6 +184,136 @@ function TriageNoteRow() {
         onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
       />
     </Row>
+  )
+}
+
+/** A text field saved when you leave it (or press Enter); an empty one clears the setting. */
+function BlurText({ value, placeholder, list, onSave }: { value: string; placeholder?: string; list?: string; onSave: (v: string) => void }) {
+  return (
+    <input
+      key={value}
+      className="set-text"
+      defaultValue={value}
+      placeholder={placeholder}
+      list={list}
+      spellCheck={false}
+      onBlur={(e) => e.target.value.trim() !== value && onSave(e.target.value.trim())}
+      onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
+    />
+  )
+}
+
+type RuleKind = 'category' | 'tag' | 'title'
+const RULE_KINDS: [RuleKind, string][] = [
+  ['category', 'Category is'],
+  ['tag', 'Has tag'],
+  ['title', 'Title contains'],
+]
+
+/**
+ * Where triage tasks go when you press M: the rules (first match wins), the workstream notebook, the default note,
+ * and how moved tasks are written. All kept in the notes folder's settings, so they can be edited there by hand.
+ */
+function TriageMoveRows() {
+  const cfg = useStore((s) => s.triage)
+  const notes = useStore((s) => s.notes)
+  const folders = useStore((s) => s.folders)
+  const query = useContext(SearchContext)
+  const paths = Object.values(notes).map((n) => n.path.replace(/\.md$/i, '')).sort((a, b) => a.localeCompare(b))
+  const exists = (path: string, id?: string) => (id && notes[id]) || Object.values(notes).some((n) => notePathKey(n.path) === notePathKey(path))
+  const rules = cfg.rules ?? []
+  const save = (next: TriageRule[]) => void setTriage({ rules: next })
+  const kindOf = (r: TriageRule): RuleKind => (r.category !== undefined ? 'category' : r.tag !== undefined ? 'tag' : 'title')
+  const change = (i: number, patch: { kind?: RuleKind; value?: string; note?: string }) => {
+    const r = rules[i]
+    const kind = patch.kind ?? kindOf(r)
+    const value = patch.value ?? r.category ?? r.tag ?? r.title ?? ''
+    const note = patch.note ?? r.note
+    // A note typed by hand is found by its path; the id kept from the picker no longer applies.
+    const id = patch.note !== undefined && patch.note !== r.note ? undefined : r.id
+    save(rules.map((x, j) => (j === i ? { [kind]: value, note, ...(id ? { id } : {}) } : x)) as TriageRule[])
+  }
+  const moveRule = (i: number, by: number) => {
+    const next = [...rules]
+    const [r] = next.splice(i, 1)
+    next.splice(Math.max(0, Math.min(next.length, i + by)), 0, r)
+    save(next)
+  }
+  const showRules = !query || matchesSearch(query, 'rules where tasks go move workstream category tag title note')
+  return (
+    <>
+      <datalist id="triage-note-paths">
+        {paths.map((p) => (
+          <option key={p} value={p} />
+        ))}
+      </datalist>
+      <datalist id="triage-folders">
+        {folders.map((f) => (
+          <option key={f} value={f} />
+        ))}
+      </datalist>
+      {showRules && (
+        <div className="set-row stack">
+          <div className="set-label">
+            <span>Where tasks go</span>
+            <small>When you press M in Triage, the first rule that matches the task decides the note. ⇧M always lets you choose, and choosing a note with ⌥↵ adds a rule for the task's category.</small>
+          </div>
+          <div className="set-control triage-rules">
+            {rules.map((r, i) => {
+              const kind = kindOf(r)
+              const broken = !exists(r.note, r.id)
+              return (
+                <div key={i} className="triage-rule">
+                  <select className="set-select" value={kind} onChange={(e) => change(i, { kind: e.target.value as RuleKind })}>
+                    {RULE_KINDS.map(([k, label]) => (
+                      <option key={k} value={k}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                  <BlurText value={r.category ?? r.tag ?? r.title ?? ''} placeholder={kind === 'tag' ? '#tag' : kind === 'title' ? 'words' : 'Category name'} onSave={(v) => change(i, { value: v })} />
+                  <span className="triage-arrow">→</span>
+                  <BlurText value={r.note.replace(/\.md$/i, '')} placeholder="Notebook/Note" list="triage-note-paths" onSave={(v) => change(i, { note: v })} />
+                  <span className="triage-rule-tools">
+                    <button className="icon-btn sm" title="Earlier: checked first" disabled={i === 0} onClick={() => moveRule(i, -1)}>
+                      ↑
+                    </button>
+                    <button className="icon-btn sm" title="Later" disabled={i === rules.length - 1} onClick={() => moveRule(i, 1)}>
+                      ↓
+                    </button>
+                    <button className="icon-btn sm" title="Remove this rule" onClick={() => save(rules.filter((_x, j) => j !== i))}>
+                      ×
+                    </button>
+                  </span>
+                  {broken && <small className="triage-broken">No note at “{r.note}”: this rule is skipped until there is one.</small>}
+                </div>
+              )
+            })}
+            <button className="btn sm" onClick={() => save([...rules, { category: 'New category', note: paths[0] ?? 'Note' }])}>
+              Add a rule
+            </button>
+          </div>
+        </div>
+      )}
+      <Row label="Workstream notebook" hint="Without a rule, a task goes to the note in this notebook (or a notebook inside it) whose name is the task's category. Leave empty to use only rules.">
+        <BlurText value={cfg.workstreamNotebook ?? ''} placeholder="Workstreams" list="triage-folders" onSave={(v) => void setTriage({ workstreamNotebook: v })} />
+      </Row>
+      <Row label="Default note" hint={`Where a task goes when nothing else decides. Leave empty to be asked.${cfg.default && !exists(cfg.default) ? ' There is no note at that path.' : ''}`}>
+        <BlurText value={(cfg.default ?? '').replace(/\.md$/i, '')} placeholder="Notebook/Note" list="triage-note-paths" onSave={(v) => void setTriage({ default: v })} />
+      </Row>
+      <Row label="Heading for moved tasks" hint="Moved tasks go under this heading in the note, which is added at the end if the note has none.">
+        <BlurText value={cfg.heading ?? ''} placeholder="Open Threads" onSave={(v) => void setTriage({ heading: v })} />
+      </Row>
+      <Row label="Put moved tasks at" hint="The end of that heading's section, or just under the heading.">
+        <Select value={cfg.position === 'top' ? 'top' : 'bottom'} options={[['bottom', 'The bottom'], ['top', 'The top']]} onChange={(v) => void setTriage({ position: v === 'top' ? 'top' : '' })} />
+      </Row>
+      <Row label="Take off when moving" hint="Words or tags removed from a task as it moves, separated by spaces, such as #quick. The rest of the line is left as it is.">
+        <BlurText value={(cfg.strip ?? []).join(' ')} placeholder="#quick" onSave={(v) => void setTriage({ strip: v.split(/[\s,]+/).filter(Boolean) })} />
+      </Row>
+      <Row label="Note where moved tasks came from" hint="Adds a line “from triage, <date>” under each moved task.">
+        <Toggle label="Note where moved tasks came from" value={!!cfg.addLine} onChange={(v) => void setTriage({ addLine: v })} />
+      </Row>
+    </>
   )
 }
 
@@ -870,6 +1001,7 @@ export function SettingsModal() {
               <div className="set-section">
                 {searching && <h4 className="set-section-title">Triage</h4>}
                 <TriageNoteRow />
+                <TriageMoveRows />
               </div>
             )}
 

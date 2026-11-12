@@ -21,7 +21,30 @@ export interface VaultConfig {
 }
 
 export interface TriageConfig {
+  /** The triage note's path in the notes folder. */
   note?: string
+  /** Where tasks go, first match wins: a category, tag or words in the title → a note (path; id when picked in Margin). */
+  rules?: TriageRule[]
+  /** A task whose category is the name of a note in this notebook goes to that note. */
+  workstreamNotebook?: string
+  /** Where tasks go when nothing else decides. */
+  default?: string
+  /** The heading moved tasks go under; Open Threads when not set. */
+  heading?: string
+  /** 'top' to put them at the top of that section; the bottom when not set. */
+  position?: 'top' | ''
+  /** Words or tags taken off a task as it moves (such as #quick). */
+  strip?: string[]
+  /** Add a line "_from triage, <date>_" under a moved task. */
+  addLine?: boolean
+}
+
+export interface TriageRule {
+  category?: string
+  tag?: string
+  title?: string
+  note: string
+  id?: string
 }
 
 /** A refused save: the note was changed on disk after the version the save was made from. */
@@ -73,6 +96,8 @@ export const api = {
   updateNote: (id: string, patch: NotePatch & { base?: string }, keepalive = false) =>
     request<{ note: Note; touched: Note[] }>(`/api/notes/${id}`, { ...json('PUT', patch), keepalive }),
   /** The notes, of those given with the versions the page has, whose files have changed since. */
+  /** A note as it is on disk right now. */
+  freshNote: (id: string) => request<{ note: Note }>(`/api/notes/${id}/fresh`),
   changedNotes: (versions: Record<string, string>) => request<{ changed: Note[] }>('/api/versions', json('POST', { versions })),
   deleteNote: (id: string) => request<{ ok: true; trashed: string | null }>(`/api/notes/${id}`, { method: 'DELETE' }),
   trash: () => request<{ items: TrashItem[] }>('/api/trash'),
