@@ -181,10 +181,10 @@ function build(math: boolean): MarkdownIt {
     return self.renderToken(tokens, idx, options)
   }
 
-  // Source line numbers let the outline and the editor find rendered headings.
+  // Source line numbers let the outline and the editor find rendered headings, and a jump find a list item.
   md.core.ruler.push('source_lines', (state) => {
     for (const token of state.tokens) {
-      if (token.type === 'heading_open' && token.map) token.attrSet('data-line', String(token.map[0]))
+      if ((token.type === 'heading_open' || token.type === 'list_item_open') && token.map) token.attrSet('data-line', String(token.map[0]))
     }
   })
   // A ```tasks block is a live list of tasks: a mount point here, filled in by read mode (TaskBlock.tsx).

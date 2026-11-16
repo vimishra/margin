@@ -208,11 +208,13 @@ Most tasks need none of these. A task with no dates is in Anytime, something you
 
 Only if a program of yours writes a triage note of suggested tasks (see the [triage guide](triage.md)). Do this each morning after the steps above, and again when a new run has come in (after lunch, say).
 
-1. **Open Triage** (under Tasks in the sidebar) and read the Summary.
+1. **Open Triage** (under Tasks in the sidebar) and read the Summary. Press **N** to have the triage note itself open on the right, following you down the list, when you want your program's full notes in view.
 2. **Quick replies first.** Answer each (**O** opens the message), then **Space**.
 3. **Go down the actions with ↓,** one key each: **Space** if done, **C** if you will not do it, **M** if it is real work (it moves to its workstream note, under Open Threads), **S** to give it a day, or just **↓** to leave it.
 4. **A whole category is real work?** **A** moves all of it at once.
 5. **Stop when what is left needs more thought.** The next run carries it over.
+
+Reading the triage note itself instead? Its task keys do the same: ⌘↵, ⌘⌥↵, ⌘⇧S, ⌘⇧D, and ⌃⌘M to move a task by your rules.
 
 Triage is for sorting, not doing: anything longer than a couple of minutes, move it and do it from Today or its workstream note. When you pick a note by hand for a category that will come again, choose it with **⌥↵** so M knows next time.
 

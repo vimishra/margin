@@ -351,6 +351,8 @@ function buildMenu() {
         cmd('Task When…', 'taskWhen'),
         cmd('Task Due Date…', 'taskDue'),
         cmd('Change Task Priority', 'taskPriority'),
+        cmd('Move Task to a Note', 'taskMove'),
+        cmd('Move Task to a Note You Pick…', 'taskMoveTo'),
         { type: 'separator' },
         cmd('Fold or Unfold', 'foldToggle'),
         cmd('Fold', 'fold'),
@@ -499,6 +501,8 @@ function createWindow() {
         task('When…', 'taskWhen'),
         task('Due Date…', 'taskDue'),
         task('Change Priority', 'taskPriority'),
+        task('Move to a Note', 'taskMove'),
+        task('Move to a Note You Pick…', 'taskMoveTo'),
         sep,
       )
     }

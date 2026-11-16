@@ -315,6 +315,8 @@ export function applyFormat(ed: EditorHandle, kind: string) {
     taskDue: () => ed.taskEdit('due'),
     taskWhen: () => ed.taskEdit('when'),
     taskToday: () => ed.taskEdit('today'),
+    taskMove: () => ed.taskMove(false),
+    taskMoveTo: () => ed.taskMove(true),
     bold: () => ed.wrap('**', '**', 'bold'),
     italic: () => ed.wrap('*', '*', 'italic'),
     strike: () => ed.wrap('~~', '~~', 'text'),
@@ -367,6 +369,8 @@ export function NoteView({ note, slot = 'main' }: { note: Note; slot?: 'main' | 
   const isDaily = note.type === 'daily' && isYmd(note.title)
   const { page, canvas } = useMemo(() => splitContent(note.content), [note.content])
   const fresh = useRef(note.title.startsWith('Untitled'))
+  // Opened beside a list that keeps the keyboard (the Triage view): the editor does not take it.
+  const openedQuietly = useRef(!!useStore.getState().jump?.quiet && useStore.getState().jump?.id === note.id)
   // An empty note has nothing to read, so it opens ready for writing.
   useEffect(() => {
     if (!page.trim() && !isCanvas && useStore.getState().mode === 'read') setPref('mode', 'edit')
@@ -410,6 +414,7 @@ export function NoteView({ note, slot = 'main' }: { note: Note; slot?: 'main' | 
   useEffect(() => {
     if (!jump || jump.id !== note.id || (jump.pane && jump.pane !== slot)) return
     const caret = !!jump.caret
+    const quiet = !!jump.quiet
     useStore.setState({ jump: null })
     if (isCanvas) return
     const lower = page.toLowerCase()
@@ -428,15 +433,31 @@ export function NoteView({ note, slot = 'main' }: { note: Note; slot?: 'main' | 
     const needle = page.slice(at, at + length)
     // A short delay rather than the next frame: frames do not run while the window is hidden.
     setTimeout(() => {
-      if (editor.current) return editor.current.reveal(caret ? at + length : at, at + length)
-      // Read-only view: find the same text in the rendered page and select it.
+      if (editor.current) return quiet ? editor.current.peek(at) : editor.current.reveal(caret ? at + length : at, at + length)
+      // Read-only view: find the same text in the rendered page and select it (quietly: only scroll to it).
       const root = scroller.current?.querySelector('.reading')
       if (!root) return
+      if (quiet || needle.includes('\n') || /^\s*[-*+] \[/.test(needle)) {
+        // Markdown as written (a task line) is not in the rendered text: go to the block that starts at that line.
+        const line = page.slice(0, at).split('\n').length - 1
+        const blocks = [...root.querySelectorAll<HTMLElement>('[data-line]')].filter((el) => Number(el.dataset.line) <= line)
+        const el = blocks.sort((a, b) => Number(a.dataset.line) - Number(b.dataset.line)).pop()
+        if (el) {
+          el.scrollIntoView({ block: 'center' })
+          el.classList.add('jump-flash')
+          setTimeout(() => el.classList.remove('jump-flash'), 1700)
+          return
+        }
+      }
       const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
       while (walker.nextNode()) {
         const node = walker.currentNode
         const i = (node.textContent || '').toLowerCase().indexOf(needle.toLowerCase())
         if (i < 0) continue
+        if (quiet) {
+          node.parentElement?.scrollIntoView({ block: 'center' })
+          break
+        }
         const range = document.createRange()
         range.setStart(node, i)
         range.setEnd(node, i + needle.length)
@@ -624,7 +645,7 @@ export function NoteView({ note, slot = 'main' }: { note: Note; slot?: 'main' | 
                     autoPair={settings.autoPair}
                     lineNumbers={settings.lineNumbers}
                     foldKey={note.id}
-                    ref={editor} value={page} onChange={setPage} onFollowLink={(target, other) => followLink(target, isSide ? !other : other)} autoFocus={!fresh.current} />
+                    ref={editor} value={page} onChange={setPage} onFollowLink={(target, other) => followLink(target, isSide ? !other : other)} autoFocus={!fresh.current && !openedQuietly.current} />
                 )}
                 {mode === 'read' && (
                   <div className="reading" onDoubleClick={() => setPref('mode', 'edit')}>

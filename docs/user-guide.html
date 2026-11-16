@@ -1241,8 +1241,16 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 <td>⌘⌥↵</td>
 <td>Cancel, or reopen a cancelled task</td>
 </tr>
+<tr>
+<td>⌃⌘M</td>
+<td>Move to another note: asks which, and puts it under Open Threads there, as M does in the Tasks view (in the triage note, it follows your triage rules)</td>
+</tr>
+<tr>
+<td>⌃⇧⌘M</td>
+<td>The same, always asking (in the triage note, ⌥↵ in the picker also adds a rule)</td>
+</tr>
 </tbody>
-</table></div><p>Move to today and Priority apply to every task in a selection. The same four are in ⌘K under &quot;Task:&quot;, and all of them can be changed in Settings → Shortcuts. In the browser version they are ⌥⇧T, ⌥⇧S, ⌥⇧D and ⌥⇧P.</p>
+</table></div><p>Move to today and Priority apply to every task in a selection. The two move keys are not ⌥⌘M, which macOS keeps for Minimize All; on Linux they are Ctrl+Alt+M and Ctrl+Alt+Shift+M. The same four are in ⌘K under &quot;Task:&quot;, and all of them can be changed in Settings → Shortcuts. In the browser version they are ⌥⇧T, ⌥⇧S, ⌥⇧D and ⌥⇧P.</p>
 <p>In the editor the details show as small labels. A due date turns red once it has passed. A planned day that is today or earlier is highlighted, because the task is in Today.</p>
 <h3 id="cancelling-a-task">Cancelling a task</h3>
 <p>Some tasks are not done but dropped: plans changed, someone else did it, it no longer matters. Cancel them instead of ticking them, so you can still tell later what was done and what was let go.</p>
@@ -1262,6 +1270,7 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 <ul>
 <li><strong>Its tasks stay out of your lists</strong> (Today, Anytime, the counts, tasks blocks and <code>margin-tasks</code>) until you move them into one of your own notes. They are suggestions, not commitments.</li>
 <li><strong>Margin keeps its layout exactly as the program wrote it.</strong> Ticking or cancelling a task there changes only its box and adds the date, without moving it, and archiving leaves the note alone.</li>
+<li><strong>Task keys in the note work as in the Triage view.</strong> ⌘↵, ⌘⌥↵, ⌘⌥T, ⌘⇧S, ⌘⇧D, the box, ⌃⌘M and ⌃⇧⌘M on a task of the triage note read it fresh from disk and change only that task (or move it by your rules), so a run your program writes at the same moment is never saved over. Each offers <strong>Undo</strong>.</li>
 <li><strong>Margin keeps up with it.</strong> While the note is on screen, Margin checks its file every few seconds and shows the program's latest version. If the program rewrites it while you are typing in it, your change is not saved over the newer version; a message offers <strong>Use mine</strong> instead.</li>
 </ul>
 <p>The setting is kept in your notes folder, in <code>.margin/config.json</code>, so you can also edit it there with any text editor while Margin is running.</p>
@@ -1271,6 +1280,7 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 <li><strong>Below:</strong> the open tasks of the newest run, by category (each can be folded), then by group: quick replies first, then actions, then the rest. Each task shows its priority (P1 to P4), a chip for each of its links (mail, chat, bug; click to open it in your browser), its planned and due dates, its tags, and <strong>carried</strong> when it came over from an earlier run (point at it to see which). Click a task, or press ↵, for its details: the lines under it, its links in full, and where it was carried from. <strong>FYI</strong> lines are folded away at the end of each category.</li>
 <li><strong>Narrow it down</strong> with the box (words, <code>#tag</code>, <code>mail</code>…) and the category, kind and priority menus. <strong>Done &amp; dropped</strong> also shows tasks already dealt with, and <strong>Older runs</strong> shows earlier runs below the newest.</li>
 <li><strong>Keys:</strong> ↑ ↓ (or J K) move, ↵ shows details, <strong>O</strong> opens the task's first link, / or ⌘F goes to the box.</li>
+<li><strong>The note beside the view:</strong> <strong>N</strong> (or <strong>Show in the triage note</strong> in a task's right-click menu, or the button next to <strong>Open the note</strong>, or ⌥-click on it) opens the triage note on the right, scrolled to the selected task, so you can read everything your program wrote around it. The keyboard stays in the view, and while the note is open on the right it follows each ↑ and ↓.</li>
 <li><strong>Acting on a task:</strong> <strong>Space</strong> (or X, or its box) completes it, and does so again to reopen it; <strong>C</strong> drops it (not doing it), and reopens a dropped one; <strong>S</strong> sets when you plan to do it (or Someday) and <strong>D</strong> its due date, with the usual calendar. The same are on the buttons that appear when you point at a task, and in its right-click menu, with <strong>Show in the triage note</strong>. A message says what was done, with <strong>Undo</strong>. Completing writes <code>[x]</code> and <code>@done(date)</code>, dropping <code>[-]</code> and <code>@cancelled(date)</code> (without the date if you turned off recording it), and a date goes in place of the one already there or at the end of the line: nothing else in the note changes. Earlier runs are shown as they were and cannot be changed from here.</li>
 <li><strong>Safe while your program writes.</strong> Every action reads the note as it is on disk at that moment, finds the task again there, changes just its line, and saves only if the file has not changed in between (otherwise it reads it again and tries once more). If the task is no longer in the note, nothing is written and a message says so. If the note is open with typing not yet saved, that is saved first.</li>
 <li><strong>It follows the note.</strong> When your program rewrites it, the view changes within a few seconds and keeps your place: the task you were on, the details you had open, what is folded and what you typed in the box. The filters and toggles are remembered on this computer.</li>

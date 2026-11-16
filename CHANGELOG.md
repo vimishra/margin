@@ -2,6 +2,22 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.41.0 (2026-11-16)
+
+### Added
+
+- **The triage note beside the Triage view.** N (or the new button next to Open the note, ⌥-click on it, or Show in the triage note in a task's menu) opens the triage note on the right, scrolled to the selected task, so everything your program wrote around it is in view. The keyboard stays in the Triage view, and while the note is open on the right it follows each ↑ and ↓. Works in read mode too.
+- **Move a task from inside a note.** ⌃⌘M moves the task at the cursor: in the triage note where your triage rules send it (as M does in the Triage view), elsewhere to a note you pick. ⌃⇧⌘M always asks (in the triage note, ⌥↵ there adds a rule). Both are in ⌘K, the Format menu, a task's right-click menu and Settings → Shortcuts. On Linux: Ctrl+Alt+M and Ctrl+Alt+Shift+M.
+
+### Changed
+
+- **Task keys in the triage note work like the Triage view.** ⌘↵, ⌘⌥↵, ⌘⌥T, ⌘⇧S, ⌘⇧D and the checkbox read the note fresh and change only that task's line, with Undo, so a run your program writes at the same moment is never saved over. Only typing is saved the ordinary way.
+- **The cursor keeps its place when a note changes outside the editor** (a save from Triage or a list, or the file changed on disk): only the lines that differ are replaced.
+
+### Fixed
+
+- A change that reached an open note from outside was saved back again, which could end in a needless "changed outside Margin… Use mine" message.
+
 ## 1.40.1 (2026-11-12)
 
 ### Fixed

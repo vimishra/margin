@@ -73,9 +73,11 @@ mark.find-hit.current{background:#ffab2e}
 <li><a href="#the-idea">The idea</a></li>
 <li><a href="#setting-it-up">Setting it up</a></li>
 <li><a href="#the-triage-view">The Triage view</a></li>
+<li><a href="#the-note-beside-the-view">The note beside the view</a></li>
 <li><a href="#working-through-triage">Working through triage</a></li>
 <li><a href="#deciding-on-a-task">Deciding on a task</a></li>
 <li><a href="#moving-tasks-into-your-notes">Moving tasks into your notes</a></li>
+<li><a href="#working-in-the-note-itself">Working in the note itself</a></li>
 <li><a href="#rules-where-tasks-go">Rules: where tasks go</a></li>
 <li><a href="#what-margin-promises">What Margin promises</a></li>
 <li><a href="#for-the-program-that-writes-the-note">For the program that writes the note</a></li>
@@ -109,17 +111,25 @@ mark.find-hit.current{background:#ffab2e}
 <h2 id="the-triage-view">The Triage view</h2>
 <p>Open it with <strong>Triage</strong> under Tasks in the sidebar, or ⌘K → <em>Go to Triage</em>.</p>
 <ul>
-<li><strong>Header:</strong> the newest run's label (for example &quot;Mon 5 Jan, 11:00&quot;) with its counts of open, done and dropped tasks, and <strong>Open the note</strong>, to see the note itself.</li>
+<li><strong>Header:</strong> the newest run's label (for example &quot;Mon 5 Jan, 11:00&quot;) with its counts of open, done and dropped tasks; <strong>Open the note</strong>, to see the note itself in place of the view; and, beside it, a button that opens the note on the right instead (see <a href="#the-note-beside-the-view">below</a>).</li>
 <li><strong>Summary:</strong> your program's summary of the run, which you can fold away.</li>
 <li><strong>Filters:</strong> words (in the title, tags, link names and details), category, kind (quick, action, other) and priority. <strong>Done &amp; dropped</strong> also shows what you have already dealt with; <strong>Older runs</strong> shows earlier runs below, as they were.</li>
 <li><strong>Categories</strong>, each foldable, with its open count and, when you point at it, <strong>Move all</strong>. Inside, quick replies first, then actions, then anything else.</li>
 <li><strong>Each task:</strong> its box, priority, title, a chip for each link (mail, chat, bug; click one to open it in your browser), its dates and tags, <strong>carried</strong> if your program brought it over from an earlier run, and, in a dashed chip, the note <strong>M</strong> would move it to. Click a task, or press ↵, for its details: the lines under it and its links in full. <strong>FYI</strong> lines are folded at the end of each category.</li>
 </ul>
 <p>The view follows the note. When your program writes a new run, it appears within a few seconds, and you keep your place: the task you were on, the details you opened, your folds and your filters.</p>
+<h2 id="the-note-beside-the-view">The note beside the view</h2>
+<p>The view shows each task, its details and links, but not everything your program writes around them. To read the note itself while you triage, open it <strong>on the right</strong>, beside the view:</p>
+<ul>
+<li><strong>N</strong> shows the selected task in the note, on the right, with its line lit up for a moment. So does <strong>Show in the triage note</strong> in a task's right-click menu, the button next to <strong>Open the note</strong>, or ⌥-click on <strong>Open the note</strong>.</li>
+<li><strong>The keyboard stays in the view,</strong> so you go on with ↓, Space, M and the rest. While the note is open on the right, it <strong>follows</strong> you: each ↑ or ↓ brings the new task's place in the note into view.</li>
+<li><strong>Click in the note</strong> to work there with the note's own keys (see <a href="#working-in-the-note-itself">Working in the note itself</a>); click the view to go back to its keys.</li>
+<li>The note on the right is an ordinary tab: close it with its ×, or drag the divider to give either side more room.</li>
+</ul>
 <h2 id="working-through-triage">Working through triage</h2>
 <p>A routine that works well, for example each morning and after lunch (when a new run has come in):</p>
 <ol>
-<li><strong>Open Triage</strong> and read the Summary.</li>
+<li><strong>Open Triage</strong> and read the Summary. If you want your program's full notes in view as you go, press <strong>N</strong> to open the triage note on the right.</li>
 <li><strong>Take the quick replies first.</strong> Answer them (O opens the message), then <strong>Space</strong> to complete each.</li>
 <li><strong>Go down the actions with ↓.</strong> For each, one key: <strong>Space</strong> (done), <strong>C</strong> (not doing it), <strong>M</strong> (it is real work: move it to its workstream), <strong>S</strong> (plan a day for it) or just <strong>↓</strong> (leave it for now).</li>
 <li><strong>When a whole category is real work,</strong> press <strong>A</strong> on any of its tasks: everything open in it moves to where it belongs in one step.</li>
@@ -166,7 +176,7 @@ mark.find-hit.current{background:#ffab2e}
 <td>its lines are taken out (see below)</td>
 </tr>
 </tbody>
-</table></div><p>Every one says what it did in a message with <strong>Undo</strong>. The dates are left out if you turned off recording them (Settings → General). Only tasks of the newest run can be changed; earlier runs are history.</p>
+</table></div><p>Every one says what it did in a message with <strong>Undo</strong>. The dates are left out if you turned off recording them (Settings → General). In the view, only tasks of the newest run can be changed; earlier runs are history. (In the note itself, the keys work on any task.)</p>
 <h2 id="moving-tasks-into-your-notes">Moving tasks into your notes</h2>
 <ul>
 <li><strong>M</strong> moves the task where your rules send it (the dashed chip shows where, beforehand). If nothing decides, it asks.</li>
@@ -181,6 +191,46 @@ mark.find-hit.current{background:#ffab2e}
 <li><strong>Undo</strong> puts every note involved back exactly as it was. If one of them has changed since (your program wrote a new run, say), Undo does nothing and says so: the task stays where it went, so it is never lost.</li>
 </ol>
 <p>Because the link stays on the task's line, your program can see that you have taken the item on (it finds the link in an open task in your notes) and does not suggest it again.</p>
+<h2 id="working-in-the-note-itself">Working in the note itself</h2>
+<p>You can also act on tasks while reading the triage note, on the right or in its own tab. Put the cursor on a task (anywhere on its line or the lines under it), or select several, and use the note's task keys:</p>
+<div class="table"><table><thead>
+<tr>
+<th>Key</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>⌘↵ (or the box)</td>
+<td>Complete; again to reopen</td>
+</tr>
+<tr>
+<td>⌘⌥↵</td>
+<td>Drop; again to reopen</td>
+</tr>
+<tr>
+<td>⌘⌥T</td>
+<td>Plan for today</td>
+</tr>
+<tr>
+<td>⌘⇧S</td>
+<td>When: a day, or Someday</td>
+</tr>
+<tr>
+<td>⌘⇧D</td>
+<td>Due date</td>
+</tr>
+<tr>
+<td>⌃⌘M</td>
+<td>Move it where its rules send it (asks if nothing decides), as <strong>M</strong> does in the view</td>
+</tr>
+<tr>
+<td>⌃⇧⌘M</td>
+<td>Move it to a note you pick (⌥↵ there also adds a rule), as <strong>⇧M</strong> does</td>
+</tr>
+</tbody>
+</table></div><p>They do exactly what the view's keys do, the same way: Margin reads the note fresh from disk, changes only that task's line (or, for a move, takes out its lines), and saves it only if the file has not changed since. So a run your program writes at the same moment is never saved over, and the cursor stays on the task. Each says what it did, with <strong>Undo</strong>. Only typing in the note is saved the ordinary way (see <a href="#what-margin-promises">What Margin promises</a>).</p>
+<p>⌃⌘M and ⌃⇧⌘M also work in any other note: they ask which note to move the task to, as M does in the Tasks view. They are under Format and in a task's right-click menu, and can be changed in Settings → Shortcuts (they are not ⌥⌘M, which macOS keeps for Minimize All).</p>
 <h2 id="rules-where-tasks-go">Rules: where tasks go</h2>
 <p>M takes the first of these that applies:</p>
 <ol>
@@ -223,7 +273,7 @@ mark.find-hit.current{background:#ffab2e}
 <h2 id="what-margin-promises">What Margin promises</h2>
 <p>Your triage program and Margin both write the triage note, so Margin is careful with it:</p>
 <ul>
-<li><strong>It never overwrites a newer version.</strong> Every change (yours in the editor, or from the Triage view) is saved only if the file is still the version Margin read. If your program has written in between, the change is not saved over it: from the Triage view, Margin reads the new version and applies your action there (or tells you the task is gone); in the editor, a message offers <strong>Use mine</strong>.</li>
+<li><strong>It never overwrites a newer version.</strong> Every change is saved only if the file is still the version Margin read. Task actions, from the Triage view or with the task keys in the note itself, read the newest version and apply your action there (or tell you the task is gone). Only what you type in the note is saved as a whole: if your program has written in between, it is not saved over it, and a message offers <strong>Use mine</strong>.</li>
 <li><strong>It changes as little as possible.</strong> Completing, dropping and dates change only that task's line, and only its box and Margin's own tokens. Moving takes out only the task's lines. Headings, group labels, blank lines, other tasks and your program's own text are never touched; nothing is reordered or reformatted. (Margin does keep the <code>updated</code> date at the top of the note current, as for any note it saves.)</li>
 <li><strong>It writes whole files.</strong> A note is written to a hidden temporary file and renamed over the old one, so nothing ever reads half a note.</li>
 <li><strong>It never loses a task when moving.</strong> The other note is saved first; the triage note only afterwards. If something fails in between, you find the task in both places.</li>
@@ -310,11 +360,15 @@ mark.find-hit.current{background:#ffab2e}
 <td>Open its first link</td>
 </tr>
 <tr>
+<td>N</td>
+<td>Show it in the triage note, on the right; the note then follows ↑ ↓</td>
+</tr>
+<tr>
 <td>/ or ⌘F</td>
 <td>Narrow down; Esc or ↓ goes back to the list</td>
 </tr>
 </tbody>
-</table></div><p>The same actions are on the buttons that appear when you point at a task, and in its right-click menu. The keys are also listed under &quot;Triage&quot; in the keyboard shortcuts window (<code>?</code>).</p>
+</table></div><p>The same actions are on the buttons that appear when you point at a task, and in its right-click menu. The keys are also listed under &quot;Triage&quot; in the keyboard shortcuts window (<code>?</code>). In the note itself, the task keys are in <a href="#working-in-the-note-itself">Working in the note itself</a>.</p>
 <h2 id="settings">Settings</h2>
 <p>All in Settings → Triage, and kept in <code>.margin/config.json</code> in your notes folder under <code>&quot;triage&quot;</code>.</p>
 <div class="table"><table><thead>
@@ -406,7 +460,7 @@ mark.find-hit.current{background:#ffab2e}
 </tr>
 <tr>
 <td>&quot;… was changed outside Margin, so your last change was not saved&quot;</td>
-<td>You were typing in the triage note (or any note) while it changed on disk. The note now shows the newer version; <strong>Use mine</strong> puts yours back over it, or close the message to keep the newer one.</td>
+<td>You were typing in the triage note (or any note) while it changed on disk. (Task keys never cause this: they always work on the newest version.) The note now shows the newer version; <strong>Use mine</strong> puts yours back over it, or close the message to keep the newer one.</td>
 </tr>
 <tr>
 <td>&quot;The notes have changed since the move, so it was not undone&quot;</td>

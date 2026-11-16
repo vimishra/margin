@@ -2,8 +2,8 @@
 // as runs, categories and groups of suggested tasks. Read-only for now: it shows the newest run, filters it, opens
 // links, and follows the note as the program rewrites it. Acting on tasks comes later; lib/triage.ts reads the note.
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
-import { BookOpen, CalendarClock, CalendarDays, ChevronDown, ChevronRight, ExternalLink, FileText, FolderInput, History, ListFilter, Search, SquareCheck, SquareX } from 'lucide-react'
-import { go, openDatePicker, openMenu, openNote, openNoteAt, triageNote, ui, usePageWidthStyle, useStore, type MenuItem } from '../store'
+import { BookOpen, CalendarClock, Columns2, CalendarDays, ChevronDown, ChevronRight, ExternalLink, FileText, FolderInput, History, ListFilter, Search, SquareCheck, SquareX } from 'lucide-react'
+import { go, openDatePicker, openMenu, openNote, openSideAt, triageNote, ui, usePageWidthStyle, useStore, type MenuItem } from '../store'
 import { destinationOf, moveByRules, moveCategory, triageAct } from '../triage'
 import { GROUP_ORDER, parseTriage, runTasks, triageCounts, type GroupKind, type TriageCategory, type TriageRun, type TriageTask } from '../lib/triage'
 import { renderInline } from '../lib/markdown'
@@ -25,6 +25,12 @@ const haystack = (t: TriageTask) => [t.title, t.category, t.groupLabel, ...t.tag
 
 /** Complete an open task, or reopen a finished one (the box, Space or X). */
 const toggleDone = (t: TriageTask) => void triageAct(t, t.state === 'open' ? { kind: 'complete' } : { kind: 'reopen' })
+/**
+ * Open the triage note on the right, beside the view, scrolled to a task (with its line lit up briefly). The
+ * keyboard stays in the view, so the keys go on working on the list.
+ */
+const showInNote = (noteId: string, t?: TriageTask) => openSideAt(noteId, t ? t.rawLines[0].replace(/\r$/, '') : '', false, true)
+
 /** Pick a note to move a task into (⇧M, or M when no rule decides). */
 const moveTo = (t: TriageTask) => ui({ palette: { mode: 'triageMove', triageTask: t } })
 
@@ -69,7 +75,7 @@ function triageMenu(t: TriageTask, row: Element, readOnly: boolean, noteId: stri
   return [
     ...acts,
     ...t.links.map((l, i) => ({ label: `Open ${l.label}`, hint: i === 0 ? 'O' : undefined, icon: <ExternalLink size={14} />, onSelect: () => openLink(l.url) })),
-    ...(noteId ? [{ label: 'Show in the triage note', icon: <FileText size={14} />, onSelect: () => openNoteAt(noteId, t.rawLines[0].replace(/\r$/, ''), [], true) }] : []),
+    ...(noteId ? [{ label: 'Show in the triage note', hint: 'N', icon: <Columns2 size={14} />, onSelect: () => showInNote(noteId, t) }] : []),
   ]
 }
 
@@ -135,6 +141,8 @@ export function TriageView() {
     if (next) {
       setSelected(next.id)
       page.current?.querySelector(`[data-triage="${CSS.escape(next.id)}"]`)?.scrollIntoView({ block: 'nearest' })
+      // With the triage note open on the right, it follows: each task's place in it comes into view.
+      if (note && useStore.getState().side === note.id) showInNote(note.id, next)
     }
   }
   const rowEl = (t: TriageTask) => page.current?.querySelector(`[data-triage="${CSS.escape(t.id)}"]`) ?? page.current!
@@ -156,6 +164,7 @@ export function TriageView() {
     else if (e.key === 'End') (e.preventDefault(), move(visible.length))
     else if (task && e.key === 'Enter') (e.preventDefault(), toggleExpanded(task.id))
     else if (task && e.key === 'o' && task.links[0]) (e.preventDefault(), openLink(task.links[0].url))
+    else if (note && e.key === 'n') (e.preventDefault(), showInNote(note.id, task))
     // Actions: only on the newest run; earlier runs are history.
     else if (!task || task.run !== newest?.label) return
     else if (e.key === ' ' || e.key === 'x') (e.preventDefault(), toggleDone(task))
@@ -185,9 +194,18 @@ export function TriageView() {
         <BookOpen size={16} />
       </button>
       {note && (
-        <button className="btn triage-open-note" title="Open the triage note itself" onClick={() => openNote(note.id)}>
-          <FileText size={15} /> Open the note
-        </button>
+        <>
+          <button
+            className="btn triage-open-note"
+            title="Open the triage note itself, in place of this view (⌥-click: on the right, beside it)"
+            onClick={(e) => (e.altKey || e.metaKey || e.ctrlKey ? showInNote(note.id, visible.find((t) => t.id === selected)) : openNote(note.id))}
+          >
+            <FileText size={15} /> Open the note
+          </button>
+          <button className="icon-btn triage-open-right" title="Open the triage note on the right, beside this view (N)" onClick={() => showInNote(note.id, visible.find((t) => t.id === selected))}>
+            <Columns2 size={16} />
+          </button>
+        </>
       )}
     </header>
   )

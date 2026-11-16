@@ -12,7 +12,8 @@ import { ui, useStore } from '../store'
 import { TASK_TOKENS, lineDoneChanges } from '../lib/tasks'
 import { shortLinkHref, shortLinkPattern, shortLinks } from '../lib/shortlinks'
 import { today } from '../lib/util'
-import { dispatchTick } from './lists'
+import { dispatchTick, editorNote } from './lists'
+import { triageKey } from '../triageEditor'
 import { createElement } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { TaskBlock } from './TaskBlock'
@@ -227,6 +228,8 @@ class CheckboxWidget extends WidgetType {
       if (!/^\[[ xX-]\]$/.test(text)) return
       // Ticking can also record the day at the end of the line.
       const line = view.state.doc.lineAt(pos)
+      // In the triage note, through the Triage path: a fresh read, only this line changed.
+      if (triageKey(view.state.facet(editorNote), view.state.doc.toString(), line.number - 1, line.number - 1, 'done')) return
       const edits = lineDoneChanges(line.text, text === '[ ]', useStore.getState().settings.logCompletion)
       // Ticked: a repeating task comes back, and the ticked one goes to the end of its list; one Undo for all of it.
       dispatchTick(view, edits ? edits.map((x) => ({ from: line.from + x.from, to: line.from + x.to, insert: x.insert })) : { from: pos, to: pos + 3, insert: text === '[ ]' ? '[x]' : '[ ]' }, [line.number], text === '[ ]')

@@ -36,6 +36,9 @@ import { dailyLabel, isYmd, longDate, today, tagHue } from '../lib/util'
 import { livePreview } from './livePreview'
 import { cycleNote, cycleSection, externalChange, foldBelowHere, foldCommand, folding, foldOnlySectionsAndLists, foldToLevel, restoreFolds } from './folding'
 import { cellsFromClipboard, serializeTable, tableFromCells } from './tableWidget'
+import { textChanges } from '../lib/textDiff'
+import { moveTaskFromEditor, triageKey, triageTasksAt, isTriageNote } from '../triageEditor'
+import { triageAct } from '../triage'
 import { type ListKind, editorNote, moveListItem, shiftListItem, toggleCancel, toggleDone, toggleList } from './lists'
 import { syntaxTree } from '@codemirror/language'
 
@@ -53,7 +56,11 @@ export interface EditorHandle {
   toggleCancel(): void
   /** Change a detail of the task under the cursor: its priority, due date or planned day, or plan it for today. */
   taskEdit(kind: 'priority' | 'due' | 'when' | 'today'): void
+  /** Move the task under the cursor into another note: by the triage rules in the triage note; `pick` always asks. */
+  taskMove(pick: boolean): void
   scrollToLine(line: number): void
+  /** Bring a place into view and light up its line briefly, without moving the cursor or taking the keyboard. */
+  peek(pos: number): void
   /** Select a range of text and bring it to the middle of the view. */
   reveal(from: number, to: number): void
   upload(files: File[]): void
@@ -530,9 +537,16 @@ async function uploadInto(view: EditorView, files: File[], pos?: number, pasted 
   }
 }
 
+/** The first and last line (0-based) of the selection. */
+function selectedLines(view: EditorView): [number, number] {
+  const sel = view.state.selection.main
+  return [view.state.doc.lineAt(sel.from).number - 1, view.state.doc.lineAt(sel.to).number - 1]
+}
+
 export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, onChange, onFollowLink, autoFocus, live, spellcheck, autoPair = true, lineNumbers: showLineNumbers, foldKey }, ref) {
   const host = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
+  const peekTimer = useRef<number | undefined>(undefined)
   const cb = useRef({ onChange, onFollowLink })
   cb.current = { onChange, onFollowLink }
 
@@ -670,7 +684,9 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
             indentWithTab,
           ]),
           EditorView.updateListener.of((u) => {
-            if (u.docChanged) cb.current.onChange(u.state.doc.toString())
+            // A change that came from the note (saved elsewhere, or edited on disk) is not reported back: the note
+            // already has it, and saving it again would race the next save made outside the editor.
+            if (u.docChanged && !u.transactions.some((tr) => tr.annotation(externalChange))) cb.current.onChange(u.state.doc.toString())
           }),
           EditorView.domEventHandlers({
             paste(e, v) {
@@ -775,9 +791,9 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
     if (!view) return
     const current = view.state.doc.toString()
     if (current !== value) {
-      const head = Math.min(view.state.selection.main.head, value.length)
-      // Replacing the whole text drops the folds, so fold again what was folded.
-      view.dispatch({ changes: { from: 0, to: current.length, insert: value }, selection: { anchor: head }, annotations: externalChange.of(true) })
+      // Only what differs is replaced, so the cursor stays on its line (say, a task ticked while the triage
+      // program rewrote lines above it) and the folds mostly survive; fold again what was folded anyway.
+      view.dispatch({ changes: textChanges(current, value), annotations: externalChange.of(true) })
       if (foldKey) restoreFolds(view, foldKey)
     }
   }, [value])
@@ -794,9 +810,21 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
     wrap(before, after, fallback) {
       if (viewRef.current) wrapSelection(viewRef.current, before, after, fallback)
     },
+    taskMove(pick) {
+      const view = viewRef.current
+      if (!view) return
+      const [from, to] = selectedLines(view)
+      moveTaskFromEditor(view.state.facet(editorNote), view.state.doc.toString(), from, to, pick)
+    },
     taskEdit(kind) {
       const view = viewRef.current
       if (!view) return
+      // In the triage note, through the Triage path (a fresh read, one line changed), never a save of the whole note.
+      const noteId = view.state.facet(editorNote)
+      if (kind === 'today') {
+        const [from, to] = selectedLines(view)
+        if (triageKey(noteId, view.state.doc.toString(), from, to, 'today')) return
+      }
       /** Rewrite the details of the task on a line; false if the line is not a task. */
       const rewrite = (lineNo: number, change: (raw: string) => string) => {
         const line = view.state.doc.line(lineNo)
@@ -827,6 +855,7 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
       const head = view.state.doc.lineAt(sel.head)
       const m = TASK_LINE.exec(head.text)
       if (!m) return void toast('The cursor is not on a task')
+      const triageTask = isTriageNote(noteId) ? triageTasksAt(view.state.doc.toString(), head.number - 1, head.number - 1).find((t) => t.line === head.number - 1) : undefined
       const now = parseTaskText(m[4])
       const planning = kind === 'when'
       // The calendar opens just under the cursor.
@@ -838,7 +867,8 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
         removeLabel: !planning ? 'Remove due date' : now.someday ? 'Take out of Someday' : 'Remove planned day',
         someday: planning ? (now.someday ? 'on' : 'off') : undefined,
         onPick: (date) => {
-          rewrite(head.number, (raw) => withDetails(raw, planning ? (date === 'someday' ? { someday: true } : { scheduled: date }) : { due: date }))
+          if (triageTask) void triageAct(triageTask, planning ? (date === 'someday' ? { kind: 'planned', date: null, someday: true } : { kind: 'planned', date }) : { kind: 'due', date })
+          else rewrite(head.number, (raw) => withDetails(raw, planning ? (date === 'someday' ? { someday: true } : { scheduled: date }) : { due: date }))
           view.focus()
         },
       })
@@ -850,10 +880,18 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
       openSearchPanel(view)
     },
     toggleDone() {
-      if (viewRef.current && !toggleDone(viewRef.current, useStore.getState().settings.logCompletion)) toast('The cursor is not on a task')
+      const view = viewRef.current
+      if (!view) return
+      const [from, to] = selectedLines(view)
+      if (triageKey(view.state.facet(editorNote), view.state.doc.toString(), from, to, 'done')) return
+      if (!toggleDone(view, useStore.getState().settings.logCompletion)) toast('The cursor is not on a task')
     },
     toggleCancel() {
-      if (viewRef.current && !toggleCancel(viewRef.current, useStore.getState().settings.logCompletion)) toast('The cursor is not on a task')
+      const view = viewRef.current
+      if (!view) return
+      const [from, to] = selectedLines(view)
+      if (triageKey(view.state.facet(editorNote), view.state.doc.toString(), from, to, 'cancel')) return
+      if (!toggleCancel(view, useStore.getState().settings.logCompletion)) toast('The cursor is not on a task')
     },
     toggleList(kind) {
       if (viewRef.current) toggleList(viewRef.current, kind)
@@ -907,6 +945,14 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
       setTimeout(() => settle(true), 120)
       setTimeout(() => settle(false), 450)
       setTimeout(() => settle(false), 1000)
+    },
+    peek(pos) {
+      const view = viewRef.current
+      if (!view) return
+      const at = Math.min(pos, view.state.doc.length)
+      view.dispatch({ effects: [EditorView.scrollIntoView(at, { y: 'center' }), flashLine.of(at)] })
+      clearTimeout(peekTimer.current)
+      peekTimer.current = window.setTimeout(() => viewRef.current === view && view.dispatch({ effects: flashLine.of(null) }), 1700)
     },
     scrollToLine(line) {
       const view = viewRef.current

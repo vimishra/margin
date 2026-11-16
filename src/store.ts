@@ -337,7 +337,7 @@ interface State {
   /** The day being written in while the journal is open; it is the current note for commands. */
   journalNote: string | null
   /** Where to go in a note that is about to open. `caret` leaves the cursor at the end of the text found, instead of selecting it. */
-  jump: { id: string; query: string; terms: string[]; pane?: 'main' | 'side'; caret?: boolean } | null
+  jump: { id: string; query: string; terms: string[]; pane?: 'main' | 'side'; caret?: boolean; quiet?: boolean } | null
   settings: Settings
   historyFor: string | null
   /** Image shown enlarged over the page. */
@@ -489,14 +489,15 @@ export const openNote = (id: string) => go({ name: 'note', id })
 
 // ---------- side pane ----------
 
-export function openSide(id: string) {
+/** Open a note in the side pane (on the right). With `activate` false, the pane you are in stays the active one. */
+export function openSide(id: string, activate = true) {
   const s = get()
   const recent = [id, ...s.recent.filter((x) => x !== id)].slice(0, 60)
   const sideTabs = !s.settings.tabs ? [id] : s.sideTabs.includes(id) ? s.sideTabs : capTabs([...s.sideTabs, id], id, recent)
   local.set('side', id)
   local.set('sideTabs', sideTabs)
   local.set('recent', recent)
-  set({ side: id, sideTabs, recent, activePane: 'side' })
+  set({ side: id, sideTabs, recent, activePane: activate ? 'side' : s.activePane })
 }
 
 export function closeSide() {
@@ -562,10 +563,13 @@ export function openNoteAt(id: string, query: string, terms: string[], caret = f
   openNote(id)
 }
 
-/** The same, in the side pane. */
-export function openSideAt(id: string, query: string, caret = false) {
-  set({ jump: { id, query, terms: [], pane: 'side', caret } })
-  openSide(id)
+/**
+ * The same, in the side pane. With `quiet`, the note is only scrolled there (the line lit up briefly): the cursor
+ * and the keyboard stay where they are, so a list on the left can show each item's place in the note as you go.
+ */
+export function openSideAt(id: string, query: string, caret = false, quiet = false) {
+  set({ jump: { id, query, terms: [], pane: 'side', caret, quiet } })
+  openSide(id, !quiet)
 }
 
 window.addEventListener('hashchange', () => enterRoute(parseHash(location.hash)))

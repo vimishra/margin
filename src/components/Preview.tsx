@@ -1,6 +1,7 @@
 import { memo, useEffect, useMemo, useRef } from 'react'
 import { renderMarkdown, toggleTask } from '../lib/markdown'
 import { resolver, titlesKey } from '../lib/links'
+import { triageKey } from '../triageEditor'
 import { createNote, go, isProtectedNote, openNote, openSide, ui, useStore, ensureDaily } from '../store'
 import { changedLine } from '../lib/archive'
 import { afterTick } from '../lib/repeat'
@@ -92,6 +93,8 @@ export const Preview = memo(function Preview({ source, className, onChange, note
       const boxes = [...ref.current!.querySelectorAll('input[type=checkbox]')].filter((b) => !b.closest('.task-block-mount'))
       const s = useStore.getState().settings
       const next = toggleTask(source, boxes.indexOf(el), s.logCompletion)
+      // In the triage note, through the Triage path: a fresh read, only this line changed.
+      if (noteId && triageKey(noteId, source, changedLine(source, next), changedLine(source, next), 'done')) return e.preventDefault()
       // Ticked: a repeating task comes back, and the ticked one goes to the end of its list, as in the editor.
       onChange(el.checked && !isProtectedNote(noteId) ? afterTick(next.split('\n'), [changedLine(source, next)], { sink: s.sinkDoneTasks }).join('\n') : next)
     }

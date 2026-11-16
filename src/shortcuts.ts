@@ -66,6 +66,9 @@ export const SHORTCUT_DEFS: ShortcutDef[] = [
   { id: 'taskWhen', label: 'Task: when (planned day or Someday)', group: 'In a note', web: 'Alt+Shift+S', desktop: 'Mod+Shift+S' },
   { id: 'taskDue', label: 'Task: due date', group: 'In a note', web: 'Alt+Shift+D', desktop: 'Mod+Shift+D' },
   { id: 'taskPriority', label: 'Task: change priority (P1, P2, P3, none)', group: 'In a note', web: 'Alt+Shift+P', desktop: 'Mod+Shift+P' },
+  // Not ⌥⌘M, which macOS keeps for Minimize All.
+  { id: 'taskMove', label: 'Task: move to a note (in the triage note, where its rules send it)', group: 'In a note', web: isMac ? 'Mod+Ctrl+M' : 'Mod+Alt+M' },
+  { id: 'taskMoveTo', label: 'Task: move to a note you pick', group: 'In a note', web: isMac ? 'Mod+Ctrl+Shift+M' : 'Mod+Alt+Shift+M' },
   { id: 'foldToggle', label: 'Fold or unfold here', group: 'In a note', web: "Mod+'" },
   { id: 'fold', label: 'Fold (again: fold the section around it)', group: 'In a note', web: 'Mod+Alt+Up' },
   { id: 'unfold', label: 'Unfold', group: 'In a note', web: 'Mod+Alt+Down' },

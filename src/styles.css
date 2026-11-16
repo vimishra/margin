@@ -4790,8 +4790,9 @@ body.resizing {
   margin: 0 2px;
 }
 
-/* The line a jump landed on */
-.cm-jump-flash {
+/* The line a jump landed on (in read mode, the block) */
+.cm-jump-flash,
+.reading .jump-flash {
   animation: jump-flash 1.6s ease-out;
   border-radius: 4px;
 }
@@ -5518,7 +5519,8 @@ kbd {
 @media (prefers-reduced-motion: reduce) {
   .menu,
   .modal,
-  .cm-jump-flash {
+  .cm-jump-flash,
+  .reading .jump-flash {
     animation: none;
   }
 }
@@ -5787,6 +5789,9 @@ kbd {
 }
 .triage .triage-guide + .triage-open-note {
   margin-left: 6px;
+}
+.triage .triage-open-right {
+  margin-left: 2px;
 }
 .triage .empty-state {
   margin-top: 48px;

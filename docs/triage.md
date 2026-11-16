@@ -7,9 +7,11 @@ Triage is how Margin handles the suggested tasks that a program of yours writes 
 - [The idea](#the-idea)
 - [Setting it up](#setting-it-up)
 - [The Triage view](#the-triage-view)
+- [The note beside the view](#the-note-beside-the-view)
 - [Working through triage](#working-through-triage)
 - [Deciding on a task](#deciding-on-a-task)
 - [Moving tasks into your notes](#moving-tasks-into-your-notes)
+- [Working in the note itself](#working-in-the-note-itself)
 - [Rules: where tasks go](#rules-where-tasks-go)
 - [What Margin promises](#what-margin-promises)
 - [For the program that writes the note](#for-the-program-that-writes-the-note)
@@ -46,7 +48,7 @@ You do not have to set up rules before starting. In the Triage view, choosing a 
 
 Open it with **Triage** under Tasks in the sidebar, or ⌘K → *Go to Triage*.
 
-- **Header:** the newest run's label (for example "Mon 5 Jan, 11:00") with its counts of open, done and dropped tasks, and **Open the note**, to see the note itself.
+- **Header:** the newest run's label (for example "Mon 5 Jan, 11:00") with its counts of open, done and dropped tasks; **Open the note**, to see the note itself in place of the view; and, beside it, a button that opens the note on the right instead (see [below](#the-note-beside-the-view)).
 - **Summary:** your program's summary of the run, which you can fold away.
 - **Filters:** words (in the title, tags, link names and details), category, kind (quick, action, other) and priority. **Done & dropped** also shows what you have already dealt with; **Older runs** shows earlier runs below, as they were.
 - **Categories**, each foldable, with its open count and, when you point at it, **Move all**. Inside, quick replies first, then actions, then anything else.
@@ -54,11 +56,20 @@ Open it with **Triage** under Tasks in the sidebar, or ⌘K → *Go to Triage*.
 
 The view follows the note. When your program writes a new run, it appears within a few seconds, and you keep your place: the task you were on, the details you opened, your folds and your filters.
 
+## The note beside the view
+
+The view shows each task, its details and links, but not everything your program writes around them. To read the note itself while you triage, open it **on the right**, beside the view:
+
+- **N** shows the selected task in the note, on the right, with its line lit up for a moment. So does **Show in the triage note** in a task's right-click menu, the button next to **Open the note**, or ⌥-click on **Open the note**.
+- **The keyboard stays in the view,** so you go on with ↓, Space, M and the rest. While the note is open on the right, it **follows** you: each ↑ or ↓ brings the new task's place in the note into view.
+- **Click in the note** to work there with the note's own keys (see [Working in the note itself](#working-in-the-note-itself)); click the view to go back to its keys.
+- The note on the right is an ordinary tab: close it with its ×, or drag the divider to give either side more room.
+
 ## Working through triage
 
 A routine that works well, for example each morning and after lunch (when a new run has come in):
 
-1. **Open Triage** and read the Summary.
+1. **Open Triage** and read the Summary. If you want your program's full notes in view as you go, press **N** to open the triage note on the right.
 2. **Take the quick replies first.** Answer them (O opens the message), then **Space** to complete each.
 3. **Go down the actions with ↓.** For each, one key: **Space** (done), **C** (not doing it), **M** (it is real work: move it to its workstream), **S** (plan a day for it) or just **↓** (leave it for now).
 4. **When a whole category is real work,** press **A** on any of its tasks: everything open in it moves to where it belongs in one step.
@@ -81,7 +92,7 @@ After triage, your moved tasks are where you plan the day from: Today, Anytime a
 | **D** | Its due date | `@due(2026-01-09)` likewise |
 | **M**, **⇧M**, **A** | Move it, or the whole category | its lines are taken out (see below) |
 
-Every one says what it did in a message with **Undo**. The dates are left out if you turned off recording them (Settings → General). Only tasks of the newest run can be changed; earlier runs are history.
+Every one says what it did in a message with **Undo**. The dates are left out if you turned off recording them (Settings → General). In the view, only tasks of the newest run can be changed; earlier runs are history. (In the note itself, the keys work on any task.)
 
 ## Moving tasks into your notes
 
@@ -97,6 +108,24 @@ What happens to a moved task:
 4. **Undo** puts every note involved back exactly as it was. If one of them has changed since (your program wrote a new run, say), Undo does nothing and says so: the task stays where it went, so it is never lost.
 
 Because the link stays on the task's line, your program can see that you have taken the item on (it finds the link in an open task in your notes) and does not suggest it again.
+
+## Working in the note itself
+
+You can also act on tasks while reading the triage note, on the right or in its own tab. Put the cursor on a task (anywhere on its line or the lines under it), or select several, and use the note's task keys:
+
+| Key | Does |
+| --- | --- |
+| ⌘↵ (or the box) | Complete; again to reopen |
+| ⌘⌥↵ | Drop; again to reopen |
+| ⌘⌥T | Plan for today |
+| ⌘⇧S | When: a day, or Someday |
+| ⌘⇧D | Due date |
+| ⌃⌘M | Move it where its rules send it (asks if nothing decides), as **M** does in the view |
+| ⌃⇧⌘M | Move it to a note you pick (⌥↵ there also adds a rule), as **⇧M** does |
+
+They do exactly what the view's keys do, the same way: Margin reads the note fresh from disk, changes only that task's line (or, for a move, takes out its lines), and saves it only if the file has not changed since. So a run your program writes at the same moment is never saved over, and the cursor stays on the task. Each says what it did, with **Undo**. Only typing in the note is saved the ordinary way (see [What Margin promises](#what-margin-promises)).
+
+⌃⌘M and ⌃⇧⌘M also work in any other note: they ask which note to move the task to, as M does in the Tasks view. They are under Format and in a task's right-click menu, and can be changed in Settings → Shortcuts (they are not ⌥⌘M, which macOS keeps for Minimize All).
 
 ## Rules: where tasks go
 
@@ -138,7 +167,7 @@ Notes are named by their path in the notes folder, with or without `.md`. Rules 
 
 Your triage program and Margin both write the triage note, so Margin is careful with it:
 
-- **It never overwrites a newer version.** Every change (yours in the editor, or from the Triage view) is saved only if the file is still the version Margin read. If your program has written in between, the change is not saved over it: from the Triage view, Margin reads the new version and applies your action there (or tells you the task is gone); in the editor, a message offers **Use mine**.
+- **It never overwrites a newer version.** Every change is saved only if the file is still the version Margin read. Task actions, from the Triage view or with the task keys in the note itself, read the newest version and apply your action there (or tell you the task is gone). Only what you type in the note is saved as a whole: if your program has written in between, it is not saved over it, and a message offers **Use mine**.
 - **It changes as little as possible.** Completing, dropping and dates change only that task's line, and only its box and Margin's own tokens. Moving takes out only the task's lines. Headings, group labels, blank lines, other tasks and your program's own text are never touched; nothing is reordered or reformatted. (Margin does keep the `updated` date at the top of the note current, as for any note it saves.)
 - **It writes whole files.** A note is written to a hidden temporary file and renamed over the old one, so nothing ever reads half a note.
 - **It never loses a task when moving.** The other note is saved first; the triage note only afterwards. If something fails in between, you find the task in both places.
@@ -191,9 +220,10 @@ In the Triage view:
 | ⇧M | Move to a note you pick (⌥↵ there also adds a rule) |
 | A | Move every open task of its category |
 | O | Open its first link |
+| N | Show it in the triage note, on the right; the note then follows ↑ ↓ |
 | / or ⌘F | Narrow down; Esc or ↓ goes back to the list |
 
-The same actions are on the buttons that appear when you point at a task, and in its right-click menu. The keys are also listed under "Triage" in the keyboard shortcuts window (`?`).
+The same actions are on the buttons that appear when you point at a task, and in its right-click menu. The keys are also listed under "Triage" in the keyboard shortcuts window (`?`). In the note itself, the task keys are in [Working in the note itself](#working-in-the-note-itself).
 
 ## Settings
 
@@ -221,7 +251,7 @@ The view's own choices (done and dropped shown, older runs, folds, filters) are 
 | "Nothing to triage" | The note has no `## Triage` runs Margin recognises. Open the note to look; compare it with [the layout above](#for-the-program-that-writes-the-note). |
 | Tasks under "Uncategorised" | They are in a run but above any `### ` category heading. |
 | "That task is no longer in the triage note" | Your program rewrote the note between your looking and your key press, without that task. Nothing was changed. |
-| "… was changed outside Margin, so your last change was not saved" | You were typing in the triage note (or any note) while it changed on disk. The note now shows the newer version; **Use mine** puts yours back over it, or close the message to keep the newer one. |
+| "… was changed outside Margin, so your last change was not saved" | You were typing in the triage note (or any note) while it changed on disk. (Task keys never cause this: they always work on the newest version.) The note now shows the newer version; **Use mine** puts yours back over it, or close the message to keep the newer one. |
 | "The notes have changed since the move, so it was not undone" | Undo only works while every note involved is as the move left it. The task is in the note it went to; move it back by hand if needed. |
 | M asks every time | No rule, workstream note or default note matches the task. Add a rule, or use ⌥↵ next time. |
 | A rule in red in Settings | Its note is missing (renamed or deleted, and the rule has no id for it). Point it at the note again. |
