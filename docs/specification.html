@@ -236,7 +236,7 @@ Each canvas card is markdown too.
 </code></pre>
 <ul>
 <li><strong>Title</strong> is the file name without <code>.md</code>. A <code>title</code> key in the frontmatter is written only when the title contains characters a file name cannot hold.</li>
-<li><strong>Frontmatter</strong> is YAML. Known keys: <code>id</code>, <code>title</code>, <code>type</code>, <code>tags</code>, <code>pinned</code>, <code>created</code>, <code>updated</code>, <code>expires</code>, <code>source</code>, <code>status</code>, <code>view</code>. Unknown keys must be preserved untouched when the note is saved.
+<li><strong>Frontmatter</strong> is YAML. Known keys: <code>id</code>, <code>title</code>, <code>type</code>, <code>tags</code>, <code>pinned</code>, <code>created</code>, <code>updated</code>, <code>expires</code>, <code>source</code>, <code>status</code>, <code>view</code>. Unknown keys must be preserved untouched when the note is saved. They are the note's <strong>properties</strong> (see <a href="#52a-properties">5.2a</a>): strings, numbers, booleans and lists of strings can be edited; other values are kept as they are.
 <ul>
 <li><code>id</code>: a stable identifier that never changes on rename. A note without one gets <code>p</code> followed by the first 10 hex digits of the SHA-1 of its path, until it is first saved.</li>
 <li><code>type</code>: <code>daily</code>, <code>article</code> or <code>scratch</code>; omitted for an ordinary note.</li>
@@ -321,8 +321,30 @@ Each canvas card is markdown too.
 <h3 id="52-a-notes-header">5.2 A note's header</h3>
 <p>Above the text: the notebook as a breadcrumb (click to open it or to move the note), the saved state, Page / Canvas buttons, mode buttons, and buttons for pin, jump to heading, version history, export, side panel and a &quot;more&quot; menu (pin, history, move, open to the side, duplicate, page width, move to trash). Then the title as an editable field, the tag row, and an optional formatting toolbar: heading, bold, italic, bulleted list, numbered list, task list, quote, code, link, link to note, table, math, attach.</p>
 <p>Research notes add a status selector and a source link field. Scratch notes add a strip showing time left with &quot;+1 day&quot;, &quot;+1 week&quot; and &quot;Keep&quot;.</p>
+<h3 id="52a-properties">5.2a Properties</h3>
+<ul>
+<li>Under the tag row, a panel lists the frontmatter keys that are not known keys, in file order. With none, only a small &quot;+ Add property&quot; link shows.</li>
+<li>The panel has a header &quot;Properties&quot; with the count; clicking it folds the rows. Open or folded is remembered per app (one setting for all notes).</li>
+<li>Each row: the key, a value editor, a kind selector (shown on hover) and a remove button. The kind is inferred from the value: boolean → Checkbox, number → Number, list → List, a <code>YYYY-MM-DD</code> string → Date, else Text.</li>
+<li>Text and Number are committed on Enter or blur (Esc reverts); Date on change, with a date input; Checkbox on click; List is edited as comma-separated text, trimmed, empty items dropped.</li>
+<li>Changing the kind converts the value where possible (text to number, <code>true</code> to a tick, comma text to a list; an invalid date becomes today).</li>
+<li>&quot;Add property&quot; asks for a name; an existing name is ignored; the new key starts as an empty string.</li>
+<li>Saving sends the whole set of properties with the note's version as base; the server drops known keys, null values and values of other shapes, writes the rest after the known keys and updates <code>updated</code>.</li>
+</ul>
+<h3 id="52b-status-bar">5.2b Status bar</h3>
+<ul>
+<li>At the bottom right of the note column, a small rounded bar that stays in view while scrolling (not the full width). Setting (Appearance → Status bar), on by default; shown in all three modes, not on canvases.</li>
+<li>It shows: open tasks in the note (&quot;All tasks done&quot; when every task is ticked or cancelled; hidden when the note has none; hover: open, done and cancelled counts), words, characters, and &quot;N min read&quot; at 230 words or more (230 words a minute, rounded).</li>
+<li>With a selection in the editor it shows &quot;a of b words · c characters selected&quot; for the selected text.</li>
+<li>Counts are of the readable text: front matter, code fences' marks, markdown marks, link targets (a link counts as its label), task details (<code>P1</code>, <code>&gt;date</code>, <code>@due(…)</code> and the like), block ids and footnote marks are left out; checkbox lines and code inside fences are skipped when counting tasks. Characters exclude line breaks. Words are runs of letters and digits; an apostrophe, full stop or hyphen between two of them joins them into one word.</li>
+</ul>
 <h3 id="53-markdown-support">5.3 Markdown support</h3>
-<p>Headings 1 to 6, bold, italic, strikethrough, inline code, fenced code blocks with syntax colouring by language (in all modes), block quotes, bulleted, numbered and task lists, links, bare web addresses as links, images, tables, horizontal rules, inline math <code>$…$</code> and display math <code>$$…$$</code> in LaTeX, <code>[[wikilinks]]</code>, <code>#tags</code>, and embedded PDFs.</p>
+<p>Headings 1 to 6, bold, italic, strikethrough, inline code, fenced code blocks with syntax colouring by language (in all modes), block quotes, bulleted, numbered and task lists, links, bare web addresses as links, images, tables, horizontal rules, inline math <code>$…$</code> and display math <code>$$…$$</code> in LaTeX, <code>[[wikilinks]]</code> (also <code>[[Note#Heading]]</code> and <code>[[Note#^id]]</code>), <code>#tags</code>, embedded PDFs, callouts and footnotes.</p>
+<ul>
+<li><strong>Callouts:</strong> a block quote whose first line is <code>&gt; [!type]</code>, optionally followed by <code>+</code> or <code>-</code> and a title. Shown as a box tinted by the type's colour family, with its title (the type's own name when none is given) in that colour, in the editor, read mode, exports and print. Families: blue (<code>note</code>, <code>info</code>, <code>todo</code>, and any unknown type), teal (<code>abstract</code>, <code>summary</code>, <code>tldr</code>, <code>tip</code>, <code>hint</code>), purple (<code>important</code>, <code>example</code>), green (<code>success</code>, <code>check</code>, <code>done</code>, <code>decision</code>), yellow (<code>question</code>, <code>help</code>, <code>faq</code>), orange (<code>warning</code>, <code>caution</code>, <code>attention</code>), red (<code>failure</code>, <code>fail</code>, <code>missing</code>, <code>danger</code>, <code>error</code>, <code>bug</code>), grey (<code>quote</code>, <code>cite</code>). In the editor the <code>[!type]</code> mark is shown only on the line with the cursor. Folding (<code>+</code>/<code>-</code>) is not acted on.</li>
+<li><strong>Footnotes:</strong> <code>[^label]</code> in the text, and <code>[^label]: text</code> at the start of a line. References are numbered by first use. In the editor a reference is a superscript number (hidden source on the line with the cursor) whose tooltip is the definition's text and which moves the cursor to the definition on click; a definition line shows its number. In read mode and exports the definitions are listed at the end with back-links; clicking a reference or back-link scrolls within the page without changing the address.</li>
+<li><strong>Block ids:</strong> <code> ^id</code> (letters, digits, hyphens) at the end of a line names that line. It is hidden in the editor except on the cursor's line (where it is dimmed), in read mode and exports, and is not part of a task's text.</li>
+</ul>
 <h3 id="54-live-preview-rules">5.4 Live preview rules</h3>
 <ul>
 <li>Syntax marks (<code>#</code>, <code>**</code>, <code>&gt;</code>, list markers, link brackets and addresses, code fences) are hidden on lines without the cursor.</li>
@@ -330,6 +352,7 @@ Each canvas card is markdown too.
 <li>A link of any kind inside a heading takes the heading's size and weight; its colour, underline or pill background stay the link's.</li>
 <li>The document is always plain markdown. Preview is decoration only; what is saved is exactly what was typed.</li>
 <li>A current search match counts as &quot;the cursor is here&quot;, so text hidden inside a widget is revealed and highlighted.</li>
+<li>In the Bear style (see <a href="#17-appearance">17</a>), a heading's <code>#</code> marks are shown in the left margin, dimmed, on lines without the cursor.</li>
 </ul>
 <h3 id="55-lists">5.5 Lists</h3>
 <ul>
@@ -386,6 +409,9 @@ Each canvas card is markdown too.
 <li>A rendered link opens on a plain click. If the cursor is already on that line, a click places the cursor and ⌘-click opens.</li>
 <li><strong>Insert link</strong> shortcut: with nothing selected, inserts <code>[]()</code> with the cursor between the square brackets; with words selected, <code>[words]()</code> with the cursor in the round brackets; with a web address selected, <code>[](address)</code> with the cursor in the square brackets.</li>
 <li><strong>Paste to link:</strong> pasting a single web address over selected words turns them into <code>[words](address)</code>. Not when the selection is itself an address, spans lines, or is inside code or a link.</li>
+<li><strong>Heading and block links:</strong> <code>[[Note#Heading]]</code> opens the note with the cursor on that heading (matched ignoring case); <code>[[Note#^id]]</code> opens it with the line carrying that id selected. In the other pane with ⌘-click. If the heading or block is not found, a message says so and the note opens at the top. A heading link's pill reads <code>Note#Heading</code> (or the alias); a block link's pill reads the note's title and the first 32 characters of the line.</li>
+<li><strong>Completion:</strong> after <code>[[Note#</code> the note's headings are offered, plus &quot;^ Link to a block&quot;; after <code>[[Note#^</code> its paragraphs and list items (not headings, code, tables or front matter), with their ids. Choosing one that has no id writes a new six-character id at the end of that line: in the same change when it is the note being edited, otherwise as a save of that note (version-checked).</li>
+<li><strong>Copy link to this block</strong> (command, no default key): on a heading line copies <code>[[Title#Heading]]</code>; on any other line adds an id to the line if it has none and copies <code>[[Title#^id]]</code>.</li>
 <li><strong>Short links:</strong> <code>go/&lt;name&gt;</code> (letters, digits, hyphens, underscores; further <code>/segments</code> allowed) and <code>b/&lt;digits&gt;</code> or <code>b/hotlists/&lt;digits&gt;</code>, standing on their own, are shown as links to <code>http://&lt;text&gt;</code> in every mode and in the Tasks view. The note's text is not changed. They are not recognised inside code, web addresses, existing links or longer paths. Setting, on by default.</li>
 </ul>
 <h3 id="510-slash-commands">5.10 Slash commands</h3>
@@ -403,7 +429,7 @@ Each canvas card is markdown too.
 </tr>
 <tr>
 <td>Insert</td>
-<td>Code block, Table, Math block, Inline math, Divider, Link to a note, Web link, Image or file</td>
+<td>Code block, Table, Math block, Inline math, Divider, Link to a note, Web link, Image or file, Callout, Callout: warning, Callout: decision, Callout: tip, Footnote (inserts the next unused number <code>[^n]</code> and adds <code>[^n]: </code> after the note's last footnote definition, or at the end, with the cursor there)</td>
 </tr>
 <tr>
 <td>Tasks</td>
@@ -957,7 +983,7 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 <li>Relative image and file links are copied and rewritten.</li>
 <li>A <code>.canvas</code> file becomes a note that opens on its canvas, with the same cards, colours and connections.</li>
 <li>Notes named <code>YYYY-MM-DD</code> become daily notes.</li>
-<li>Callouts stay as quotes and plugin syntax stays as text.</li>
+<li>Callouts, footnotes, heading and block links and unknown frontmatter keys are kept as written (Margin reads them the same way); plugin syntax stays as text.</li>
 <li>A summary reports notes, canvases and files imported, links not found, and files that could not be read.</li>
 </ul>
 <h2 id="15-settings">15. Settings</h2>
@@ -1578,6 +1604,7 @@ tag        (?:^|[\s(])#([A-Za-z][A-Za-z0-9_/-]*)
 </table></div><h2 id="17-appearance">17. Appearance</h2>
 <ul>
 <li><strong>Themes:</strong> light, dark, or follow the system. Applied before first paint to avoid a flash.</li>
+<li><strong>Style</strong> (setting): Margin (the palette below) or Bear, each in light and dark. Bear changes the page and sidebar to warm off-white (<code>#fdfcfa</code>, <code>#f6f4f0</code>; text <code>#333230</code>) or warm charcoal (<code>#2b2a29</code>; text <code>#ebe7e1</code>), uses a red accent (<code>#dd4c4f</code> light, <code>#ea6366</code> dark) for links, list markers and the cursor, ignoring the accent setting and the system accent, uses a rounded sans-serif (Avenir Next, then SF Pro Rounded, Nunito Sans, the system font) as the note font when the font setting is System, gives headings more space above, and shows heading <code>#</code> marks in the left margin. Every other setting (text styles, sizes, width) applies on top.</li>
 <li><strong>Palette</strong>, measured from Things 3:</li>
 </ul>
 <div class="table"><table><thead>

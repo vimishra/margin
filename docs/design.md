@@ -52,7 +52,7 @@ These settle most design questions. When two of them pull apart, the earlier one
 
 | File | Does |
 | --- | --- |
-| `livePreview.ts` | Renders markdown in place: hides syntax off the cursor line, draws math, images, link pills and checkboxes |
+| `livePreview.ts` | Renders markdown in place: hides syntax off the cursor line, draws math, images, link pills, checkboxes, callouts and footnote numbers |
 | `tableWidget.ts` | The in-place table editor |
 | `lists.ts` | Nesting, renumbering and moving list items |
 | `isearch.ts` | Incremental search and smart line-start |
@@ -190,6 +190,12 @@ Not in the notes folder: version history and deleted notes. A synced notes folde
 | Tasks blocks (```` ```tasks ````) | The filter and the choice of tasks in `lib/taskQuery.ts`; the panel in `components/TaskBlock.tsx` (also `mountTaskBlocks` for read mode and `taskBlockSnapshot` for exports); the editor widget `TaskBlockWidget` in `livePreview.ts`; read mode's mount point is the `fence` rule in `lib/markdown.ts` |
 | Search in ⌘K: words, phrases, `in:`, `is:`, `-word` | `parseSearch`, `search` and `taskPasses` in `lib/search.ts`; the results and their group heading in `components/Palette.tsx` |
 | Slash commands, link completion | `slashCommands` and `completions` in `components/Editor.tsx` |
+| The Bear style | `look` in `Settings` (`store.ts`); `applyAppearance` sets `data-look`, the Bear font (`BEAR_FONT`) and list-marker colour; the colours are the `:root[data-look='bear']` block in `src/styles.css`; the heading `#` marks in the margin are `HashWidget` in `livePreview.ts` |
+| Heading and block links (`[[Note#Heading]]`, `[[Note#^id]]`) | Ids and finding the line: `lib/blocks.ts` (`anchorLine`, `blocksOf`); completion `anchorCompletions` and `EditorHandle.blockLink` in `Editor.tsx`; pills `WikiWidget` and `blockLabel` in `livePreview.ts`; following `followLink` in `Preview.tsx`; read mode's `anchor` in the wikilink rule and the `block_ids` rule in `lib/markdown.ts`; task text drops the id in `parseTaskText` (`lib/tasks.ts` and `tools/margin_tasks.py`) |
+| Callouts | Types, titles and colours in `lib/callouts.ts`; the editor's line classes and `CalloutTitleWidget` in `livePreview.ts`; read mode's `callouts` rule in `lib/markdown.ts`; styles in `src/styles.css` and `DOC_CSS` in `lib/export.ts` |
+| Footnotes | Editor: `FootnoteRefWidget` and `FootnoteLabelWidget` in `livePreview.ts`, the slash command in `Editor.tsx`; read mode and exports: `markdown-it-footnote`, set up in `lib/markdown.ts`; in-page jumps in `Preview.tsx` |
+| Properties under the title | `components/Properties.tsx`; on the server, `publicNote` (`properties`) and `cleanProperties` in the note PUT handler of `server/index.mjs` (stored as the record's `extra`) |
+| The status bar | `StatusBar` in `components/NoteView.tsx`; the counting in `lib/stats.ts`; the setting `statusBar` |
 | The menu bar or right-click menu | `electron/main.mjs` |
 | Colours, spacing, fonts | The tokens at the top of `src/styles.css` |
 | The starter notes | `server/seed.mjs` |

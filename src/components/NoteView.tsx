@@ -39,7 +39,7 @@ import {
   X,
 } from 'lucide-react'
 import type { Note } from '../types'
-import { timeNow, deleteNote, duplicateNote, go, openDaily, openMenu, openSide, pageWidthMenu, setActivePane, setPref, swapPanes, toast, ui, updateNote, useStore, type Mode, pageMaxWidth } from '../store'
+import { currentNote, timeNow, deleteNote, duplicateNote, go, openDaily, openMenu, openSide, pageWidthMenu, setActivePane, setPref, swapPanes, toast, ui, updateNote, useStore, type Mode, pageMaxWidth } from '../store'
 import { extractToNote, pickSectionTarget } from '../refactor'
 import { archiveHere } from '../archive'
 import { joinContent, splitContent } from '../lib/canvas'
@@ -48,6 +48,8 @@ import { ALT, MOD, addDays, cx, dailyLabel, displayTitle, expiresIn, isYmd, toda
 import { copyRichText, exportHtml, exportMarkdown, exportPdf, exportWord } from '../lib/export'
 import { Editor, type EditorHandle } from './Editor'
 import { Preview, followLink } from './Preview'
+import { Properties } from './Properties'
+import { charCount, readableText, taskCounts, wordCount } from '../lib/stats'
 import { CanvasView } from './CanvasView'
 import { RightPane } from './RightPane'
 import { DayTasks } from './TasksView'
@@ -91,6 +93,47 @@ function exportItems(note: Note) {
       }),
     },
   ]
+}
+
+const n = (x: number) => x.toLocaleString()
+
+/**
+ * The small bar at the bottom right of a note: its open tasks, words, characters and reading time; while text is
+ * selected, the words and characters of the selection instead. It sits in the corner, not across the page.
+ */
+function StatusBar({ page, selection }: { page: string; selection: string }) {
+  const stats = useMemo(() => {
+    const text = readableText(page)
+    return { words: wordCount(text), chars: charCount(text), tasks: taskCounts(page) }
+  }, [page])
+  const sel = useMemo(() => (selection ? readableText(selection) : ''), [selection])
+  const { open, done, cancelled } = stats.tasks
+  const total = open + done + cancelled
+  const minutes = Math.max(1, Math.round(stats.words / 230))
+  return (
+    <div className="status-bar-wrap" aria-live="polite">
+      <div className="status-bar">
+        {total > 0 && (
+          <span title={`${open} open, ${done} done${cancelled ? `, ${cancelled} cancelled` : ''}`}>
+            {open ? `${n(open)} open task${open === 1 ? '' : 's'}` : 'All tasks done'}
+          </span>
+        )}
+        {sel ? (
+          <span className="status-sel">
+            {n(wordCount(sel))} of {n(stats.words)} words · {n(charCount(sel))} characters selected
+          </span>
+        ) : (
+          <>
+            <span>
+              {n(stats.words)} word{stats.words === 1 ? '' : 's'}
+            </span>
+            <span>{n(stats.chars)} characters</span>
+            {stats.words >= 230 && <span>{minutes} min read</span>}
+          </>
+        )}
+      </div>
+    </div>
+  )
 }
 
 function Tags({ note }: { note: Note }) {
@@ -311,6 +354,12 @@ export function applyFormat(ed: EditorHandle, kind: string) {
     done: () => ed.toggleDone(),
     taskCancel: () => ed.toggleCancel(),
     find: () => ed.find(),
+    blockLink: () => {
+      const note = currentNote()
+      const link = note ? ed.blockLink(note.title) : null
+      if (!link) return void toast('Put the cursor on a line with text to link to it')
+      navigator.clipboard.writeText(link).then(() => toast(`Copied ${link}`), () => toast('Could not copy the link'))
+    },
     taskPriority: () => ed.taskEdit('priority'),
     taskDue: () => ed.taskEdit('due'),
     taskWhen: () => ed.taskEdit('when'),
@@ -365,6 +414,8 @@ export function NoteView({ note, slot = 'main' }: { note: Note; slot?: 'main' | 
   const scroller = useRef<HTMLDivElement>(null)
   const titleInput = useRef<HTMLInputElement>(null)
   const [title, setTitle] = useState(note.title)
+  // The selected text in the editor, for the status bar.
+  const [selection, setSelection] = useState('')
   const isCanvas = note.view === 'canvas'
   const isDaily = note.type === 'daily' && isYmd(note.title)
   const { page, canvas } = useMemo(() => splitContent(note.content), [note.content])
@@ -634,6 +685,7 @@ export function NoteView({ note, slot = 'main' }: { note: Note; slot?: 'main' | 
               )}
               <Strip note={note} />
               <Tags note={note} />
+              <Properties note={note} />
               {isDaily && <DayTasks note={note} />}
               {mode !== 'read' && settings.toolbar && <Toolbar editor={editor} />}
               <div className={`doc-body mode-${mode}`}>
@@ -645,7 +697,7 @@ export function NoteView({ note, slot = 'main' }: { note: Note; slot?: 'main' | 
                     autoPair={settings.autoPair}
                     lineNumbers={settings.lineNumbers}
                     foldKey={note.id}
-                    ref={editor} value={page} onChange={setPage} onFollowLink={(target, other) => followLink(target, isSide ? !other : other)} autoFocus={!fresh.current && !openedQuietly.current} />
+                    ref={editor} value={page} onChange={setPage} onSelection={setSelection} onFollowLink={(target, other, anchor) => followLink(target, isSide ? !other : other, anchor)} autoFocus={!fresh.current && !openedQuietly.current} />
                 )}
                 {mode === 'read' && (
                   <div className="reading" onDoubleClick={() => setPref('mode', 'edit')}>
@@ -658,6 +710,7 @@ export function NoteView({ note, slot = 'main' }: { note: Note; slot?: 'main' | 
                 )}
               </div>
             </div>
+            {settings.statusBar !== false && <StatusBar page={page} selection={mode === 'read' ? '' : selection} />}
           </div>
         )}
         {pane && !isSide && <RightPane note={note} />}

@@ -1,6 +1,8 @@
 // Live preview for the editor: markdown is rendered in place, and the raw syntax
 // is only shown for the line (or the formula, link, table) the cursor is in.
 import { ensureSyntaxTree, syntaxTree } from '@codemirror/language'
+import { BLOCK_ID, blocksOf } from '../lib/blocks'
+import { CALLOUT_LINE, callout } from '../lib/callouts'
 import { type EditorState, type Extension, type Range, StateEffect, StateField } from '@codemirror/state'
 import { Decoration, type DecorationSet, EditorView, WidgetType } from '@codemirror/view'
 import katex from 'katex'
@@ -136,6 +138,29 @@ class MathWidget extends WidgetType {
   }
 }
 
+/** A heading's # marks, drawn in the left margin where the line's own marks are hidden. */
+class HashWidget extends WidgetType {
+  constructor(readonly level: number) {
+    super()
+  }
+  eq(other: HashWidget) {
+    return other.level === this.level
+  }
+  toDOM() {
+    // A zero-width box on the heading's baseline, with the marks hanging off to its left.
+    const el = document.createElement('span')
+    el.className = 'cm-heading-hash'
+    el.setAttribute('aria-hidden', 'true')
+    const marks = document.createElement('span')
+    marks.textContent = '#'.repeat(this.level)
+    el.append(marks)
+    return el
+  }
+  ignoreEvent() {
+    return false
+  }
+}
+
 class ImageWidget extends WidgetType {
   constructor(readonly src: string, readonly alt: string) {
     super()
@@ -242,11 +267,11 @@ class CheckboxWidget extends WidgetType {
 }
 
 class WikiWidget extends WidgetType {
-  constructor(readonly target: string, readonly label: string, readonly exists: boolean, readonly follow: (t: string, side?: boolean) => void, readonly found = false) {
+  constructor(readonly target: string, readonly label: string, readonly exists: boolean, readonly follow: (t: string, side?: boolean, anchor?: string) => void, readonly found = false, readonly anchor = '') {
     super()
   }
   eq(other: WikiWidget) {
-    return other.target === this.target && other.label === this.label && other.exists === this.exists && other.found === this.found
+    return other.target === this.target && other.label === this.label && other.exists === this.exists && other.found === this.found && other.anchor === this.anchor
   }
   toDOM() {
     const el = document.createElement('span')
@@ -258,7 +283,7 @@ class WikiWidget extends WidgetType {
       if (e.button !== 0) return
       e.preventDefault()
       e.stopPropagation()
-      this.follow(this.target, e.metaKey || e.altKey)
+      this.follow(this.target, e.metaKey || e.altKey, this.anchor)
     })
     return el
   }
@@ -269,7 +294,74 @@ class WikiWidget extends WidgetType {
 
 const hide = Decoration.replace({})
 
-function build(state: EditorState, follow: (t: string, side?: boolean) => void): DecorationSet {
+/** A footnote reference as a small raised number; clicking it moves the cursor to the footnote. */
+class FootnoteRefWidget extends WidgetType {
+  constructor(readonly n: string, readonly text: string, readonly at: number) {
+    super()
+  }
+  eq(other: FootnoteRefWidget) {
+    return other.n === this.n && other.text === this.text && other.at === this.at
+  }
+  toDOM(view: EditorView) {
+    const el = document.createElement('sup')
+    el.className = 'cm-footnote-ref'
+    el.textContent = this.n
+    el.title = this.text
+    el.addEventListener('mousedown', (e) => {
+      e.preventDefault()
+      if (this.at < 0) return
+      view.dispatch({ selection: { anchor: view.state.doc.lineAt(this.at).to }, scrollIntoView: true })
+      view.focus()
+    })
+    return el
+  }
+  ignoreEvent() {
+    return true
+  }
+}
+
+/** The number in front of a footnote's own line. */
+class FootnoteLabelWidget extends WidgetType {
+  constructor(readonly n: string) {
+    super()
+  }
+  eq(other: FootnoteLabelWidget) {
+    return other.n === this.n
+  }
+  toDOM() {
+    const el = document.createElement('span')
+    el.className = 'cm-footnote-label'
+    el.textContent = this.n + '.'
+    return el
+  }
+}
+
+/** The default title of a callout that has none of its own ("Warning", "Tip"). */
+class CalloutTitleWidget extends WidgetType {
+  constructor(readonly title: string) {
+    super()
+  }
+  eq(other: CalloutTitleWidget) {
+    return other.title === this.title
+  }
+  toDOM() {
+    const el = document.createElement('span')
+    el.className = 'cm-callout-default-title'
+    el.textContent = this.title
+    return el
+  }
+}
+
+/** "Note › the block's first words", for a [[Note#^id]] link. */
+function blockLabel(target: string, id: string): string {
+  const notes = useStore.getState().notes
+  const note = notes[resolver(notes)(target) ?? '']
+  const block = note && blocksOf(note.content).find((b) => b.id === id)
+  if (!block) return target
+  return `${target} › ${block.text.length > 32 ? block.text.slice(0, 32).trimEnd() + '…' : block.text}`
+}
+
+function build(state: EditorState, follow: (t: string, side?: boolean, anchor?: string) => void): DecorationSet {
   const doc = state.doc
   const focused = state.field(focusField)
   const sel = state.selection.ranges
@@ -332,7 +424,47 @@ function build(state: EditorState, follow: (t: string, side?: boolean) => void):
     atoms.push([from, to])
     if (touches(from, to)) continue
     const target = m[1].trim()
-    out.push(Decoration.replace({ widget: new WikiWidget(target, (m[3] || target + (m[2] || '')).trim(), !!resolve(target), follow, found(from, to)) }).range(from, to))
+    const anchor = (m[2] || '').slice(1)
+    // A block link reads as the note's name and the start of the block (the id means nothing to a reader);
+    // a heading link as "Note#Heading".
+    const label = (m[3] || (anchor.startsWith('^') ? blockLabel(target, anchor.slice(1)) : target + (m[2] || ''))).trim()
+    out.push(Decoration.replace({ widget: new WikiWidget(target, label, !!resolve(target), follow, found(from, to), anchor) }).range(from, to))
+  }
+  // Footnotes: "[^label]" in the text shows as a small raised number (its order, as when reading), with the
+  // footnote's text on hover; a click goes to the footnote. "[^label]: …" lines are drawn as footnotes.
+  const DEF = /^\[\^([^\]\s]+)\]:\s?/
+  const defs = new Map<string, { line: number; text: string }>()
+  for (let n = 1; n <= doc.lines; n++) {
+    const m = DEF.exec(doc.line(n).text)
+    if (m && !overlaps(code, doc.line(n).from, doc.line(n).from)) defs.set(m[1], { line: n, text: doc.line(n).text.slice(m[0].length).trim() })
+  }
+  const numbers = new Map<string, number>()
+  for (const m of text.matchAll(/\[\^([^\]\s]+)\](?!:)/g)) {
+    const from = m.index!
+    const to = from + m[0].length
+    if (overlaps(code, from, to) || overlaps(atoms, from, to)) continue
+    if (!numbers.has(m[1])) numbers.set(m[1], numbers.size + 1)
+    atoms.push([from, to])
+    if (touches(from, to)) continue
+    const def = defs.get(m[1])
+    out.push(Decoration.replace({ widget: new FootnoteRefWidget(String(numbers.get(m[1])), def?.text ?? 'No footnote written for this yet', def ? doc.line(def.line).from : -1) }).range(from, to))
+  }
+  for (const [label, def] of defs) {
+    const line = doc.line(def.line)
+    out.push(Decoration.line({ class: 'cm-footnote-def' }).range(line.from))
+    const m = DEF.exec(line.text)!
+    if (!touches(line.from, line.to)) out.push(Decoration.replace({ widget: new FootnoteLabelWidget(String(numbers.get(label) ?? label)) }).range(line.from, line.from + m[0].length))
+  }
+
+  // Block ids (" ^abc123" at the end of a line): hidden unless the cursor is on the line, then shown faintly.
+  for (let n = 1; n <= doc.lines; n++) {
+    const line = doc.line(n)
+    const m = BLOCK_ID.exec(line.text)
+    if (!m) continue
+    const from = line.from + m.index
+    if (overlaps(code, from, line.to)) continue
+    if (touches(line.from, line.to)) out.push(Decoration.mark({ class: 'cm-block-id' }).range(from, line.to))
+    else out.push(hide.range(from, line.to))
   }
 
   // Company short links (go/name, b/123): clickable as they stand, the text is left alone.
@@ -420,11 +552,33 @@ function build(state: EditorState, follow: (t: string, side?: boolean) => void):
         return
       }
       if (name === 'Blockquote') {
-        for (let n = doc.lineAt(from).number; n <= doc.lineAt(to).number; n++) out.push(Decoration.line({ class: 'cm-quote-line' }).range(doc.line(n).from))
+        const first = doc.lineAt(from)
+        const last = doc.lineAt(to).number
+        const head = CALLOUT_LINE.exec(first.text)
+        if (!head) {
+          for (let n = first.number; n <= last; n++) out.push(Decoration.line({ class: 'cm-quote-line' }).range(doc.line(n).from))
+          return
+        }
+        // A callout: "> [!type] Title". The whole quote is a coloured box; the first line is its title.
+        const c = callout(head[1], head[2])
+        for (let n = first.number; n <= last; n++) {
+          const cls = `cm-quote-line cm-callout cm-callout-${c.color}${n === first.number ? ' cm-callout-head' : ''}${n === last ? ' cm-callout-last' : ''}`
+          out.push(Decoration.line({ class: cls }).range(doc.line(n).from))
+        }
+        if (!touches(first.from, first.to)) {
+          const at = first.text.indexOf('[!')
+          const marker = /^\[![A-Za-z-]+\][+-]?\s*/.exec(first.text.slice(at))![0]
+          // The [!type] marker is hidden; with no title of its own, the type's name stands in.
+          out.push(Decoration.replace({ widget: head[2].trim() ? undefined : new CalloutTitleWidget(c.title) }).range(first.from + at, first.from + at + marker.length))
+        }
         return
       }
       if (name === 'HeaderMark' || name === 'QuoteMark') {
-        if (!onLines(from, to)) hideMark(from, to)
+        if (!onLines(from, to)) {
+          hideMark(from, to)
+          // The heading's level as faint # marks in the margin; only the Bear style shows them (styles.css).
+          if (name === 'HeaderMark' && from === doc.lineAt(from).from) out.push(Decoration.widget({ widget: new HashWidget(to - from), side: -1 }).range(from))
+        }
         return
       }
       if (name === 'EmphasisMark' || name === 'StrikethroughMark') {
@@ -554,7 +708,7 @@ function build(state: EditorState, follow: (t: string, side?: boolean) => void):
   }
 }
 
-export function livePreview(follow: (target: string, side?: boolean) => void): Extension {
+export function livePreview(follow: (target: string, side?: boolean, anchor?: string) => void): Extension {
   const field = StateField.define<DecorationSet>({
     create: (state) => build(state, follow),
     update(deco, tr) {

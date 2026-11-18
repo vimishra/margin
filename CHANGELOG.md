@@ -2,6 +2,17 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.42.0 (2026-11-18)
+
+### Added
+
+- **A Bear-style look**, light and dark (Settings → Appearance → Style): a warm page, a red accent, a rounded font (Avenir Next on a Mac) and heading `#` marks set in the left margin. Your text styles, sizes and width still apply.
+- **Links to a heading or a single line in another note.** Type `[[Note#` for its headings, or `[[Note#^` for its paragraphs and list items; Margin adds a short id (` ^k3x9qa`) to the line you pick. Clicking the link opens the note at that place. **Copy link to this block** (⌘K) copies a link to the line you are on. Written the same way as Obsidian's.
+- **Callouts**: a quote that starts `> [!warning] Title` shows as a coloured box, in the editor, read mode and exports. `/callout` inserts one.
+- **Footnotes**: `[^1]` in the text and `[^1]: …` on its own line. A small number in the editor (hover to read it, click to jump to it), a list at the end in read mode and exports. `/footnote` adds the next one.
+- **Properties** under a note's title: the fields of its front matter (status, owner, due, a list of people…), edited as text, number, date, tick box or list.
+- **A status bar** at the bottom right of a note: its open tasks, words, characters and reading time, or the words and characters you have selected. Settings → Appearance → Status bar turns it off.
+
 ## 1.41.0 (2026-11-16)
 
 ### Added

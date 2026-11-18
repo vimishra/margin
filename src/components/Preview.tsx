@@ -2,16 +2,30 @@ import { memo, useEffect, useMemo, useRef } from 'react'
 import { renderMarkdown, toggleTask } from '../lib/markdown'
 import { resolver, titlesKey } from '../lib/links'
 import { triageKey } from '../triageEditor'
-import { createNote, go, isProtectedNote, openNote, openSide, ui, useStore, ensureDaily } from '../store'
+import { createNote, go, isProtectedNote, openNote, openNoteAt, openSide, openSideAt, toast, ui, useStore, ensureDaily } from '../store'
+import { anchorLine } from '../lib/blocks'
 import { changedLine } from '../lib/archive'
 import { afterTick } from '../lib/repeat'
 import { isYmd } from '../lib/util'
 import { openDaily } from '../store'
 import { mountTaskBlocks } from './TaskBlock'
 
-/** Open the note a wikilink points to, creating it when it does not exist yet. */
-export async function followLink(target: string, side = false) {
+/**
+ * Open the note a wikilink points to, creating it when it does not exist yet. With an anchor (`#Heading` or
+ * `#^blockid`, from `[[Note#…]]`), the note opens at that heading or block, which is lit up briefly.
+ */
+export async function followLink(target: string, side = false, anchor = '') {
   const id = resolver(useStore.getState().notes)(target)
+  const a = anchor.replace(/^#/, '').trim()
+  if (id && a) {
+    const content = useStore.getState().notes[id]?.content ?? ''
+    const line = anchorLine(content, a)
+    if (line >= 0) {
+      const text = content.split('\n')[line]
+      return side ? openSideAt(id, text, true) : openNoteAt(id, text, [], true)
+    }
+    toast(a.startsWith('^') ? `That block is no longer in “${target}”; opened the note` : `No heading “${a}” in “${target}”; opened the note`)
+  }
   if (side) {
     // Open beside the current note, creating the note first if the link points at nothing yet.
     const note = id ? { id } : isYmd(target) ? await ensureDaily(target) : await createNote({ title: target }, false)
@@ -69,13 +83,23 @@ export const Preview = memo(function Preview({ source, className, onChange, note
     const el = e.target as HTMLElement
     // A tasks block handles its own clicks: its tasks belong to other notes.
     if (el.closest('.task-block-mount')) return
+    // A footnote number and its ↩ link move within the page; the address must not change (it is the app's route).
+    const foot = el.closest<HTMLAnchorElement>('a[href^="#fn"]')
+    if (foot) {
+      e.preventDefault()
+      const target = ref.current?.querySelector(`[id="${CSS.escape(foot.getAttribute('href')!.slice(1))}"]`)
+      target?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      target?.classList.add('jump-flash')
+      setTimeout(() => target?.classList.remove('jump-flash'), 1500)
+      return
+    }
     const wiki = el.closest<HTMLElement>('a.wikilink')
     if (wiki) {
       e.preventDefault()
       // In the side pane links stay in that pane; ⌘-click sends them to the other one.
       const inSide = ref.current?.closest<HTMLElement>('.note')?.dataset.pane === 'side'
       const other = e.metaKey || e.altKey
-      followLink(wiki.dataset.target || '', inSide ? !other : other)
+      followLink(wiki.dataset.target || '', inSide ? !other : other, wiki.dataset.anchor || '')
       return
     }
     if (el instanceof HTMLImageElement && !el.closest('a')) {

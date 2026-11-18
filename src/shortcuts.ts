@@ -49,6 +49,7 @@ export const SHORTCUT_DEFS: ShortcutDef[] = [
   { id: 'side', label: 'Open to the side, or close the side pane', group: 'In a note', web: 'Mod+Alt+\\' },
   { id: 'swap', label: 'Swap the two panes', group: 'In a note', web: '' },
   { id: 'outline', label: 'Jump to a heading', group: 'In a note', web: 'Mod+Shift+O' },
+  { id: 'blockLink', label: 'Copy link to this block (or heading)', group: 'In a note', web: '' },
   { id: 'isearch', label: 'Search in this note as you type', group: 'In a note', web: isMac ? 'Ctrl+S' : 'Mod+S' },
   { id: 'isearchBack', label: 'Search backward in this note', group: 'In a note', web: isMac ? 'Ctrl+R' : 'Mod+R' },
   { id: 'h1', label: 'Heading 1', group: 'In a note', web: 'Mod+Alt+1', desktop: 'Mod+1' },

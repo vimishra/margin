@@ -16,6 +16,9 @@ table{border-collapse:collapse;margin:1em 0}th,td{border:1px solid #dedbd5;paddi
 hr{border:none;border-top:1px solid #dedbd5;margin:2em 0}
 ul.contains-task-list{list-style:none;padding-left:1.2em}
 .hashtag{color:#6b6862;text-decoration:none}
+.footnote-ref a{text-decoration:none;font-size:.75em}.footnotes{font-size:.88em;color:#55524d}.footnote-backref{text-decoration:none}
+blockquote.callout{--co:#3b82f6;border-left-color:var(--co);background:color-mix(in srgb,var(--co) 9%,transparent);border-radius:0 7px 7px 0;color:#1c1b1a;padding:.55em .9em .6em 1em}
+.callout-title{margin:0 0 .3em;font-weight:650;color:var(--co)}.callout-teal{--co:#14a39a}.callout-purple{--co:#8b5cf6}.callout-green{--co:#22a05a}.callout-yellow{--co:#d39e00}.callout-orange{--co:#e8780c}.callout-red{--co:#e5484d}.callout-grey{--co:#8e9093}
 `
 
 const safeName = (note: Note) => displayTitle(note).replace(/[\/\\:*?"<>|]/g, ' ').trim() || 'note'

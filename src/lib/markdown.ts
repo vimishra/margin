@@ -1,10 +1,12 @@
 import { tagHue } from './util'
+import { callout } from './callouts'
 import { setLineDone } from './tasks'
 import { shortLinkHref, shortLinkPattern, shortLinks } from './shortlinks'
 import MarkdownIt from 'markdown-it'
 import type StateInline from 'markdown-it/lib/rules_inline/state_inline.mjs'
 // @ts-expect-error no types published
 import taskLists from 'markdown-it-task-lists'
+import footnotes from 'markdown-it-footnote'
 import katexPlugin from '@vscode/markdown-it-katex'
 import hljs from 'highlight.js/lib/common'
 import DOMPurify from 'dompurify'
@@ -45,7 +47,10 @@ function wikilink(state: StateInline, silent: boolean): boolean {
   if (!silent) {
     const [target, alias] = inner.split('|')
     const token = state.push('wikilink', '', 0)
-    token.meta = { target: target.split('#')[0].trim(), label: (alias ?? target).trim() }
+    const hash = target.indexOf('#')
+    // The label of a block link reads as the note's name, not its id.
+    const shown = alias ?? (target.slice(hash + 1).startsWith('^') ? target.slice(0, hash) : target)
+    token.meta = { target: target.split('#')[0].trim(), anchor: hash >= 0 ? target.slice(hash + 1).trim() : '', label: shown.trim() }
   }
   state.pos = end + 2
   return true
@@ -106,6 +111,13 @@ function build(math: boolean): MarkdownIt {
     }
   })
   if (math) md.use(((katexPlugin as any).default ?? katexPlugin) as any, { throwOnError: false })
+  // Footnotes: [^1] in the text, "[^1]: …" anywhere; listed at the end, numbered without brackets.
+  md.use(footnotes as unknown as Parameters<typeof md.use>[0])
+  md.renderer.rules.footnote_caption = (tokens, idx) => {
+    // The same number every time a footnote is mentioned again (not "1:1").
+    const meta = tokens[idx].meta
+    return String(Number(meta.id) + 1)
+  }
   md.inline.ruler.before('link', 'wikilink', wikilink)
   md.inline.ruler.push('hashtag', hashtag)
   // Company short links (go/name, b/123) in ordinary text become links. This runs over finished text,
@@ -146,10 +158,46 @@ function build(math: boolean): MarkdownIt {
     }
   })
 
+  // Callouts: a quote starting "[!type] Title" becomes a coloured box with that title (or the type's name).
+  md.core.ruler.before('inline', 'callouts', (state) => {
+    const tokens = state.tokens
+    for (let i = 0; i < tokens.length - 2; i++) {
+      if (tokens[i].type !== 'blockquote_open' || tokens[i + 1].type !== 'paragraph_open' || tokens[i + 2].type !== 'inline') continue
+      const inline = tokens[i + 2]
+      const m = /^\[!([A-Za-z-]+)\][+-]?[ \t]*([^\n]*)\n?/.exec(inline.content)
+      if (!m) continue
+      const c = callout(m[1], m[2])
+      tokens[i].attrJoin('class', `callout callout-${c.color}`)
+      tokens[i].attrSet('data-callout', c.type)
+      const open = new state.Token('paragraph_open', 'p', 1)
+      open.attrSet('class', 'callout-title')
+      const title = new state.Token('inline', '', 0)
+      title.content = c.title
+      title.children = []
+      const close = new state.Token('paragraph_close', 'p', -1)
+      inline.content = inline.content.slice(m[0].length)
+      // Only a title: the empty paragraph that held it goes.
+      if (!inline.content.trim()) tokens.splice(i + 1, 3, open, title, close)
+      else tokens.splice(i + 1, 0, open, title, close)
+    }
+  })
+
+  // Block ids (" ^abc123" at the end of a line, for [[Note#^abc123]] links) are not shown when reading.
+  md.core.ruler.push('block_ids', (state) => {
+    for (const block of state.tokens) {
+      if (block.type !== 'inline' || !block.children) continue
+      const kids = block.children
+      kids.forEach((token, i) => {
+        const next = kids[i + 1]
+        if (token.type === 'text' && (!next || next.type === 'softbreak' || next.type === 'hardbreak')) token.content = token.content.replace(/\s\^[A-Za-z0-9-]+\s*$/, '')
+      })
+    }
+  })
+
   md.renderer.rules.wikilink = (tokens, idx, _o, env: RenderEnv) => {
-    const { target, label } = tokens[idx].meta
+    const { target, label, anchor } = tokens[idx].meta
     const id = env.resolve?.(target)
-    return `<a class="wikilink${id ? '' : ' missing'}" data-target="${esc(target)}"${id ? ` href="#/note/${id}"` : ''}>${esc(label)}</a>`
+    return `<a class="wikilink${id ? '' : ' missing'}" data-target="${esc(target)}"${anchor ? ` data-anchor="${esc(anchor)}"` : ''}${id ? ` href="#/note/${id}"` : ''}>${esc(label)}</a>`
   }
   md.renderer.rules.hashtag = (tokens, idx) => {
     const tag = tokens[idx].meta.tag
