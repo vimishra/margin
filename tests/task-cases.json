@@ -10,7 +10,7 @@
   },
   {
    "path": "Work/Meetings/Weekly sync.md",
-   "raw": "---\nid: sync02\ntype: note\ntags:\n  - meeting\n---\n- **When:** today\n\n## Action items\n\n- [ ] Priya: send numbers @due(2026-10-12) #atlas\n- [ ] Me: follow up P3 >2026-10-11\n- [X] Capital X counts as done @done(2026-10-08)\n- [ ] Sunday of this week >2026-10-11 @due(2026-10-12)\n- [ ] Monday of this week >2026-10-05\n- [ ] Sunday before >2026-10-04\n"
+   "raw": "---\nid: sync02\ntype: note\ntags:\n  - meeting\n---\n- **When:** today\n\n## Action items\n\n- [ ] Priya: send numbers @due(2026-10-12) #atlas\n- [ ] Me: follow up P3 >2026-10-11\n- [X] Capital X counts as done @done(2026-10-08)\n- [ ] Sunday of this week >2026-10-11 @due(2026-10-12)\n- [ ] Monday of this week >2026-10-05\n- [ ] Sunday before >2026-10-04\n- [ ] Task with a block id #atlas @due(2026-10-12) ^abc123\n"
   },
   {
    "path": "Daily/2026-10-08.md",
@@ -533,6 +533,26 @@
     "heading": "Action items",
     "overdue": false,
     "in_today": true,
+    "in_inbox": false
+   },
+   {
+    "key": "Work/Meetings/Weekly sync.md:17",
+    "text": "Task with a block id #atlas",
+    "done": false,
+    "cancelled": false,
+    "priority": null,
+    "tags": [
+     "atlas"
+    ],
+    "planned": null,
+    "someday": false,
+    "due": "2026-10-12",
+    "done_on": null,
+    "repeat": null,
+    "remind": null,
+    "heading": "Action items",
+    "overdue": false,
+    "in_today": false,
     "in_inbox": false
    },
    {
@@ -1274,6 +1294,7 @@
     "Daily/2026-10-08.md:16",
     "Personal/Routines.md:3",
     "Work/Meetings/Weekly sync.md:11",
+    "Work/Meetings/Weekly sync.md:17",
     "Work/Project Atlas.md:25",
     "Work/Project Atlas.md:26",
     "Work/Project Atlas.md:27",
@@ -1353,6 +1374,7 @@
     "Inbox/Inbox.md:7",
     "Personal/Routines.md:6",
     "Work/Meetings/Weekly sync.md:11",
+    "Work/Meetings/Weekly sync.md:17",
     "Inbox/Inbox.md:5",
     "Work/Project Atlas.md:25",
     "Work/Project Atlas.md:26"
@@ -1401,6 +1423,7 @@
     "Inbox/Inbox.md:7",
     "Personal/Routines.md:6",
     "Work/Meetings/Weekly sync.md:11",
+    "Work/Meetings/Weekly sync.md:17",
     "Inbox/Inbox.md:5",
     "Work/Project Atlas.md:25",
     "Work/Project Atlas.md:26",
@@ -1440,6 +1463,7 @@
     "keys": [
      "Work/Project Atlas.md:9",
      "Work/Meetings/Weekly sync.md:11",
+     "Work/Meetings/Weekly sync.md:17",
      "Work/Project Atlas.md:13",
      "Daily/2026-10-08.md:8"
     ]

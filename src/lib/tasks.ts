@@ -72,7 +72,8 @@ export function parseTaskText(raw: string): Pick<Task, 'text' | 'priority' | 'ta
   const repeat = REPEAT.exec(raw)?.[2].trim() || undefined
   const r = REMIND.exec(raw)
   const remind = r ? `${r[2]} ${(r[3] ?? '09:00').padStart(5, '0')}` : undefined
-  const text = raw.replace(PRIORITY, '$1').replace(SCHEDULED, '$1').replace(DUE, '$1').replace(DONE, '$1').replace(CANCELLED, '$1').replace(REPEAT, '$1').replace(REMIND, '$1').replace(/\s{2,}/g, ' ').trim()
+  // A block id at the end (" ^abc123", for [[Note#^abc123]] links) is not part of what the task says.
+  const text = raw.replace(/\s\^[A-Za-z0-9-]+\s*$/, '').replace(PRIORITY, '$1').replace(SCHEDULED, '$1').replace(DUE, '$1').replace(DONE, '$1').replace(CANCELLED, '$1').replace(REPEAT, '$1').replace(REMIND, '$1').replace(/\s{2,}/g, ' ').trim()
   const tags = [...new Set([...text.matchAll(TAG)].map((m) => m[1]))]
   return { text, priority, tags, scheduled, someday, due, completed, repeat, remind }
 }

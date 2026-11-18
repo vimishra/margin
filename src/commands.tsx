@@ -139,6 +139,7 @@ export function commands(): Command[] {
       { id: 'side', label: s.side ? 'Close the side pane' : 'Open this note to the side', icon: i(Columns2), keywords: 'split pane two', run: () => (s.side ? closeSide() : openSide(note.id)) },
       ...(s.side ? [{ id: 'swap', label: 'Swap the two panes', icon: i(Columns2), keywords: 'split side', run: () => swapPanes() }] : []),
       { id: 'entry', label: "Add today's meeting entry", icon: i(CalendarPlus), keywords: '1:1 person dated heading', run: () => addMeetingEntry(note.id) },
+      { id: 'blockLink', label: 'Copy link to this block', icon: i(Link2), keywords: 'block reference ^ heading section link anchor paragraph', run: () => format('blockLink') },
       { id: 'outline', label: 'Jump to a heading…', icon: i(ListTree), keywords: 'outline index contents toc section', run: () => ui({ palette: { mode: 'outline', noteId: note.id } }) },
       { id: 'isearch', label: 'Search in this note', icon: i(Search), keywords: 'find incremental isearch', run: () => window.dispatchEvent(new CustomEvent('margin:isearch', { detail: 'forward' })) },
       { id: 'isearchBack', label: 'Search backward in this note', icon: i(Search), keywords: 'find reverse', run: () => window.dispatchEvent(new CustomEvent('margin:isearch', { detail: 'back' })) },

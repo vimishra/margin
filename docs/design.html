@@ -119,7 +119,7 @@ mark.find-hit.current{background:#ffab2e}
 <tbody>
 <tr>
 <td><code>livePreview.ts</code></td>
-<td>Renders markdown in place: hides syntax off the cursor line, draws math, images, link pills and checkboxes</td>
+<td>Renders markdown in place: hides syntax off the cursor line, draws math, images, link pills, checkboxes, callouts and footnote numbers</td>
 </tr>
 <tr>
 <td><code>tableWidget.ts</code></td>
@@ -361,6 +361,30 @@ Each canvas card is markdown too.
 <tr>
 <td>Slash commands, link completion</td>
 <td><code>slashCommands</code> and <code>completions</code> in <code>components/Editor.tsx</code></td>
+</tr>
+<tr>
+<td>The Bear style</td>
+<td><code>look</code> in <code>Settings</code> (<code>store.ts</code>); <code>applyAppearance</code> sets <code>data-look</code>, the Bear font (<code>BEAR_FONT</code>) and list-marker colour; the colours are the <code>:root[data-look='bear']</code> block in <code>src/styles.css</code>; the heading <code>#</code> marks in the margin are <code>HashWidget</code> in <code>livePreview.ts</code></td>
+</tr>
+<tr>
+<td>Heading and block links (<code>[[Note#Heading]]</code>, <code>[[Note#^id]]</code>)</td>
+<td>Ids and finding the line: <code>lib/blocks.ts</code> (<code>anchorLine</code>, <code>blocksOf</code>); completion <code>anchorCompletions</code> and <code>EditorHandle.blockLink</code> in <code>Editor.tsx</code>; pills <code>WikiWidget</code> and <code>blockLabel</code> in <code>livePreview.ts</code>; following <code>followLink</code> in <code>Preview.tsx</code>; read mode's <code>anchor</code> in the wikilink rule and the <code>block_ids</code> rule in <code>lib/markdown.ts</code>; task text drops the id in <code>parseTaskText</code> (<code>lib/tasks.ts</code> and <code>tools/margin_tasks.py</code>)</td>
+</tr>
+<tr>
+<td>Callouts</td>
+<td>Types, titles and colours in <code>lib/callouts.ts</code>; the editor's line classes and <code>CalloutTitleWidget</code> in <code>livePreview.ts</code>; read mode's <code>callouts</code> rule in <code>lib/markdown.ts</code>; styles in <code>src/styles.css</code> and <code>DOC_CSS</code> in <code>lib/export.ts</code></td>
+</tr>
+<tr>
+<td>Footnotes</td>
+<td>Editor: <code>FootnoteRefWidget</code> and <code>FootnoteLabelWidget</code> in <code>livePreview.ts</code>, the slash command in <code>Editor.tsx</code>; read mode and exports: <code>markdown-it-footnote</code>, set up in <code>lib/markdown.ts</code>; in-page jumps in <code>Preview.tsx</code></td>
+</tr>
+<tr>
+<td>Properties under the title</td>
+<td><code>components/Properties.tsx</code>; on the server, <code>publicNote</code> (<code>properties</code>) and <code>cleanProperties</code> in the note PUT handler of <code>server/index.mjs</code> (stored as the record's <code>extra</code>)</td>
+</tr>
+<tr>
+<td>The status bar</td>
+<td><code>StatusBar</code> in <code>components/NoteView.tsx</code>; the counting in <code>lib/stats.ts</code>; the setting <code>statusBar</code></td>
 </tr>
 <tr>
 <td>The menu bar or right-click menu</td>

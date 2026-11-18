@@ -24,10 +24,13 @@ Everything the app does, at a glance. Each heading links to the section that exp
 - Slash commands (`/`) to insert any kind of block, a date, or a template
 - Lists that nest, renumber and move with the keyboard, and wrap neatly
 - A source mode for the raw markdown, and a read mode with nothing to edit
+- Callouts (coloured notes, warnings and decisions), footnotes, and properties edited in a panel under the title
+- A Bear-style look, light and dark, and a small status bar with the note's open tasks, words and characters
 
 **[Linking and finding](#finding-things)**
 
 - Links between notes with `[[`, completed as you type, including dates such as `[[next friday]]`
+- Links to a heading or a single paragraph or list item in another note (`[[Note#Heading]]`, `[[Note#^id]]`)
 - Backlinks, unlinked mentions and outgoing links beside every note
 - One search box (⌘K) for notes, text inside notes, tags, dates and every command, with exact phrases, `in:Notebook`, `is:meeting`, `-word` and other ways to narrow it
 - Search inside the note you are in (⌃S), and jump to any heading (⌘⇧O)
@@ -464,6 +467,9 @@ The buttons at the top right of a note switch between three modes:
 | Display math | `$$` on its own line, the formula, `$$` on its own line |
 | Table | `/table`, or write it in markdown |
 | Divider | `---` on its own line |
+| Callout | `> [!note]` as the first line of a quote (see [Callouts](#callouts)) |
+| Footnote | `[^1]` in the text and `[^1]: the note` on its own line, or `/footnote` |
+| Link to a heading or a block | `[[Note#Heading]]`, `[[Note#^id]]` (see [Links](#links)) |
 
 Code blocks are coloured for the language you name. Math uses LaTeX syntax.
 
@@ -472,7 +478,7 @@ Code blocks are coloured for the language you name. Math uses LaTeX syntax.
 Type `/` at the start of a line or after a space. A menu appears; keep typing to narrow it and press Enter.
 
 - **Blocks:** Heading 1–3, Bulleted list, Numbered list, Task, Quote, Text. These change the line you are on and keep its text.
-- **Insert:** Code block, Table, Math block, Inline math, Divider, Link to a note, Web link, Image or file.
+- **Insert:** Code block, Table, Math block, Inline math, Divider, Link to a note, Web link, Image or file, Callout (and Callout: warning, decision, tip), Footnote.
 - **Dates:** Today, Tomorrow, Yesterday (links to that day's note), Date, Time.
 - **Templates:** one entry per template; it inserts the template's text.
 
@@ -554,9 +560,42 @@ Paste or drop an image, PDF or any file into a note. It is saved in your attachm
 - A link to a note that does not exist yet is shown outlined; clicking it creates the note.
 - To edit a link, put the cursor on its line first; then a click places the cursor and ⌘-click opens.
 - Renaming a note updates every link to it.
+- **Links to a heading:** type `[[Note#` and pick one of that note's headings. The link reads `[[Note#Heading]]`; clicking it opens the note at that heading.
+- **Links to a paragraph or list item (block links):** type `[[Note#^` and pick a line from the list. If the line has no id yet, Margin adds a short one to its end in the other note (` ^k3x9qa`); the id is hidden except on the line you are editing, and in read mode and exports. The link shows as the note's name and the start of the line, and clicking it opens the note with that line selected. If the line has since been deleted, Margin says so and opens the note.
+- **Copy link to this block** (⌘K, or a shortcut you set in Settings → Shortcuts) copies a link to the line the cursor is on: `[[Note#Heading]]` on a heading, otherwise `[[Note#^id]]`, adding the id if the line has none. Paste it into any note.
+- These are the same as Obsidian's heading and block links, so links written in either app work in the other.
 - **Web links:** ⌘L inserts `[]()` with the cursor between the square brackets, ready for the link's text. With words selected it wraps them and puts the cursor in the round brackets for the address.
 - **Short links:** company short links written as plain text are clickable as they stand: `go/some-name`, `b/1234567` and `b/hotlists/1234567`. Clicking one opens `http://go/some-name` (or `http://b/…`) in your browser. The text in the note is not changed. They are recognised in the editor, read mode, canvas cards and the Tasks view, but not inside code, web addresses or existing links. Turn this off in Settings → Editor → Short links.
 - **Paste to link:** select some words and paste a web address. The words become a link to it. This does not happen inside code or an existing link.
+
+### Callouts
+
+A callout is a quote whose first line starts with a type in square brackets. It is shown as a coloured box with a title:
+
+```
+> [!warning] Check the numbers first
+> The forecast still uses last quarter's prices.
+```
+
+Leave out the title and the type's own name is used ("Warning"). Types and their colours: `note`, `info` and `todo` (blue); `tip`, `hint`, `abstract`, `summary` and `tldr` (teal); `important` and `example` (purple); `success`, `check`, `done` and `decision` (green); `question`, `help` and `faq` (yellow); `warning`, `caution` and `attention` (orange); `danger`, `error`, `bug`, `failure` and `missing` (red); `quote` and `cite` (grey). Any other word works too and is shown in blue. The type is shown as written on the line you are editing; elsewhere and in read mode, exports and print only the box shows. `/callout` inserts one. Callouts are written the same way as in Obsidian.
+
+### Footnotes
+
+Write `[^1]` where the footnote belongs, and `[^1]: The note.` on a line of its own, usually at the end. The label can be any word (`[^source]`); footnotes are numbered in the order they are first used. In the editor a reference shows as a small raised number: hover over it to read the footnote, click it to jump to it. In read mode and exports the footnotes are listed at the end, with links back. `/footnote` adds the next number at the cursor and a matching line at the end of the note, with the cursor there to type it.
+
+### Properties
+
+Properties are fields of the note's front matter (the `---` block at the top of the file), such as `status`, `owner`, `due` or a list of `people`. Notes from Obsidian often have them. They are shown in a small panel under the note's title, which you can fold away (Margin remembers whether it is open). Each property is edited according to the kind of value it holds:
+
+- **Text**, **Number** and **Date** are typed; a date has a calendar. A change is saved when you press Enter or click elsewhere; Esc puts the value back.
+- **Checkbox** is a tick box.
+- **List** is typed as items separated by commas.
+
+Hover over a row to change its kind (the value is converted where it can be) or to remove it with ×. **Add property** asks for a name. A note with no properties shows only a small **+ Add property** link. Margin's own fields (title, tags, created, status and the others it uses) are not listed; they are set elsewhere. Properties are written to the file, so other apps read them too.
+
+### The status bar
+
+A small bar at the bottom right of a note shows how many tasks are open in it ("All tasks done" once none are; hover for how many are done and cancelled), its words and characters, and a reading time for longer notes. Select some text and it shows the words and characters in the selection instead. Words are counted in the text as it reads: link targets, markdown marks, task details and block ids are left out. Turn it off in Settings → Appearance → Status bar.
 
 ### Right-click and the Format menu
 
@@ -878,7 +917,7 @@ Everything you delete waits in **Recently deleted**, in the sidebar under Scratc
 
 It brings notes with their folders, tags and dates; images and PDFs; links between notes; and canvases. Notes named like `2025-03-04` become daily notes.
 
-Callouts appear as plain quotes, embedded notes become links, and plugin features such as Dataview stay as text. Importing the same vault twice duplicates the notes.
+Callouts, footnotes, block links and properties come across as they are, since Margin reads them the same way. Embedded notes become links, and plugin features such as Dataview stay as text. Importing the same vault twice duplicates the notes.
 
 ---
 
@@ -1255,7 +1294,7 @@ Two settings live inside the app and cannot be read from outside it. If you rena
 | Section | What is there |
 | --- | --- |
 | General | Start page, where new notes go, which sidebar sections to show, week start, sidebar calendar, time format, how typed dates are read, tabs, and the most tabs to keep open |
-| Appearance | Theme, accent colour (in the desktop app the first choice, System, follows the accent colour set in macOS System Settings), note font and code font (any installed font), text size and weight, line spacing, list indent, indent guides, image border, page width. The note font, size and weight also apply to tasks wherever they are listed (the Tasks view and the panel under daily notes) and to what you type in Quick capture and Quick task. |
+| Appearance | Style (Margin, or Bear: a warm page, a red accent, rounded headings with their `#` marks in the margin, in light and dark), theme, accent colour (in the desktop app the first choice, System, follows the accent colour set in macOS System Settings), note font and code font (any installed font), text size and weight, line spacing, list indent, indent guides, image border, page width, and the status bar. The note font, size and weight also apply to tasks wherever they are listed (the Tasks view and the panel under daily notes) and to what you type in Quick capture and Quick task. |
 | Text styles | Colour and size for Heading 1–5, bold and italic, with a separate colour for the light and dark themes |
 | Editor | Default mode, toolbar, spell check, auto-closing brackets, image pasting, line numbers, side panel |
 | Daily notes | Canvas or page, the daily notebook, a template for new days |

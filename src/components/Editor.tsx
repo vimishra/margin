@@ -26,8 +26,9 @@ import { openSearchPanel, search, searchKeymap } from '@codemirror/search'
 import { tags as t } from '@lezer/highlight'
 import { uploadAsMarkdown } from '../api'
 import { linkHref } from '../lib/markdown'
-import { fillTemplate, openDatePicker, templates, timeNow, toast, useStore } from '../store'
-import { tagCounts } from '../lib/links'
+import { fillTemplate, openDatePicker, templates, timeNow, toast, updateNote, useStore } from '../store'
+import { resolver, tagCounts } from '../lib/links'
+import { blockIdOf, blocksOf, headingText, newBlockId } from '../lib/blocks'
 import { parseDatePhrase } from '../lib/dates'
 import { TASK_LINE, parseRemind, parseTaskText, withDetails } from '../lib/tasks'
 import { parseRepeat } from '../lib/repeat'
@@ -66,6 +67,11 @@ export interface EditorHandle {
   upload(files: File[]): void
   /** Open the find (and replace) bar, as ⌘F does in the editor. */
   find(): void
+  /**
+   * A link to the line the cursor is on, in a note called `title`: [[title#Heading]] on a heading, otherwise
+   * [[title#^id]], adding the id to the line first if it has none. Null on an empty line.
+   */
+  blockLink(title: string): string | null
   /** The selection in the page, and the cursor's line (0-based), for reorganising notes. */
   selection(): { from: number; to: number; line: number } | null
   /** Fold or unfold at the cursor, or all of the note. */
@@ -75,7 +81,7 @@ export interface EditorHandle {
 interface Props {
   value: string
   onChange: (value: string) => void
-  onFollowLink: (target: string, side?: boolean) => void
+  onFollowLink: (target: string, side?: boolean, anchor?: string) => void
   autoFocus?: boolean
   /** Render markdown in place, Obsidian-style. */
   live?: boolean
@@ -84,6 +90,8 @@ interface Props {
   lineNumbers?: boolean
   /** The note being edited, to remember what is folded in it. */
   foldKey?: string
+  /** Called with the selected text whenever the selection changes ('' when nothing is selected), for the status bar. */
+  onSelection?: (text: string) => void
 }
 
 const highlight = HighlightStyle.define([
@@ -207,6 +215,35 @@ function slashCommands(ctx: CompletionContext) {
     { label: 'Task', detail: '- [ ]', apply: block('- [ ] '), section: 'Blocks' },
     { label: 'To-do', detail: '- [ ]', apply: block('- [ ] '), section: 'Blocks' },
     { label: 'Quote', detail: '>', apply: block('> '), section: 'Blocks' },
+    { label: 'Callout', detail: '> [!note]', apply: block('> [!note] '), section: 'Blocks' },
+    {
+      label: 'Footnote',
+      detail: '[^1]',
+      section: 'Insert',
+      // The next number here, and its footnote line at the end of the note, with the cursor there to write it.
+      apply: (view: EditorView, _c: unknown, from: number, to: number) => {
+        const doc = view.state.doc.toString()
+        const used = [...doc.matchAll(/\[\^(\d+)\]/g)].map((m) => Number(m[1]))
+        const n = (used.length ? Math.max(...used) : 0) + 1
+        const ref = `[^${n}]`
+        const start = from - 1
+        const tail = doc.length - (to - start) + ref.length
+        const end = doc.replace(/\s+$/, '').length
+        // Straight after the last footnote when the note ends with them, else after a blank line.
+        const lastLine = doc.slice(0, end).split('\n').pop() ?? ''
+        const trail = doc.slice(end)
+        const lead = /^\[\^[^\]\s]+\]:/.test(lastLine) ? (trail.includes('\n') ? '' : '\n') : end === doc.length ? '\n\n' : trail.includes('\n\n') ? '' : '\n'
+        const def = `${lead}[^${n}]: `
+        view.dispatch({
+          changes: [{ from: start, to, insert: ref }, { from: doc.length, insert: def }],
+          selection: { anchor: tail + def.length },
+          scrollIntoView: true,
+        })
+      },
+    },
+    { label: 'Callout: warning', detail: '> [!warning]', apply: block('> [!warning] '), section: 'Blocks' },
+    { label: 'Callout: decision', detail: '> [!decision]', apply: block('> [!decision] '), section: 'Blocks' },
+    { label: 'Callout: tip', detail: '> [!tip]', apply: block('> [!tip] '), section: 'Blocks' },
     { label: 'Text', detail: 'plain paragraph', apply: block(''), section: 'Blocks' },
     { label: 'Code block', detail: '```', apply: insert('```‹language›\n\n```\n', true), section: 'Insert' },
     { label: 'Table', detail: '| |', apply: insert('\n| Column 1 | Column 2 |\n| --- | --- |\n|  |  |\n\n', true), section: 'Insert' },
@@ -321,8 +358,67 @@ function taskBlockCompletions(ctx: CompletionContext) {
 /** Suggestions in the task capture box: the same as on a task line in a note, plus priorities, without slash commands. */
 export const captureCompletions = (ctx: CompletionContext) => completions(ctx, true)
 
+/**
+ * After "[[Note#": the note's headings; after "[[Note#^": its paragraphs and list items. Picking a block that has
+ * no id yet gives it one (written into that note) so the link has something to point at.
+ */
+function anchorCompletions(ctx: CompletionContext) {
+  const typed = ctx.matchBefore(/\[\[[^\]\n|#]+#\^?[^\]\n|]*/)
+  if (!typed) return null
+  const m = /^\[\[([^\]\n|#]+)#(\^?)([^\]\n|]*)$/.exec(typed.text)
+  if (!m) return null
+  const notes = useStore.getState().notes
+  const id = resolver(notes)(m[1])
+  const note = id ? notes[id] : undefined
+  if (!note) return null
+  const from = typed.from + 2 + m[1].length + 1
+  const close = (view: EditorView, to: number) => (view.state.sliceDoc(to, to + 2) === ']]' ? '' : ']]')
+  if (!m[2]) {
+    const heads = note.content.split('\n').map(headingText).filter((h): h is string => !!h && !!h.trim())
+    const options: Completion[] = heads.map((h, i) => ({
+      label: h.trim(),
+      detail: 'heading',
+      boost: -i,
+      apply: (view: EditorView, _c: unknown, f: number, to: number) => {
+        const insert = h.trim() + close(view, to)
+        view.dispatch({ changes: { from: f, to, insert }, selection: { anchor: f + insert.length } })
+      },
+    }))
+    options.push({ label: '^', detail: 'Link to a paragraph or list item', boost: -999, apply: '^' })
+    return { from, options, validFor: /^[^\]\n|^]*$/ }
+  }
+  const options: Completion[] = blocksOf(note.content).map((b, i) => ({
+    label: b.text.length > 80 ? b.text.slice(0, 80) + '…' : b.text,
+    detail: b.id ? '^' + b.id : undefined,
+    boost: -i,
+    apply: (view: EditorView, _c: unknown, f: number, to: number) => {
+      let bid = b.id
+      if (!bid) {
+        bid = newBlockId()
+        if (view.state.facet(editorNote) === note.id) {
+          // The link and the block are in this note: give the block its id here, in the same change.
+          const line = view.state.doc.line(b.line + 1)
+          const end = line.from + line.text.trimEnd().length
+          const insert = bid + close(view, to)
+          view.dispatch({ changes: [{ from: f, to, insert }, { from: end, to: line.to, insert: ` ^${bid}` }], selection: { anchor: f + insert.length } })
+          return
+        }
+        const lines = note.content.split('\n')
+        lines[b.line] = lines[b.line].trimEnd() + ` ^${bid}`
+        updateNote(note.id, { content: lines.join('\n') })
+      }
+      // The "^" is already typed: the suggestion replaces what follows it.
+      const insert = bid + close(view, to)
+      view.dispatch({ changes: { from: f, to, insert }, selection: { anchor: f + insert.length } })
+    },
+  }))
+  return { from: from + 1, options, filter: true }
+}
+
 /** Suggestions while typing: note links, task dates, slash commands and tags. `capture` is the task capture box, where the whole text is one task. */
 function completions(ctx: CompletionContext, capture = false) {
+  const anchored = capture ? null : anchorCompletions(ctx)
+  if (anchored) return anchored
   const link = ctx.matchBefore(/\[\[[^\]\n|]*/)
   if (link) {
     const notes = Object.values(useStore.getState().notes).sort((a, b) => b.updated.localeCompare(a.updated))
@@ -543,12 +639,12 @@ function selectedLines(view: EditorView): [number, number] {
   return [view.state.doc.lineAt(sel.from).number - 1, view.state.doc.lineAt(sel.to).number - 1]
 }
 
-export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, onChange, onFollowLink, autoFocus, live, spellcheck, autoPair = true, lineNumbers: showLineNumbers, foldKey }, ref) {
+export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, onChange, onFollowLink, autoFocus, live, spellcheck, autoPair = true, lineNumbers: showLineNumbers, foldKey, onSelection }, ref) {
   const host = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
   const peekTimer = useRef<number | undefined>(undefined)
-  const cb = useRef({ onChange, onFollowLink })
-  cb.current = { onChange, onFollowLink }
+  const cb = useRef({ onChange, onFollowLink, onSelection })
+  cb.current = { onChange, onFollowLink, onSelection }
 
   // ----- incremental search (Ctrl-S / Ctrl-R) -----
   const [isearch, setIsearch] = useState<null | { query: string; index: number; count: number; back: boolean; wrapped: boolean }>(null)
@@ -659,7 +755,7 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
           syntaxHighlighting(highlight),
           marks,
           isearchHighlight,
-          live ? livePreview((target, side) => cb.current.onFollowLink(target, side)) : [],
+          live ? livePreview((target, side, anchor) => cb.current.onFollowLink(target, side, anchor)) : [],
           EditorView.editorAttributes.of({ class: live ? 'cm-live' : 'cm-source' }),
           search({ top: true }),
           autocompletion({ override: [completions], icons: false }),
@@ -687,6 +783,10 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
             // A change that came from the note (saved elsewhere, or edited on disk) is not reported back: the note
             // already has it, and saving it again would race the next save made outside the editor.
             if (u.docChanged && !u.transactions.some((tr) => tr.annotation(externalChange))) cb.current.onChange(u.state.doc.toString())
+            if (u.selectionSet && cb.current.onSelection) {
+              const sel = u.state.selection.main
+              cb.current.onSelection(sel.empty ? '' : u.state.sliceDoc(sel.from, sel.to))
+            }
           }),
           EditorView.domEventHandlers({
             paste(e, v) {
@@ -754,11 +854,11 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
               const pos = v.posAtCoords({ x: e.clientX, y: e.clientY })
               if (pos == null) return false
               const line = v.state.doc.lineAt(pos)
-              for (const m of line.text.matchAll(/\[\[([^\]\n|#]+)[^\]\n]*\]\]/g)) {
+              for (const m of line.text.matchAll(/\[\[([^\]\n|#]+)(?:#([^\]\n|]*))?[^\]\n]*\]\]/g)) {
                 const start = line.from + m.index!
                 if (pos >= start && pos <= start + m[0].length) {
                   e.preventDefault()
-                  cb.current.onFollowLink(m[1].trim())
+                  cb.current.onFollowLink(m[1].trim(), false, m[2] || '')
                   return true
                 }
               }
@@ -872,6 +972,21 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
           view.focus()
         },
       })
+    },
+    blockLink(title) {
+      const view = viewRef.current
+      if (!view) return null
+      const line = view.state.doc.lineAt(view.state.selection.main.head)
+      if (!line.text.trim()) return null
+      const heading = headingText(line.text)
+      if (heading !== null && heading.trim()) return `[[${title}#${heading.trim()}]]`
+      let id = blockIdOf(line.text)
+      if (!id) {
+        id = newBlockId()
+        const end = line.from + line.text.trimEnd().length
+        view.dispatch({ changes: { from: end, to: line.to, insert: ` ^${id}` } })
+      }
+      return `[[${title}#^${id}]]`
     },
     find() {
       const view = viewRef.current

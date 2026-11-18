@@ -737,7 +737,13 @@ export function SettingsModal() {
                 <Row label="Theme">
                   <Segmented value={theme} onChange={(v: Theme) => setPref('theme', v)} options={[['system', 'System'], ['light', 'Light'], ['dark', 'Dark']]} />
                 </Row>
-                <Row label="Accent colour">
+                <Row label="Style" hint="Margin's own look, or one modelled on Bear: warm paper colours, a red accent, a rounded font and heading marks in the margin. In light and dark. The font and text settings below still apply.">
+                  <Segmented value={s.look === 'bear' ? 'bear' : 'margin'} onChange={(v) => setSetting('look', v as Settings['look'])} options={[['margin', 'Margin'], ['bear', 'Bear']]} />
+                </Row>
+                <Row label="Status bar" hint="A small bar at the bottom right of a note: its open tasks, words, characters and reading time, or the words and characters you have selected.">
+                  <Toggle label="Status bar" value={s.statusBar !== false} onChange={set('statusBar')} />
+                </Row>
+                <Row label="Accent colour" hint={s.look === 'bear' ? 'The Bear style uses its own red accent; this applies to the Margin style.' : undefined}>
                   <div className="swatches">
                     {ACCENTS.filter(([id]) => id !== 'system' || systemAccent).map(([id, label, color]) => (
                       <button

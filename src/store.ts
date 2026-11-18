@@ -89,6 +89,10 @@ export interface Settings {
   /** At most this many tabs per pane: opening one more closes the least recently used. 0 means no limit. */
   maxTabs: number
   accent: string
+  /** The overall style: Margin's own, or one modelled on Bear (warm colours, red accent, rounded font). */
+  look: 'margin' | 'bear'
+  /** The small bar at the bottom right of a note: open tasks, words, characters, reading time. */
+  statusBar: boolean
   /** Font family for note text: an installed font's name, or 'system' for the default. */
   font: string
   /** Font family for code, or 'system' for the default monospace. */
@@ -160,6 +164,8 @@ export const DEFAULT_SETTINGS: Settings = {
   maxTabs: 0,
   trashDays: 0,
   accent: 'sky',
+  look: 'margin',
+  statusBar: true,
   font: 'system',
   codeFont: 'system',
   fontSize: 16,
@@ -231,6 +237,9 @@ export const ACCENTS: [string, string, string][] = [
 const DEFAULT_MONO = "ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace"
 
 /** CSS font-family for a font chosen in settings, falling back to the built-in stack. */
+/** Bear's own typeface is not available to other apps; these are the closest that come with a Mac or are common. */
+export const BEAR_FONT = "'Avenir Next', 'SF Pro Rounded', 'Nunito Sans', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+
 export function fontCss(family: string, mono = false): string {
   const fallback = mono ? DEFAULT_MONO : 'var(--font)'
   if (!family || family === 'system') return fallback
@@ -588,7 +597,8 @@ const same = (a: Note, b: Note) =>
   a.status === b.status &&
   a.source === b.source &&
   a.view === b.view &&
-  a.tags.join() === b.tags.join()
+  a.tags.join() === b.tags.join() &&
+  JSON.stringify(a.properties ?? {}) === JSON.stringify(b.properties ?? {})
 
 function mergeNotes(list: Note[]): Record<string, Note> {
   const prev = get().notes
@@ -1880,15 +1890,19 @@ if (desktop?.accentColor) {
 export function applyAppearance() {
   shortLinks.on = get().settings.shortLinks !== false
   const { accent, font, codeFont, fontSize, fontWeight, lineHeight, styles } = get().settings
+  const look = get().settings.look === 'bear' ? 'bear' : 'margin'
   const root = document.documentElement
   root.dataset.accent = accent
+  // The Bear style brings its own colours, accent included (in the stylesheet, under data-look).
+  root.dataset.look = look
   // "System" takes the colour from the computer's settings; every other accent is defined in the stylesheet.
-  if (accent === 'system' && systemAccent) root.style.setProperty('--accent', systemAccent)
+  if (accent === 'system' && systemAccent && look !== 'bear') root.style.setProperty('--accent', systemAccent)
   else root.style.removeProperty('--accent')
   const dark = root.dataset.theme === 'dark'
   root.dataset.imageBorder = get().settings.imageBorder || 'hairline'
   root.dataset.tableWidth = get().settings.tableWidth || 'fit'
-  root.style.setProperty('--doc-font', fontCss(font))
+  // With no font chosen, the Bear style uses a rounded, open sans-serif like Bear's own.
+  root.style.setProperty('--doc-font', look === 'bear' && (!font || font === 'system') ? BEAR_FONT : fontCss(font))
   root.style.setProperty('--mono', fontCss(codeFont, true))
   root.style.setProperty('--doc-size', `${fontSize}px`)
   root.style.setProperty('--doc-weight', String(fontWeight))
@@ -1900,7 +1914,7 @@ export function applyAppearance() {
   root.style.setProperty('--list-indent', `${get().settings.listIndent ?? 28}px`)
   root.style.setProperty('--list-guide', get().settings.indentGuides === false ? 'transparent' : 'var(--border-strong)')
   // Bullets and list numbers take the Heading 2 colour when one is set.
-  root.style.setProperty('--list-marker', (styles?.h2 && styleColor(styles.h2, dark)) || 'var(--text-3)')
+  root.style.setProperty('--list-marker', (styles?.h2 && styleColor(styles.h2, dark)) || (look === 'bear' ? 'var(--accent)' : 'var(--text-3)'))
   for (const [key] of STYLE_KEYS) {
     const style = { ...DEFAULT_STYLES[key], ...styles?.[key] }
     root.style.setProperty(`--${key}-color`, styleColor(style, dark) || 'inherit')

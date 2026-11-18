@@ -83,10 +83,13 @@ mark.find-hit.current{background:#ffab2e}
 <li>Slash commands (<code>/</code>) to insert any kind of block, a date, or a template</li>
 <li>Lists that nest, renumber and move with the keyboard, and wrap neatly</li>
 <li>A source mode for the raw markdown, and a read mode with nothing to edit</li>
+<li>Callouts (coloured notes, warnings and decisions), footnotes, and properties edited in a panel under the title</li>
+<li>A Bear-style look, light and dark, and a small status bar with the note's open tasks, words and characters</li>
 </ul>
 <p><strong><a href="#finding-things">Linking and finding</a></strong></p>
 <ul>
 <li>Links between notes with <code>[[</code>, completed as you type, including dates such as <code>[[next friday]]</code></li>
+<li>Links to a heading or a single paragraph or list item in another note (<code>[[Note#Heading]]</code>, <code>[[Note#^id]]</code>)</li>
 <li>Backlinks, unlinked mentions and outgoing links beside every note</li>
 <li>One search box (⌘K) for notes, text inside notes, tags, dates and every command, with exact phrases, <code>in:Notebook</code>, <code>is:meeting</code>, <code>-word</code> and other ways to narrow it</li>
 <li>Search inside the note you are in (⌃S), and jump to any heading (⌘⇧O)</li>
@@ -635,13 +638,25 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 <td>Divider</td>
 <td><code>---</code> on its own line</td>
 </tr>
+<tr>
+<td>Callout</td>
+<td><code>&gt; [!note]</code> as the first line of a quote (see <a href="#callouts">Callouts</a>)</td>
+</tr>
+<tr>
+<td>Footnote</td>
+<td><code>[^1]</code> in the text and <code>[^1]: the note</code> on its own line, or <code>/footnote</code></td>
+</tr>
+<tr>
+<td>Link to a heading or a block</td>
+<td><code>[[Note#Heading]]</code>, <code>[[Note#^id]]</code> (see <a href="#links">Links</a>)</td>
+</tr>
 </tbody>
 </table></div><p>Code blocks are coloured for the language you name. Math uses LaTeX syntax.</p>
 <h3 id="slash-commands">Slash commands</h3>
 <p>Type <code>/</code> at the start of a line or after a space. A menu appears; keep typing to narrow it and press Enter.</p>
 <ul>
 <li><strong>Blocks:</strong> Heading 1–3, Bulleted list, Numbered list, Task, Quote, Text. These change the line you are on and keep its text.</li>
-<li><strong>Insert:</strong> Code block, Table, Math block, Inline math, Divider, Link to a note, Web link, Image or file.</li>
+<li><strong>Insert:</strong> Code block, Table, Math block, Inline math, Divider, Link to a note, Web link, Image or file, Callout (and Callout: warning, decision, tip), Footnote.</li>
 <li><strong>Dates:</strong> Today, Tomorrow, Yesterday (links to that day's note), Date, Time.</li>
 <li><strong>Templates:</strong> one entry per template; it inserts the template's text.</li>
 </ul>
@@ -711,10 +726,32 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 <li>A link to a note that does not exist yet is shown outlined; clicking it creates the note.</li>
 <li>To edit a link, put the cursor on its line first; then a click places the cursor and ⌘-click opens.</li>
 <li>Renaming a note updates every link to it.</li>
+<li><strong>Links to a heading:</strong> type <code>[[Note#</code> and pick one of that note's headings. The link reads <code>[[Note#Heading]]</code>; clicking it opens the note at that heading.</li>
+<li><strong>Links to a paragraph or list item (block links):</strong> type <code>[[Note#^</code> and pick a line from the list. If the line has no id yet, Margin adds a short one to its end in the other note (<code> ^k3x9qa</code>); the id is hidden except on the line you are editing, and in read mode and exports. The link shows as the note's name and the start of the line, and clicking it opens the note with that line selected. If the line has since been deleted, Margin says so and opens the note.</li>
+<li><strong>Copy link to this block</strong> (⌘K, or a shortcut you set in Settings → Shortcuts) copies a link to the line the cursor is on: <code>[[Note#Heading]]</code> on a heading, otherwise <code>[[Note#^id]]</code>, adding the id if the line has none. Paste it into any note.</li>
+<li>These are the same as Obsidian's heading and block links, so links written in either app work in the other.</li>
 <li><strong>Web links:</strong> ⌘L inserts <code>[]()</code> with the cursor between the square brackets, ready for the link's text. With words selected it wraps them and puts the cursor in the round brackets for the address.</li>
 <li><strong>Short links:</strong> company short links written as plain text are clickable as they stand: <code>go/some-name</code>, <code>b/1234567</code> and <code>b/hotlists/1234567</code>. Clicking one opens <code>http://go/some-name</code> (or <code>http://b/…</code>) in your browser. The text in the note is not changed. They are recognised in the editor, read mode, canvas cards and the Tasks view, but not inside code, web addresses or existing links. Turn this off in Settings → Editor → Short links.</li>
 <li><strong>Paste to link:</strong> select some words and paste a web address. The words become a link to it. This does not happen inside code or an existing link.</li>
 </ul>
+<h3 id="callouts">Callouts</h3>
+<p>A callout is a quote whose first line starts with a type in square brackets. It is shown as a coloured box with a title:</p>
+<pre><code>&gt; [!warning] Check the numbers first
+&gt; The forecast still uses last quarter's prices.
+</code></pre>
+<p>Leave out the title and the type's own name is used (&quot;Warning&quot;). Types and their colours: <code>note</code>, <code>info</code> and <code>todo</code> (blue); <code>tip</code>, <code>hint</code>, <code>abstract</code>, <code>summary</code> and <code>tldr</code> (teal); <code>important</code> and <code>example</code> (purple); <code>success</code>, <code>check</code>, <code>done</code> and <code>decision</code> (green); <code>question</code>, <code>help</code> and <code>faq</code> (yellow); <code>warning</code>, <code>caution</code> and <code>attention</code> (orange); <code>danger</code>, <code>error</code>, <code>bug</code>, <code>failure</code> and <code>missing</code> (red); <code>quote</code> and <code>cite</code> (grey). Any other word works too and is shown in blue. The type is shown as written on the line you are editing; elsewhere and in read mode, exports and print only the box shows. <code>/callout</code> inserts one. Callouts are written the same way as in Obsidian.</p>
+<h3 id="footnotes">Footnotes</h3>
+<p>Write <code>[^1]</code> where the footnote belongs, and <code>[^1]: The note.</code> on a line of its own, usually at the end. The label can be any word (<code>[^source]</code>); footnotes are numbered in the order they are first used. In the editor a reference shows as a small raised number: hover over it to read the footnote, click it to jump to it. In read mode and exports the footnotes are listed at the end, with links back. <code>/footnote</code> adds the next number at the cursor and a matching line at the end of the note, with the cursor there to type it.</p>
+<h3 id="properties">Properties</h3>
+<p>Properties are fields of the note's front matter (the <code>---</code> block at the top of the file), such as <code>status</code>, <code>owner</code>, <code>due</code> or a list of <code>people</code>. Notes from Obsidian often have them. They are shown in a small panel under the note's title, which you can fold away (Margin remembers whether it is open). Each property is edited according to the kind of value it holds:</p>
+<ul>
+<li><strong>Text</strong>, <strong>Number</strong> and <strong>Date</strong> are typed; a date has a calendar. A change is saved when you press Enter or click elsewhere; Esc puts the value back.</li>
+<li><strong>Checkbox</strong> is a tick box.</li>
+<li><strong>List</strong> is typed as items separated by commas.</li>
+</ul>
+<p>Hover over a row to change its kind (the value is converted where it can be) or to remove it with ×. <strong>Add property</strong> asks for a name. A note with no properties shows only a small <strong>+ Add property</strong> link. Margin's own fields (title, tags, created, status and the others it uses) are not listed; they are set elsewhere. Properties are written to the file, so other apps read them too.</p>
+<h3 id="the-status-bar">The status bar</h3>
+<p>A small bar at the bottom right of a note shows how many tasks are open in it (&quot;All tasks done&quot; once none are; hover for how many are done and cancelled), its words and characters, and a reading time for longer notes. Select some text and it shows the words and characters in the selection instead. Words are counted in the text as it reads: link targets, markdown marks, task details and block ids are left out. Turn it off in Settings → Appearance → Status bar.</p>
 <h3 id="right-click-and-the-format-menu">Right-click and the Format menu</h3>
 <p>In the desktop app, right-clicking a task (or a selection of tasks) puts what you can do to it at the top of the menu: <strong>Mark as Done</strong> (or Not Done), <strong>Cancel Task</strong> (or Reopen), <strong>Move to Today</strong>, <strong>When…</strong>, <strong>Due Date…</strong> and <strong>Change Priority</strong>. They act on the task you clicked, not wherever the cursor was, and on every selected task when you click inside a selection. Right-clicking in a note also offers spelling suggestions, Cut, Copy and Paste, Look Up, &quot;Search Notes for…&quot;, and Format, Paragraph and Insert menus. Right-clicking a link offers Open, Open to the Side and Copy Link.</p>
 <p>The same commands are in the menu bar under <strong>Format</strong>, for the note you are editing, in one list with no submenus. Lines divide it into groups:</p>
@@ -1133,7 +1170,7 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 <h2 id="importing-from-obsidian">Importing from Obsidian</h2>
 <p><strong>Settings → Files &amp; data → Import…</strong> copies an Obsidian vault into your notes folder. Your Obsidian folder is not changed.</p>
 <p>It brings notes with their folders, tags and dates; images and PDFs; links between notes; and canvases. Notes named like <code>2025-03-04</code> become daily notes.</p>
-<p>Callouts appear as plain quotes, embedded notes become links, and plugin features such as Dataview stay as text. Importing the same vault twice duplicates the notes.</p>
+<p>Callouts, footnotes, block links and properties come across as they are, since Margin reads them the same way. Embedded notes become links, and plugin features such as Dataview stay as text. Importing the same vault twice duplicates the notes.</p>
 <hr>
 <h1 id="part-2-tasks">Part 2: Tasks</h1>
 <p>Everything about deciding what to do and when: what a task is, its priority and dates, the Tasks view and its lists, saved filters and the Top 3. Tasks are written inside notes, but planning and reviewing them is a separate activity with its own view and its own keys.</p>
@@ -1669,7 +1706,7 @@ margin-tasks open --no-due --notebook Work --paths
 </tr>
 <tr>
 <td>Appearance</td>
-<td>Theme, accent colour (in the desktop app the first choice, System, follows the accent colour set in macOS System Settings), note font and code font (any installed font), text size and weight, line spacing, list indent, indent guides, image border, page width. The note font, size and weight also apply to tasks wherever they are listed (the Tasks view and the panel under daily notes) and to what you type in Quick capture and Quick task.</td>
+<td>Style (Margin, or Bear: a warm page, a red accent, rounded headings with their <code>#</code> marks in the margin, in light and dark), theme, accent colour (in the desktop app the first choice, System, follows the accent colour set in macOS System Settings), note font and code font (any installed font), text size and weight, line spacing, list indent, indent guides, image border, page width, and the status bar. The note font, size and weight also apply to tasks wherever they are listed (the Tasks view and the panel under daily notes) and to what you type in Quick capture and Quick task.</td>
 </tr>
 <tr>
 <td>Text styles</td>

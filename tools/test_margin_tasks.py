@@ -114,7 +114,7 @@ class SharedCases(unittest.TestCase):
         self.assertEqual(sorted(done[1:]), ["Book the old venue", "Done from the Inbox", "Done yesterday", "Logged and done"])  # cancelled ones are in the Logbook too
         self.assertEqual(texts("open", "--source", "daily", "--priority", "p1"), ["Daily top item"])
         self.assertEqual(texts("open", "--note-tag", "meeting", "--priority", "p3"), ["Me: follow up"])
-        self.assertEqual(texts("open", "--priority", "none", "--has-due", "--notebook", "Work/Meetings"), ["Sunday of this week", "Priya: send numbers #atlas"])  # planned for the 11th comes before due on the 12th
+        self.assertEqual(texts("open", "--priority", "none", "--has-due", "--notebook", "Work/Meetings"), ["Sunday of this week", "Priya: send numbers #atlas", "Task with a block id #atlas"])  # planned for the 11th comes before due on the 12th; a block id is not part of the text
         self.assertEqual(texts("all", "--note", "lisbon", "--limit", "1"), ["Train tickets"])
         # The Inbox notebook is a setting in the app, so the tool takes its name; its note called Inbox is the inbox.
         self.assertEqual(texts("inbox", "--tag", "ops"), ["Captured, due today #ops"])

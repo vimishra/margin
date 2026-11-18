@@ -129,7 +129,7 @@ Each canvas card is markdown too.
 ```
 
 - **Title** is the file name without `.md`. A `title` key in the frontmatter is written only when the title contains characters a file name cannot hold.
-- **Frontmatter** is YAML. Known keys: `id`, `title`, `type`, `tags`, `pinned`, `created`, `updated`, `expires`, `source`, `status`, `view`. Unknown keys must be preserved untouched when the note is saved.
+- **Frontmatter** is YAML. Known keys: `id`, `title`, `type`, `tags`, `pinned`, `created`, `updated`, `expires`, `source`, `status`, `view`. Unknown keys must be preserved untouched when the note is saved. They are the note's **properties** (see [5.2a](#52a-properties)): strings, numbers, booleans and lists of strings can be edited; other values are kept as they are.
   - `id`: a stable identifier that never changes on rename. A note without one gets `p` followed by the first 10 hex digits of the SHA-1 of its path, until it is first saved.
   - `type`: `daily`, `article` or `scratch`; omitted for an ordinary note.
   - `tags`: a list, or a comma- or space-separated string. A leading `#` is dropped.
@@ -228,9 +228,30 @@ Above the text: the notebook as a breadcrumb (click to open it or to move the no
 
 Research notes add a status selector and a source link field. Scratch notes add a strip showing time left with "+1 day", "+1 week" and "Keep".
 
+### 5.2a Properties
+
+- Under the tag row, a panel lists the frontmatter keys that are not known keys, in file order. With none, only a small "+ Add property" link shows.
+- The panel has a header "Properties" with the count; clicking it folds the rows. Open or folded is remembered per app (one setting for all notes).
+- Each row: the key, a value editor, a kind selector (shown on hover) and a remove button. The kind is inferred from the value: boolean → Checkbox, number → Number, list → List, a `YYYY-MM-DD` string → Date, else Text.
+- Text and Number are committed on Enter or blur (Esc reverts); Date on change, with a date input; Checkbox on click; List is edited as comma-separated text, trimmed, empty items dropped.
+- Changing the kind converts the value where possible (text to number, `true` to a tick, comma text to a list; an invalid date becomes today).
+- "Add property" asks for a name; an existing name is ignored; the new key starts as an empty string.
+- Saving sends the whole set of properties with the note's version as base; the server drops known keys, null values and values of other shapes, writes the rest after the known keys and updates `updated`.
+
+### 5.2b Status bar
+
+- At the bottom right of the note column, a small rounded bar that stays in view while scrolling (not the full width). Setting (Appearance → Status bar), on by default; shown in all three modes, not on canvases.
+- It shows: open tasks in the note ("All tasks done" when every task is ticked or cancelled; hidden when the note has none; hover: open, done and cancelled counts), words, characters, and "N min read" at 230 words or more (230 words a minute, rounded).
+- With a selection in the editor it shows "a of b words · c characters selected" for the selected text.
+- Counts are of the readable text: front matter, code fences' marks, markdown marks, link targets (a link counts as its label), task details (`P1`, `>date`, `@due(…)` and the like), block ids and footnote marks are left out; checkbox lines and code inside fences are skipped when counting tasks. Characters exclude line breaks. Words are runs of letters and digits; an apostrophe, full stop or hyphen between two of them joins them into one word.
+
 ### 5.3 Markdown support
 
-Headings 1 to 6, bold, italic, strikethrough, inline code, fenced code blocks with syntax colouring by language (in all modes), block quotes, bulleted, numbered and task lists, links, bare web addresses as links, images, tables, horizontal rules, inline math `$…$` and display math `$$…$$` in LaTeX, `[[wikilinks]]`, `#tags`, and embedded PDFs.
+Headings 1 to 6, bold, italic, strikethrough, inline code, fenced code blocks with syntax colouring by language (in all modes), block quotes, bulleted, numbered and task lists, links, bare web addresses as links, images, tables, horizontal rules, inline math `$…$` and display math `$$…$$` in LaTeX, `[[wikilinks]]` (also `[[Note#Heading]]` and `[[Note#^id]]`), `#tags`, embedded PDFs, callouts and footnotes.
+
+- **Callouts:** a block quote whose first line is `> [!type]`, optionally followed by `+` or `-` and a title. Shown as a box tinted by the type's colour family, with its title (the type's own name when none is given) in that colour, in the editor, read mode, exports and print. Families: blue (`note`, `info`, `todo`, and any unknown type), teal (`abstract`, `summary`, `tldr`, `tip`, `hint`), purple (`important`, `example`), green (`success`, `check`, `done`, `decision`), yellow (`question`, `help`, `faq`), orange (`warning`, `caution`, `attention`), red (`failure`, `fail`, `missing`, `danger`, `error`, `bug`), grey (`quote`, `cite`). In the editor the `[!type]` mark is shown only on the line with the cursor. Folding (`+`/`-`) is not acted on.
+- **Footnotes:** `[^label]` in the text, and `[^label]: text` at the start of a line. References are numbered by first use. In the editor a reference is a superscript number (hidden source on the line with the cursor) whose tooltip is the definition's text and which moves the cursor to the definition on click; a definition line shows its number. In read mode and exports the definitions are listed at the end with back-links; clicking a reference or back-link scrolls within the page without changing the address.
+- **Block ids:** ` ^id` (letters, digits, hyphens) at the end of a line names that line. It is hidden in the editor except on the cursor's line (where it is dimmed), in read mode and exports, and is not part of a task's text.
 
 ### 5.4 Live preview rules
 
@@ -239,6 +260,7 @@ Headings 1 to 6, bold, italic, strikethrough, inline code, fenced code blocks wi
 - A link of any kind inside a heading takes the heading's size and weight; its colour, underline or pill background stay the link's.
 - The document is always plain markdown. Preview is decoration only; what is saved is exactly what was typed.
 - A current search match counts as "the cursor is here", so text hidden inside a widget is revealed and highlighted.
+- In the Bear style (see [17](#17-appearance)), a heading's `#` marks are shown in the left margin, dimmed, on lines without the cursor.
 
 ### 5.5 Lists
 
@@ -294,6 +316,9 @@ Shortcuts set heading level 1 to 5 on the current line or each selected line. Th
 - A rendered link opens on a plain click. If the cursor is already on that line, a click places the cursor and ⌘-click opens.
 - **Insert link** shortcut: with nothing selected, inserts `[]()` with the cursor between the square brackets; with words selected, `[words]()` with the cursor in the round brackets; with a web address selected, `[](address)` with the cursor in the square brackets.
 - **Paste to link:** pasting a single web address over selected words turns them into `[words](address)`. Not when the selection is itself an address, spans lines, or is inside code or a link.
+- **Heading and block links:** `[[Note#Heading]]` opens the note with the cursor on that heading (matched ignoring case); `[[Note#^id]]` opens it with the line carrying that id selected. In the other pane with ⌘-click. If the heading or block is not found, a message says so and the note opens at the top. A heading link's pill reads `Note#Heading` (or the alias); a block link's pill reads the note's title and the first 32 characters of the line.
+- **Completion:** after `[[Note#` the note's headings are offered, plus "^ Link to a block"; after `[[Note#^` its paragraphs and list items (not headings, code, tables or front matter), with their ids. Choosing one that has no id writes a new six-character id at the end of that line: in the same change when it is the note being edited, otherwise as a save of that note (version-checked).
+- **Copy link to this block** (command, no default key): on a heading line copies `[[Title#Heading]]`; on any other line adds an id to the line if it has none and copies `[[Title#^id]]`.
 - **Short links:** `go/<name>` (letters, digits, hyphens, underscores; further `/segments` allowed) and `b/<digits>` or `b/hotlists/<digits>`, standing on their own, are shown as links to `http://<text>` in every mode and in the Tasks view. The note's text is not changed. They are not recognised inside code, web addresses, existing links or longer paths. Setting, on by default.
 
 ### 5.10 Slash commands
@@ -303,7 +328,7 @@ Typing `/` at the start of a line or after a space opens a menu that narrows as 
 | Group | Entries |
 | --- | --- |
 | Blocks (change the current line, keep its text) | Heading 1, Heading 2, Heading 3, Bulleted list, Numbered list, Task (also "To-do"), Quote, Text |
-| Insert | Code block, Table, Math block, Inline math, Divider, Link to a note, Web link, Image or file |
+| Insert | Code block, Table, Math block, Inline math, Divider, Link to a note, Web link, Image or file, Callout, Callout: warning, Callout: decision, Callout: tip, Footnote (inserts the next unused number `[^n]` and adds `[^n]: ` after the note's last footnote definition, or at the end, with the cursor there) |
 | Tasks | Due today, Due tomorrow, Due date, Plan for today, Plan for tomorrow, Plan for a day, Someday, P1 high priority, P2 medium priority, P3 low priority |
 | Dates | Today, Tomorrow, Yesterday (each a link to that day's note), Date (as text), Time |
 | Templates | One entry per template; inserts its text with placeholders filled |
@@ -804,7 +829,7 @@ Copies a chosen Obsidian vault into a chosen notebook (or the top level). The so
 - Relative image and file links are copied and rewritten.
 - A `.canvas` file becomes a note that opens on its canvas, with the same cards, colours and connections.
 - Notes named `YYYY-MM-DD` become daily notes.
-- Callouts stay as quotes and plugin syntax stays as text.
+- Callouts, footnotes, heading and block links and unknown frontmatter keys are kept as written (Margin reads them the same way); plugin syntax stays as text.
 - A summary reports notes, canvases and files imported, links not found, and files that could not be read.
 
 ## 15. Settings
@@ -953,6 +978,7 @@ Every action below can be reassigned or cleared in Settings → Shortcuts, which
 ## 17. Appearance
 
 - **Themes:** light, dark, or follow the system. Applied before first paint to avoid a flash.
+- **Style** (setting): Margin (the palette below) or Bear, each in light and dark. Bear changes the page and sidebar to warm off-white (`#fdfcfa`, `#f6f4f0`; text `#333230`) or warm charcoal (`#2b2a29`; text `#ebe7e1`), uses a red accent (`#dd4c4f` light, `#ea6366` dark) for links, list markers and the cursor, ignoring the accent setting and the system accent, uses a rounded sans-serif (Avenir Next, then SF Pro Rounded, Nunito Sans, the system font) as the note font when the font setting is System, gives headings more space above, and shows heading `#` marks in the left margin. Every other setting (text styles, sizes, width) applies on top.
 - **Palette**, measured from Things 3:
 
 | | Light | Dark |

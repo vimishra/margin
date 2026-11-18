@@ -193,7 +193,25 @@ function serialize(rec) {
 function publicNote(rec) {
   const { extra, ...rest } = rec
   const folder = path.dirname(rec.path)
-  return { ...rest, folder: folder === '.' ? '' : folder.split(path.sep).join('/') }
+  // The front-matter fields Margin does not use itself are the note's properties, shown and edited under its title.
+  return { ...rest, properties: extra || {}, folder: folder === '.' ? '' : folder.split(path.sep).join('/') }
+}
+
+/**
+ * Properties as sent by the app: names that are not Margin's own fields, values that front matter can hold
+ * (text, numbers, true/false, lists of text). A value of null removes the property.
+ */
+function cleanProperties(input) {
+  const out = {}
+  if (!input || typeof input !== 'object' || Array.isArray(input)) return out
+  for (const [rawKey, value] of Object.entries(input)) {
+    const key = String(rawKey).trim().replace(/[:\n\r]/g, ' ').slice(0, 60).trim()
+    if (!key || KNOWN.includes(key) || value === null || value === undefined) continue
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') out[key] = value
+    else if (Array.isArray(value)) out[key] = value.map((v) => String(v)).filter((v) => v.trim())
+    else out[key] = value
+  }
+  return out
 }
 
 /**
@@ -576,6 +594,8 @@ app.put('/api/notes/:id', h(async (req, res) => {
   if ('expires' in b) rec.expires = iso(b.expires)
   if ('view' in b) rec.view = b.view === 'canvas' ? 'canvas' : undefined
   if (typeof b.title === 'string' && b.title.trim()) rec.title = b.title.trim()
+  const propsChanged = 'properties' in b && JSON.stringify(cleanProperties(b.properties)) !== JSON.stringify(rec.extra || {})
+  if (propsChanged) rec.extra = cleanProperties(b.properties)
 
   const curFolder = path.posix.dirname(rec.path) === '.' ? '' : path.posix.dirname(rec.path)
   const folder = typeof b.folder === 'string' ? existingFolder(sanitizeFolder(b.folder)) : curFolder
@@ -590,7 +610,7 @@ app.put('/api/notes/:id', h(async (req, res) => {
   }
 
   const contentChanged = rec.content !== previous
-  if (contentChanged || rec.title !== oldTitle) rec.updated = new Date().toISOString()
+  if (contentChanged || rec.title !== oldTitle || propsChanged) rec.updated = new Date().toISOString()
   await writeRecord(rec)
   if (contentChanged) await snapshot(rec.id, previous, rec.content)
 

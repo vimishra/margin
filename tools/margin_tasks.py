@@ -82,7 +82,8 @@ class Task:
         self.repeat = repeat.group(2).strip() or None if repeat else None
         remind = REMIND.search(raw)
         self.remind = "%s %s" % (remind.group(2), (remind.group(3) or "09:00").rjust(5, "0")) if remind else None
-        text = raw
+        # A block id at the end (" ^abc123", for [[Note#^abc123]] links) is not part of what the task says.
+        text = re.sub(r"\s\^[A-Za-z0-9-]+\s*$", "", raw)
         for pattern in (PRIORITY, SCHEDULED, DUE, DONE, CANCELLED, REPEAT, REMIND):
             text = pattern.sub(lambda m: m.group(1), text, count=1)
         self.text = re.sub(r"\s{2,}", " ", text).strip()

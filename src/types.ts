@@ -18,7 +18,11 @@ export interface Note {
   content: string
   /** The version of the file this copy was read or saved as; a save sends it, and is refused if the file changed since. */
   version?: string
+  /** Front-matter fields other than Margin's own (shown under the title as Properties). */
+  properties?: Record<string, PropertyValue>
 }
+
+export type PropertyValue = string | number | boolean | string[] | null
 
 export type NotePatch = Partial<Omit<Note, 'id' | 'path' | 'created' | 'updated'>>
 
