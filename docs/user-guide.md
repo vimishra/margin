@@ -345,6 +345,7 @@ Margin follows Things 3 here, with notes instead of a separate task database:
 | Inbox | The *Inbox* note in the Inbox notebook |
 | Moving an Inbox to-do into a project | **M** in the Tasks view: it goes under the project note's **Open Threads** heading |
 | A project's to-dos in one place | The Tasks view grouped by **Project**, with a circle that fills as they are ticked |
+| All projects at a glance, with their next actions | The **Projects** list in the [Weekly review](#the-weekly-review), which also flags stalled projects (no open task) |
 | A project deadline | `@due(…)` on the one task that means the project is done |
 | Completing a project | Tick its last tasks, then **Move this note to the Archive** (⌘K) |
 
@@ -1029,6 +1030,7 @@ The setting is kept in your notes folder, in `.margin/config.json`, so you can a
   - **Already there?** If the note already has an open task with the same link, nothing is added to it: the task just leaves the triage note, and a message says so.
   - **Undo** in the message puts both notes back exactly as they were. If either has changed since (your program wrote a new run, say), it does not undo, so the task is never lost: it stays in the note it went to.
   - **Safe while your program writes:** the note it goes into is saved first, and only then is the task taken out of the triage note, each time from the file as it is at that moment. If something fails in between, you find the task in both places, never in neither.
+- **Moving it as a focus task:** **F** (or **Move, as a focus task** in its right-click menu) moves it just as M does, and adds the focus tag to the task line in the note it goes to, so it joins the week's important work. See [Focus](#focus-important-work-not-only-urgent).
 - **Moving a whole category:** **Move all** on a category's heading (it appears when you point at the category), or **A** on any of its tasks, moves every open task of that category in the newest run, each where its rules send it, as one step with one Undo. If the rules do not place some of them, you pick one note for those, and they all move together. The category's heading stays in the triage note, empty, for your program to fill next time.
 - **A morning with Triage**, for example: open Triage; read the Summary; go down the list with ↓, pressing **Space** for what you have already done, **C** for what you will not do, and **M** for what belongs to a workstream; or, when a whole category belongs to one workstream, **A** once. Whatever is left is what still needs a decision. Your program's next run adds new suggestions without disturbing what you have moved: the moved tasks keep their links, so it sees them in your notes.
 - **Rules: where tasks go** (Settings → Triage). M takes the first that applies:
@@ -1432,7 +1434,7 @@ And for tasks:
 - **During the day:** write anything that needs doing as a task; tick things as you finish.
 - **Meetings:** write each action as a task, with a due date if one was agreed.
 - **End of day:** tick what is done, empty the Inbox, and leave the rest.
-- **Weekly:** clear Overdue, plan from Upcoming and Anytime, catch undated tasks.
+- **Weekly:** clear Overdue, plan from Upcoming and Anytime, catch undated tasks; then open the **Weekly review** to check the balance of focus and urgent work, fix stalled projects, and star next week's focus.
 - **Monthly:** review Someday, read the Logbook, close finished projects.
 
 ### Research and learning

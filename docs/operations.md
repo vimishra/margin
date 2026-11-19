@@ -213,7 +213,7 @@ Only if a program of yours writes a triage note of suggested tasks (see the [tri
 
 1. **Open Triage** (under Tasks in the sidebar) and read the Summary. Press **N** to have the triage note itself open on the right, following you down the list, when you want your program's full notes in view.
 2. **Quick replies first.** Answer each (**O** opens the message), then **Space**.
-3. **Go down the actions with ↓,** one key each: **Space** if done, **C** if you will not do it, **M** if it is real work (it moves to its workstream note, under Open Threads), **S** to give it a day, or just **↓** to leave it.
+3. **Go down the actions with ↓,** one key each: **Space** if done, **C** if you will not do it, **M** if it is real work (it moves to its workstream note, under Open Threads), **F** if it is important (it moves there too, as a focus task), **S** to give it a day, or just **↓** to leave it.
 4. **A whole category is real work?** **A** moves all of it at once.
 5. **Stop when what is left needs more thought.** The next run carries it over.
 
