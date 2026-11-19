@@ -101,6 +101,7 @@ mark.find-hit.current{background:#ffab2e}
 <li><a href="#tasks-in-a-meeting">Tasks: in a meeting</a></li>
 <li><a href="#tasks-end-of-the-day">Tasks: end of the day</a></li>
 <li><a href="#tasks-projects">Tasks: projects</a></li>
+<li><a href="#tasks-important-and-urgent">Tasks: important and urgent</a></li>
 <li><a href="#tasks-every-week">Tasks: every week</a></li>
 <li><a href="#tasks-every-month">Tasks: every month</a></li>
 <li><a href="#tasks-which-list-to-look-at">Tasks: which list to look at</a></li>
@@ -121,12 +122,17 @@ mark.find-hit.current{background:#ffab2e}
 <tr>
 <td>Morning, 5 minutes</td>
 <td>Open the journal (⌘J) and glance at yesterday's Log</td>
-<td>Read today's task panel, clear anything overdue, settle the Top 3</td>
+<td>Read today's task panel, clear anything overdue, settle the Top 3 with one important item in it</td>
 </tr>
 <tr>
-<td>Morning and after lunch, 10 minutes</td>
+<td>First block of the day, 60–90 minutes</td>
 <td></td>
-<td>If you use Triage: decide on each suggestion (done, drop, or move it to its workstream)</td>
+<td>Work on the important item, before Triage and mail</td>
+</tr>
+<tr>
+<td>Late morning and mid-afternoon, 20–30 minutes each</td>
+<td></td>
+<td>If you use Triage: decide on each suggestion (done, drop, or move it to its workstream), then stop</td>
 </tr>
 <tr>
 <td>During the day</td>
@@ -144,9 +150,9 @@ mark.find-hit.current{background:#ffab2e}
 <td>Tick what is done; empty the Inbox; leave the rest</td>
 </tr>
 <tr>
-<td>Weekly, 15 minutes</td>
+<td>Weekly, 20 minutes</td>
 <td>Skim the week, refresh people notes, empty Scratch</td>
-<td>Empty the Inbox, clear Overdue, plan from Upcoming and Anytime, catch undated tasks, give every project a next step</td>
+<td>Empty the Inbox, clear Overdue, plan from Upcoming and Anytime, catch undated tasks, give every project a next step, choose the week's focus</td>
 </tr>
 <tr>
 <td>Monthly, 20 minutes</td>
@@ -399,10 +405,11 @@ mark.find-hit.current{background:#ffab2e}
 </li>
 <li><strong>Deal with each overdue task.</strong> Do one of three things: tick it, give it a new due date, or decide it is not happening and delete the line. Do not leave it overdue.</li>
 <li><strong>Look ahead: ⌘⇧T, then 3</strong> for Upcoming. If anything there needs to start today, highlight it and press <strong>T</strong>.</li>
-<li><strong>Settle the Top 3.</strong> In today's note, the Top 3 should hold at most three things that would make today a success. Items carried over from yesterday count. If there are more than three, push the extras to a later day: cursor on the line, ⌘⇧S, pick a day.</li>
+<li><strong>Settle the Top 3.</strong> In today's note, the Top 3 should hold at most three things that would make today a success. Items carried over from yesterday count. If there are more than three, push the extras to a later day: cursor on the line, ⌘⇧S, pick a day. <strong>At least one of the three must be important work, not something from Triage;</strong> the Important list in the note (see <a href="#tasks-important-and-urgent">Tasks: important and urgent</a>) is where to pick it from.</li>
+<li><strong>Do that important item first,</strong> before opening Triage or mail.</li>
 </ol>
 <h2 id="tasks-triage">Tasks: triage</h2>
-<p>Only if a program of yours writes a triage note of suggested tasks (see the <a href="triage.html">triage guide</a>). Do this each morning after the steps above, and again when a new run has come in (after lunch, say).</p>
+<p>Only if a program of yours writes a triage note of suggested tasks (see the <a href="triage.html">triage guide</a>). Do it in two fixed sittings of 20–30 minutes, late morning (after the first block of important work) and mid-afternoon, not whenever a new run comes in. Triage always has something in it; if it is open all day, the urgent crowds out the important (see <a href="#tasks-important-and-urgent">Tasks: important and urgent</a>).</p>
 <ol>
 <li><strong>Open Triage</strong> (under Tasks in the sidebar) and read the Summary. Press <strong>N</strong> to have the triage note itself open on the right, following you down the list, when you want your program's full notes in view.</li>
 <li><strong>Quick replies first.</strong> Answer each (<strong>O</strong> opens the message), then <strong>Space</strong>.</li>
@@ -411,7 +418,7 @@ mark.find-hit.current{background:#ffab2e}
 <li><strong>Stop when what is left needs more thought.</strong> The next run carries it over.</li>
 </ol>
 <p>Reading the triage note itself instead? Its task keys do the same: ⌘↵, ⌘⌥↵, ⌘⇧S, ⌘⇧D, and ⌃⌘M to move a task by your rules.</p>
-<p>Triage is for sorting, not doing: anything longer than a couple of minutes, move it and do it from Today or its workstream note. When you pick a note by hand for a category that will come again, choose it with <strong>⌥↵</strong> so M knows next time.</p>
+<p>Triage is for sorting, not doing: anything longer than a couple of minutes, move it and do it from Today or its workstream note. <strong>C</strong> (drop) is a good outcome, not a failure: something that is neither urgent for you nor important does not need a home. When you pick a note by hand for a category that will come again, choose it with <strong>⌥↵</strong> so M knows next time.</p>
 <h2 id="tasks-during-the-day">Tasks: during the day</h2>
 <ul>
 <li><strong>You finish something:</strong> tick it where you see it: ⌘↵ on its line, or its checkbox in the panel.</li>
@@ -465,7 +472,101 @@ mark.find-hit.current{background:#ffab2e}
 <li><strong>Finish it</strong> when the outcome is reached: tick or delete the leftovers, then ⌘K → <strong>Move this note to the Archive</strong>. It goes to <code>Archive/Work/…</code>, so Work holds only live projects.</li>
 </ol>
 <p>The one rule that keeps projects moving: <strong>every live project has at least one open task you could do now.</strong> A project with none is stalled, and Margin will not remind you. The weekly review checks this.</p>
-<h2 id="tasks-every-week">Tasks: every week</h2>
+<h2 id="tasks-important-and-urgent">Tasks: important and urgent</h2>
+<p>Triage and the Inbox bring you what is <strong>urgent</strong>: things other people are waiting on, with a clock attached. They arrive by themselves and clearing them feels productive. What is <strong>important</strong> but not urgent (the project that moves your goals, the plan nobody asked for yet, the hire, the write-up) never arrives by itself. Left alone it waits until it too becomes urgent, usually too late to do it well. The routine below gives important work its own place, time and check, so both get done.</p>
+<div class="table"><table><thead>
+<tr>
+<th></th>
+<th>Urgent</th>
+<th>Not urgent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Important</strong></td>
+<td>Do it today: Top 3, or Today</td>
+<td><strong>Focus work:</strong> a <code>#focus</code> next action, done in the first block of the day</td>
+</tr>
+<tr>
+<td><strong>Not important</strong></td>
+<td>Do it in a Triage sitting, quickly, or hand it on</td>
+<td>Drop it (<strong>C</strong> in Triage, or delete the line)</td>
+</tr>
+</tbody>
+</table></div><p>The danger is the top-right box: nothing in Margin or in your mail will ever ask for it. Everything below is there to protect it.</p>
+<h3 id="1-choose-the-focus-each-week">1. Choose the focus each week</h3>
+<p>In the weekly review (step 8 of <a href="#tasks-every-week">Tasks: every week</a>), pick <strong>two or three important outcomes</strong> for the week: usually projects, sometimes one piece of thinking or writing. Each is a project note, or a line in one.</p>
+<p>For each, find or write <strong>its next action</strong> in that note, and tag it <code>#focus</code>:</p>
+<pre><code>- [ ] Draft the hiring plan for Q1 #focus
+</code></pre>
+<p>Only the next action carries the tag, not the whole project, and only the two or three projects you chose. More than five <code>#focus</code> tasks and the tag no longer means anything. When you tick one, write the next step of that project and tag it, so each focus project always has one.</p>
+<p>The tag is a convention, not a feature: any tag works, as long as you use only one. A priority (<code>P1</code>) would also work, but priorities are about urgency within a list; a separate tag keeps &quot;important&quot; apart.</p>
+<h3 id="2-see-it-every-morning-in-the-daily-note">2. See it every morning, in the daily note</h3>
+<p>Put the focus tasks into the daily note, where the day starts, so they are in front of you before Triage is. In the template for new days (Settings → Daily notes), add an <strong>Important</strong> section under the Top 3 with a tasks block:</p>
+<pre><code>## Top 3
+- [ ]
+- [ ]
+- [ ]
+
+## Important
+```tasks
+#focus group: project
+```
+</code></pre>
+<p>Each new day then shows every open <code>#focus</code> task, grouped by project, kept up to date and tickable in place. Ticking one there ticks it in its project note. If you do not use a template, save <code>#focus</code> as a filter in the Tasks view (type it in the narrow-down box and save it as &quot;Focus&quot;) and open it each morning.</p>
+<h3 id="3-commit-to-one-of-them-first-thing">3. Commit to one of them, first thing</h3>
+<p>When you settle the Top 3 (<a href="#tasks-every-morning">Tasks: every morning</a>):</p>
+<ul>
+<li><strong>One of the three is a focus task,</strong> or a piece of one (&quot;first draft of the hiring plan's budget section&quot;). Write it in the Top 3 with a link to the project: <code>- [ ] [[Q1 hiring]]: draft the budget section</code>. Unfinished, it carries into tomorrow's Top 3 by itself, so it stays in front of you until it is done or you decide otherwise.</li>
+<li><strong>Do it in the first block of the day,</strong> 60 to 90 minutes, before Triage and before mail. Urgent things are rarely so urgent that they cannot wait an hour; important work rarely survives being left for &quot;later today&quot;.</li>
+<li>On a day of back-to-back meetings, make the important item small (thirty minutes, one step), but keep it.</li>
+</ul>
+<h3 id="4-keep-triage-to-its-sittings">4. Keep Triage to its sittings</h3>
+<p>Triage is where urgent work comes in, so it is where the day slips away. Hold it to two sittings of 20 to 30 minutes (<a href="#tasks-triage">Tasks: triage</a>) and stop when the time is up: what is left comes back in the next run.</p>
+<p>In each sitting, ask of every action, <strong>&quot;does this belong to something important?&quot;</strong> If it does, <strong>M</strong> moves it into that project note, under Open Threads, so it becomes part of the important work instead of competing with it. Only what is urgent and small gets done in the sitting; the rest gets a day (<strong>S</strong>) or is dropped (<strong>C</strong>).</p>
+<h3 id="5-check-the-balance-each-week">5. Check the balance each week</h3>
+<p>At the end of the weekly review:</p>
+<ol>
+<li><strong>Read the Logbook for the week</strong> (⌘⇧T, then 6, or a tasks block <code>logbook this week</code> in a weekly note). Roughly how much came from Triage and the Inbox, and how many were focus tasks? If none of the week's done tasks were focus work, next week's first blocks need protecting harder, or the focus was too big: cut it into smaller next actions.</li>
+<li><strong>Look at each focus project:</strong> did it move? A project that has carried the same <code>#focus</code> task for two weeks is either too vague (rewrite the next action as something you could start in five minutes) or not actually important (take the tag off and let it go back to Anytime or Someday). Both are fine decisions; leaving it stuck is not.</li>
+<li><strong>Choose next week's focus</strong> (step 1 above).</li>
+</ol>
+<h3 id="what-each-part-of-margin-is-for">What each part of Margin is for</h3>
+<div class="table"><table><thead>
+<tr>
+<th></th>
+<th>Holds</th>
+<th>When</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Daily note: Top 3 and Important</td>
+<td>Today's commitment, with one important item; the week's focus next actions</td>
+<td>First thing; important item in the first block</td>
+</tr>
+<tr>
+<td>Triage</td>
+<td>Urgent work as it comes in</td>
+<td>Two short sittings a day, after the first block</td>
+</tr>
+<tr>
+<td>Inbox</td>
+<td>Things you have not decided on</td>
+<td>Emptied at the end of the day</td>
+</tr>
+<tr>
+<td>Project notes</td>
+<td>Important work, its steps and its story; the threads Triage sends there</td>
+<td>Weekly review, and whenever you work on it</td>
+</tr>
+<tr>
+<td>Weekly review</td>
+<td>The balance between the two, and next week's focus</td>
+<td>Once a week</td>
+</tr>
+</tbody>
+</table></div><h2 id="tasks-every-week">Tasks: every week</h2>
 <p>This is the review that keeps the lists trustworthy. Open the Tasks view: ⌘⇧T.</p>
 <ol>
 <li><strong>Empty the Inbox: press 1,</strong> as at the end of a day. Nothing should be left in it after the review.</li>
@@ -480,6 +581,7 @@ mark.find-hit.current{background:#ffab2e}
 <li><strong>Catch undated strays: press 9</strong> for No date. Anything here has no plan: give it a day, send it to Someday, or delete it.</li>
 <li><strong>Archive what is finished.</strong> In the Logbook (press 6), <strong>Archive done tasks…</strong> moves everything ticked over a week ago into each note's Archive section, so project and people notes show what is still open.</li>
 <li><strong>Check every project has a next step.</strong> Press 4 for Anytime and group by <strong>Project</strong>. Go down the projects in Work (and your other areas): each should show at least one open task. For one that shows none, open its note and write the next step, or, if it is finished or dropped, archive it. Sort any tasks waiting under a project's Open Threads into its phases while you are there.</li>
+<li><strong>Check the balance and choose next week's focus.</strong> See <a href="#tasks-important-and-urgent">Tasks: important and urgent</a>: read the week's Logbook for how much was focus work, check each focus project moved, and tag the next actions of the two or three projects that matter next week <code>#focus</code>.</li>
 </ol>
 <h2 id="tasks-every-month">Tasks: every month</h2>
 <ol>
