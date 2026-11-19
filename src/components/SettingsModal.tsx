@@ -21,7 +21,6 @@ import {
   setSetting,
   setTriage,
   setTriageNote,
-  setColorThemes,
   toast,
   ui,
   useStore,
@@ -39,7 +38,7 @@ import { desktop, fileManager, type GlobalKeyId, type GlobalKeys } from '../desk
 import { FontPicker } from './FontPicker'
 import { api, type TodoistSettings, type TriageRule } from '../api'
 import { importFromTodoist, todoistStatus } from '../todoist'
-import { isDarkTheme, isThemeFile, themeSwatch, type ColorTheme } from '../lib/themes'
+import { ThemeCard } from './ThemeGallery'
 
 type Section = 'general' | 'appearance' | 'styles' | 'editor' | 'daily' | 'templates' | 'capture' | 'triage' | 'files' | 'shortcuts'
 
@@ -167,162 +166,35 @@ const GLOBAL_KEY_LABELS: [GlobalKeyId, string][] = [
  * take tasks from, on or off for this computer, and what the last check did. Kept by the server on this computer.
  */
 /** Which note is the triage note: written by an outside program, kept out of task lists, never reordered by Margin. */
-/** A theme's colours at a glance: its sidebar, and its page with a line of text and the accent. */
-function ThemeSwatch({ theme }: { theme: ColorTheme['theme'] }) {
-  const [bg, text, accent, side] = themeSwatch(theme)
-  return (
-    <span className="theme-swatch" style={{ background: bg }} aria-hidden>
-      <span style={{ background: side }} />
-      <span style={{ background: text }} />
-      <span style={{ background: accent }} />
-    </span>
-  )
-}
-
 /**
- * Colour themes: one for the light appearance and one for the dark, from the themes in the notes folder; adding
- * them from the Bear app on this computer or from a .theme file; taking them out again.
+ * The colour themes: what is chosen for light and for dark, each a button that opens the gallery beside the page
+ * (and closes Settings, so the note shows each theme as it is picked).
  */
 function ColorThemeRows() {
   const s = useStore((st) => st.settings)
   const themes = useStore((st) => st.colorThemes)
-  const bearInstalled = useStore((st) => st.bearInstalled)
-  const [bear, setBear] = useState<ColorTheme[] | null>(null)
-  const [picked, setPicked] = useState<string[]>([])
-  const light = themes.filter((t) => !isDarkTheme(t.theme))
-  const dark = themes.filter((t) => isDarkTheme(t.theme))
-  const openBear = async () => {
-    try {
-      setBear((await api.bearThemes()).themes)
-      setPicked([])
-    } catch (e) {
-      toast(`Could not read Bear's themes: ${(e as Error).message}`)
-    }
+  const pick = (kind: 'light' | 'dark') => ui({ prefs: false, themeGallery: kind })
+  const slot = (kind: 'light' | 'dark') => {
+    const name = kind === 'dark' ? s.themeDark : s.themeLight
+    const t = themes.find((x) => x.name === name)
+    return (
+      <button className="theme-slot" onClick={() => pick(kind)} title={`Choose the theme for ${kind}`}>
+        {kind === 'dark' ? <Moon size={14} /> : <Sun size={14} />}
+        <ThemeCard theme={t?.theme ?? null} size="chip" dark={kind === 'dark'} />
+        <span>{t ? t.name : 'None'}</span>
+      </button>
+    )
   }
-  const add = async (names: string[]) => {
-    try {
-      const res = await api.addBearThemes(names)
-      setColorThemes(res.themes)
-      toast(res.added.length === 1 ? `Added the theme “${res.added[0]}”` : `Added ${res.added.length} themes`)
-      setPicked([])
-    } catch (e) {
-      toast(`Could not add the themes: ${(e as Error).message}`)
-    }
-  }
-  /** Add .theme files, one after another; one message for all of them. */
-  const addFiles = async (files: File[]) => {
-    const added: string[] = []
-    const refused: string[] = []
-    const orphans: string[] = []
-    for (const file of files) {
-      try {
-        const theme = JSON.parse(await file.text())
-        // A theme built on another ("base theme") is completed by the server; anything else must be complete.
-        if (!isThemeFile(theme) && typeof theme?.meta?.['base theme'] !== 'string') {
-          refused.push(file.name)
-          continue
-        }
-        const res = await api.addThemeFile(file.name, theme)
-        setColorThemes(res.themes)
-        added.push(...res.added)
-      } catch (e) {
-        // Built on a theme that is not here: say which.
-        const base = /^It builds on the theme “(.+?)”/.exec((e as Error).message)?.[1]
-        if (base) orphans.push(`“${file.name}” builds on “${base}”, which is not here: add that one first, or add it on a computer with Bear`)
-        else refused.push(file.name)
-      }
-    }
-    const done = added.length === 1 ? `Added the theme “${added[0]}”` : added.length ? `Added ${added.length} themes` : ''
-    const bad = refused.length === 1 ? `“${refused[0]}” is not a theme file Margin can read` : refused.length ? `${refused.length} files are not theme files Margin can read (${refused.join(', ')})` : ''
-    toast([done, bad, ...orphans].filter(Boolean).join('. '))
-  }
-  const remove = async (name: string) => {
-    const res = await api.removeTheme(name)
-    if (s.themeLight === name) setSetting('themeLight', '')
-    if (s.themeDark === name) setSetting('themeDark', '')
-    setColorThemes(res.themes)
-  }
-  const have = new Set(themes.map((t) => t.name))
   return (
-    <>
-      <Row
-        label="Colour theme"
-        hint="Colours from a Bear theme, one for light and one for dark, as Bear does; Margin switches with the Theme setting above. Your font and text settings still apply. None keeps Margin's own colours (or the Bear style's)."
-      >
-        <div className="theme-pickers">
-          <label>
-            <Sun size={14} />
-            <Select value={light.some((t) => t.name === s.themeLight) ? s.themeLight : ''} onChange={(v) => setSetting('themeLight', v)} options={[['', 'None'], ...light.map((t): [string, string] => [t.name, t.name])]} />
-          </label>
-          <label>
-            <Moon size={14} />
-            <Select value={dark.some((t) => t.name === s.themeDark) ? s.themeDark : ''} onChange={(v) => setSetting('themeDark', v)} options={[['', 'None'], ...dark.map((t): [string, string] => [t.name, t.name])]} />
-          </label>
-        </div>
-      </Row>
-      <Row
-        label="Themes in this notes folder"
-        hint={`Kept in the notes folder (.margin/themes), so every computer that opens it has them, Bear or not. ${bearInstalled ? 'Add themes from the Bear app on this computer, or .theme files.' : 'Bear is not installed on this computer: add .theme files (copied from .margin/themes in a notes folder where they were added from Bear), or open a notes folder that has them.'}`}
-        stack
-      >
-        <div className="theme-list">
-          {themes.map((t) => (
-            <div key={t.name} className="theme-item">
-              <ThemeSwatch theme={t.theme} />
-              <span className="theme-name">{t.name}</span>
-              <span className="theme-kind">{isDarkTheme(t.theme) ? 'Dark' : 'Light'}</span>
-              <button className="icon-btn xs" title={`Remove “${t.name}” from this notes folder`} onClick={() => void remove(t.name)}>
-                <X size={13} />
-              </button>
-            </div>
-          ))}
-          {!themes.length && <p className="theme-none">No themes yet.</p>}
-          <div className="theme-actions">
-            {bearInstalled && (
-              <button className="btn sm" onClick={() => (bear ? setBear(null) : void openBear())}>
-                {bear ? 'Hide Bear’s themes' : 'Add from Bear…'}
-              </button>
-            )}
-            <label className="btn sm">
-              Add .theme files…
-              <input
-                type="file"
-                accept=".theme,application/json"
-                multiple
-                hidden
-                onChange={(e) => {
-                  const files = [...(e.target.files ?? [])]
-                  e.target.value = ''
-                  if (files.length) void addFiles(files)
-                }}
-              />
-            </label>
-          </div>
-          {bear && (
-            <div className="theme-bear">
-              <div className="theme-bear-grid">
-                {bear.map((t) => (
-                  <label key={t.name} className={cx('theme-bear-item', have.has(t.name) && 'added')} title={have.has(t.name) ? 'Already in this notes folder (adding it again replaces it)' : undefined}>
-                    <input type="checkbox" checked={picked.includes(t.name)} onChange={(e) => setPicked((p) => (e.target.checked ? [...p, t.name] : p.filter((x) => x !== t.name)))} />
-                    <ThemeSwatch theme={t.theme} />
-                    <span>{t.name}</span>
-                    {have.has(t.name) && <Check size={13} />}
-                  </label>
-                ))}
-              </div>
-              <div className="theme-actions">
-                <button className="btn sm primary" disabled={!picked.length} onClick={() => void add(picked)}>
-                  Add {picked.length || ''} selected
-                </button>
-                <button className="btn sm" onClick={() => void add(bear.map((t) => t.name))}>
-                  Add all {bear.length}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </Row>
-    </>
+    <Row
+      label="Colour theme"
+      hint="Bear's colour themes: one for light, one for dark, switching with the Theme setting. Click one to choose from a gallery beside your note."
+    >
+      <div className="theme-pickers">
+        {slot('light')}
+        {slot('dark')}
+      </div>
+    </Row>
   )
 }
 

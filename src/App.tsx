@@ -23,6 +23,7 @@ import { followLink } from './components/Preview'
 import { Palette } from './components/Palette'
 import { HistoryModal } from './components/HistoryModal'
 import { SettingsModal } from './components/SettingsModal'
+import { ThemeGallery } from './components/ThemeGallery'
 import { AskDialog, HelpModal, Lightbox, Menu, QuickCapture, Toasts } from './components/Overlays'
 
 let lastRun = { id: '', source: '', at: 0 }
@@ -275,6 +276,7 @@ export default function App() {
           {sideNote && <SidePane note={sideNote} />}
         </div>
       </main>
+      <ThemeGallery />
       {palette && <Palette key={palette.mode + (palette.noteId || '')} state={palette} />}
       {capture && <QuickCapture />}
       {help && <HelpModal />}

@@ -6322,96 +6322,272 @@ kbd {
   margin-bottom: calc(0.9em + var(--para-space, 0em));
 }
 
-/* Settings → Appearance: colour themes */
+/* Settings → Appearance: the theme chosen for light and for dark, each opening the gallery */
 .theme-pickers {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
 }
-.theme-pickers label {
+.theme-slot {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  height: 34px;
+  padding: 0 10px 0 8px;
+  border: var(--hair) solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--bg-raised);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.theme-slot:hover {
+  background: var(--hover);
+}
+.theme-slot > svg {
   color: var(--text-3);
 }
-.theme-swatch {
+
+/* A theme drawn as a tiny page */
+.theme-mini {
   position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  width: 44px;
-  height: 22px;
-  padding-left: 14px;
-  border-radius: 5px;
+  display: flex;
   overflow: hidden;
-  box-shadow: inset 0 0 0 var(--hair) var(--border-strong);
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 var(--hair) color-mix(in srgb, var(--text) 18%, transparent);
   flex: none;
 }
-.theme-swatch > span:first-child {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 10px;
+.theme-mini.card {
+  width: 100%;
+  aspect-ratio: 16 / 10;
 }
-.theme-swatch > span:not(:first-child) {
+.theme-mini.chip {
+  width: 34px;
+  height: 22px;
+  border-radius: 4px;
+}
+.theme-mini-side {
+  width: 22%;
+  flex: none;
+}
+.theme-mini-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 9%;
+  padding: 0 14%;
+}
+.theme-mini.chip .theme-mini-page {
+  gap: 2px;
+  padding: 0 4px;
+}
+.theme-mini-line {
+  display: block;
+  height: 3px;
+  border-radius: 2px;
+  width: 100%;
+  opacity: 0.85;
+}
+.theme-mini-line.h {
+  height: 5px;
+  width: 60%;
+  opacity: 1;
+}
+.theme-mini-line.short {
+  width: 75%;
+}
+.theme-mini-line.link {
+  width: 45%;
+}
+.theme-mini-row {
+  display: flex;
+  align-items: center;
+  gap: 6%;
+}
+.theme-mini-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
+  flex: none;
 }
-.theme-list {
+.theme-mini.chip .theme-mini-line {
+  height: 2px;
+}
+.theme-mini.chip .theme-mini-line.h {
+  height: 3px;
+}
+.theme-mini.chip .theme-mini-dot {
+  width: 4px;
+  height: 4px;
+}
+
+/* The gallery: a panel beside the page, so a theme can be seen on the note as it is picked */
+.theme-gallery {
+  width: 360px;
+  flex: none;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  background: var(--bg-raised);
+  border-left: var(--hair) solid var(--border);
+  box-shadow: var(--shadow-md);
+  min-height: 0;
 }
-.theme-item {
+.theme-gallery-head {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 3px 0;
+  justify-content: space-between;
+  padding: 14px 14px 8px 18px;
 }
-.theme-name {
-  flex: 1;
-}
-.theme-kind,
-.theme-none {
-  color: var(--text-3);
-  font-size: 12px;
+.theme-gallery-head h2 {
   margin: 0;
+  font-size: 15px;
+  font-weight: 650;
 }
-.theme-actions {
+.theme-gallery-tabs {
   display: flex;
-  gap: 8px;
-  margin-top: 6px;
-  flex-wrap: wrap;
-}
-.theme-bear {
-  margin-top: 8px;
-  padding: 10px;
-  border: var(--hair) solid var(--border);
+  gap: 4px;
+  margin: 0 18px 10px;
+  padding: 3px;
   border-radius: 8px;
   background: var(--bg-sunken);
 }
-.theme-bear-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-  gap: 4px 12px;
-  max-height: 300px;
-  overflow: auto;
-}
-.theme-bear-item {
-  display: flex;
+.theme-gallery-tabs button {
+  flex: 1;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 3px 4px;
-  border-radius: 5px;
+  justify-content: center;
+  gap: 6px;
+  height: 28px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--text-2);
+  font: inherit;
+  font-size: 13px;
   cursor: pointer;
 }
-.theme-bear-item:hover {
-  background: var(--hover);
+.theme-gallery-tabs button.on {
+  background: var(--bg-raised);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
 }
-.theme-bear-item.added {
+.theme-gallery-note {
+  margin: 0 18px 10px;
+  font-size: 12px;
   color: var(--text-3);
+  line-height: 1.45;
+}
+.theme-gallery-body {
+  flex: 1;
+  overflow: auto;
+  padding: 2px 18px 16px;
+}
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 12px;
+}
+.theme-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.theme-card-pick {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.theme-card .theme-mini {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  transition: outline-color 0.12s;
+}
+.theme-card:hover .theme-mini {
+  outline-color: var(--border-strong);
+}
+.theme-card.on .theme-mini {
+  outline-color: var(--accent);
+}
+.theme-card-name {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12.5px;
+  color: var(--text-2);
+}
+.theme-card.on .theme-card-name {
+  color: var(--text);
+  font-weight: 600;
+}
+.theme-card.on .theme-card-name svg {
+  color: var(--accent);
+}
+.theme-card.add .theme-mini {
+  opacity: 0.8;
+}
+.theme-card-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: none;
+  width: 20px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--bg-raised) 85%, transparent);
+  color: var(--text-2);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+.theme-card:hover .theme-card-remove {
+  display: inline-flex;
+}
+.theme-gallery-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 20px 0 10px;
+}
+.theme-gallery-section h3 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.theme-gallery-foot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 12px 18px 14px;
+  border-top: var(--hair) solid var(--border);
+}
+.theme-gallery-foot small {
+  color: var(--text-3);
+  font-size: 11.5px;
+  line-height: 1.4;
 }
 
 /* ==Highlighted text== in the editor (read mode uses <mark>) */

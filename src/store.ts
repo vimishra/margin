@@ -344,6 +344,8 @@ interface State {
   capture: false | 'note' | 'task'
   help: boolean
   prefs: boolean
+  /** The colour theme gallery, beside the page: which appearance it is choosing for; '' when closed. */
+  themeGallery: '' | 'light' | 'dark'
   /** Note shown in the second pane beside the main view, if any. */
   side: string | null
   /** Notes open as tabs in the side pane. */
@@ -456,6 +458,7 @@ export const useStore = create<State>(() => ({
   capture: false,
   help: false,
   prefs: false,
+  themeGallery: '',
   jump: null,
   journalNote: null,
   side: local.get<string | null>('side', null),
@@ -2012,4 +2015,4 @@ export function applyTheme() {
 }
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme)
 
-export const ui = (patch: Partial<Pick<State, 'palette' | 'capture' | 'help' | 'prefs' | 'historyFor' | 'menu' | 'lightbox' | 'datePick'>>) => set(patch)
+export const ui = (patch: Partial<Pick<State, 'palette' | 'capture' | 'help' | 'prefs' | 'themeGallery' | 'historyFor' | 'menu' | 'lightbox' | 'datePick'>>) => set(patch)

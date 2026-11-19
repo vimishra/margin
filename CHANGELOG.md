@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.45.0 (2026-11-19)
+
+### Changed
+
+- **A theme gallery instead of a long list in Settings.** Settings → Appearance → Colour theme is now one row: the theme for light and for dark, each shown as a small swatch. Clicking one (or ⌘K → Choose a colour theme…) opens a gallery beside your note, so you see each theme on the note as you click it. Themes are drawn as small pages in their own colours, in tabs for light and dark, with None (Margin's own colours) first. The Bear themes not added yet are offered in the same gallery (click to add and use, or Add all), with Add .theme files… and a × on each card to remove one.
+
 ## 1.44.0 (2026-11-19)
 
 ### Added
