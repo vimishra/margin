@@ -116,7 +116,9 @@ export function themeVars(t: ThemeFile): Record<string, string> {
     '--theme-side-text-3': c('sidebar.icon color') ? mix(c('sidebar.icon color'), 85, sideBg) : mix(sideText, 60, sideBg),
     '--theme-side-text-4': mix(sideText, 38, sideBg),
     '--theme-side-raised': mix(sideText, sideDark ? 9 : 4, sideBg),
-    '--theme-side-border': c('sidebar.stroke color') || mix(sideText, 15, sideBg),
+    // Bear often makes the sidebar's stroke its own background (no line); Margin still needs one around buttons.
+    '--theme-side-border': c('sidebar.stroke color') && c('sidebar.stroke color').toLowerCase() !== sideBg.toLowerCase() ? c('sidebar.stroke color') : mix(sideText, 15, sideBg),
+    '--theme-side-border-strong': mix(sideText, sideDark ? 24 : 20, sideBg),
     '--theme-side-hover': mix(sideText, 8, 'transparent'),
     '--theme-side-active': c('sidebar.background secondary color') || mix(sideText, 15, 'transparent'),
     '--theme-side-accent': c('sidebar.selected icon color') || c('sidebar.accent color') || accent,

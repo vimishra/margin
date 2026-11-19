@@ -544,6 +544,17 @@ button.chip:hover,
   display: flex;
   gap: 6px;
 }
+/* The buttons beside New note: their icons in the sidebar's own text colour on a tint of it, so they read on any
+   sidebar (a theme's dark one included), not as empty boxes. */
+.side-actions .btn.icon {
+  color: var(--text);
+  background: color-mix(in srgb, var(--text) 11%, transparent);
+  border-color: transparent;
+  box-shadow: none;
+}
+.side-actions .btn.icon:hover {
+  background: color-mix(in srgb, var(--text) 20%, transparent);
+}
 .side-scroll {
   flex: 1;
   overflow-y: auto;
@@ -6303,7 +6314,7 @@ kbd {
   --text-3: var(--theme-side-text-3);
   --text-4: var(--theme-side-text-4);
   --border: var(--theme-side-border);
-  --border-strong: var(--theme-side-border);
+  --border-strong: var(--theme-side-border-strong);
   --hover: var(--theme-side-hover);
   --active: var(--theme-side-active);
   --accent-text: var(--theme-side-accent);

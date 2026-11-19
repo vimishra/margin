@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.47.1 (2026-11-19)
+
+### Fixed
+
+- **The two buttons next to New note** (the New… menu and Quick capture) could show as empty boxes under a colour theme, because many Bear themes give the sidebar no visible border and a strong selection colour. Their icons are now drawn in the sidebar's text colour on a light tint of it, readable in every theme; and where a theme's sidebar border matches its background, Margin draws a faint one of its own.
+
 ## 1.47.0 (2026-11-19)
 
 ### Added
