@@ -6263,3 +6263,153 @@ kbd {
 .status-bar .status-sel {
   color: var(--accent-text);
 }
+
+/* ---------- colour themes (Bear's theme format; Settings → Appearance → Colour theme) ----------
+   The page colours come in as Margin's own variables, set on the root by applyAppearance(). These rules apply the
+   rest: links, tags, the cursor, selection, highlights, and the sidebar, which has colours of its own (a light
+   theme can have a dark sidebar). */
+:root[data-color-theme] .md a:not(.wikilink):not(.hashtag):not(.shortlink),
+:root[data-color-theme] .cm-live .cm-link-text,
+:root[data-color-theme] .cm-live .cm-link-text * {
+  color: var(--theme-link) !important;
+}
+:root[data-color-theme] .editor .cm-content {
+  caret-color: var(--theme-cursor);
+}
+:root[data-color-theme] .editor .cm-cursor {
+  border-left-color: var(--theme-cursor);
+}
+:root[data-color-theme] .editor .cm-selectionBackground,
+:root[data-color-theme] .editor .cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground {
+  background: var(--theme-selection);
+}
+:root[data-color-theme] .cm-hashtag,
+:root[data-color-theme] .md a.hashtag,
+:root[data-color-theme] .task-text a.hashtag,
+:root[data-color-theme] .triage-task .task-meta a.hashtag {
+  color: var(--theme-tag-text);
+  background: var(--theme-tag-bg);
+}
+:root[data-color-theme] mark {
+  color: var(--theme-mark-text);
+}
+:root[data-color-theme] .sidebar {
+  --bg: var(--theme-side-bg);
+  --bg-side: var(--theme-side-bg);
+  --bg-raised: var(--theme-side-raised);
+  --bg-sunken: var(--theme-side-raised);
+  --text: var(--theme-side-text);
+  --text-2: var(--theme-side-text-2);
+  --text-3: var(--theme-side-text-3);
+  --text-4: var(--theme-side-text-4);
+  --border: var(--theme-side-border);
+  --border-strong: var(--theme-side-border);
+  --hover: var(--theme-side-hover);
+  --active: var(--theme-side-active);
+  --accent-text: var(--theme-side-accent);
+  color-scheme: var(--theme-side-scheme);
+}
+
+/* ---------- paragraph spacing (Settings → Appearance) ----------
+   Space after each line of a note, as Bear puts after each paragraph; not inside code blocks, tables or callouts. */
+.editor .cm-content > .cm-line:not(.cm-code-line):not(.cm-table-source):not(.cm-callout) {
+  padding-bottom: var(--para-space, 0);
+}
+.md li + li {
+  margin-top: calc(0.2em + var(--para-space, 0em));
+}
+.md p {
+  margin-bottom: calc(0.9em + var(--para-space, 0em));
+}
+
+/* Settings → Appearance: colour themes */
+.theme-pickers {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.theme-pickers label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-3);
+}
+.theme-swatch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  width: 44px;
+  height: 22px;
+  padding-left: 14px;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 var(--hair) var(--border-strong);
+  flex: none;
+}
+.theme-swatch > span:first-child {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 10px;
+}
+.theme-swatch > span:not(:first-child) {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.theme-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.theme-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 3px 0;
+}
+.theme-name {
+  flex: 1;
+}
+.theme-kind,
+.theme-none {
+  color: var(--text-3);
+  font-size: 12px;
+  margin: 0;
+}
+.theme-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+.theme-bear {
+  margin-top: 8px;
+  padding: 10px;
+  border: var(--hair) solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-sunken);
+}
+.theme-bear-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 4px 12px;
+  max-height: 300px;
+  overflow: auto;
+}
+.theme-bear-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 4px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.theme-bear-item:hover {
+  background: var(--hover);
+}
+.theme-bear-item.added {
+  color: var(--text-3);
+}

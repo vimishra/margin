@@ -85,6 +85,7 @@ mark.find-hit.current{background:#ffab2e}
 <li>A source mode for the raw markdown, and a read mode with nothing to edit</li>
 <li>Callouts (coloured notes, warnings and decisions), footnotes, and properties edited in a panel under the title</li>
 <li>A Bear-style look, light and dark, and a small status bar with the note's open tasks, words and characters</li>
+<li>Bear's own colour themes (Red Graphite, Solarized, Nord, Dracula and the rest), and Bear's spacing: paragraphs that stand apart</li>
 </ul>
 <p><strong><a href="#finding-things">Linking and finding</a></strong></p>
 <ul>
@@ -1706,7 +1707,7 @@ margin-tasks open --no-due --notebook Work --paths
 </tr>
 <tr>
 <td>Appearance</td>
-<td>Style (Margin, or Bear: a warm page, a red accent, rounded headings with their <code>#</code> marks in the margin, in light and dark), theme, accent colour (in the desktop app the first choice, System, follows the accent colour set in macOS System Settings), note font and code font (any installed font), text size and weight, line spacing, list indent, indent guides, image border, page width, and the status bar. The note font, size and weight also apply to tasks wherever they are listed (the Tasks view and the panel under daily notes) and to what you type in Quick capture and Quick task.</td>
+<td>Style (Margin, or Bear: a warm page, a red accent, rounded headings with their <code>#</code> marks in the margin, in light and dark), colour theme for light and for dark, and the themes in the notes folder (see below), theme, accent colour (in the desktop app the first choice, System, follows the accent colour set in macOS System Settings), note font and code font (any installed font), text size and weight, line spacing, paragraph spacing, list indent, indent guides, image border, page width, and the status bar. The note font, size and weight also apply to tasks wherever they are listed (the Tasks view and the panel under daily notes) and to what you type in Quick capture and Quick task.</td>
 </tr>
 <tr>
 <td>Text styles</td>
@@ -1739,6 +1740,26 @@ margin-tasks open --no-due --notebook Work --paths
 </tbody>
 </table></div><p><strong>Text style colours</strong> have a light-theme and a dark-theme picker. Leave the dark one on Auto and it uses a lightened version of your light colour, so a dark heading colour stays readable on a dark background.</p>
 <p>Page width is measured in characters per line, and applies to notes, the journal, and the Tasks and Triage views alike. Settings are kept per app: the desktop app and a browser each have their own.</p>
+<h3 id="colour-themes-from-bear">Colour themes from Bear</h3>
+<p>Margin can use Bear's colour themes: Red Graphite, Charcoal, Solarized, Nord, Dracula, Gruvbox, Tokyo Night, Everforest, Catppuccin, Rosé Pine, Shibuya and the rest.</p>
+<ol>
+<li><strong>Add them to your notes folder.</strong> Settings → Appearance → <em>Themes in this notes folder</em> → <strong>Add from Bear…</strong> lists the themes in the Bear app on this Mac, each with a small swatch (its sidebar, page, text and accent). Tick the ones you want and choose <strong>Add selected</strong>, or <strong>Add all</strong>. Bear only reads them; nothing in Bear changes. <strong>Add .theme files…</strong> takes theme files, one or several at once: ones copied from another notes folder, or shared on Bear's forum.</li>
+<li><strong>Choose one for light and one for dark.</strong> <em>Colour theme</em> has two menus, ☀ and ☾, like Bear's: the first lists the light themes, the second the dark ones. Margin uses the one that matches the Theme setting (System, Light or Dark), so with System it switches with your Mac. None keeps Margin's own colours (or the Bear style's).</li>
+</ol>
+<p>A theme brings its page, sidebar (which can differ: Red Graphite has a dark sidebar beside a white page), text, accent, links, headings, list bullets, tags, highlights, the cursor, selection and code colours. Your font, text size and the rest of the text settings stay yours, and a colour you set for a heading in Text styles wins over the theme's. Themes work with either Style: the Bear style gives the shape (heading marks in the margin, the space around headings), the theme the colours.</p>
+<p>The themes are kept in the notes folder (<code>.margin/themes/</code>), complete, so any computer that opens the folder has them, whether or not Bear is installed there. Take one out with its ×.</p>
+<p><strong>On a computer without Bear</strong> (a work laptop, Linux, a Chromebook):</p>
+<ul>
+<li><strong>Same notes folder, synced:</strong> nothing to do. The themes come with the folder; choose one for light and one for dark in Settings on that computer (the choice is kept per computer). <code>.margin</code> is a hidden folder, so your sync tool must copy hidden folders; if your Triage rules already reach that computer, it does.</li>
+<li><strong>A notes folder of its own:</strong> on the Mac with Bear, add the themes, then in Finder open the notes folder, press ⌘⇧. to show hidden folders, and copy the files in <code>.margin/themes</code>. On the other computer, choose <strong>Add .theme files…</strong> and select them all, or put them in that notes folder's <code>.margin/themes/</code> and reload Margin. Copy these rather than the files inside the Bear app: some of Bear's own only list what they change from another theme, while Margin's copies are complete.</li>
+</ul>
+<h3 id="spacing-like-bears">Spacing like Bear's</h3>
+<p>Much of Bear's look is its spacing: the lines inside a paragraph sit close together, and each paragraph (each line you end with Return) has a little space after it, so the page reads in clear blocks. Margin's default is the other way round: looser lines, no space between them.</p>
+<ul>
+<li><strong>Line spacing:</strong> Bear is 1.5 (Margin's default, Comfortable, is 1.7).</li>
+<li><strong>Paragraph spacing:</strong> None, Small, Bear or Large: the space after each line of a note in the editor, and between list items when reading.</li>
+<li><strong>Use Bear's spacing</strong> sets both at once. Change either back any time.</li>
+</ul>
 <h2 id="shortcuts">Shortcuts</h2>
 <p>These are the defaults. Change any of them in Settings → Shortcuts.</p>
 <p><strong>Keys that work from any app.</strong> In the desktop app, ⌃⌥Space opens Quick task and ⌃⌥N opens Quick capture, even while you are in another app. Change them under <strong>From any app</strong> at the top of Settings → Shortcuts: click one and press the new keys, or press Backspace to turn it off; the arrow beside it puts the default back. The change takes effect at once. If another app or the system already uses the keys you chose, Settings says so and the shortcut stays off until you pick others. If they are also one of Margin's own shortcuts (on Linux, Ctrl+Alt+N is also New scratch note), Settings points it out: from then on those keys open Quick task or Quick capture, even inside Margin. On a Chromebook, keys pressed outside Margin's window may not reach it at all.</p>

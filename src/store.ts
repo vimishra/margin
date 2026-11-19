@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import type { ReactNode } from 'react'
 import { api, isConflict, type TriageConfig, type TriageRule } from './api'
 import { shortLinks } from './lib/shortlinks'
+import { THEME_VAR_NAMES, themeVars, type ColorTheme } from './lib/themes'
 import { afterTick } from './lib/repeat'
 import { addToTop3, takeUnfinishedTop3 } from './lib/top3'
 import { desktop } from './desktop'
@@ -93,6 +94,11 @@ export interface Settings {
   look: 'margin' | 'bear'
   /** The small bar at the bottom right of a note: open tasks, words, characters, reading time. */
   statusBar: boolean
+  /** Colour themes (Bear's format, kept in the notes folder) for the light and the dark appearance; '' for none. */
+  themeLight: string
+  themeDark: string
+  /** Space after each paragraph (each line of a note), in em: 0 for none; Bear's is about 0.4. */
+  paragraphSpacing: number
   /** Font family for note text: an installed font's name, or 'system' for the default. */
   font: string
   /** Font family for code, or 'system' for the default monospace. */
@@ -166,6 +172,9 @@ export const DEFAULT_SETTINGS: Settings = {
   accent: 'sky',
   look: 'margin',
   statusBar: true,
+  themeLight: '',
+  themeDark: '',
+  paragraphSpacing: 0,
   font: 'system',
   codeFont: 'system',
   fontSize: 16,
@@ -315,6 +324,9 @@ interface State {
   folderTags: Record<string, string[]>
   /** The triage note an outside program writes, from the notes folder's settings (`.margin/config.json`). */
   triage: TriageConfig
+  /** The colour themes in the notes folder (.margin/themes), and whether Bear is installed to import more from. */
+  colorThemes: ColorTheme[]
+  bearInstalled: boolean
   notes: Record<string, Note>
   folders: string[]
   route: Route
@@ -427,6 +439,8 @@ export const useStore = create<State>(() => ({
   attachmentsFolder: 'attachments',
   folderTags: {},
   triage: {},
+  colorThemes: [],
+  bearInstalled: false,
   notes: {},
   folders: [],
   route: parseHash(location.hash),
@@ -629,6 +643,7 @@ export async function load() {
     }
     enterRoute(get().route)
     if (first) {
+      void loadThemes()
       // With the setting on, deleted notes older than it are removed for good.
       const days = get().settings.trashDays
       if (days > 0) await api.emptyTrash(days).catch(() => {})
@@ -1921,6 +1936,55 @@ export function applyAppearance() {
     root.style.setProperty(`--${key}-size`, `${style.size / 100}em`)
   }
   root.style.setProperty('--doc-leading', String(lineHeight))
+  root.style.setProperty('--para-space', `${get().settings.paragraphSpacing || 0}em`)
+  applyColorTheme(dark)
+}
+
+/** The colour theme for the light or the dark appearance, if one is chosen and in the notes folder. */
+export function activeColorTheme(dark = document.documentElement.dataset.theme === 'dark'): ColorTheme | undefined {
+  const name = dark ? get().settings.themeDark : get().settings.themeLight
+  return name ? get().colorThemes.find((t) => t.name === name) : undefined
+}
+
+/**
+ * Put the chosen colour theme's colours on the page (inline on the root, so they win over the stylesheet and the
+ * Bear style), or take them all off. Headings and list markers keep a colour set in Text styles.
+ */
+function applyColorTheme(dark: boolean) {
+  const root = document.documentElement
+  for (const v of THEME_VAR_NAMES) root.style.removeProperty(v)
+  const t = activeColorTheme(dark)
+  if (!t) {
+    delete root.dataset.colorTheme
+    return
+  }
+  root.dataset.colorTheme = t.name
+  const vars = themeVars(t.theme)
+  for (const [k, v] of Object.entries(vars)) root.style.setProperty(k, v)
+  const styles = get().settings.styles
+  for (const [key] of STYLE_KEYS) {
+    if (!/^h\d$/.test(key) || !vars['--theme-heading']) continue
+    const style = { ...DEFAULT_STYLES[key], ...styles?.[key] }
+    if (!styleColor(style, dark)) root.style.setProperty(`--${key}-color`, vars['--theme-heading'])
+  }
+  if (!(styles?.h2 && styleColor(styles.h2, dark))) root.style.setProperty('--list-marker', vars['--theme-list-marker'])
+}
+
+/** Read the colour themes in the notes folder, and apply the chosen one. */
+export async function loadThemes() {
+  try {
+    const { themes, bear } = await api.themes()
+    set({ colorThemes: themes, bearInstalled: bear })
+    applyAppearance()
+  } catch {
+    /* an older server, or none: no themes */
+  }
+}
+
+/** Replace the list of themes after an import or removal, and apply the chosen one. */
+export function setColorThemes(themes: ColorTheme[]) {
+  set({ colorThemes: themes })
+  applyAppearance()
 }
 
 export function setSetting<K extends keyof Settings>(key: K, value: Settings[K]) {

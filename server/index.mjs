@@ -12,6 +12,7 @@ import os from 'node:os'
 import { seedNotes } from './seed.mjs'
 import { importObsidian } from './obsidian.mjs'
 import { todoistRoutes } from './todoist.mjs'
+import { themeRoutes } from './themes.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // The notes folder: VAULT_DIR if given, else the folder chosen in the desktop app, else ./vault.
@@ -829,6 +830,9 @@ app.post('/api/versions', h(async (req, res) => {
 
 // Tasks captured in Todoist, brought into the Inbox (settings and token kept on this computer).
 todoistRoutes(app, h, DATA)
+
+// Colour themes in Bear's format, kept in the notes folder; Bear's own are read from the Bear app.
+themeRoutes(app, h, VAULT, HttpError)
 
 app.use('/api', (_req, _res, next) => next(new HttpError(404, 'Not found')))
 app.use('/files', express.static(VAULT, { dotfiles: 'deny', index: false }))

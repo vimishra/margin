@@ -2,6 +2,14 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.43.0 (2026-11-19)
+
+### Added
+
+- **Bear's colour themes.** Settings → Appearance → Add from Bear… lists the themes in the Bear app on this Mac (Red Graphite, Solarized, Nord, Dracula, Tokyo Night, Shibuya and the rest), with swatches; add some or all. Add .theme files… takes theme files, several at once. Choose one theme for light and one for dark, as in Bear; Margin follows the Theme setting. A theme brings the page, sidebar, text, accent, links, headings, list bullets, tags, highlights, cursor, selection and code colours; your fonts, sizes and Text styles colours stay yours.
+- Themes are kept, complete, in the notes folder (`.margin/themes/`), so every computer that opens it has them, Bear or not. See "Colour themes from Bear" in the user guide for computers without Bear.
+- **Bear's spacing.** A new Paragraph spacing setting (None, Small, Bear, Large) puts space after each paragraph, and Line spacing has a Bear choice (1.5); Use Bear's spacing sets both, for Bear's rhythm of close lines and separated paragraphs.
+
 ## 1.42.0 (2026-11-18)
 
 ### Added

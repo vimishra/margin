@@ -26,6 +26,7 @@ Everything the app does, at a glance. Each heading links to the section that exp
 - A source mode for the raw markdown, and a read mode with nothing to edit
 - Callouts (coloured notes, warnings and decisions), footnotes, and properties edited in a panel under the title
 - A Bear-style look, light and dark, and a small status bar with the note's open tasks, words and characters
+- Bear's own colour themes (Red Graphite, Solarized, Nord, Dracula and the rest), and Bear's spacing: paragraphs that stand apart
 
 **[Linking and finding](#finding-things)**
 
@@ -1294,7 +1295,7 @@ Two settings live inside the app and cannot be read from outside it. If you rena
 | Section | What is there |
 | --- | --- |
 | General | Start page, where new notes go, which sidebar sections to show, week start, sidebar calendar, time format, how typed dates are read, tabs, and the most tabs to keep open |
-| Appearance | Style (Margin, or Bear: a warm page, a red accent, rounded headings with their `#` marks in the margin, in light and dark), theme, accent colour (in the desktop app the first choice, System, follows the accent colour set in macOS System Settings), note font and code font (any installed font), text size and weight, line spacing, list indent, indent guides, image border, page width, and the status bar. The note font, size and weight also apply to tasks wherever they are listed (the Tasks view and the panel under daily notes) and to what you type in Quick capture and Quick task. |
+| Appearance | Style (Margin, or Bear: a warm page, a red accent, rounded headings with their `#` marks in the margin, in light and dark), colour theme for light and for dark, and the themes in the notes folder (see below), theme, accent colour (in the desktop app the first choice, System, follows the accent colour set in macOS System Settings), note font and code font (any installed font), text size and weight, line spacing, paragraph spacing, list indent, indent guides, image border, page width, and the status bar. The note font, size and weight also apply to tasks wherever they are listed (the Tasks view and the panel under daily notes) and to what you type in Quick capture and Quick task. |
 | Text styles | Colour and size for Heading 1–5, bold and italic, with a separate colour for the light and dark themes |
 | Editor | Default mode, toolbar, spell check, auto-closing brackets, image pasting, line numbers, side panel |
 | Daily notes | Canvas or page, the daily notebook, a template for new days |
@@ -1306,6 +1307,30 @@ Two settings live inside the app and cannot be read from outside it. If you rena
 **Text style colours** have a light-theme and a dark-theme picker. Leave the dark one on Auto and it uses a lightened version of your light colour, so a dark heading colour stays readable on a dark background.
 
 Page width is measured in characters per line, and applies to notes, the journal, and the Tasks and Triage views alike. Settings are kept per app: the desktop app and a browser each have their own.
+
+### Colour themes from Bear
+
+Margin can use Bear's colour themes: Red Graphite, Charcoal, Solarized, Nord, Dracula, Gruvbox, Tokyo Night, Everforest, Catppuccin, Rosé Pine, Shibuya and the rest.
+
+1. **Add them to your notes folder.** Settings → Appearance → *Themes in this notes folder* → **Add from Bear…** lists the themes in the Bear app on this Mac, each with a small swatch (its sidebar, page, text and accent). Tick the ones you want and choose **Add selected**, or **Add all**. Bear only reads them; nothing in Bear changes. **Add .theme files…** takes theme files, one or several at once: ones copied from another notes folder, or shared on Bear's forum.
+2. **Choose one for light and one for dark.** *Colour theme* has two menus, ☀ and ☾, like Bear's: the first lists the light themes, the second the dark ones. Margin uses the one that matches the Theme setting (System, Light or Dark), so with System it switches with your Mac. None keeps Margin's own colours (or the Bear style's).
+
+A theme brings its page, sidebar (which can differ: Red Graphite has a dark sidebar beside a white page), text, accent, links, headings, list bullets, tags, highlights, the cursor, selection and code colours. Your font, text size and the rest of the text settings stay yours, and a colour you set for a heading in Text styles wins over the theme's. Themes work with either Style: the Bear style gives the shape (heading marks in the margin, the space around headings), the theme the colours.
+
+The themes are kept in the notes folder (`.margin/themes/`), complete, so any computer that opens the folder has them, whether or not Bear is installed there. Take one out with its ×.
+
+**On a computer without Bear** (a work laptop, Linux, a Chromebook):
+
+- **Same notes folder, synced:** nothing to do. The themes come with the folder; choose one for light and one for dark in Settings on that computer (the choice is kept per computer). `.margin` is a hidden folder, so your sync tool must copy hidden folders; if your Triage rules already reach that computer, it does.
+- **A notes folder of its own:** on the Mac with Bear, add the themes, then in Finder open the notes folder, press ⌘⇧. to show hidden folders, and copy the files in `.margin/themes`. On the other computer, choose **Add .theme files…** and select them all, or put them in that notes folder's `.margin/themes/` and reload Margin. Copy these rather than the files inside the Bear app: some of Bear's own only list what they change from another theme, while Margin's copies are complete.
+
+### Spacing like Bear's
+
+Much of Bear's look is its spacing: the lines inside a paragraph sit close together, and each paragraph (each line you end with Return) has a little space after it, so the page reads in clear blocks. Margin's default is the other way round: looser lines, no space between them.
+
+- **Line spacing:** Bear is 1.5 (Margin's default, Comfortable, is 1.7).
+- **Paragraph spacing:** None, Small, Bear or Large: the space after each line of a note in the editor, and between list items when reading.
+- **Use Bear's spacing** sets both at once. Change either back any time.
 
 ## Shortcuts
 

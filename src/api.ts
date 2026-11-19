@@ -1,4 +1,5 @@
 import type { Note, NotePatch } from './types'
+import type { ColorTheme } from './lib/themes'
 
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...init })
@@ -85,6 +86,11 @@ export interface TodoistTask {
 }
 
 export const api = {
+  themes: () => request<{ themes: ColorTheme[]; bear: boolean }>('/api/themes'),
+  bearThemes: () => request<{ themes: ColorTheme[] }>('/api/themes/bear'),
+  addBearThemes: (names: string[]) => request<{ themes: ColorTheme[]; added: string[] }>('/api/themes', json('POST', { names })),
+  addThemeFile: (name: string, theme: unknown) => request<{ themes: ColorTheme[]; added: string[] }>('/api/themes', json('POST', { name, theme })),
+  removeTheme: (name: string) => request<{ themes: ColorTheme[] }>(`/api/themes/${encodeURIComponent(name)}`, json('DELETE')),
   todoist: () => request<TodoistSettings>('/api/todoist'),
   setTodoist: (patch: Partial<TodoistSettings> & { token?: string }) => request<TodoistSettings>('/api/todoist', json('PUT', patch)),
   todoistTasks: () => request<{ tasks: TodoistTask[]; repeating: number; projectMissing: boolean }>('/api/todoist/tasks'),

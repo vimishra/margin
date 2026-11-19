@@ -1,6 +1,6 @@
 # Margin product specification
 
-This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.41.0.
+This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.43.0.
 
 It is written to be handed to a developer or a coding tool. Where a detail is a free choice for the implementer, it says so; everything else is a requirement.
 
@@ -853,7 +853,9 @@ A settings window with a search box that finds any setting or shortcut by name, 
 | Note font, code font | any installed font, or system | system |
 | Text size | px | 16 |
 | Text weight | 300 to 700 in steps of 10 | 400 |
-| Line spacing | number | 1.7 |
+| Line spacing | Compact 1.45, Bear 1.5, Comfortable 1.7, Relaxed 1.95 | 1.7 |
+| Paragraph spacing | None 0, Small 0.25em, Bear 0.4em, Large 0.7em | None |
+| Colour theme | for light: none or a light theme; for dark: none or a dark theme (themes in the notes folder) | none, none |
 | List indent | px per level | 28 |
 | Indent guides | on, off | on |
 | Image border | None, Hairline, Shadow | Hairline |
@@ -979,6 +981,8 @@ Every action below can be reassigned or cleared in Settings → Shortcuts, which
 
 - **Themes:** light, dark, or follow the system. Applied before first paint to avoid a flash.
 - **Style** (setting): Margin (the palette below) or Bear, each in light and dark. Bear changes the page and sidebar to warm off-white (`#fdfcfa`, `#f6f4f0`; text `#333230`) or warm charcoal (`#2b2a29`; text `#ebe7e1`), uses a red accent (`#dd4c4f` light, `#ea6366` dark) for links, list markers and the cursor, ignoring the accent setting and the system accent, uses a rounded sans-serif (Avenir Next, then SF Pro Rounded, Nunito Sans, the system font) as the note font when the font setting is System, gives headings more space above, and shows heading `#` marks in the left margin. Every other setting (text styles, sizes, width) applies on top.
+- **Colour themes** (settings, one for the light and one for the dark appearance): themes in Bear's format (JSON: sections `base`, `editor`, `sidebar`, `notes`; a value "$section.key" refers to another; `meta."base theme"` names a theme it builds on, whose values it overrides key by key). They are kept in the notes folder as `.margin/themes/<name>.theme`, written complete (with their base merged in, so they do not need Bear). They are added from the Bear app on the computer (`/Applications/Bear.app/…/BearCore.framework/…/Resources/*.theme`, read only; in Settings, with swatches, one by one or all; one with the same name is replaced) or from `.theme` files, several at once (each checked to have a page and a text colour; a base theme it names is filled in from the notes folder's themes or Bear's when present). A theme is dark when its page colour's relative luminance is under 0.2; the light menu lists the others. The chosen theme for the current appearance sets, on the root: the page, raised and sunken backgrounds (raised = secondary background in dark themes, the page in light ones; sunken = code background), borders, text (and dimmer steps mixed toward the page), accent (and its hover, soft and text forms), code text, highlight background, and code colours (comment, keyword, string, number, function, entity → type, variable → property); and, applied by rules while a theme is on: link colour, heading colour (unless a Text styles colour is set), list marker colour (unless Heading 2 has a colour), cursor, selection, tag pill text and background, highlight text, and the sidebar's own page, text, muted text (its icon colour), borders, hover, selection and accent. Fonts, sizes and spacing in the file are not used. Without a theme, nothing changes. Exports keep their usual printable colours.
+- **Paragraph spacing** (setting): padding after each editor line (not code block lines, table source or callouts), and in read mode as extra margin between list items and after paragraphs. With line spacing Bear (1.5) and paragraph spacing Bear (0.4em) it matches Bear's default rhythm; "Use Bear's spacing" sets both.
 - **Palette**, measured from Things 3:
 
 | | Light | Dark |
