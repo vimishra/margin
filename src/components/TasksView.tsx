@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { AlignLeft, Archive, Bell, BookmarkPlus, Box, CalendarClock, CalendarDays, Check, ChevronDown, ChevronRight, FileText, Flag, FolderInput, ListChecks, ListTree, MoreHorizontal, Repeat, Search, SquareCheck, SquareX, Star, Target, Users } from 'lucide-react'
 import type { Note } from '../types'
-import { deleteTaskView, go, openDatePicker, openFromClick, openMenu, openNoteAt, openSideAt, renameTaskView, rescheduleTasks, saveTaskView, ensureInboxNote, inboxNotebook, moveTasksToNote, ui, updateTask, updateTaskView, usePageWidthStyle, useStore, type MenuItem } from '../store'
+import { deleteTaskView, go, openDatePicker, openFromClick, openMenu, openNoteAt, openSideAt, renameTaskView, rescheduleTasks, saveTaskView, ensureInboxNote, inboxNotebook, moveTasksToNote, ui, updateTask, updateTaskView, useHiddenTaskNotes, usePageWidthStyle, useStore, type MenuItem } from '../store'
 import { hint } from '../shortcuts'
 import { archiveEverywhere } from '../archive'
 import { toggleFocus } from '../focus'
@@ -329,8 +329,8 @@ export function TasksView({ view }: { view?: string }) {
     setClosed({})
   }, [view])
 
-  const triagePath = useStore((s) => s.triage.note)
-  const tasks = useMemo(() => allTasks(notes, settings.templatesFolder, settings.inboxFolder, triagePath ? [triagePath] : []), [notes, settings.templatesFolder, settings.inboxFolder, triagePath])
+  const hidden = useHiddenTaskNotes()
+  const tasks = useMemo(() => allTasks(notes, settings.templatesFolder, settings.inboxFolder, hidden), [notes, settings.templatesFolder, settings.inboxFolder, hidden])
   const counts = useMemo(
     () => Object.fromEntries(TASK_FILTERS.map(([f]) => [f, selectTasks(tasks, notes, { filter: f, query: '', source }, weekStart, now).length])),
     [tasks, notes, source, weekStart, now],
@@ -643,7 +643,7 @@ export function DayTasks({ note, floating = false }: { note: Note; floating?: bo
   const notes = useStore((s) => s.notes)
   const templatesFolder = useStore((s) => s.settings.templatesFolder)
   const inboxFolder = useStore((s) => s.settings.inboxFolder)
-  const triagePath = useStore((s) => s.triage.note)
+  const hidden = useHiddenTaskNotes()
   const tag = useStore((s) => focusKey(s.settings.focusTag))
   // Over a canvas it starts folded away, so it does not cover the cards.
   const key = floating ? 'dayTasksOpenCanvas' : 'dayTasksOpen'
@@ -651,7 +651,7 @@ export function DayTasks({ note, floating = false }: { note: Note; floating?: bo
   const date = note.title
   const now = today()
   const { focus, due, late, carried } = useMemo(() => {
-    const all = allTasks(notes, templatesFolder, inboxFolder, triagePath ? [triagePath] : []).filter((t) => t.noteId !== note.id)
+    const all = allTasks(notes, templatesFolder, inboxFolder, hidden).filter((t) => t.noteId !== note.id)
     const isNow = date === now
     // Today's note shows the week's focus first; those tasks are not listed again below.
     const focus = isNow ? focusTasks(all, tag).sort(byUrgency) : []
@@ -663,7 +663,7 @@ export function DayTasks({ note, floating = false }: { note: Note; floating?: bo
       late: isNow ? elsewhere.filter((t) => isOverdue(t, now)).sort(byUrgency) : [],
       carried: isNow ? elsewhere.filter((t) => isCarried(t, now) && !isOn(t, now)).sort(byUrgency) : [],
     }
-  }, [notes, templatesFolder, inboxFolder, triagePath, tag, note.id, date, now])
+  }, [notes, templatesFolder, inboxFolder, hidden, tag, note.id, date, now])
   if (!focus.length && !due.length && !late.length && !carried.length) return null
   const left = due.filter((t) => !t.done).length
   return (

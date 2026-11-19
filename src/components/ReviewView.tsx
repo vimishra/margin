@@ -4,7 +4,7 @@
 // day each focus task was first seen (on this computer, for "not moved in two weeks").
 import { useMemo, useRef, useState, useEffect } from 'react'
 import { Archive, CalendarCheck, ChevronLeft, ChevronRight, FileText, Plus, Star, Target } from 'lucide-react'
-import { OPEN_THREADS, ask, hiddenTaskNotes, openNote, toast, triageNote, updateNote, usePageWidthStyle, useStore } from '../store'
+import { OPEN_THREADS, ask, openNote, toast, triageArchiveNote, triageNote, updateNote, useHiddenTaskNotes, usePageWidthStyle, useStore } from '../store'
 import { TaskRow, weekStartOf } from './TasksView'
 import { archiveProject } from '../archive'
 import { focusSince, toggleFocus } from '../focus'
@@ -48,6 +48,8 @@ export function ReviewView() {
   const notes = useStore((s) => s.notes)
   const settings = useStore((s) => s.settings)
   const triagePath = useStore((s) => s.triage.note)
+  const archivePath = useStore((s) => s.triage.archive)
+  const hidden = useHiddenTaskNotes()
   const pageWidth = usePageWidthStyle()
   const root = useRef<HTMLDivElement>(null)
   useEffect(() => root.current?.focus(), [])
@@ -56,7 +58,7 @@ export function ReviewView() {
   const [weeksBack, setWeeksBack] = useState(0)
   const [from, to] = weekRange(addDays(now, -7 * weeksBack), weekStartOf(settings.weekStart))
 
-  const tasks = useMemo(() => allTasks(notes, settings.templatesFolder, settings.inboxFolder, triagePath ? [triagePath] : []), [notes, settings.templatesFolder, settings.inboxFolder, triagePath])
+  const tasks = useMemo(() => allTasks(notes, settings.templatesFolder, settings.inboxFolder, hidden), [notes, settings.templatesFolder, settings.inboxFolder, hidden])
   const projects = useMemo(() => projectList(notes, tasks, settings, tag), [notes, tasks, settings, tag])
 
   // The week: finished (not cancelled) tasks in your notes, how many were focus, and what was completed in Triage.
@@ -64,17 +66,20 @@ export function ReviewView() {
     const inWeek = (d?: string) => !!d && d >= from && d <= to
     const done = tasks.filter((t) => t.done && !t.cancelled && inWeek(t.completed))
     const focus = done.filter((t) => isFocus(t, tag))
+    // The triage note and its archive: a run moved to the archive still counts, once (by the task's id).
     const tri = triagePath ? triageNote() : undefined
+    const arc = archivePath ? triageArchiveNote() : undefined
     const triageIds = new Set<string>()
     let triageRuns = 0
-    if (tri) {
-      const doc = parseTriage(tri.content)
-      triageRuns = doc.runs.length
+    for (const n of [tri, arc]) {
+      if (!n) continue
+      const doc = parseTriage(n.content)
+      triageRuns += doc.runs.length
       for (const run of doc.runs) for (const c of run.categories) for (const g of c.groups) for (const t of g.tasks) if (t.state === 'done' && inWeek(t.closedOn)) triageIds.add(t.id.replace(/#\d+$/, ''))
     }
-    return { done, focus, triage: triageIds.size, triageRuns, hasTriage: !!tri }
+    return { done, focus, triage: triageIds.size, triageRuns, hasTriage: !!tri, hasArchive: !!arc }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tasks, tag, from, to, triagePath, notes])
+  }, [tasks, tag, from, to, triagePath, archivePath, notes])
 
   const since = focusSince()
   const focusOpen = useMemo(() => tasks.filter((t) => !t.done && isFocus(t, tag)), [tasks, tag])
@@ -142,7 +147,7 @@ export function ReviewView() {
           <p className={cx('review-verdict', tag && total > 0 && share < 20 && 'warn')}>{verdict}</p>
           {week.hasTriage && (
             <p className="review-note">
-              Triage counts what was completed in the triage note itself, from the {week.triageRuns} run{week.triageRuns === 1 ? '' : 's'} still in it; tasks moved out with M count where they were finished.
+              Triage counts what was completed in the triage note itself{week.hasArchive ? ' and its archive' : ''}, from the {week.triageRuns} run{week.triageRuns === 1 ? '' : 's'} in {week.hasArchive ? 'them' : 'it'}; tasks moved out with M count where they were finished.
             </p>
           )}
           {week.focus.length > 0 && (

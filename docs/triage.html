@@ -80,6 +80,7 @@ mark.find-hit.current{background:#ffab2e}
 <li><a href="#working-in-the-note-itself">Working in the note itself</a></li>
 <li><a href="#rules-where-tasks-go">Rules: where tasks go</a></li>
 <li><a href="#what-margin-promises">What Margin promises</a></li>
+<li><a href="#keeping-old-runs-in-an-archive-note">Keeping old runs in an archive note</a></li>
 <li><a href="#for-the-program-that-writes-the-note">For the program that writes the note</a></li>
 <li><a href="#keys">Keys</a></li>
 <li><a href="#settings">Settings</a></li>
@@ -105,6 +106,7 @@ mark.find-hit.current{background:#ffab2e}
 <li><strong>Rules</strong>, for everything that does not line up by name: <em>Category is</em> &quot;Pay Ops&quot; → <em>Workstreams/Payments Platform</em>; <em>Has tag</em> <code>#oncall</code> → <em>Work/On-call</em>; <em>Title contains</em> &quot;invoice&quot; → <em>Finance/Invoices</em>. See <a href="#rules-where-tasks-go">Rules</a>.</li>
 </ul>
 </li>
+<li><strong>If your program moves old runs into another note</strong> (say runs older than four weeks into <code>Inbox/Triage_archive</code>), set <strong>Triage archive</strong> to that note. Margin then treats it like the triage note: its tasks stay out of Today, Anytime, the Logbook, the counts and <code>margin-tasks</code>, ticking there changes only the box, and archiving leaves it alone. Without this setting it would be an ordinary note, and its old suggestions would show up as your tasks. The Weekly review counts what was completed in both notes.</li>
 <li><strong>Optionally:</strong> a <strong>default note</strong> for anything nothing else places; the <strong>heading</strong> moved tasks go under (Open Threads unless you change it); words to <strong>take off</strong> as tasks move (such as <code>#quick</code>); and whether to add a <strong>&quot;from triage&quot;</strong> line under each moved task.</li>
 </ol>
 <p>You do not have to set up rules before starting. In the Triage view, choosing a note with <strong>⌥↵</strong> instead of ↵ adds a rule for that category as you go, so the mapping builds itself over the first few days.</p>
@@ -284,7 +286,16 @@ mark.find-hit.current{background:#ffab2e}
 <li><strong>It changes as little as possible.</strong> Completing, dropping and dates change only that task's line, and only its box and Margin's own tokens. Moving takes out only the task's lines. Headings, group labels, blank lines, other tasks and your program's own text are never touched; nothing is reordered or reformatted. (Margin does keep the <code>updated</code> date at the top of the note current, as for any note it saves.)</li>
 <li><strong>It writes whole files.</strong> A note is written to a hidden temporary file and renamed over the old one, so nothing ever reads half a note.</li>
 <li><strong>It never loses a task when moving.</strong> The other note is saved first; the triage note only afterwards. If something fails in between, you find the task in both places.</li>
-<li><strong>Suggestions stay suggestions.</strong> Tasks in the triage note are left out of Today, Anytime, the counts, tasks blocks, reminders and <code>margin-tasks</code> until you move them into a note of your own. Ticking there never moves anything, and archiving leaves the note alone.</li>
+<li><strong>Suggestions stay suggestions.</strong> Tasks in the triage note (and in the triage archive, when set) are left out of Today, Anytime, the counts, tasks blocks, reminders and <code>margin-tasks</code> until you move them into a note of your own. Ticking there never moves anything, and archiving leaves those notes alone.</li>
+</ul>
+<h2 id="keeping-old-runs-in-an-archive-note">Keeping old runs in an archive note</h2>
+<p>If your program moves old runs out of the triage note (to keep it short), have it move them into one archive note and set that note as <strong>Triage archive</strong> (see <a href="#setting-it-up">Setting it up</a>). The archive uses the same layout as the triage note, so your own scripts can read both the same way.</p>
+<ul>
+<li><strong>Margin does not show the archive in the Triage view.</strong> Open it as a note to read it. What you tick there changes only that line's box, as in the triage note.</li>
+<li><strong>Its tasks are not yours:</strong> they stay out of every list, the Logbook and <code>margin-tasks</code>, so archived suggestions never come back as tasks.</li>
+<li><strong>The Weekly review</strong> counts a task completed in Triage once, whether its run is still in the triage note or already in the archive.</li>
+<li><strong>Write it whole,</strong> like the triage note: to a temporary file in the same folder, then renamed over it.</li>
+<li><strong>A script that sums up what you did</strong> should read both notes for what was completed in Triage (<code>- [x]</code> with <code>@done(date)</code>), and your other notes for the rest, including tasks moved out of Triage (they keep their links, and with <strong>Note where moved tasks came from</strong> on, a <code>_from triage, date_</code> line).</li>
 </ul>
 <h2 id="for-the-program-that-writes-the-note">For the program that writes the note</h2>
 <p>If you change your triage program, this is what Margin reads and does. Anything else in the note is kept as it is and ignored.</p>
@@ -396,6 +407,12 @@ mark.find-hit.current{background:#ffab2e}
 <td><code>note</code></td>
 <td>The note your program writes, as a path</td>
 <td>No triage</td>
+</tr>
+<tr>
+<td>Triage archive</td>
+<td><code>archive</code></td>
+<td>The note your program moves old runs into, as a path; treated like the triage note</td>
+<td>None</td>
 </tr>
 <tr>
 <td>Where tasks go</td>

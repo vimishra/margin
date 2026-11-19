@@ -1,7 +1,7 @@
 // The week's focus tasks, shown above the urgent lists (Today, Triage) so important work stays in view all day.
 import { useMemo, useState } from 'react'
 import { ChevronDown, ChevronRight, Target } from 'lucide-react'
-import { go, useStore } from '../store'
+import { go, useHiddenTaskNotes, useStore } from '../store'
 import { TaskRow } from './TasksView'
 import { focusKey, focusTasks } from '../lib/focus'
 import { allTasks, byUrgency } from '../lib/tasks'
@@ -10,11 +10,11 @@ import { local } from '../lib/util'
 export function useFocusTasks() {
   const notes = useStore((s) => s.notes)
   const settings = useStore((s) => s.settings)
-  const triagePath = useStore((s) => s.triage.note)
+  const hidden = useHiddenTaskNotes()
   const tag = focusKey(settings.focusTag)
   return useMemo(
-    () => (tag ? focusTasks(allTasks(notes, settings.templatesFolder, settings.inboxFolder, triagePath ? [triagePath] : []), tag).sort(byUrgency) : []),
-    [notes, settings.templatesFolder, settings.inboxFolder, triagePath, tag],
+    () => (tag ? focusTasks(allTasks(notes, settings.templatesFolder, settings.inboxFolder, hidden), tag).sort(byUrgency) : []),
+    [notes, settings.templatesFolder, settings.inboxFolder, hidden, tag],
   )
 }
 

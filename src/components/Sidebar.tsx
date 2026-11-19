@@ -55,6 +55,7 @@ import {
   updateNote,
   useStore,
   triageNote,
+  useHiddenTaskNotes,
 } from '../store'
 import type { Route } from '../types'
 import { tagCounts } from '../lib/links'
@@ -110,14 +111,15 @@ export function Sidebar() {
 
   const list = useMemo(() => Object.values(notes), [notes])
   const templatesFolder = useStore((s) => s.settings.templatesFolder)
-  const inboxFolder = useStore((s) => s.settings.inboxFolder)
   const triagePath = useStore((s) => s.triage.note)
+  const inboxFolder = useStore((s) => s.settings.inboxFolder)
+  const hiddenNotes = useHiddenTaskNotes()
   const taskViews = useStore((s) => s.settings.taskViews)
   const weekSetting = useStore((s) => s.settings.weekStart)
   const taskView = route.name === 'tasks' ? route.view : undefined
   // Lists shown under Tasks: the ones from Things, Overdue while anything is, then the filters saved from the Tasks view.
   const { dueNow, taskLists } = useMemo(() => {
-    const all = allTasks(notes, templatesFolder, inboxFolder, triagePath ? [triagePath] : [])
+    const all = allTasks(notes, templatesFolder, inboxFolder, hiddenNotes)
     const weekStart = weekSetting === 'sunday' ? 0 : weekSetting === 'monday' ? 1 : firstWeekday()
     const count = (v: Pick<TaskView, 'filter' | 'query' | 'source'>) => selectTasks(all, notes, v, weekStart).length
     const builtIn = (['inbox', 'today', 'upcoming', 'anytime', 'someday', 'done', 'overdue'] as TaskFilter[])
@@ -130,7 +132,7 @@ export function Sidebar() {
     const saved = taskViews.map((v) => ({ id: `s:${v.id}`, label: v.name, title: 'Saved filter. Right-click to rename or delete.', count: count(v), warn: false, savedId: v.id as string | undefined }))
     // As in Things, the number beside Tasks is what is in Today, which includes anything overdue.
     return { dueNow: all.filter((t) => isToday(t)).length, taskLists: [...builtIn, ...saved] }
-  }, [notes, templatesFolder, inboxFolder, taskViews, weekSetting, triagePath])
+  }, [notes, templatesFolder, inboxFolder, taskViews, weekSetting, hiddenNotes])
   // Open suggestions in the newest run of the triage note; null when no triage note is set.
   const triageOpen = useMemo(() => {
     if (!triagePath) return null

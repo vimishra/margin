@@ -2,14 +2,14 @@
 // Triage view (src/triage.ts): read the file fresh, change only the task's line, save with the version read. So a
 // run written by the triage program at the same moment is never saved over, as it could be by saving the whole
 // note from the editor. Moving a task from any note is here too.
-import { isProtectedNote, toast, ui, useStore } from './store'
+import { isTriageNoteId, toast, ui, useStore } from './store'
 import { parseTriage, runTasks, type TriageAction, type TriageTask } from './lib/triage'
 import { tasksOf } from './lib/tasks'
 import { moveByRules, moveCategory, triageAct } from './triage'
 import { today } from './lib/util'
 
 /** True when a note is the triage note, so its task keys go through the Triage path. */
-export const isTriageNote = (noteId: string | undefined) => isProtectedNote(noteId)
+export const isTriageNote = (noteId: string | undefined) => isTriageNoteId(noteId)
 
 /**
  * The triage tasks touched by lines `from` to `to` (0-based) of the note's text as it is in the editor: a task

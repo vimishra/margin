@@ -349,8 +349,9 @@ def read_notes(root: str) -> List[Note]:
             config = json.load(f)
         attachments.add(str(config.get("attachments", "attachments")).lower())
         triage = config.get("triage") if isinstance(config.get("triage"), dict) else {}
-        if isinstance(triage.get("note"), str) and note_path_key(triage["note"]):
-            hidden.add(note_path_key(triage["note"]))
+        for key in ("note", "archive"):
+            if isinstance(triage.get(key), str) and note_path_key(triage[key]):
+                hidden.add(note_path_key(triage[key]))
     except (OSError, ValueError, AttributeError):
         pass
     notes: List[Note] = []

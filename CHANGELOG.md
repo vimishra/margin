@@ -2,6 +2,13 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.47.0 (2026-11-19)
+
+### Added
+
+- **A triage archive.** If your triage program moves old runs into another note (such as `Inbox/Triage_archive`), name it in Settings → Triage → Triage archive. Margin treats it like the triage note: its tasks stay out of Today, Anytime, the Logbook, the counts and `margin-tasks`, ticking there changes only the box, and archiving leaves it alone. The Weekly review counts what was completed in Triage across both notes. Without the setting, the archive would be an ordinary note and its old suggestions would show up as your tasks.
+- The triage guide has a new section, "Keeping old runs in an archive note", including what a script that sums up your month should read.
+
 ## 1.46.0 (2026-11-19)
 
 ### Added

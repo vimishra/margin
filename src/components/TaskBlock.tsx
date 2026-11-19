@@ -3,7 +3,7 @@
 import { Fragment, useMemo } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { ListChecks, Pencil } from 'lucide-react'
-import { useStore } from '../store'
+import { triagePaths, useStore } from '../store'
 import { describeQuery, parseTaskQuery, runTaskQuery, type BlockGroup, type TaskContext } from '../lib/taskQuery'
 import { priorityLabel, projectsOf, shortDate, weekRange, type ProjectFolders, type Task } from '../lib/tasks'
 import { renderInline } from '../lib/markdown'
@@ -19,7 +19,7 @@ type State = ReturnType<typeof useStore.getState>
 function contextOf(s: Pick<State, 'notes' | 'settings' | 'triage'>): TaskContext {
   return {
     notes: s.notes,
-    hidden: s.triage.note ? [s.triage.note] : [],
+    hidden: triagePaths(s.triage),
     templatesFolder: s.settings.templatesFolder,
     inboxFolder: s.settings.inboxFolder,
     meetingsFolder: s.settings.meetingsFolder,
@@ -66,7 +66,7 @@ export function TaskBlock({ source, onEdit }: { source: string; onEdit?: () => v
     const result = runTaskQuery(query, ctx)
     return query.limit || result.tasks.length <= MOST ? result : { ...result, tasks: result.tasks.slice(0, MOST) }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, notes, settings.templatesFolder, settings.inboxFolder, settings.meetingsFolder, settings.weekStart, triage.note])
+  }, [query, notes, settings.templatesFolder, settings.inboxFolder, settings.meetingsFolder, settings.weekStart, triage.note, triage.archive])
   const groups = grouped(tasks, query.group, notes, ctx.weekStart, settings)
   const open = tasks.filter((t) => !t.done).length
 
