@@ -8,6 +8,7 @@ import { applyTriageAction, blockLines, hasOpenTaskLinking, insertUnderHeading, 
 import { shortDate } from './lib/tasks'
 import { joinContent, splitContent } from './lib/canvas'
 import { displayTitle } from './lib/util'
+import { tagTaskLine } from './lib/focus'
 import type { Note } from './types'
 
 const words: Record<TriageAction['kind'], string> = { complete: 'Completed', drop: 'Dropped', reopen: 'Reopened', planned: 'Planned', due: 'Due date set for' }
@@ -111,6 +112,8 @@ export interface MovePlan {
   task: TriageTask
   targetId: string
   reason?: string
+  /** A tag to add to the task's line as it goes in (F: move it and make it a focus task). */
+  tag?: string
 }
 
 /**
@@ -143,7 +146,7 @@ export async function triageMoveMany(plan: MovePlan[]): Promise<boolean> {
     const doc = parseTriage(tri.content)
     const cfg = useStore.getState().triage
     const heading = cfg.heading?.trim() || OPEN_THREADS
-    const found: { task: TriageTask; targetId: string; reason?: string; block: string[] }[] = []
+    const found: { task: TriageTask; targetId: string; reason?: string; block: string[]; tag?: string }[] = []
     let missing = 0
     for (const p of plan) {
       const t = notes[p.targetId] ? locateTask(doc, p.task) : null
@@ -151,7 +154,9 @@ export async function triageMoveMany(plan: MovePlan[]): Promise<boolean> {
         missing += t ? 0 : 1
         continue
       }
-      found.push({ task: t, targetId: p.targetId, reason: p.reason, block: prepareBlock(blockLines(doc, t), cfg) })
+      const block = prepareBlock(blockLines(doc, t), cfg)
+      if (p.tag) block[0] = tagTaskLine(block[0], p.tag)
+      found.push({ task: t, targetId: p.targetId, reason: p.reason, block, tag: p.tag })
     }
     if (!found.length) {
       takeNote(tri)
@@ -193,7 +198,7 @@ export async function triageMoveMany(plan: MovePlan[]): Promise<boolean> {
 }
 
 /** What a move did, in a sentence. */
-function movedMessage(found: { task: TriageTask; targetId: string; reason?: string }[], duplicates: Set<TriageTask>, missing: number, heading: string) {
+function movedMessage(found: { task: TriageTask; targetId: string; reason?: string; tag?: string }[], duplicates: Set<TriageTask>, missing: number, heading: string) {
   const notes = useStore.getState().notes
   const name = (id: string) => (notes[id] ? displayTitle(notes[id]) : 'a note')
   const short = (t: string) => (t.length > 50 ? t.slice(0, 47) + '…' : t)
@@ -201,7 +206,7 @@ function movedMessage(found: { task: TriageTask; targetId: string; reason?: stri
   if (found.length === 1) {
     const f = found[0]
     if (duplicates.has(f.task)) return `“${short(f.task.title)}” is already in ${name(f.targetId)}: taken out of the triage note only`
-    return `Moved “${short(f.task.title)}” to ${name(f.targetId)} › ${heading}${f.reason ? ` (by ${f.reason})` : ''}`
+    return `Moved “${short(f.task.title)}” to ${name(f.targetId)} › ${heading}${f.tag ? ' as a focus task' : ''}${f.reason ? ` (by ${f.reason})` : ''}`
   }
   const per = new Map<string, number>()
   for (const f of found) if (!duplicates.has(f.task)) per.set(f.targetId, (per.get(f.targetId) ?? 0) + 1)
@@ -244,23 +249,23 @@ export function destinationOf(task: TriageTask) {
 }
 
 /** Move a task where the rules send it (M); with no rule for it, ask which note (as ⇧M always does). */
-export function moveByRules(task: TriageTask) {
+export function moveByRules(task: TriageTask, tag = '') {
   const dest = destinationOf(task)
-  if (dest) void triageMove(task, dest.note.id, dest.reason)
-  else ui({ palette: { mode: 'triageMove', triageTask: task } })
+  if (dest) void triageMoveMany([{ task, targetId: dest.note.id, reason: dest.reason, tag }])
+  else ui({ palette: { mode: 'triageMove', triageTask: task, triageTag: tag } })
 }
 
 /**
  * Move tasks into a note picked in the picker (with any already placed by rules, as one action). With `remember`
  * (⌥↵), from now on every task of their category goes there.
  */
-export async function moveToPicked(tasks: TriageTask[], note: Note, placed: MovePlan[] = [], remember = false) {
+export async function moveToPicked(tasks: TriageTask[], note: Note, placed: MovePlan[] = [], remember = false, tag = '') {
   const category = tasks[0]?.category ?? ''
   if (remember && category) {
     const rule = { category, note: note.path, id: note.id }
     if (await addTriageRule(rule)) toast(`From now on, ${ruleLabel(rule)} goes to ${displayTitle(note)}`)
   }
-  await triageMoveMany([...placed, ...tasks.map((task) => ({ task, targetId: note.id, reason: remember && category ? `category ${category}` : '' }))])
+  await triageMoveMany([...placed, ...tasks.map((task) => ({ task, targetId: note.id, reason: remember && category ? `category ${category}` : '', tag }))])
 }
 
 /**

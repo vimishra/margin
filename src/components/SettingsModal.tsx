@@ -722,6 +722,9 @@ export function SettingsModal() {
                 <Row label="Archive tasks done this many days ago" hint="Logbook → Archive done tasks… moves tasks ticked at least this long ago into an Archive section at the end of their note. Archiving one section or note from ⌘K takes all its ticked tasks.">
                   <Select value={s.archiveAfterDays} onChange={set('archiveAfterDays')} options={[[0, 'Any time'], [1, '1 day'], [3, '3 days'], [7, '1 week'], [14, '2 weeks'], [30, '30 days'], [90, '90 days']]} />
                 </Row>
+                <Row label="Focus tag" hint="Marks the few important next actions you chose for the week. Focus tasks are shown above Today, Triage and today's daily note, and the Weekly review counts them. F in the Tasks and Triage views marks a task. Leave empty to turn Focus off.">
+                  <Text value={s.focusTag} onChange={(v: string) => setSetting('focusTag', v.trim().replace(/^#/, ''))} />
+                </Row>
                 <Row label="Archive notebook" hint="Where Move this note to the Archive puts a finished project, keeping its notebook inside: Work/Atlas goes to Archive/Work/Atlas.">
                   <Text value={s.archiveFolder} onChange={set('archiveFolder')} />
                 </Row>

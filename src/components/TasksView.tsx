@@ -1,9 +1,12 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
-import { AlignLeft, Archive, Bell, BookmarkPlus, Box, CalendarClock, CalendarDays, Check, ChevronDown, ChevronRight, FileText, Flag, FolderInput, ListChecks, ListTree, MoreHorizontal, Repeat, Search, SquareCheck, SquareX, Star, Users } from 'lucide-react'
+import { AlignLeft, Archive, Bell, BookmarkPlus, Box, CalendarClock, CalendarDays, Check, ChevronDown, ChevronRight, FileText, Flag, FolderInput, ListChecks, ListTree, MoreHorizontal, Repeat, Search, SquareCheck, SquareX, Star, Target, Users } from 'lucide-react'
 import type { Note } from '../types'
 import { deleteTaskView, go, openDatePicker, openFromClick, openMenu, openNoteAt, openSideAt, renameTaskView, rescheduleTasks, saveTaskView, ensureInboxNote, inboxNotebook, moveTasksToNote, ui, updateTask, updateTaskView, usePageWidthStyle, useStore, type MenuItem } from '../store'
 import { hint } from '../shortcuts'
 import { archiveEverywhere } from '../archive'
+import { toggleFocus } from '../focus'
+import { FocusStrip } from './FocusStrip'
+import { focusKey, focusTasks, isFocus, taskKey } from '../lib/focus'
 import { renderInline, renderMarkdown } from '../lib/markdown'
 import { PRIORITIES, TASK_FILTERS, TASK_LINE, TASK_SOURCES, allTasks, byUrgency, isCarried, isOn, isOverdue, isToday, nextDate, priorityLabel, projectsOf, sameNotebook, selectTasks, shortDate, weekRange, withDetails, within, type ProjectFolders, type Task, type TaskFilter, type TaskGroup, type TaskSource, type TaskView } from '../lib/tasks'
 import { addDays, cx, displayTitle, firstWeekday, local, today, tagStyle } from '../lib/util'
@@ -52,6 +55,9 @@ function taskMenu(task: Task, row: Element): MenuItem[] {
     { label: 'When…', hint: 'S', icon: <CalendarClock size={14} />, onSelect: () => pickDate(row, task, 'scheduled') },
     { label: 'Due date…', hint: 'D', icon: <CalendarDays size={14} />, onSelect: () => pickDate(row, task, 'due') },
     { label: 'Move to another note…', hint: 'M', icon: <FolderInput size={14} />, onSelect: () => moveToNote(task) },
+    ...(focusKey(useStore.getState().settings.focusTag) && !task.done
+      ? [{ label: isFocus(task, focusKey(useStore.getState().settings.focusTag)) ? 'Remove from focus' : 'Make it a focus task', hint: 'F', icon: <Target size={14} />, onSelect: () => toggleFocus(task) }]
+      : []),
     { separator: true },
     ...priorityMenu(task),
     { separator: true },
@@ -437,6 +443,7 @@ export function TasksView({ view }: { view?: string }) {
         else if (e.key === 's') (e.preventDefault(), pickDate(rowEl(), task, 'scheduled'))
         else if (e.key === 'm') (e.preventDefault(), moveToNote(task))
         else if (e.key === 'c') (e.preventDefault(), updateTask(task, { cancelled: !task.cancelled }))
+        else if (e.key === 'f' && !task.done) (e.preventDefault(), toggleFocus(task))
         else if (e.key === 'n' && taskNotes(notes[task.noteId], task)) (e.preventDefault(), toggleNotes(task))
         else if (e.key === 'p') (e.preventDefault(), openMenu({ currentTarget: rowEl(), clientX: 0, clientY: 0, type: 'key', preventDefault() {} }, priorityMenu(task)))
       }}
@@ -524,6 +531,8 @@ export function TasksView({ view }: { view?: string }) {
             ))}
           </div>
         )}
+
+        {filter === 'today' && !saved && <FocusStrip />}
 
         {filter === 'inbox' && strays.length > 0 && (
           <div className="task-bulk">
@@ -618,7 +627,7 @@ export function TasksView({ view }: { view?: string }) {
         </div>
         {rows.length > 0 && (
           <p className="tasks-keys">
-            <kbd>↑</kbd><kbd>↓</kbd> move · <kbd>Space</kbd> tick · <kbd>↵</kbd> open · <kbd>T</kbd> today · <kbd>D</kbd> due · <kbd>S</kbd> when · <kbd>P</kbd> priority · <kbd>M</kbd> move to note · <kbd>C</kbd> cancel · <kbd>N</kbd> notes · <kbd>/</kbd> narrow down
+            <kbd>↑</kbd><kbd>↓</kbd> move · <kbd>Space</kbd> tick · <kbd>↵</kbd> open · <kbd>T</kbd> today · <kbd>D</kbd> due · <kbd>S</kbd> when · <kbd>P</kbd> priority · <kbd>M</kbd> move to note · <kbd>F</kbd> focus · <kbd>C</kbd> cancel · <kbd>N</kbd> notes · <kbd>/</kbd> narrow down
           </p>
         )}
       </div>
@@ -635,21 +644,27 @@ export function DayTasks({ note, floating = false }: { note: Note; floating?: bo
   const templatesFolder = useStore((s) => s.settings.templatesFolder)
   const inboxFolder = useStore((s) => s.settings.inboxFolder)
   const triagePath = useStore((s) => s.triage.note)
+  const tag = useStore((s) => focusKey(s.settings.focusTag))
   // Over a canvas it starts folded away, so it does not cover the cards.
   const key = floating ? 'dayTasksOpenCanvas' : 'dayTasksOpen'
   const [open, setOpen] = useState(() => local.get(key, !floating))
   const date = note.title
   const now = today()
-  const { due, late, carried } = useMemo(() => {
-    const elsewhere = allTasks(notes, templatesFolder, inboxFolder, triagePath ? [triagePath] : []).filter((t) => t.noteId !== note.id)
+  const { focus, due, late, carried } = useMemo(() => {
+    const all = allTasks(notes, templatesFolder, inboxFolder, triagePath ? [triagePath] : []).filter((t) => t.noteId !== note.id)
     const isNow = date === now
+    // Today's note shows the week's focus first; those tasks are not listed again below.
+    const focus = isNow ? focusTasks(all, tag).sort(byUrgency) : []
+    const inFocus = new Set(focus.map(taskKey))
+    const elsewhere = all.filter((t) => !inFocus.has(taskKey(t)))
     return {
+      focus,
       due: elsewhere.filter((t) => isOn(t, date)).sort((a, b) => Number(a.done) - Number(b.done) || byUrgency(a, b)),
       late: isNow ? elsewhere.filter((t) => isOverdue(t, now)).sort(byUrgency) : [],
       carried: isNow ? elsewhere.filter((t) => isCarried(t, now) && !isOn(t, now)).sort(byUrgency) : [],
     }
-  }, [notes, templatesFolder, inboxFolder, note.id, date, now])
-  if (!due.length && !late.length && !carried.length) return null
+  }, [notes, templatesFolder, inboxFolder, triagePath, tag, note.id, date, now])
+  if (!focus.length && !due.length && !late.length && !carried.length) return null
   const left = due.filter((t) => !t.done).length
   return (
     <section className="day-tasks">
@@ -657,11 +672,18 @@ export function DayTasks({ note, floating = false }: { note: Note; floating?: bo
         {open ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
         <ListChecks size={14} /> Tasks for this day
         <span className="count">
-          {left} open{late.length ? ` · ${late.length} overdue` : ''}{carried.length ? ` · ${carried.length} from earlier days` : ''}
+          {focus.length ? `${focus.length} focus · ` : ''}{left} open{late.length ? ` · ${late.length} overdue` : ''}{carried.length ? ` · ${carried.length} from earlier days` : ''}
         </span>
       </button>
       {open && (
         <div className="day-tasks-body">
+          {focus.length > 0 && (
+            <h4 className="focus" title="The important next actions you chose for the week">
+              <Target size={12} /> Focus
+            </h4>
+          )}
+          {focus.map((t) => notes[t.noteId] && <TaskRow key={`${t.noteId}:${t.line}`} task={t} note={notes[t.noteId]} />)}
+          {focus.length > 0 && due.length > 0 && <h4 className="carried">For this day</h4>}
           {due.map((t) => notes[t.noteId] && <TaskRow key={`${t.noteId}:${t.line}`} task={t} note={notes[t.noteId]} />)}
           {late.length > 0 && <h4>Overdue</h4>}
           {late.map((t) => notes[t.noteId] && <TaskRow key={`${t.noteId}:${t.line}`} task={t} note={notes[t.noteId]} />)}

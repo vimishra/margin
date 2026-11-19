@@ -27,6 +27,7 @@ export const SHORTCUT_DEFS: ShortcutDef[] = [
   { id: 'research', label: 'Research', group: 'Navigate', web: 'Alt+R' },
   { id: 'goscratch', label: 'Scratch', group: 'Navigate', web: '' },
   { id: 'gotriage', label: 'Triage', group: 'Navigate', web: '' },
+  { id: 'goreview', label: 'Weekly review', group: 'Navigate', web: '' },
   { id: 'gotrash', label: 'Recently deleted', group: 'Navigate', web: '' },
   { id: 'prevTab', label: 'Previous tab', group: 'Navigate', web: 'Alt+[', desktop: 'Mod+Shift+[' },
   { id: 'nextTab', label: 'Next tab', group: 'Navigate', web: 'Alt+]', desktop: 'Mod+Shift+]' },

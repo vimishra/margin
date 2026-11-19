@@ -67,17 +67,18 @@ The view shows each task, its details and links, but not everything your program
 
 ## Working through triage
 
-A routine that works well, for example each morning and after lunch (when a new run has come in):
+A routine that works well: two fixed sittings of 20 to 30 minutes, late morning (after an hour on your most important work) and mid-afternoon, rather than whenever a new run comes in. Triage always has something in it; kept open all day, the urgent crowds out the important. The **Focus** box at the top of the view keeps the week's important next actions in sight while you triage.
 
 1. **Open Triage** and read the Summary. If you want your program's full notes in view as you go, press **N** to open the triage note on the right.
 2. **Take the quick replies first.** Answer them (O opens the message), then **Space** to complete each.
-3. **Go down the actions with ↓.** For each, one key: **Space** (done), **C** (not doing it), **M** (it is real work: move it to its workstream), **S** (plan a day for it) or just **↓** (leave it for now).
+3. **Go down the actions with ↓.** For each, one key: **Space** (done), **C** (not doing it), **M** (it is real work: move it to its workstream), **F** (it is important: move it and make it a focus task), **S** (plan a day for it) or just **↓** (leave it for now).
 4. **When a whole category is real work,** press **A** on any of its tasks: everything open in it moves to where it belongs in one step.
 5. **Stop when the list is short.** What is left is what still needs a decision; your next run will carry it over.
 
 Two habits help:
 
 - **Decide, do not do.** Triage is for sorting. Anything that takes more than a couple of minutes, move it to its workstream and do it from there.
+- **Ask "does this belong to something important?"** If it does, **F** moves it into that project as a focus task, so it becomes part of the important work instead of competing with it.
 - **Let the rules grow.** Each time you pick a note by hand for a category that will come up again, use ⌥↵: next time M will know.
 
 After triage, your moved tasks are where you plan the day from: Today, Anytime and each workstream note, as described in the [theory of operations](operations.md).
@@ -91,6 +92,7 @@ After triage, your moved tasks are where you plan the day from: Today, Anytime a
 | **S** | When you plan to do it, or Someday | `>2026-01-07` (or `>someday`) in place of the one there, or at the end |
 | **D** | Its due date | `@due(2026-01-09)` likewise |
 | **M**, **⇧M**, **A** | Move it, or the whole category | its lines are taken out (see below) |
+| **F** | Move it as M does, as a focus task | its lines are taken out; in the note it goes to, the task line gets the focus tag (`#focus`) |
 
 Every one says what it did in a message with **Undo**. The dates are left out if you turned off recording them (Settings → General). In the view, only tasks of the newest run can be changed; earlier runs are history. (In the note itself, the keys work on any task.)
 
@@ -98,11 +100,12 @@ Every one says what it did in a message with **Undo**. The dates are left out if
 
 - **M** moves the task where your rules send it (the dashed chip shows where, beforehand). If nothing decides, it asks.
 - **⇧M** always asks: type part of a note's name, or a new name to make one (`Workstreams/Hiring`). **⌥↵** instead of ↵ also remembers that note for the task's category.
+- **F** moves it as M does (asking when nothing decides), and adds the focus tag to the task line as it goes in, before its priority and dates.
 - **A** (or **Move all** on the category's heading) moves every open task of the category, each where its rules send it; the ones nothing places go together to a note you pick. It is one step, with one Undo.
 
 What happens to a moved task:
 
-1. **It goes into the note unchanged**: the task line, with its links, priority, tags and dates, and the lines under it. It is added at the end of the note's **Open Threads** section (or the heading you chose; at the top if you chose that). A note without that heading gets it at the end.
+1. **It goes into the note unchanged** (with F, plus the focus tag): the task line, with its links, priority, tags and dates, and the lines under it. It is added at the end of the note's **Open Threads** section (or the heading you chose; at the top if you chose that). A note without that heading gets it at the end.
 2. **Then it is taken out of the triage note**: just its lines. The category's heading stays, even if empty.
 3. **If the note already has the task** (an open task there links to the same message or bug), nothing is added: the task just leaves the triage note, and the message says so.
 4. **Undo** puts every note involved back exactly as it was. If one of them has changed since (your program wrote a new run, say), Undo does nothing and says so: the task stays where it went, so it is never lost.
@@ -219,6 +222,7 @@ In the Triage view:
 | M | Move to the note its rules name, or pick one |
 | ⇧M | Move to a note you pick (⌥↵ there also adds a rule) |
 | A | Move every open task of its category |
+| F | It is important: move it as M does, tagged as a focus task (see Focus in the user guide) |
 | O | Open its first link |
 | N | Show it in the triage note, on the right; the note then follows ↑ ↓ |
 | / or ⌘F | Narrow down; Esc or ↓ goes back to the list |

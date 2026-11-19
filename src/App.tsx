@@ -6,6 +6,8 @@ import { commands } from './commands'
 import { actionFor, eventCombo, recording, syncDesktopMenu } from './shortcuts'
 import { desktop } from './desktop'
 import { startReminders } from './reminders'
+import { watchFocus } from './focus'
+import { ReviewView } from './components/ReviewView'
 import { startTodoist } from './todoist'
 import { displayTitle, isMac } from './lib/util'
 import { Sidebar } from './components/Sidebar'
@@ -205,6 +207,7 @@ export default function App() {
     const stopReminders = startReminders()
     const stopTodoist = startTodoist()
     const stopWatching = watchNotes()
+    const stopFocus = watchFocus()
     // Mac apps quieten their selections when the window is not in front.
     const onFocus = () => document.documentElement.classList.toggle('window-inactive', !document.hasFocus())
     window.addEventListener('focus', onFocus)
@@ -219,6 +222,7 @@ export default function App() {
       stopReminders()
       stopTodoist()
       stopWatching()
+      stopFocus()
       window.removeEventListener('margin:action', onAction)
       window.removeEventListener('focus', onFocus)
       window.removeEventListener('blur', onFocus)
@@ -248,6 +252,7 @@ export default function App() {
   else if (route.name === 'tasks' && route.view === 'triage') view = <TriageView />
   else if (route.name === 'tasks') view = <TasksView view={route.view} />
   else if (route.name === 'trash') view = <TrashView />
+  else if (route.name === 'review') view = <ReviewView />
   else if (route.name === 'note')
     view = note ? (
       <NoteView key={note.id} note={note} />

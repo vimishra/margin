@@ -308,6 +308,12 @@ export function Sidebar() {
                   {v.count > 0 && <span className="count">{v.count}</span>}
                 </button>
               ))}
+              <button className={cx('nav-item sub', is('review') && 'active')} title="Weekly review: the balance of focus and urgent work, and every project's next step" onClick={() => go({ name: 'review' })}>
+                <span className="nav-icon list-review">
+                  <CalendarCheck size={13} />
+                </span>
+                <span className="nav-label">Weekly review</span>
+              </button>
             </>
           )}
           {shown('research') && (

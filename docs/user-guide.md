@@ -74,6 +74,8 @@ Everything the app does, at a glance. Each heading links to the section that exp
 - Filters by words, tag and priority; grouping by date, project or priority; and filters you save to the sidebar
 - Today's tasks and anything overdue shown at the top of the daily note
 - A Top 3 for each day, whose unfinished items move to the next day
+- Focus: the week's important next actions shown above Today, Triage and the daily note, so urgent work does not crowd them out
+- A Weekly review page: how much of the week was focus work, focus tasks that have not moved, and every project's next step, with stalled ones flagged
 - Keys for everything: tick, plan for today, set dates and priority, in a note or in the Tasks view
 - [A command-line tool](#tasks-from-the-command-line), `margin-tasks`, for scripts
 
@@ -128,6 +130,8 @@ The guide has two main parts, because Margin does two different jobs. **Part 1**
   - [Repeating tasks](#repeating-tasks)
   - [Reminders](#reminders)
   - [The Tasks view](#the-tasks-view)
+  - [Focus: important work, not only urgent](#focus-important-work-not-only-urgent)
+  - [The Weekly review](#the-weekly-review)
   - [Saved filters](#saved-filters)
   - [Tasks blocks: a live list inside a note](#tasks-blocks-a-live-list-inside-a-note)
   - [Moving overdue tasks](#moving-overdue-tasks)
@@ -341,6 +345,7 @@ Margin follows Things 3 here, with notes instead of a separate task database:
 | Inbox | The *Inbox* note in the Inbox notebook |
 | Moving an Inbox to-do into a project | **M** in the Tasks view: it goes under the project note's **Open Threads** heading |
 | A project's to-dos in one place | The Tasks view grouped by **Project**, with a circle that fills as they are ticked |
+| All projects at a glance, with their next actions | The **Projects** list in the [Weekly review](#the-weekly-review), which also flags stalled projects (no open task) |
 | A project deadline | `@due(…)` on the one task that means the project is done |
 | Completing a project | Tick its last tasks, then **Move this note to the Archive** (⌘K) |
 
@@ -1025,6 +1030,7 @@ The setting is kept in your notes folder, in `.margin/config.json`, so you can a
   - **Already there?** If the note already has an open task with the same link, nothing is added to it: the task just leaves the triage note, and a message says so.
   - **Undo** in the message puts both notes back exactly as they were. If either has changed since (your program wrote a new run, say), it does not undo, so the task is never lost: it stays in the note it went to.
   - **Safe while your program writes:** the note it goes into is saved first, and only then is the task taken out of the triage note, each time from the file as it is at that moment. If something fails in between, you find the task in both places, never in neither.
+- **Moving it as a focus task:** **F** (or **Move, as a focus task** in its right-click menu) moves it just as M does, and adds the focus tag to the task line in the note it goes to, so it joins the week's important work. See [Focus](#focus-important-work-not-only-urgent).
 - **Moving a whole category:** **Move all** on a category's heading (it appears when you point at the category), or **A** on any of its tasks, moves every open task of that category in the newest run, each where its rules send it, as one step with one Undo. If the rules do not place some of them, you pick one note for those, and they all move together. The category's heading stays in the triage note, empty, for your program to fill next time.
 - **A morning with Triage**, for example: open Triage; read the Summary; go down the list with ↓, pressing **Space** for what you have already done, **C** for what you will not do, and **M** for what belongs to a workstream; or, when a whole category belongs to one workstream, **A** once. Whatever is left is what still needs a decision. Your program's next run adds new suggestions without disturbing what you have moved: the moved tasks keep their links, so it sees them in your notes.
 - **Rules: where tasks go** (Settings → Triage). M takes the first that applies:
@@ -1108,6 +1114,7 @@ With the keyboard:
 | S | When: planned day or Someday |
 | P | Priority |
 | M | Move to another note (a project), under its Open Threads heading |
+| F | Make it a focus task, or take it out of focus (see [Focus](#focus-important-work-not-only-urgent)) |
 | N | Show or hide the task's notes |
 | C | Cancel, or reopen a cancelled task |
 | 1 to 9, 0 | Switch list |
@@ -1142,6 +1149,24 @@ Nothing in the Inbox shows in Anytime, so your considered lists stay clean. To c
 - **Tick it** if it is already done, or delete the line if it is not happening.
 
 The task's line stays where it is in the note unless you move it; only the lists it shows in change. The Inbox's count in the sidebar tells you when there is sorting to do.
+
+### Focus: important work, not only urgent
+
+Triage, the Inbox and Today bring you what is **urgent**. What is **important but not urgent** (the project that moves your goals, the plan nobody has asked for yet) never arrives by itself. **Focus** gives it a place: each week, choose the next actions of the two or three projects that matter most, and mark them as focus tasks. They are then shown above the urgent lists all day, and the Weekly review tells you how much of your week went to them. How to use it day to day is in the [theory of operations](operations.md#tasks-important-and-urgent).
+
+- **A focus task** is an ordinary task with the focus tag, `#focus` unless you change it (Settings → General → **Focus tag**; empty turns Focus off). Other apps and `margin-tasks` see it as a tag like any other.
+- **Marking one:** press **F** on a task in the Tasks view (again takes it off), or choose **Make it a focus task** in its right-click menu, or star its project's next action in the Weekly review, or type `#focus` yourself.
+- **From Triage:** **F** on a suggestion means "this is important": it moves the task where **M** would (asking which note when no rule places it), with the focus tag added. Also **Move, as a focus task** in its right-click menu.
+- **Where they show:** a **Focus** box at the top of **Today** in the Tasks view and at the top of **Triage**, and a **Focus** group at the top of today's daily note's task panel (those tasks are not listed again below it). The box folds; Margin remembers.
+- **When you tick one,** and its project has no other focus task, a message asks for the project's **next step**: **Add next step** writes what you type as a new focus task in the project note, after its open tasks (or, for a task from a meeting note, under the project's Open Threads). So a focus project always has a next action.
+
+### The Weekly review
+
+**Weekly review** under Tasks in the sidebar (or ⌘K → *Go to Weekly review*) is one page for the weekly check. The arrows at the top go back to earlier weeks (the week starts as set in Settings → General).
+
+- **The week:** how many tasks you finished in your notes, how many of them were focus tasks, and how many were completed in Triage, with a sentence on the balance: when almost nothing finished was focus work, it says so. Triage counts what was completed in the triage note itself, from the runs your program has left in it; a task moved out with M counts where it was finished. Below, the focus tasks finished that week.
+- **Focus now:** the open focus tasks, with how long each has been one. One open for two weeks or more is marked **Not moved in N days**: rewrite it as something you could start in five minutes, or take it out of focus (F). The day is counted on each computer from when Margin first saw it as a focus task, so a task reworded starts again.
+- **Projects:** every project note with tasks, by notebook (notes in the Archive notebook, and notes with no tasks, are left out). Each shows how many of its tasks are done, the day the last one was, and its **next** action (its first open task, in the order written, that is not Someday). The star next to it makes it a focus task, or takes it out: this is where you choose next week's focus. A project with no open task is **Stalled**: **Write the next step** adds one under its Open Threads (**…as a focus task** with the tag), and **Archive** moves a finished one into the Archive notebook.
 
 ### Saved filters
 
@@ -1295,7 +1320,7 @@ Two settings live inside the app and cannot be read from outside it. If you rena
 
 | Section | What is there |
 | --- | --- |
-| General | Start page, where new notes go, which sidebar sections to show, week start, sidebar calendar, time format, how typed dates are read, tabs, and the most tabs to keep open |
+| General | Start page, where new notes go, which sidebar sections to show, week start, sidebar calendar, time format, how typed dates are read, tabs, the most tabs to keep open, the task settings (recording done days, ticked tasks moving down, archiving) and the focus tag |
 | Appearance | Style (Margin, or Bear: a warm page, a red accent, rounded headings with their `#` marks in the margin, in light and dark), colour theme for light and for dark (opening the theme gallery, see below), theme, accent colour (in the desktop app the first choice, System, follows the accent colour set in macOS System Settings), note font and code font (any installed font), text size and weight, line spacing, paragraph spacing, list indent, indent guides, image border, page width, and the status bar. The note font, size and weight also apply to tasks wherever they are listed (the Tasks view and the panel under daily notes) and to what you type in Quick capture and Quick task. |
 | Text styles | Colour and size for Heading 1–5, bold and italic, with a separate colour for the light and dark themes |
 | Editor | Default mode, toolbar, spell check, auto-closing brackets, image pasting, line numbers, side panel |
@@ -1409,7 +1434,7 @@ And for tasks:
 - **During the day:** write anything that needs doing as a task; tick things as you finish.
 - **Meetings:** write each action as a task, with a due date if one was agreed.
 - **End of day:** tick what is done, empty the Inbox, and leave the rest.
-- **Weekly:** clear Overdue, plan from Upcoming and Anytime, catch undated tasks.
+- **Weekly:** clear Overdue, plan from Upcoming and Anytime, catch undated tasks; then open the **Weekly review** to check the balance of focus and urgent work, fix stalled projects, and star next week's focus.
 - **Monthly:** review Someday, read the Logbook, close finished projects.
 
 ### Research and learning

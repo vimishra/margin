@@ -127,17 +127,18 @@ mark.find-hit.current{background:#ffab2e}
 <li>The note on the right is an ordinary tab: close it with its ×, or drag the divider to give either side more room.</li>
 </ul>
 <h2 id="working-through-triage">Working through triage</h2>
-<p>A routine that works well, for example each morning and after lunch (when a new run has come in):</p>
+<p>A routine that works well: two fixed sittings of 20 to 30 minutes, late morning (after an hour on your most important work) and mid-afternoon, rather than whenever a new run comes in. Triage always has something in it; kept open all day, the urgent crowds out the important. The <strong>Focus</strong> box at the top of the view keeps the week's important next actions in sight while you triage.</p>
 <ol>
 <li><strong>Open Triage</strong> and read the Summary. If you want your program's full notes in view as you go, press <strong>N</strong> to open the triage note on the right.</li>
 <li><strong>Take the quick replies first.</strong> Answer them (O opens the message), then <strong>Space</strong> to complete each.</li>
-<li><strong>Go down the actions with ↓.</strong> For each, one key: <strong>Space</strong> (done), <strong>C</strong> (not doing it), <strong>M</strong> (it is real work: move it to its workstream), <strong>S</strong> (plan a day for it) or just <strong>↓</strong> (leave it for now).</li>
+<li><strong>Go down the actions with ↓.</strong> For each, one key: <strong>Space</strong> (done), <strong>C</strong> (not doing it), <strong>M</strong> (it is real work: move it to its workstream), <strong>F</strong> (it is important: move it and make it a focus task), <strong>S</strong> (plan a day for it) or just <strong>↓</strong> (leave it for now).</li>
 <li><strong>When a whole category is real work,</strong> press <strong>A</strong> on any of its tasks: everything open in it moves to where it belongs in one step.</li>
 <li><strong>Stop when the list is short.</strong> What is left is what still needs a decision; your next run will carry it over.</li>
 </ol>
 <p>Two habits help:</p>
 <ul>
 <li><strong>Decide, do not do.</strong> Triage is for sorting. Anything that takes more than a couple of minutes, move it to its workstream and do it from there.</li>
+<li><strong>Ask &quot;does this belong to something important?&quot;</strong> If it does, <strong>F</strong> moves it into that project as a focus task, so it becomes part of the important work instead of competing with it.</li>
 <li><strong>Let the rules grow.</strong> Each time you pick a note by hand for a category that will come up again, use ⌥↵: next time M will know.</li>
 </ul>
 <p>After triage, your moved tasks are where you plan the day from: Today, Anytime and each workstream note, as described in the <a href="operations.html">theory of operations</a>.</p>
@@ -175,17 +176,23 @@ mark.find-hit.current{background:#ffab2e}
 <td>Move it, or the whole category</td>
 <td>its lines are taken out (see below)</td>
 </tr>
+<tr>
+<td><strong>F</strong></td>
+<td>Move it as M does, as a focus task</td>
+<td>its lines are taken out; in the note it goes to, the task line gets the focus tag (<code>#focus</code>)</td>
+</tr>
 </tbody>
 </table></div><p>Every one says what it did in a message with <strong>Undo</strong>. The dates are left out if you turned off recording them (Settings → General). In the view, only tasks of the newest run can be changed; earlier runs are history. (In the note itself, the keys work on any task.)</p>
 <h2 id="moving-tasks-into-your-notes">Moving tasks into your notes</h2>
 <ul>
 <li><strong>M</strong> moves the task where your rules send it (the dashed chip shows where, beforehand). If nothing decides, it asks.</li>
 <li><strong>⇧M</strong> always asks: type part of a note's name, or a new name to make one (<code>Workstreams/Hiring</code>). <strong>⌥↵</strong> instead of ↵ also remembers that note for the task's category.</li>
+<li><strong>F</strong> moves it as M does (asking when nothing decides), and adds the focus tag to the task line as it goes in, before its priority and dates.</li>
 <li><strong>A</strong> (or <strong>Move all</strong> on the category's heading) moves every open task of the category, each where its rules send it; the ones nothing places go together to a note you pick. It is one step, with one Undo.</li>
 </ul>
 <p>What happens to a moved task:</p>
 <ol>
-<li><strong>It goes into the note unchanged</strong>: the task line, with its links, priority, tags and dates, and the lines under it. It is added at the end of the note's <strong>Open Threads</strong> section (or the heading you chose; at the top if you chose that). A note without that heading gets it at the end.</li>
+<li><strong>It goes into the note unchanged</strong> (with F, plus the focus tag): the task line, with its links, priority, tags and dates, and the lines under it. It is added at the end of the note's <strong>Open Threads</strong> section (or the heading you chose; at the top if you chose that). A note without that heading gets it at the end.</li>
 <li><strong>Then it is taken out of the triage note</strong>: just its lines. The category's heading stays, even if empty.</li>
 <li><strong>If the note already has the task</strong> (an open task there links to the same message or bug), nothing is added: the task just leaves the triage note, and the message says so.</li>
 <li><strong>Undo</strong> puts every note involved back exactly as it was. If one of them has changed since (your program wrote a new run, say), Undo does nothing and says so: the task stays where it went, so it is never lost.</li>
@@ -354,6 +361,10 @@ mark.find-hit.current{background:#ffab2e}
 <tr>
 <td>A</td>
 <td>Move every open task of its category</td>
+</tr>
+<tr>
+<td>F</td>
+<td>It is important: move it as M does, tagged as a focus task (see Focus in the user guide)</td>
 </tr>
 <tr>
 <td>O</td>

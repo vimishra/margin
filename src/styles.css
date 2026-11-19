@@ -6597,3 +6597,175 @@ kbd {
   border-radius: 3px;
   padding: 0.05em 0;
 }
+
+/* ---------- Focus: the week's important next actions, above Today, Triage and today's daily note ---------- */
+.nav-item.sub .nav-icon.list-review { color: var(--accent); }
+.focus-strip {
+  margin: 4px 0 16px;
+  border-left: 3px solid var(--accent);
+}
+.focus-strip-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-right: 12px;
+}
+.focus-strip-head .day-tasks-head { flex: 1; }
+.focus-strip-head .day-tasks-head svg:nth-of-type(2) { color: var(--accent); }
+.link-btn {
+  font-size: 12px;
+  color: var(--accent-text, var(--accent));
+  white-space: nowrap;
+}
+.link-btn:hover { text-decoration: underline; }
+.focus-empty {
+  margin: 0;
+  padding: 2px 4px 10px;
+  font-size: 13px;
+  color: var(--text-3);
+}
+.day-tasks-body h4.focus {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--accent);
+}
+
+/* ---------- Weekly review ---------- */
+.review-section { margin: 8px 0 28px; }
+.review-section h2 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+.review-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.review-tile {
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+  padding: 10px 14px;
+  border: var(--hair) solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-raised);
+}
+.review-tile b {
+  font-size: 24px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.review-tile span { font-size: 12px; color: var(--text-3); }
+.review-tile.focus { border-left: 3px solid var(--accent); }
+.review-tile.focus b { color: var(--accent); }
+.review-verdict { margin: 10px 0 4px; font-size: 14px; color: var(--text-2); }
+.review-verdict.warn { color: var(--danger); }
+.review-note { margin: 4px 0 8px; font-size: 12.5px; color: var(--text-3); }
+.review-list { padding: 4px 0; }
+.review-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+.review-age {
+  font-size: 12px;
+  color: var(--text-3);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.review-row.stuck .review-age { color: var(--danger); font-weight: 500; }
+.review-area h3 {
+  margin: 14px 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.review-project {
+  padding: 8px 12px;
+  border: var(--hair) solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 6px;
+  background: var(--bg-raised);
+}
+.review-project.stalled { border-color: color-mix(in srgb, var(--danger) 40%, var(--border)); }
+.review-project.has-focus { border-left: 3px solid var(--accent); }
+.review-project-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.review-project-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.review-project-title:hover { color: var(--accent); }
+.review-progress {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+.review-bar {
+  display: block;
+  width: 60px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--bg-sunken);
+  overflow: hidden;
+}
+.review-bar span { display: block; height: 100%; background: var(--accent); }
+.review-last { font-size: 12px; color: var(--text-3); white-space: nowrap; }
+.review-next {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 13.5px;
+}
+.review-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.review-label.warn { color: var(--danger); }
+.review-next-text { color: var(--text-2); }
+.review-next-text.muted { color: var(--text-3); }
+.review-next .icon-btn.active { color: var(--accent); }
+.review-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+@media (max-width: 600px) {
+  .review-project-head { flex-wrap: wrap; }
+  .review-last { display: none; }
+}
