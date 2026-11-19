@@ -24,6 +24,8 @@ export interface VaultConfig {
 export interface TriageConfig {
   /** The triage note's path in the notes folder. */
   note?: string
+  /** The note the triage program moves old runs into (its path): treated like the triage note, never as your tasks. */
+  archive?: string
   /** Where tasks go, first match wins: a category, tag or words in the title → a note (path; id when picked in Margin). */
   rules?: TriageRule[]
   /** A task whose category is the name of a note in this notebook goes to that note. */

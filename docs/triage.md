@@ -14,6 +14,7 @@ Triage is how Margin handles the suggested tasks that a program of yours writes 
 - [Working in the note itself](#working-in-the-note-itself)
 - [Rules: where tasks go](#rules-where-tasks-go)
 - [What Margin promises](#what-margin-promises)
+- [Keeping old runs in an archive note](#keeping-old-runs-in-an-archive-note)
 - [For the program that writes the note](#for-the-program-that-writes-the-note)
 - [Keys](#keys)
 - [Settings](#settings)
@@ -40,7 +41,8 @@ You do this once, on the computer where you want to triage (Settings are in the 
 2. **Tell Margin where work goes.** Either or both:
    - **A workstream notebook.** If your workstream notes live in one notebook (say *Workstreams*) and are named like your triage categories (a category *Payments Platform* and a note *Workstreams/Payments Platform*), set **Workstream notebook** to that notebook. That is all: each task goes to the note named like its category.
    - **Rules**, for everything that does not line up by name: *Category is* "Pay Ops" → *Workstreams/Payments Platform*; *Has tag* `#oncall` → *Work/On-call*; *Title contains* "invoice" → *Finance/Invoices*. See [Rules](#rules-where-tasks-go).
-3. **Optionally:** a **default note** for anything nothing else places; the **heading** moved tasks go under (Open Threads unless you change it); words to **take off** as tasks move (such as `#quick`); and whether to add a **"from triage"** line under each moved task.
+3. **If your program moves old runs into another note** (say runs older than four weeks into `Inbox/Triage_archive`), set **Triage archive** to that note. Margin then treats it like the triage note: its tasks stay out of Today, Anytime, the Logbook, the counts and `margin-tasks`, ticking there changes only the box, and archiving leaves it alone. Without this setting it would be an ordinary note, and its old suggestions would show up as your tasks. The Weekly review counts what was completed in both notes.
+4. **Optionally:** a **default note** for anything nothing else places; the **heading** moved tasks go under (Open Threads unless you change it); words to **take off** as tasks move (such as `#quick`); and whether to add a **"from triage"** line under each moved task.
 
 You do not have to set up rules before starting. In the Triage view, choosing a note with **⌥↵** instead of ↵ adds a rule for that category as you go, so the mapping builds itself over the first few days.
 
@@ -174,7 +176,17 @@ Your triage program and Margin both write the triage note, so Margin is careful 
 - **It changes as little as possible.** Completing, dropping and dates change only that task's line, and only its box and Margin's own tokens. Moving takes out only the task's lines. Headings, group labels, blank lines, other tasks and your program's own text are never touched; nothing is reordered or reformatted. (Margin does keep the `updated` date at the top of the note current, as for any note it saves.)
 - **It writes whole files.** A note is written to a hidden temporary file and renamed over the old one, so nothing ever reads half a note.
 - **It never loses a task when moving.** The other note is saved first; the triage note only afterwards. If something fails in between, you find the task in both places.
-- **Suggestions stay suggestions.** Tasks in the triage note are left out of Today, Anytime, the counts, tasks blocks, reminders and `margin-tasks` until you move them into a note of your own. Ticking there never moves anything, and archiving leaves the note alone.
+- **Suggestions stay suggestions.** Tasks in the triage note (and in the triage archive, when set) are left out of Today, Anytime, the counts, tasks blocks, reminders and `margin-tasks` until you move them into a note of your own. Ticking there never moves anything, and archiving leaves those notes alone.
+
+## Keeping old runs in an archive note
+
+If your program moves old runs out of the triage note (to keep it short), have it move them into one archive note and set that note as **Triage archive** (see [Setting it up](#setting-it-up)). The archive uses the same layout as the triage note, so your own scripts can read both the same way.
+
+- **Margin does not show the archive in the Triage view.** Open it as a note to read it. What you tick there changes only that line's box, as in the triage note.
+- **Its tasks are not yours:** they stay out of every list, the Logbook and `margin-tasks`, so archived suggestions never come back as tasks.
+- **The Weekly review** counts a task completed in Triage once, whether its run is still in the triage note or already in the archive.
+- **Write it whole,** like the triage note: to a temporary file in the same folder, then renamed over it.
+- **A script that sums up what you did** should read both notes for what was completed in Triage (`- [x]` with `@done(date)`), and your other notes for the rest, including tasks moved out of Triage (they keep their links, and with **Note where moved tasks came from** on, a `_from triage, date_` line).
 
 ## For the program that writes the note
 
@@ -236,6 +248,7 @@ All in Settings → Triage, and kept in `.margin/config.json` in your notes fold
 | Setting | In the file | What it does | Unless set |
 | --- | --- | --- | --- |
 | Triage note | `note` | The note your program writes, as a path | No triage |
+| Triage archive | `archive` | The note your program moves old runs into, as a path; treated like the triage note | None |
 | Where tasks go | `rules` | Category, tag or title words → a note; first match wins | No rules |
 | Workstream notebook | `workstreamNotebook` | A task goes to the note there named like its category | Off |
 | Default note | `default` | Where tasks go when nothing else decides | M asks |

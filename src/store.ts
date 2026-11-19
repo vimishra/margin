@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { useMemo } from 'react'
 import type { ReactNode } from 'react'
 import { api, isConflict, type TriageConfig, type TriageRule } from './api'
 import { shortLinks } from './lib/shortlinks'
@@ -702,10 +703,19 @@ export async function refresh() {
   }
 }
 
-/** The notes whose tasks are not yours yet (the triage note), by path: left out of task lists, sinking and archiving. */
+/** The triage note and its archive, by path, from triage settings: notes whose tasks are not yours. */
+export const triagePaths = (cfg: TriageConfig): string[] => [cfg.note, cfg.archive].filter((p): p is string => !!p)
+
+/** The notes whose tasks are not yours (the triage note and its archive), by path: left out of task lists, sinking and archiving. */
 export function hiddenTaskNotes(): string[] {
-  const note = get().triage.note
-  return note ? [note] : []
+  return triagePaths(get().triage)
+}
+
+/** The same, for a component: changes when the triage settings do. */
+export function useHiddenTaskNotes(): string[] {
+  const note = useStore((s) => s.triage.note)
+  const archive = useStore((s) => s.triage.archive)
+  return useMemo(() => [note, archive].filter((p): p is string => !!p), [note, archive])
 }
 
 /** The triage note, if it is set and exists. */
@@ -714,8 +724,20 @@ export function triageNote(): Note | undefined {
   return key ? Object.values(get().notes).find((n) => notePathKey(n.path) === notePathKey(key)) : undefined
 }
 
-/** Whether a note's structure belongs to an outside program (the triage note): ticking there neither sinks nor repeats. */
-export const isProtectedNote = (id: string | undefined) => !!id && triageNote()?.id === id
+/** The triage archive (where the triage program moves old runs), if it is set and exists. */
+export function triageArchiveNote(): Note | undefined {
+  const key = get().triage.archive
+  return key ? Object.values(get().notes).find((n) => notePathKey(n.path) === notePathKey(key)) : undefined
+}
+
+/** Whether a note is the triage note itself (where the Triage view's actions apply). */
+export const isTriageNoteId = (id: string | undefined) => !!id && triageNote()?.id === id
+
+/**
+ * Whether a note's structure belongs to an outside program (the triage note or its archive): ticking there neither
+ * sinks nor repeats, and archiving leaves it alone.
+ */
+export const isProtectedNote = (id: string | undefined) => !!id && (triageNote()?.id === id || triageArchiveNote()?.id === id)
 
 /** Set which note is the triage note (its path in the notes folder; '' for none). Saved in the folder's settings. */
 export async function setTriageNote(path: string) {

@@ -506,6 +506,7 @@ function cleanTriage(body, current) {
   const text = (v) => (typeof v === 'string' ? v.trim() : '')
   const set = (key, value) => (value === '' || value === undefined || value === null || (Array.isArray(value) && !value.length) ? delete next[key] : (next[key] = value))
   if ('note' in body) set('note', cleanNotePath(body.note))
+  if ('archive' in body) set('archive', cleanNotePath(body.archive))
   if ('default' in body) set('default', cleanNotePath(body.default))
   if ('workstreamNotebook' in body) set('workstreamNotebook', cleanNotePath(body.workstreamNotebook))
   if ('heading' in body) set('heading', text(body.heading).replace(/^#+\s*/, ''))

@@ -198,6 +198,20 @@ function ColorThemeRows() {
   )
 }
 
+function TriageArchiveRow() {
+  const path = useStore((s) => s.triage.archive) ?? ''
+  const notes = useStore((s) => s.notes)
+  const found = path ? Object.values(notes).some((n) => notePathKey(n.path) === notePathKey(path)) : true
+  return (
+    <Row
+      label="Triage archive"
+      hint={`The note your triage program moves old runs into, such as Inbox/Triage_archive. Margin treats it like the triage note: its tasks stay out of every list, the Logbook and margin-tasks, ticking there changes only the box, and archiving leaves it alone. The Weekly review counts what was completed in it. Leave empty if your program keeps no archive.${path && !found ? ' No note at that path yet.' : ''}`}
+    >
+      <BlurText value={path} placeholder="Inbox/Triage_archive" onSave={(v) => void setTriage({ archive: v })} />
+    </Row>
+  )
+}
+
 function TriageNoteRow() {
   const path = useStore((s) => s.triage.note) ?? ''
   const notes = useStore((s) => s.notes)
@@ -1056,6 +1070,7 @@ export function SettingsModal() {
               <div className="set-section">
                 {searching && <h4 className="set-section-title">Triage</h4>}
                 <TriageNoteRow />
+                <TriageArchiveRow />
                 <TriageMoveRows />
               </div>
             )}

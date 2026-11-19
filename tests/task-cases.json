@@ -59,6 +59,10 @@
   {
    "path": "Inbox/Triage.md",
    "raw": "---\nid: tri4ge0001\ntags:\n  - triage\n---\n## Triage Mon 5 Jan, 11:00\n\n### Category One\n**Actions**\n- [ ] Suggested by the triage job P1 >2026-10-08 @due(2026-10-08) #atlas\n- [x] An old suggestion @done(2026-10-07)\n"
+  },
+  {
+   "path": "Inbox/Triage_archive.md",
+   "raw": "## Triage Mon 5 Oct, 06:00\n\n### Archived\n**Actions**\n- [ ] An old suggestion still open - [mail](https://example.com/mail/old) #archived P2 @due(2026-10-01)\n- [x] An old one completed in triage - [mail](https://example.com/mail/older) @done(2026-10-05)\n"
   }
  ],
  "queries": [
@@ -1577,6 +1581,7 @@
  },
  "inbox": "Inbox",
  "hidden": [
-  "inbox/triage"
+  "inbox/triage",
+  "inbox/triage_archive"
  ]
 }
