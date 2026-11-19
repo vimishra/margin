@@ -204,7 +204,7 @@ Most tasks need none of these. A task with no dates is in Anytime, something you
    - anything overdue
 2. **Deal with each overdue task.** Do one of three things: tick it, give it a new due date, or decide it is not happening and delete the line. Do not leave it overdue.
 3. **Look ahead: ⌘⇧T, then 3** for Upcoming. If anything there needs to start today, highlight it and press **T**.
-4. **Settle the Top 3.** In today's note, the Top 3 should hold at most three things that would make today a success. Items carried over from yesterday count. If there are more than three, push the extras to a later day: cursor on the line, ⌘⇧S, pick a day. **At least one of the three must be important work, not something from Triage;** the Important list in the note (see [Tasks: important and urgent](#tasks-important-and-urgent)) is where to pick it from.
+4. **Settle the Top 3.** In today's note, the Top 3 should hold at most three things that would make today a success. Items carried over from yesterday count. If there are more than three, push the extras to a later day: cursor on the line, ⌘⇧S, pick a day. **At least one of the three must be important work, not something from Triage;** the Focus group at the top of the note's task panel (see [Tasks: important and urgent](#tasks-important-and-urgent)) is where to pick it from.
 5. **Do that important item first,** before opening Triage or mail.
 
 ## Tasks: triage
@@ -263,7 +263,7 @@ A project is anything with more than one step that ends when an outcome is reach
 6. **Keep it readable.** Ticked tasks collect at the end of each list. When a phase is done, or a list gets long, put the cursor under its heading and ⌘K → **Archive done tasks in this section**: they move to the Archive section at the end of the note, folded, and stay in the Logbook. To see only the outline, put the cursor on a heading and press ⇧Tab (top headings, then every heading, then everything); Tab on one heading opens its subheadings.
 7. **Finish it** when the outcome is reached: tick or delete the leftovers, then ⌘K → **Move this note to the Archive**. It goes to `Archive/Work/…`, so Work holds only live projects.
 
-The one rule that keeps projects moving: **every live project has at least one open task you could do now.** A project with none is stalled, and Margin will not remind you. The weekly review checks this.
+The one rule that keeps projects moving: **every live project has at least one open task you could do now.** A project with none is stalled: the **Weekly review** page lists every project with its next action and flags stalled ones, so the weekly review catches them.
 
 ## Tasks: important and urgent
 
@@ -280,33 +280,25 @@ The danger is the top-right box: nothing in Margin or in your mail will ever ask
 
 In the weekly review (step 8 of [Tasks: every week](#tasks-every-week)), pick **two or three important outcomes** for the week: usually projects, sometimes one piece of thinking or writing. Each is a project note, or a line in one.
 
-For each, find or write **its next action** in that note, and tag it `#focus`:
+Open **Weekly review** (under Tasks in the sidebar). Under **Projects**, each project shows its next action; **star** the next action of each project you chose. That makes it a **focus task**: the task gets the focus tag, `#focus`:
 
 ```
 - [ ] Draft the hiring plan for Q1 #focus
 ```
 
-Only the next action carries the tag, not the whole project, and only the two or three projects you chose. More than five `#focus` tasks and the tag no longer means anything. When you tick one, write the next step of that project and tag it, so each focus project always has one.
+You can also press **F** on a task in the Tasks view, or type the tag yourself. Only the next action carries it, not the whole project, and only for the two or three projects you chose; the review warns when more than three projects have focus tasks. When you tick one, Margin asks for the project's next step and makes that the new focus task, so each focus project always has one.
 
-The tag is a convention, not a feature: any tag works, as long as you use only one. A priority (`P1`) would also work, but priorities are about urgency within a list; a separate tag keeps "important" apart.
+The tag is set in Settings → General → Focus tag. A priority (`P1`) is not the same thing: priorities rank urgency within a list, while the focus tag marks what is important this week.
 
-### 2. See it every morning, in the daily note
+### 2. See it all day, above the urgent
 
-Put the focus tasks into the daily note, where the day starts, so they are in front of you before Triage is. In the template for new days (Settings → Daily notes), add an **Important** section under the Top 3 with a tasks block:
+Focus tasks are shown where urgent work is, so they are never out of sight:
 
-````
-## Top 3
-- [ ]
-- [ ]
-- [ ]
+- at the top of **today's daily note**, in the task panel, under **Focus**;
+- at the top of **Today** in the Tasks view;
+- at the top of **Triage**, so they are in view exactly when the urgent is pulling at you.
 
-## Important
-```tasks
-#focus group: project
-```
-````
-
-Each new day then shows every open `#focus` task, grouped by project, kept up to date and tickable in place. Ticking one there ticks it in its project note. If you do not use a template, save `#focus` as a filter in the Tasks view (type it in the narrow-down box and save it as "Focus") and open it each morning.
+Ticking one in any of these ticks it in its project note.
 
 ### 3. Commit to one of them, first thing
 
@@ -320,25 +312,25 @@ When you settle the Top 3 ([Tasks: every morning](#tasks-every-morning)):
 
 Triage is where urgent work comes in, so it is where the day slips away. Hold it to two sittings of 20 to 30 minutes ([Tasks: triage](#tasks-triage)) and stop when the time is up: what is left comes back in the next run.
 
-In each sitting, ask of every action, **"does this belong to something important?"** If it does, **M** moves it into that project note, under Open Threads, so it becomes part of the important work instead of competing with it. Only what is urgent and small gets done in the sitting; the rest gets a day (**S**) or is dropped (**C**).
+In each sitting, ask of every action, **"does this belong to something important?"** If it does, **F** moves it into that project (where M would) as a focus task, so it becomes part of the important work instead of competing with it; **M** moves it without the tag. Only what is urgent and small gets done in the sitting; the rest gets a day (**S**) or is dropped (**C**).
 
 ### 5. Check the balance each week
 
-At the end of the weekly review:
+**Weekly review** does the counting:
 
-1. **Read the Logbook for the week** (⌘⇧T, then 6, or a tasks block `logbook this week` in a weekly note). Roughly how much came from Triage and the Inbox, and how many were focus tasks? If none of the week's done tasks were focus work, next week's first blocks need protecting harder, or the focus was too big: cut it into smaller next actions.
-2. **Look at each focus project:** did it move? A project that has carried the same `#focus` task for two weeks is either too vague (rewrite the next action as something you could start in five minutes) or not actually important (take the tag off and let it go back to Anytime or Someday). Both are fine decisions; leaving it stuck is not.
-3. **Choose next week's focus** (step 1 above).
+1. **The week** shows how many tasks you finished, how many were focus work, and how many were completed in Triage, and says plainly when almost none was focus work. If that happens, protect the first blocks harder next week, or cut the focus into smaller next actions.
+2. **Focus now** marks any focus task that has **not moved in two weeks**. Such a task is either too vague (rewrite it as something you could start in five minutes) or not actually important (press F on it to take it out of focus, and let it go back to Anytime or Someday). Both are fine decisions; leaving it stuck is not.
+3. **Projects** flags **stalled** projects, with no open task: write the next step, or archive it if it is finished. Then star next week's focus (step 1).
 
 ### What each part of Margin is for
 
 | | Holds | When |
 | --- | --- | --- |
-| Daily note: Top 3 and Important | Today's commitment, with one important item; the week's focus next actions | First thing; important item in the first block |
+| Daily note: Top 3 and Focus | Today's commitment, with one important item; the week's focus next actions | First thing; important item in the first block |
 | Triage | Urgent work as it comes in | Two short sittings a day, after the first block |
 | Inbox | Things you have not decided on | Emptied at the end of the day |
 | Project notes | Important work, its steps and its story; the threads Triage sends there | Weekly review, and whenever you work on it |
-| Weekly review | The balance between the two, and next week's focus | Once a week |
+| Weekly review (the page) | The balance between the two, stuck focus tasks, stalled projects, and next week's focus | Once a week |
 
 ## Tasks: every week
 
@@ -352,8 +344,8 @@ This is the review that keeps the lists trustworthy. Open the Tasks view: ⌘⇧
    - For each thing you are not going to do soon, press S and choose Someday.
 5. **Catch undated strays: press 9** for No date. Anything here has no plan: give it a day, send it to Someday, or delete it.
 6. **Archive what is finished.** In the Logbook (press 6), **Archive done tasks…** moves everything ticked over a week ago into each note's Archive section, so project and people notes show what is still open.
-7. **Check every project has a next step.** Press 4 for Anytime and group by **Project**. Go down the projects in Work (and your other areas): each should show at least one open task. For one that shows none, open its note and write the next step, or, if it is finished or dropped, archive it. Sort any tasks waiting under a project's Open Threads into its phases while you are there.
-8. **Check the balance and choose next week's focus.** See [Tasks: important and urgent](#tasks-important-and-urgent): read the week's Logbook for how much was focus work, check each focus project moved, and tag the next actions of the two or three projects that matter next week `#focus`.
+7. **Check every project has a next step.** Open **Weekly review** (under Tasks): its **Projects** list shows each project's next action and marks those with none as **Stalled**, with buttons to write the next step or archive the note. (Or press 4 for Anytime and group by **Project**.) Each should show at least one open task. For one that shows none, open its note and write the next step, or, if it is finished or dropped, archive it. Sort any tasks waiting under a project's Open Threads into its phases while you are there.
+8. **Check the balance and choose next week's focus.** Open **Weekly review** (under Tasks): read how much of the week was focus work, deal with focus tasks that have not moved and with stalled projects, and star the next actions of the two or three projects that matter next week. See [Tasks: important and urgent](#tasks-important-and-urgent). (Step 7's check is on the same page, under Projects.)
 
 ## Tasks: every month
 
@@ -407,5 +399,6 @@ In the Tasks view (⌘⇧T), on the highlighted task:
 | Due date | D |
 | Priority | P |
 | Move it into another note (a project) | M |
+| Make it a focus task, or take it out | F |
 | Open it in its note | ↵ |
 | Narrow the list | / |

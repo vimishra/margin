@@ -155,6 +155,8 @@ export interface Settings {
   archiveFolder: string
   /** Notebook for notes about people (1:1s). */
   peopleFolder: string
+  /** The tag that marks focus tasks: the few important next actions chosen for the week (without #; '' for none). */
+  focusTag: string
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -211,6 +213,7 @@ export const DEFAULT_SETTINGS: Settings = {
   archiveAfterDays: 7,
   archiveFolder: 'Archive',
   peopleFolder: 'People',
+  focusTag: 'focus',
 }
 
 /** Parts of the sidebar that can be switched off in Settings. Home and search always stay. */
@@ -306,6 +309,8 @@ export type PaletteState = null | {
   triageTasks?: import('./lib/triage').TriageTask[]
   /** …and the ones rules place, moved with them as one action. */
   triagePlan?: import('./triage').MovePlan[]
+  /** For triageMove from F: the focus tag to add as it moves. */
+  triageTag?: string
   /** For moveSection: the section's heading line in the page, and its title, to find it again. */
   section?: { line: number; title: string }
 }
@@ -384,6 +389,7 @@ export function parseHash(hash: string): Route {
     case 'scratch':
     case 'research':
     case 'trash':
+    case 'review':
       return { name }
     case 'tasks':
       return arg ? { name, view: arg } : { name }

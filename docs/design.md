@@ -197,6 +197,8 @@ Not in the notes folder: version history and deleted notes. A synced notes folde
 | Footnotes | Editor: `FootnoteRefWidget` and `FootnoteLabelWidget` in `livePreview.ts`, the slash command in `Editor.tsx`; read mode and exports: `markdown-it-footnote`, set up in `lib/markdown.ts`; in-page jumps in `Preview.tsx` |
 | Properties under the title | `components/Properties.tsx`; on the server, `publicNote` (`properties`) and `cleanProperties` in the note PUT handler of `server/index.mjs` (stored as the record's `extra`) |
 | The status bar | `StatusBar` in `components/NoteView.tsx`; the counting in `lib/stats.ts`; the setting `statusBar` |
+| Focus tasks | The rules (`withTag`, `isFocus`, `focusTasks`, `projectList`, `taskKey`) in `lib/focus.ts`; F, the next-step prompt and first-seen days (`toggleFocus`, `watchFocus`, `addNextStep`, local storage `focusSeen`) in `src/focus.ts`, started in `App.tsx`; the box in `components/FocusStrip.tsx` (used by `TasksView` on Today and `TriageView`); the Focus group in `DayTasks` (`TasksView.tsx`); F in Triage is `moveByRules(task, tag)` in `src/triage.ts`, which passes the tag through `MovePlan.tag` (and the palette's `triageTag`) to `tagTaskLine`; the setting `focusTag` |
+| The Weekly review | `components/ReviewView.tsx` (route `review` in `types.ts`, `parseHash` in `store.ts`, `App.tsx`; the sidebar entry under Tasks in `Sidebar.tsx`; the command `goreview`); projects from `projectList` in `lib/focus.ts`; Triage counts from `parseTriage`; Archive is `archiveProject(note)` in `src/archive.ts` |
 | The menu bar or right-click menu | `electron/main.mjs` |
 | Colours, spacing, fonts | The tokens at the top of `src/styles.css` |
 | The starter notes | `server/seed.mjs` |

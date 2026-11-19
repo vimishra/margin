@@ -133,6 +133,8 @@ mark.find-hit.current{background:#ffab2e}
 <li>Filters by words, tag and priority; grouping by date, project or priority; and filters you save to the sidebar</li>
 <li>Today's tasks and anything overdue shown at the top of the daily note</li>
 <li>A Top 3 for each day, whose unfinished items move to the next day</li>
+<li>Focus: the week's important next actions shown above Today, Triage and the daily note, so urgent work does not crowd them out</li>
+<li>A Weekly review page: how much of the week was focus work, focus tasks that have not moved, and every project's next step, with stalled ones flagged</li>
 <li>Keys for everything: tick, plan for today, set dates and priority, in a note or in the Tasks view</li>
 <li><a href="#tasks-from-the-command-line">A command-line tool</a>, <code>margin-tasks</code>, for scripts</li>
 </ul>
@@ -189,6 +191,8 @@ mark.find-hit.current{background:#ffab2e}
 <li><a href="#repeating-tasks">Repeating tasks</a></li>
 <li><a href="#reminders">Reminders</a></li>
 <li><a href="#the-tasks-view">The Tasks view</a></li>
+<li><a href="#focus-important-work-not-only-urgent">Focus: important work, not only urgent</a></li>
+<li><a href="#the-weekly-review">The Weekly review</a></li>
 <li><a href="#saved-filters">Saved filters</a></li>
 <li><a href="#tasks-blocks-a-live-list-inside-a-note">Tasks blocks: a live list inside a note</a></li>
 <li><a href="#moving-overdue-tasks">Moving overdue tasks</a></li>
@@ -1460,6 +1464,10 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 <td>Move to another note (a project), under its Open Threads heading</td>
 </tr>
 <tr>
+<td>F</td>
+<td>Make it a focus task, or take it out of focus (see <a href="#focus-important-work-not-only-urgent">Focus</a>)</td>
+</tr>
+<tr>
 <td>N</td>
 <td>Show or hide the task's notes</td>
 </tr>
@@ -1501,6 +1509,22 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 <li><strong>Tick it</strong> if it is already done, or delete the line if it is not happening.</li>
 </ul>
 <p>The task's line stays where it is in the note unless you move it; only the lists it shows in change. The Inbox's count in the sidebar tells you when there is sorting to do.</p>
+<h3 id="focus-important-work-not-only-urgent">Focus: important work, not only urgent</h3>
+<p>Triage, the Inbox and Today bring you what is <strong>urgent</strong>. What is <strong>important but not urgent</strong> (the project that moves your goals, the plan nobody has asked for yet) never arrives by itself. <strong>Focus</strong> gives it a place: each week, choose the next actions of the two or three projects that matter most, and mark them as focus tasks. They are then shown above the urgent lists all day, and the Weekly review tells you how much of your week went to them. How to use it day to day is in the <a href="operations.html#tasks-important-and-urgent">theory of operations</a>.</p>
+<ul>
+<li><strong>A focus task</strong> is an ordinary task with the focus tag, <code>#focus</code> unless you change it (Settings → General → <strong>Focus tag</strong>; empty turns Focus off). Other apps and <code>margin-tasks</code> see it as a tag like any other.</li>
+<li><strong>Marking one:</strong> press <strong>F</strong> on a task in the Tasks view (again takes it off), or choose <strong>Make it a focus task</strong> in its right-click menu, or star its project's next action in the Weekly review, or type <code>#focus</code> yourself.</li>
+<li><strong>From Triage:</strong> <strong>F</strong> on a suggestion means &quot;this is important&quot;: it moves the task where <strong>M</strong> would (asking which note when no rule places it), with the focus tag added. Also <strong>Move, as a focus task</strong> in its right-click menu.</li>
+<li><strong>Where they show:</strong> a <strong>Focus</strong> box at the top of <strong>Today</strong> in the Tasks view and at the top of <strong>Triage</strong>, and a <strong>Focus</strong> group at the top of today's daily note's task panel (those tasks are not listed again below it). The box folds; Margin remembers.</li>
+<li><strong>When you tick one,</strong> and its project has no other focus task, a message asks for the project's <strong>next step</strong>: <strong>Add next step</strong> writes what you type as a new focus task in the project note, after its open tasks (or, for a task from a meeting note, under the project's Open Threads). So a focus project always has a next action.</li>
+</ul>
+<h3 id="the-weekly-review">The Weekly review</h3>
+<p><strong>Weekly review</strong> under Tasks in the sidebar (or ⌘K → <em>Go to Weekly review</em>) is one page for the weekly check. The arrows at the top go back to earlier weeks (the week starts as set in Settings → General).</p>
+<ul>
+<li><strong>The week:</strong> how many tasks you finished in your notes, how many of them were focus tasks, and how many were completed in Triage, with a sentence on the balance: when almost nothing finished was focus work, it says so. Triage counts what was completed in the triage note itself, from the runs your program has left in it; a task moved out with M counts where it was finished. Below, the focus tasks finished that week.</li>
+<li><strong>Focus now:</strong> the open focus tasks, with how long each has been one. One open for two weeks or more is marked <strong>Not moved in N days</strong>: rewrite it as something you could start in five minutes, or take it out of focus (F). The day is counted on each computer from when Margin first saw it as a focus task, so a task reworded starts again.</li>
+<li><strong>Projects:</strong> every project note with tasks, by notebook (notes in the Archive notebook, and notes with no tasks, are left out). Each shows how many of its tasks are done, the day the last one was, and its <strong>next</strong> action (its first open task, in the order written, that is not Someday). The star next to it makes it a focus task, or takes it out: this is where you choose next week's focus. A project with no open task is <strong>Stalled</strong>: <strong>Write the next step</strong> adds one under its Open Threads (<strong>…as a focus task</strong> with the tag), and <strong>Archive</strong> moves a finished one into the Archive notebook.</li>
+</ul>
 <h3 id="saved-filters">Saved filters</h3>
 <p>Under <strong>Tasks</strong> in the sidebar are Inbox, Today, Upcoming, Anytime, Someday and Logbook, and Overdue while anything is overdue. You can add your own:</p>
 <ol>
@@ -1707,7 +1731,7 @@ margin-tasks open --no-due --notebook Work --paths
 <tbody>
 <tr>
 <td>General</td>
-<td>Start page, where new notes go, which sidebar sections to show, week start, sidebar calendar, time format, how typed dates are read, tabs, and the most tabs to keep open</td>
+<td>Start page, where new notes go, which sidebar sections to show, week start, sidebar calendar, time format, how typed dates are read, tabs, the most tabs to keep open, the task settings (recording done days, ticked tasks moving down, archiving) and the focus tag</td>
 </tr>
 <tr>
 <td>Appearance</td>

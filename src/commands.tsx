@@ -125,6 +125,7 @@ export function commands(): Command[] {
     { id: 'all', label: 'Go to All notes', icon: i(Files), hint: `${ALT}A`, run: () => go({ name: 'all' }) },
     { id: 'goscratch', label: 'Go to Scratch', icon: i(Hourglass), run: () => go({ name: 'scratch' }) },
     { id: 'gotriage', label: 'Go to Triage', icon: i(ListFilter), keywords: 'triage suggestions mail chat bugs review inbox', run: () => go({ name: 'tasks', view: 'triage' }) },
+    { id: 'goreview', label: 'Go to Weekly review', icon: i(CalendarCheck), keywords: 'weekly review focus important projects stalled balance plan week', run: () => go({ name: 'review' }) },
     { id: 'gotrash', label: 'Go to Recently deleted', icon: i(Trash2), keywords: 'trash bin deleted restore undelete recover', run: () => go({ name: 'trash' }) },
     { id: 'research', label: 'Go to Research', icon: i(BookMarked), hint: `${ALT}R`, run: () => go({ name: 'research' }) },
   ]

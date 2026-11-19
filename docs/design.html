@@ -391,6 +391,14 @@ Each canvas card is markdown too.
 <td><code>StatusBar</code> in <code>components/NoteView.tsx</code>; the counting in <code>lib/stats.ts</code>; the setting <code>statusBar</code></td>
 </tr>
 <tr>
+<td>Focus tasks</td>
+<td>The rules (<code>withTag</code>, <code>isFocus</code>, <code>focusTasks</code>, <code>projectList</code>, <code>taskKey</code>) in <code>lib/focus.ts</code>; F, the next-step prompt and first-seen days (<code>toggleFocus</code>, <code>watchFocus</code>, <code>addNextStep</code>, local storage <code>focusSeen</code>) in <code>src/focus.ts</code>, started in <code>App.tsx</code>; the box in <code>components/FocusStrip.tsx</code> (used by <code>TasksView</code> on Today and <code>TriageView</code>); the Focus group in <code>DayTasks</code> (<code>TasksView.tsx</code>); F in Triage is <code>moveByRules(task, tag)</code> in <code>src/triage.ts</code>, which passes the tag through <code>MovePlan.tag</code> (and the palette's <code>triageTag</code>) to <code>tagTaskLine</code>; the setting <code>focusTag</code></td>
+</tr>
+<tr>
+<td>The Weekly review</td>
+<td><code>components/ReviewView.tsx</code> (route <code>review</code> in <code>types.ts</code>, <code>parseHash</code> in <code>store.ts</code>, <code>App.tsx</code>; the sidebar entry under Tasks in <code>Sidebar.tsx</code>; the command <code>goreview</code>); projects from <code>projectList</code> in <code>lib/focus.ts</code>; Triage counts from <code>parseTriage</code>; Archive is <code>archiveProject(note)</code> in <code>src/archive.ts</code></td>
+</tr>
+<tr>
 <td>The menu bar or right-click menu</td>
 <td><code>electron/main.mjs</code></td>
 </tr>

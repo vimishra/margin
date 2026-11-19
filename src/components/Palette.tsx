@@ -163,9 +163,9 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
           icon: <NoteIcon note={n} />,
           title: displayTitle(n),
           subtitle: `${n.folder ? n.folder.split('/').join(' / ') + ' · ' : ''}under ${heading}${task.category ? ` · ${ALT}↵ always use it for “${task.category}”` : ''}`,
-          run: () => void moveToPicked(many, n, placed),
+          run: () => void moveToPicked(many, n, placed, false, state.triageTag),
           // ⌥↵: move them, and send this category's tasks to this note from now on.
-          ...(task.category ? { noteId: n.id, side: () => void moveToPicked(many, n, placed, true) } : {}),
+          ...(task.category ? { noteId: n.id, side: () => void moveToPicked(many, n, placed, true, state.triageTag) } : {}),
         }))
       const place = q ? newProjectPlace(q) : null
       if (place?.title && !Object.values(notes).some((n) => n.title.toLowerCase() === place.title.toLowerCase() && n.folder.toLowerCase() === place.folder.toLowerCase())) {
@@ -177,7 +177,7 @@ export function Palette({ state }: { state: NonNullable<PaletteState> }) {
           subtitle: `${place.folder ? `In ${place.folder.split('/').join(' / ')}` : 'At the top level'} · the task goes under ${heading} · type Notebook/Name for another notebook`,
           run: async () => {
             const made = await createNote({ title: place.title, folder: place.folder, content: `## ${heading}` }, false)
-            if (made) await moveToPicked(many, made, placed)
+            if (made) await moveToPicked(many, made, placed, false, state.triageTag)
           },
         }
         if (out.length) out.push(item)

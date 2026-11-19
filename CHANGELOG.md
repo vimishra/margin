@@ -2,6 +2,14 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.46.0 (2026-11-19)
+
+### Added
+
+- **Focus: important work in view, not only urgent.** Mark the week's important next actions as focus tasks (F in the Tasks view, the star in the Weekly review, or `#focus` yourself). They are shown in a Focus box at the top of Today and of Triage, and first in today's daily note's task panel, so urgent work does not crowd them out. In Triage, F means "this is important": it moves the task where M would, tagged as a focus task. When you tick a focus task, Margin offers to write the project's next step as the new one. The tag is set in Settings → General → Focus tag.
+- **Weekly review** (under Tasks in the sidebar): how much of the week's finished work was focus work and how much was completed in Triage; focus tasks that have not moved in two weeks; and every project with its progress and next action, with stalled ones (no open task) flagged and buttons to write the next step or archive the note. Star a project's next action there to choose next week's focus. The arrows go back to earlier weeks.
+- **The theory of operations** has a new section, "Tasks: important and urgent", on using the two together with Triage and the daily note.
+
 ## 1.45.0 (2026-11-19)
 
 ### Changed

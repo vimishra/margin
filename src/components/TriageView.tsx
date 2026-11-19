@@ -2,13 +2,15 @@
 // as runs, categories and groups of suggested tasks. Read-only for now: it shows the newest run, filters it, opens
 // links, and follows the note as the program rewrites it. Acting on tasks comes later; lib/triage.ts reads the note.
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
-import { BookOpen, CalendarClock, Columns2, CalendarDays, ChevronDown, ChevronRight, ExternalLink, FileText, FolderInput, History, ListFilter, Search, SquareCheck, SquareX } from 'lucide-react'
+import { BookOpen, CalendarClock, Columns2, CalendarDays, ChevronDown, ChevronRight, ExternalLink, FileText, FolderInput, History, ListFilter, Search, SquareCheck, SquareX, Target } from 'lucide-react'
 import { go, openDatePicker, openMenu, openNote, openSideAt, triageNote, ui, usePageWidthStyle, useStore, type MenuItem } from '../store'
 import { destinationOf, moveByRules, moveCategory, triageAct } from '../triage'
 import { GROUP_ORDER, parseTriage, runTasks, triageCounts, type GroupKind, type TriageCategory, type TriageRun, type TriageTask } from '../lib/triage'
 import { renderInline } from '../lib/markdown'
 import { shortDate } from '../lib/tasks'
 import { cx, local, tagStyle, today } from '../lib/util'
+import { FocusStrip } from './FocusStrip'
+import { focusTag } from '../focus'
 
 const KINDS: [GroupKind | '', string][] = [
   ['', 'All kinds'],
@@ -70,6 +72,7 @@ function triageMenu(t: TriageTask, row: Element, readOnly: boolean, noteId: stri
               ]
             : [{ label: 'Move to a note…', hint: 'M', icon: <FolderInput size={14} />, onSelect: () => moveTo(t) }]
         })(),
+        ...(focusTag() ? [{ label: 'Move, as a focus task', hint: 'F', icon: <Target size={14} />, onSelect: () => moveAsFocus(t) }] : []),
         { separator: true },
       ]
   return [
@@ -77,6 +80,12 @@ function triageMenu(t: TriageTask, row: Element, readOnly: boolean, noteId: stri
     ...t.links.map((l, i) => ({ label: `Open ${l.label}`, hint: i === 0 ? 'O' : undefined, icon: <ExternalLink size={14} />, onSelect: () => openLink(l.url) })),
     ...(noteId ? [{ label: 'Show in the triage note', hint: 'N', icon: <Columns2 size={14} />, onSelect: () => showInNote(noteId, t) }] : []),
   ]
+}
+
+/** F: it is important. Move it where M would (or ask), with the focus tag, so it is part of the week's focus. */
+function moveAsFocus(t: TriageTask) {
+  const tag = focusTag()
+  if (tag) moveByRules(t, tag)
 }
 
 export function TriageView() {
@@ -173,6 +182,7 @@ export function TriageView() {
     else if (e.key === 'd') (e.preventDefault(), pickDate(rowEl(task), task, 'due'))
     else if (e.key === 'M' || (e.key === 'm' && e.shiftKey)) (e.preventDefault(), moveTo(task))
     else if (e.key === 'm') (e.preventDefault(), moveByRules(task))
+    else if (e.key === 'f' && task.state === 'open') (e.preventDefault(), moveAsFocus(task))
     else if (e.key === 'a') {
       // Move all: every open task of the selected task's category, in the newest run.
       e.preventDefault()
@@ -238,6 +248,7 @@ export function TriageView() {
     <div ref={page} className="page" tabIndex={-1} onKeyDown={onKey}>
       <div className="page-inner list tasks triage" style={pageWidth}>
         {header}
+        <FocusStrip />
 
         {newest!.summary.length > 0 && (
           <section className="triage-summary">
@@ -337,7 +348,7 @@ export function TriageView() {
         {!visible.length && <p className="empty-hint">{counts.open ? 'No tasks match.' : 'Nothing open: everything in this run is done, dropped or moved.'}</p>}
         <div className="tasks-keys">
           <kbd>↑</kbd>
-          <kbd>↓</kbd> move · <kbd>Space</kbd> complete · <kbd>C</kbd> drop · <kbd>S</kbd> when · <kbd>D</kbd> due · <kbd>M</kbd> move · <kbd>⇧M</kbd> move to another note · <kbd>A</kbd> move all in the category · <kbd>↵</kbd> details · <kbd>O</kbd> open link · <kbd>/</kbd> narrow down
+          <kbd>↓</kbd> move · <kbd>Space</kbd> complete · <kbd>C</kbd> drop · <kbd>S</kbd> when · <kbd>D</kbd> due · <kbd>M</kbd> move · <kbd>⇧M</kbd> move to another note · <kbd>F</kbd> move as a focus task · <kbd>A</kbd> move all in the category · <kbd>↵</kbd> details · <kbd>O</kbd> open link · <kbd>/</kbd> narrow down
         </div>
       </div>
     </div>

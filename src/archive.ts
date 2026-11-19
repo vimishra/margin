@@ -84,8 +84,8 @@ export async function archiveEverywhere() {
  * Move a finished project note into the Archive notebook, keeping its own notebook inside it (Work/Atlas goes to
  * Archive/Work/Atlas). If it still has open tasks, asks first: they keep showing in the task lists.
  */
-export async function archiveProject() {
-  const note = currentNote()
+export async function archiveProject(target?: Note) {
+  const note = target ?? currentNote()
   if (!note) return
   const root = (state().settings.archiveFolder || 'Archive').replace(/^\/+|\/+$/g, '')
   if (note.folder === root || note.folder.startsWith(root + '/')) return toast(`“${displayTitle(note)}” is already in ${root}`)
