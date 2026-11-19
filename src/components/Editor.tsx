@@ -19,6 +19,7 @@ import {
 } from '@codemirror/view'
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown'
+import { HighlightSyntax, highlightTag } from '../lib/highlightSyntax'
 import { languages } from '@codemirror/language-data'
 import { HighlightStyle, indentOnInput, syntaxHighlighting } from '@codemirror/language'
 import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap, startCompletion, type Completion, type CompletionContext } from '@codemirror/autocomplete'
@@ -103,6 +104,7 @@ const highlight = HighlightStyle.define([
   { tag: t.strong, fontWeight: '700', fontSize: 'var(--bold-size)', color: 'var(--bold-color)' },
   { tag: t.emphasis, fontStyle: 'italic', fontSize: 'var(--italic-size)', color: 'var(--italic-color)' },
   { tag: t.strikethrough, textDecoration: 'line-through', color: 'var(--text-3)' },
+  { tag: highlightTag, class: 'cm-highlight' },
   { tag: t.link, color: 'var(--accent)' },
   { tag: t.url, color: 'var(--text-3)' },
   { tag: t.monospace, fontFamily: 'var(--mono)', fontSize: '0.9em', color: 'var(--code)' },
@@ -250,6 +252,7 @@ function slashCommands(ctx: CompletionContext) {
     { label: 'Math block', detail: '$$', apply: insert('$$\n‸\n$$\n', true), section: 'Insert' },
     { label: 'Tasks block', detail: '```tasks', apply: insert('```tasks\n‹today›\n```\n', true), section: 'Insert' },
     { label: 'Inline math', detail: '$x$', apply: insert('$‹x^2›$'), section: 'Insert' },
+    { label: 'Highlight', detail: '==text==', apply: insert('==‹text›=='), section: 'Insert' },
     { label: 'Divider', detail: '---', apply: insert('\n---\n\n', true), section: 'Insert' },
     { label: 'Link to a note', detail: '[[ ]]', apply: insert('[[‸]]'), section: 'Insert' },
     { label: 'Web link', detail: '[text](url)', apply: insert('[‹text›](https://)'), section: 'Insert' },
@@ -531,6 +534,7 @@ const TOGGLES: Record<string, [node: string, mark: string]> = {
   '**': ['StrongEmphasis', 'EmphasisMark'],
   '*': ['Emphasis', 'EmphasisMark'],
   '~~': ['Strikethrough', 'StrikethroughMark'],
+  '==': ['Highlight', 'HighlightMark'],
   '`': ['InlineCode', 'CodeMark'],
 }
 
@@ -749,7 +753,7 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
           EditorView.contentAttributes.of({ spellcheck: spellcheck ? 'true' : 'false', autocorrect: spellcheck ? 'on' : 'off' }),
           EditorView.lineWrapping,
           flashField,
-          markdown({ base: markdownLanguage, codeLanguages: languages, extensions: [foldOnlySectionsAndLists] }),
+          markdown({ base: markdownLanguage, codeLanguages: languages, extensions: [foldOnlySectionsAndLists, HighlightSyntax] }),
           folding(foldKey),
           editorNote.of(foldKey ?? ''),
           syntaxHighlighting(highlight),

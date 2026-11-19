@@ -10,6 +10,7 @@ body{font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,
 h1{font-size:2em;line-height:1.2;margin:0 0 .8em}h2{font-size:1.4em;margin:1.6em 0 .5em}h3{font-size:1.15em;margin:1.4em 0 .4em}
 a{color:#4a4ac4}img{max-width:100%;border-radius:6px}
 blockquote{margin:1em 0;padding:.1em 1em;border-left:3px solid #d9d6d0;color:#55524d}
+mark{background:#ffec8f;color:inherit;padding:0 .1em;border-radius:3px}
 code{font:.88em ui-monospace,SFMono-Regular,Menlo,monospace;background:#f3f1ed;padding:.15em .35em;border-radius:4px}
 pre{background:#f6f4f0;padding:14px 16px;border-radius:8px;overflow:auto}pre code{background:none;padding:0}
 table{border-collapse:collapse;margin:1em 0}th,td{border:1px solid #dedbd5;padding:6px 12px;text-align:left}th{background:#f6f4f0}

@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.44.0 (2026-11-19)
+
+### Added
+
+- **Highlights, as in Bear.** `==text==` shows highlighted in the editor (the `==` marks hidden off the line you are on), in read mode, task lists and exports, in your colour theme's highlight colour. ⌃⌘H (Ctrl+Alt+H on Linux) on a selection, Format → Highlight, ⌘K or `/highlight` adds one; again takes it off.
+
 ## 1.43.0 (2026-11-19)
 
 ### Added

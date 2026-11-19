@@ -457,6 +457,7 @@ The buttons at the top right of a note switch between three modes:
 | --- | --- |
 | Heading | `# `, `## `, `### ` at the start of a line |
 | Bold, italic, strikethrough | `**bold**`, `*italic*`, `~~struck~~` |
+| Highlight | `==highlighted==`, as in Bear: ⌃⌘H (Ctrl+Alt+H on Linux) on a selection, Format → Highlight, or `/highlight`; again to take it off. In the highlight colour of your colour theme, or yellow |
 | Bulleted or numbered list | `- item` or `1. item` |
 | Task | `- [ ] task`; click the box to tick it |
 | Quote | `> quote` |

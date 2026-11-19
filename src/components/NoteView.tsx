@@ -369,6 +369,7 @@ export function applyFormat(ed: EditorHandle, kind: string) {
     bold: () => ed.wrap('**', '**', 'bold'),
     italic: () => ed.wrap('*', '*', 'italic'),
     strike: () => ed.wrap('~~', '~~', 'text'),
+    highlight: () => ed.wrap('==', '==', 'text'),
     code: () => ed.wrap('`', '`', 'code'),
     h1: () => ed.prefixLines('# '),
     h2: () => ed.prefixLines('## '),

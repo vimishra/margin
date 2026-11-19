@@ -7,6 +7,7 @@ import type StateInline from 'markdown-it/lib/rules_inline/state_inline.mjs'
 // @ts-expect-error no types published
 import taskLists from 'markdown-it-task-lists'
 import footnotes from 'markdown-it-footnote'
+import mark from 'markdown-it-mark'
 import katexPlugin from '@vscode/markdown-it-katex'
 import hljs from 'highlight.js/lib/common'
 import DOMPurify from 'dompurify'
@@ -89,6 +90,8 @@ function build(math: boolean): MarkdownIt {
     },
   })
   md.use(taskLists, { enabled: true })
+  // ==Highlighted text==, as in the editor.
+  md.use(mark as unknown as Parameters<typeof md.use>[0])
   // A cancelled task, "[-]", which the task-list plugin does not know: a box with a cross, the item greyed.
   md.core.ruler.push('cancelled_tasks', (state) => {
     const tokens = state.tokens

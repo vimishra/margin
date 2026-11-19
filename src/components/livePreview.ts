@@ -581,7 +581,7 @@ function build(state: EditorState, follow: (t: string, side?: boolean, anchor?: 
         }
         return
       }
-      if (name === 'EmphasisMark' || name === 'StrikethroughMark') {
+      if (name === 'EmphasisMark' || name === 'StrikethroughMark' || name === 'HighlightMark') {
         if (!onLines(from, to)) out.push(hide.range(from, to))
         return
       }

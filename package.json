@@ -1,7 +1,7 @@
 {
   "name": "margin-notes",
   "private": true,
-  "version": "1.43.0",
+  "version": "1.44.0",
   "type": "module",
   "description": "Margin — a fast, local-first markdown note-taking app",
   "scripts": {
@@ -19,9 +19,11 @@
     "test:triage": "node scripts/triage-check.mjs"
   },
   "dependencies": {
+    "@lezer/markdown": "^1.8.1",
     "express": "^4.21.0",
     "js-yaml": "^4.1.0",
-    "markdown-it-footnote": "^4.0.0"
+    "markdown-it-footnote": "^4.0.0",
+    "markdown-it-mark": "^4.0.0"
   },
   "devDependencies": {
     "@codemirror/autocomplete": "^6.18.0",

@@ -6413,3 +6413,11 @@ kbd {
 .theme-bear-item.added {
   color: var(--text-3);
 }
+
+/* ==Highlighted text== in the editor (read mode uses <mark>) */
+.editor .cm-highlight {
+  background: var(--mark);
+  color: var(--theme-mark-text, inherit);
+  border-radius: 3px;
+  padding: 0.05em 0;
+}

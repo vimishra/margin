@@ -322,6 +322,7 @@ function buildMenu() {
         fmt('Bold', 'bold', 'CmdOrCtrl+B'),
         fmt('Italic', 'italic', 'CmdOrCtrl+I'),
         fmt('Strikethrough', 'strike'),
+        cmd('Highlight', 'highlight'),
         fmt('Inline Code', 'code'),
         { type: 'separator' },
         cmd('Heading 1', 'h1'),
@@ -543,7 +544,7 @@ function createWindow() {
         sep,
         {
           label: 'Format',
-          submenu: [format('Bold', 'bold', 'CmdOrCtrl+B'), format('Italic', 'italic', 'CmdOrCtrl+I'), format('Strikethrough', 'strike'), format('Inline Code', 'code')],
+          submenu: [format('Bold', 'bold', 'CmdOrCtrl+B'), format('Italic', 'italic', 'CmdOrCtrl+I'), format('Strikethrough', 'strike'), format('Highlight', 'highlight', accelerators.highlight), format('Inline Code', 'code')],
         },
         {
           label: 'Paragraph',
