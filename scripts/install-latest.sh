@@ -86,11 +86,14 @@ mkdir -p "$mnt"
 hdiutil attach -quiet -nobrowse -readonly -mountpoint "$mnt" "$dmg"
 [ -d "$mnt/Margin.app" ] || fail "the installer does not contain Margin.app."
 mkdir -p "$APPS"
-rm -rf "$APPS/Margin.app.new"
+# The new copy goes in under a hidden name first, so Spotlight, Raycast and the like never list a half-finished
+# "Margin.app.new"; then it takes the old one's place. (Earlier versions of this script used a visible name.)
+staging="$APPS/.Margin.app.new"
+rm -rf "$staging" "$APPS/Margin.app.new"
 # ditto keeps the app's signature and extended attributes intact.
-ditto "$mnt/Margin.app" "$APPS/Margin.app.new" || fail "could not write to $APPS. Is it a folder you can change?"
+ditto "$mnt/Margin.app" "$staging" || fail "could not write to $APPS. Is it a folder you can change?"
 rm -rf "$APPS/Margin.app"
-mv "$APPS/Margin.app.new" "$APPS/Margin.app"
+mv "$staging" "$APPS/Margin.app"
 # Nothing should have marked the copy, but make sure, so it always opens without the warning.
 xattr -dr com.apple.quarantine "$APPS/Margin.app" 2>/dev/null || true
 
