@@ -81,7 +81,7 @@ The owner's real notes (work meetings) are in `~/Documents/Vault`, set as `vault
 ## Working agreements with the owner
 
 - Commit and push only when asked. End commit messages with the `Co-Authored-By` line.
-- Build and publish an installer only when asked ("deploy" means: commit, push, bump the version, add a `CHANGELOG.md` entry, build the Apple-silicon `.dmg`, smoke-test it against a scratch folder, and publish a GitHub release). `.github/workflows/mac-build.yml` can also build the `.dmg` on demand from the Actions tab.
+- Build and publish an installer only when asked ("deploy" means: commit, push, bump the version, add a `CHANGELOG.md` entry, build the Apple-silicon `.dmg`, smoke-test it against a scratch folder, and publish a GitHub release). `.github/workflows/mac-build.yml` can also build the `.dmg` on demand from the Actions tab. `.github/workflows/linux-build.yml` builds the `.deb` the same way, installs and starts it, and with "Add to the release" attaches it to the release `mac-build.yml` published (run that first); a cloud session cannot upload a binary to a release itself, so use this.
 - Work done from another computer, or by another coding agent, arrives as a branch on GitHub named after the tool (`claude/...`, `codex/...`), not on `main`; fetch and check for one when asked to sync.
 - `AGENTS.md` is a link to this file, so every agent reads the same instructions. Edit this file; never replace the link with a copy.
 - After changing behaviour, update `docs/user-guide.md` and run `npm run docs`.

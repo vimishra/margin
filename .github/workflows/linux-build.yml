@@ -1,0 +1,122 @@
+# Builds the Linux installer (.deb, amd64) on a GitHub-hosted Ubuntu machine, only when asked:
+# Actions → "Build Linux app" → Run workflow. Pick the branch in "Use workflow from".
+# The .deb is attached to the run as an artifact for 14 days, after it is installed and started once.
+# With "Add to the release" ticked (main only), it is also attached to the existing GitHub release v<version>
+# (published by "Build Mac app"), whose notes get the Linux install steps. Run "Build Mac app" first.
+name: Build Linux app
+run-name: Build Linux app from ${{ github.ref_name }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      release:
+        description: 'Add the .deb to the existing release v<version> (only from main; the release must exist)'
+        type: boolean
+        default: false
+
+permissions:
+  # Write only so that the .deb can be added to a release; nothing else is pushed.
+  contents: write
+
+jobs:
+  deb:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Read the version
+        id: version
+        run: |
+          v=$(node -p "require('./package.json').version")
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          echo "### Margin $v for Linux from \`${{ github.ref_name }}\`" >> "$GITHUB_STEP_SUMMARY"
+
+      # The printable guides are made by Electron, which needs a display: xvfb gives it one.
+      - name: Build the .deb
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb
+          npx vite build
+          node scripts/build-docs.mjs
+          xvfb-run -a npx electron --no-sandbox scripts/docs-pdf.mjs
+          npx electron-builder --linux deb --x64 --publish never
+
+      # Install the .deb as a user would (apt pulls in what it depends on), then start it once against an empty
+      # notes folder and its own profile; MARGIN_CAPTURE saves a picture of the window and quits.
+      - name: Install and start-up test
+        run: |
+          deb=$(ls release/*.deb | head -1)
+          sudo apt-get install -y -qq "./$deb"
+          built=$(dpkg-query -W -f='${Version}' margin-notes)
+          echo "Installed $deb, version $built"
+          test "$built" = "${{ steps.version.outputs.version }}"
+          mkdir -p "$RUNNER_TEMP/vault" "$RUNNER_TEMP/data" "$RUNNER_TEMP/profile"
+          VAULT_DIR="$RUNNER_TEMP/vault" MARGIN_DATA_DIR="$RUNNER_TEMP/data" MARGIN_CAPTURE="$RUNNER_TEMP/start-up.png" \
+            timeout 120 xvfb-run -a margin --no-sandbox --user-data-dir="$RUNNER_TEMP/profile" || true
+          test -s "$RUNNER_TEMP/start-up.png"
+          echo "Installed with apt, started, and showed its window; starter notes written: $(ls "$RUNNER_TEMP/vault" | wc -l | tr -d ' ')" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep the start-up picture
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: start-up-linux-run${{ github.run_number }}
+          path: ${{ runner.temp }}/start-up.png
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: Margin-${{ steps.version.outputs.version }}-linux-amd64-run${{ github.run_number }}
+          path: release/*.deb
+          if-no-files-found: error
+          retention-days: 14
+
+      # Attach the .deb (replacing one of the same name) and add the Linux lines to the notes, once.
+      - name: Add to the release
+        if: ${{ inputs.release }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          v=${{ steps.version.outputs.version }}
+          tag="v$v"
+          if [ "${{ github.ref_name }}" != main ]; then echo "Releases are updated from main only." >&2; exit 1; fi
+          gh release view "$tag" >/dev/null || { echo "Release $tag does not exist yet: run Build Mac app with Publish first." >&2; exit 1; }
+          deb=$(ls release/*.deb | head -1)
+          name=$(basename "$deb")
+          gh release upload "$tag" "$deb" --clobber
+          gh release view "$tag" --json body -q .body > "$RUNNER_TEMP/body.md"
+          if ! grep -q '^## Linux' "$RUNNER_TEMP/body.md"; then
+            NAME="$name" node -e '
+              const fs = require("fs")
+              const file = process.argv[1]
+              let s = fs.readFileSync(file, "utf8")
+              const name = process.env.NAME
+              s = s.replace(/^For Macs with ([^\n]*?)\.$/m, (m, who) => `For Macs with ${who}, and for Linux on 64-bit Intel or AMD (Debian, Ubuntu, and a Chromebook’s Linux environment).`)
+              const linux = [
+                "## Linux (.deb, amd64)",
+                "",
+                "For Debian, Ubuntu, or Linux on a Chromebook (Crostini).",
+                "",
+                `1. Download \`${name}\`.`,
+                `2. **On a Chromebook:** open the Files app, right-click the file in Downloads and choose **Install with Linux**. **Elsewhere:** in a terminal, run \`sudo apt install ./${name}\` in the folder you downloaded it to.`,
+                "3. Open **Margin** from the launcher, or run `margin` in a terminal.",
+                "",
+                "To update, install the newer `.deb` the same way. If the Chromebook still shows a generic icon afterwards, right-click the Terminal icon on the shelf, choose **Shut down Linux**, and open Margin again.",
+                "",
+              ].join("\n")
+              const at = s.indexOf("Notes and settings are kept")
+              s = at >= 0 ? s.slice(0, at) + linux + "\n" + s.slice(at) : s + "\n\n" + linux
+              fs.writeFileSync(file, s)
+            ' "$RUNNER_TEMP/body.md"
+            gh release edit "$tag" --notes-file "$RUNNER_TEMP/body.md"
+          fi
+          echo "Added $name to [$tag](https://github.com/${{ github.repository }}/releases/tag/$tag)" >> "$GITHUB_STEP_SUMMARY"
