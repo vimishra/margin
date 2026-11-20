@@ -113,6 +113,8 @@ export interface Settings {
   lineHeight: number
   /** Width in pixels of each level of list nesting. */
   listIndent: number
+  /** How big the dot of a bulleted list item is. */
+  bulletSize: 'small' | 'medium' | 'large'
   imageBorder: 'none' | 'hairline' | 'shadow'
   /** Tables are as wide as their contents need, or always the full width of the page. */
   tableWidth: 'fit' | 'full'
@@ -186,6 +188,7 @@ export const DEFAULT_SETTINGS: Settings = {
   shortcuts: {},
   lineHeight: 1.7,
   listIndent: 28,
+  bulletSize: 'medium',
   imageBorder: 'hairline',
   tableWidth: 'fit',
   indentGuides: true,
@@ -1958,6 +1961,7 @@ export function applyAppearance() {
   // Labels (navigation, tabs, panel titles) never drop below medium: small text in a thin weight looks spindly, most of all on a dark background.
   root.style.setProperty('--label-weight', String(Math.max(500, Math.min(fontWeight, 560))))
   root.style.setProperty('--list-indent', `${get().settings.listIndent ?? 28}px`)
+  root.dataset.bullet = get().settings.bulletSize ?? 'medium'
   root.style.setProperty('--list-guide', get().settings.indentGuides === false ? 'transparent' : 'var(--border-strong)')
   // Bullets and list numbers take the Heading 2 colour when one is set.
   root.style.setProperty('--list-marker', (styles?.h2 && styleColor(styles.h2, dark)) || (look === 'bear' ? 'var(--accent)' : 'var(--text-3)'))

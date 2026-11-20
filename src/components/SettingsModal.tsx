@@ -850,6 +850,9 @@ export function SettingsModal() {
                 <Row label="List indent" hint="How far each level of a nested list is indented. Bullets and numbers use the Heading 2 colour from Text styles.">
                   <Stepper value={s.listIndent} min={12} max={80} step={4} unit="px" onChange={set('listIndent')} />
                 </Row>
+                <Row label="Bullet size" hint="How big the dot of a bulleted list item is, in the editor and in read mode. Small is the size Margin used before.">
+                  <Segmented value={s.bulletSize ?? 'medium'} onChange={set('bulletSize')} options={[['small', 'Small'], ['medium', 'Medium'], ['large', 'Large']]} />
+                </Row>
                 <Row label="Indent guides" hint="A faint vertical line down each level of a nested list.">
                   <Toggle label="Indent guides" value={s.indentGuides} onChange={set('indentGuides')} />
                 </Row>
