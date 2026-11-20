@@ -1777,9 +1777,13 @@ button.crumb:hover {
   content: '•';
   display: inline-block;
   width: 0.62em;
-  transform: scale(1.25);
+  transform: scale(var(--bullet-scale, 1.25));
   transform-origin: 40% 55%;
 }
+/* Bullet size (Settings → Appearance): the dot in the editor, and the marker in read mode. */
+:root { --bullet-scale: 1.75; --bullet-dot: 0.53em; }
+:root[data-bullet='small'] { --bullet-scale: 1.25; --bullet-dot: 0.4em; }
+:root[data-bullet='large'] { --bullet-scale: 2.25; --bullet-dot: 0.68em; }
 .cm-list-number,
 .cm-list-number * {
   color: var(--list-marker) !important;
@@ -1805,6 +1809,28 @@ button.crumb:hover {
 .md li::marker {
   color: var(--list-marker);
   font-weight: 600;
+}
+.md ul > li:not(.task-list-item) {
+  /* Bullets are drawn, as in the editor, so their size follows the setting and they sit on the first line's middle. */
+  list-style: none;
+  position: relative;
+}
+.md ul > li:not(.task-list-item)::before {
+  content: '';
+  position: absolute;
+  left: calc(-0.75em - var(--bullet-dot) / 2);
+  top: calc(var(--doc-leading) * 0.5em - var(--bullet-dot) / 2);
+  width: var(--bullet-dot);
+  height: var(--bullet-dot);
+  border-radius: 50%;
+  background: var(--list-marker);
+}
+/* A bullet in a list that also has tasks: its text lines up with the tasks' text, the dot where their box is. */
+.md ul.contains-task-list > li:not(.task-list-item) {
+  padding-left: calc(15px + 0.6em);
+}
+.md ul.contains-task-list > li:not(.task-list-item)::before {
+  left: calc(7.5px - var(--bullet-dot) / 2);
 }
 .md li > ul,
 .md li > ol {

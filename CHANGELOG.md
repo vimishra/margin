@@ -2,6 +2,16 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.48.0 (2026-11-20)
+
+### Added
+
+- **Bullet size** (Settings → Appearance, under List indent): Small, Medium or Large. Medium, the new default, is about 40% bigger than before, so bullets stand out next to the text; Small is the old size. The same size in the editor and in read mode.
+
+### Fixed
+
+- In read mode, a list that mixed bullets with tasks showed no bullets at all. Read mode now draws its bullets as the editor does, at every level (filled dots, not hollow circles for nested items), and a bullet in a list with tasks lines up with the tasks' text.
+
 ## 1.47.1 (2026-11-19)
 
 ### Fixed

@@ -265,6 +265,7 @@ Headings 1 to 6, bold, italic, strikethrough, highlight (`==text==`: two `=` on 
 ### 5.5 Lists
 
 - Bullets show as a round dot in a configurable colour. Numbers are styled the same.
+- **Bullet size** (setting: Small, Medium (default), Large): the dot in the editor is the bullet character at 1.25×, 1.75× or 2.25×; read mode draws a dot of the same size (0.4, 0.53 or 0.68 em), centred on the first line, in the marker colour, at every nesting level. In a list that also holds tasks, a bullet's text lines up with the tasks' text and its dot sits where their box is.
 - **Tab** nests an item under the one above; **⇧Tab** un-nests. Numbered lists renumber automatically. Numbered items need three spaces of indent in the file; bullets need two.
 - Nesting is drawn at a fixed width per level (setting, default 28 px) regardless of the spaces in the file, with a faint guide line per level (setting) that runs the full height of a wrapped item.
 - **⌥↑ / ⌥↓** move an item, with its sub-items, past its neighbour.
