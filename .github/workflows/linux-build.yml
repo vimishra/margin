@@ -59,8 +59,14 @@ jobs:
           echo "Installed $deb, version $built"
           test "$built" = "${{ steps.version.outputs.version }}"
           mkdir -p "$RUNNER_TEMP/vault" "$RUNNER_TEMP/data" "$RUNNER_TEMP/profile"
-          VAULT_DIR="$RUNNER_TEMP/vault" MARGIN_DATA_DIR="$RUNNER_TEMP/data" MARGIN_CAPTURE="$RUNNER_TEMP/start-up.png" \
-            timeout 120 xvfb-run -a margin --no-sandbox --user-data-dir="$RUNNER_TEMP/profile" || true
+          # The runner has no graphics card, and taking the picture with GPU drawing on fails now and then
+          # ("UnknownVizError"): draw in software, and try up to three times, a minute each.
+          for try in 1 2 3; do
+            VAULT_DIR="$RUNNER_TEMP/vault" MARGIN_DATA_DIR="$RUNNER_TEMP/data" MARGIN_CAPTURE="$RUNNER_TEMP/start-up.png" \
+              timeout 60 xvfb-run -a margin --no-sandbox --disable-gpu --user-data-dir="$RUNNER_TEMP/profile" || true
+            test -s "$RUNNER_TEMP/start-up.png" && break
+            echo "No picture on try $try"
+          done
           test -s "$RUNNER_TEMP/start-up.png"
           echo "Installed with apt, started, and showed its window; starter notes written: $(ls "$RUNNER_TEMP/vault" | wc -l | tr -d ' ')" >> "$GITHUB_STEP_SUMMARY"
 
