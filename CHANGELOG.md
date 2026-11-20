@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.48.1 (2026-11-20)
+
+### Fixed
+
+- **Your colour theme was not applied when Margin started on today's note or the note you had open last** (Settings → General → When Margin opens), so after each update or restart the page showed Margin's own colours until you opened Settings. The theme you chose was never lost; it is now applied at start-up whatever page Margin opens on. The same start-up step also skipped clearing out old deleted notes (with "Remove deleted notes after" set) and the Recently deleted count; both now run too.
+
 ## 1.48.0 (2026-11-20)
 
 ### Added

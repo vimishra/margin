@@ -647,6 +647,15 @@ export async function load() {
     const data = await api.state()
     const first = !get().loaded
     set({ notes: mergeNotes(data.notes), folders: data.folders, vault: data.vault, local: data.local || '', attachmentsFolder: data.config?.attachments || 'attachments', folderTags: data.config?.folderTags || {}, triage: data.config?.triage || {}, loaded: true, error: null })
+    // Once, at start-up: the colour themes (so the chosen one is applied), and the trash. Before going to the
+    // start page, which returns early: when this came after it, the theme was not applied when Margin opened on
+    // today's note or the last note.
+    if (first) {
+      void loadThemes()
+      // With the setting on, deleted notes older than it are removed for good.
+      const days = get().settings.trashDays
+      void (days > 0 ? api.emptyTrash(days).catch(() => {}) : Promise.resolve()).then(() => refreshTrash())
+    }
     // Opened without a specific page in the address: go to the start page chosen in settings.
     const { settings, recent, notes } = get()
     if (first && !location.hash.replace(/^#\/?/, '')) {
@@ -655,13 +664,6 @@ export async function load() {
       if (settings.startPage === 'last' && last) return openNote(last)
     }
     enterRoute(get().route)
-    if (first) {
-      void loadThemes()
-      // With the setting on, deleted notes older than it are removed for good.
-      const days = get().settings.trashDays
-      if (days > 0) await api.emptyTrash(days).catch(() => {})
-      void refreshTrash()
-    }
   } catch (e) {
     set({ error: (e as Error).message, loaded: true })
   }
