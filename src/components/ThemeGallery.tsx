@@ -41,6 +41,7 @@ export function ThemeGallery() {
   const bearInstalled = useStore((s) => s.bearInstalled)
   const showing = useStore((s) => s.theme)
   const [bear, setBear] = useState<ColorTheme[] | null>(null)
+  const [examples, setExamples] = useState<(ColorTheme & { base: string; ready: boolean })[] | null>(null)
   const dark = kind === 'dark'
   const key = dark ? 'themeDark' : 'themeLight'
   const current = settings[key]
@@ -50,6 +51,12 @@ export function ThemeGallery() {
     if (!bearInstalled || bear) return
     api.bearThemes().then((r) => setBear(r.themes), () => setBear([]))
   }, [bearInstalled, bear])
+  // Margin's own example themes, built on a Bear theme; filled in from it when added. Asked again when the themes
+  // here change, since adding the base makes an example ready.
+  useEffect(() => {
+    if (!kind) return
+    api.exampleThemes().then((r) => setExamples(r.themes), () => setExamples([]))
+  }, [kind, themes])
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && !e.defaultPrevented && ui({ themeGallery: '' })
     window.addEventListener('keydown', onKey)
@@ -60,6 +67,7 @@ export function ThemeGallery() {
   const mine = themes.filter((t) => isDarkTheme(t.theme) === dark)
   const have = new Set(themes.map((t) => t.name))
   const notYet = (bear ?? []).filter((t) => !have.has(t.name) && isDarkTheme(t.theme) === dark)
+  const exampleCards = (examples ?? []).filter((t) => !have.has(t.name) && isDarkTheme(t.theme) === dark)
   // What the page shows now, so it is clear when a choice applies only later.
   const pageIsDark = document.documentElement.dataset.theme === 'dark'
 
@@ -71,6 +79,15 @@ export function ThemeGallery() {
       else toast(res.added.length === 1 ? `Added “${res.added[0]}”` : `Added ${res.added.length} themes`)
     } catch (e) {
       toast(`Could not add the themes: ${(e as Error).message}`)
+    }
+  }
+  const addExample = async (name: string) => {
+    try {
+      const res = await api.addExampleThemes([name])
+      setColorThemes(res.themes)
+      setSetting(key, name)
+    } catch (e) {
+      toast(`Could not add “${name}”: ${(e as Error).message}`)
     }
   }
   const addFiles = async (files: File[]) => {
@@ -149,6 +166,31 @@ export function ThemeGallery() {
             </div>
           ))}
         </div>
+
+        {exampleCards.length > 0 && (
+          <>
+            <div className="theme-gallery-section">
+              <h3>Examples from Margin</h3>
+            </div>
+            <div className="theme-grid">
+              {exampleCards.map((t) => (
+                <button
+                  key={t.name}
+                  className="theme-card add"
+                  disabled={!t.ready}
+                  onClick={() => void addExample(t.name)}
+                  title={t.ready ? `Add “${t.name}” (built on “${t.base}”) to this notes folder and use it` : `Built on “${t.base}”, which is not here: add it from Bear first`}
+                >
+                  <ThemeCard theme={t.theme} />
+                  <span className="theme-card-name">
+                    <Plus size={12} /> {t.name}
+                  </span>
+                  {!t.ready && <small className="theme-card-needs">Needs {t.base}</small>}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
 
         {notYet.length > 0 && (
           <>

@@ -1,7 +1,7 @@
 {
   "name": "margin-notes",
   "private": true,
-  "version": "1.49.0",
+  "version": "1.50.0",
   "type": "module",
   "description": "Margin — a fast, local-first markdown note-taking app",
   "scripts": {
@@ -85,6 +85,13 @@
       {
         "from": "build/Documentation",
         "to": "Documentation"
+      },
+      {
+        "from": "themes",
+        "to": "themes",
+        "filter": [
+          "*.theme"
+        ]
       }
     ],
     "directories": {

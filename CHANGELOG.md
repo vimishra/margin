@@ -2,6 +2,14 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.50.0 (2026-11-23)
+
+### Added
+
+- **A block cursor** (Settings → Appearance → Cursor: Line, Thick line or Block; Block unless you change it). The block is see-through, over the letter after the caret, and blinks in the pane you are typing in; the other pane shows an outline where you left off. So the active pane is plain to see at a glance.
+- **Darker Graphite, an example theme from Margin**: Dark Graphite with a near-black page (#0E0E0E), a darker sidebar (#1B1B1B) and brighter text (#E3E3E3), everything else as in Dark Graphite. It is in the theme gallery's dark tab under **Examples from Margin**; clicking it fills it in from Dark Graphite (from Bear or your notes folder) and adds it as a complete theme of its own. Margin ships only those three colours and the name of the theme it builds on, never Bear's own file.
+- **A guided tour of `margin_tasks.py`** (docs/margin-tasks-code.md), for reading the command-line tool's code: every part explained, with examples.
+
 ## 1.49.0 (2026-11-23)
 
 ### Added

@@ -5,6 +5,19 @@ import fs from 'node:fs/promises'
 import fssync from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
+import { fileURLToPath } from 'node:url'
+
+const here = path.dirname(fileURLToPath(import.meta.url))
+
+/**
+ * Margin's own example themes (themes/ in the project, Resources/themes in the app). Each is Margin's work: it names a
+ * Bear theme as its "base theme" and lists only what it changes, so no Bear file is shipped; it is filled in from that
+ * base, from Bear on this computer or the notes folder, when it is added.
+ */
+function exampleThemeDir() {
+  const candidates = [process.resourcesPath && path.join(process.resourcesPath, 'themes'), path.join(here, '..', 'themes')]
+  return candidates.find((d) => d && fssync.existsSync(d)) || null
+}
 
 /** Where Bear keeps its themes on this computer, if it is installed. MARGIN_BEAR_THEMES points elsewhere for tests. */
 function bearThemeDir() {
@@ -69,6 +82,28 @@ async function readThemes(dir) {
 
 export function themeRoutes(app, h, VAULT, HttpError) {
   const dir = path.join(VAULT, '.margin', 'themes')
+  const hasPage = (t) => ['editor', 'base'].some((s) => typeof t?.[s]?.['background color'] === 'string')
+  /** The themes a theme can be built on: Bear's on this computer, then the notes folder's (which win). */
+  const knownThemes = async () => {
+    const from = bearThemeDir()
+    return new Map([...(from ? await readThemes(from) : []), ...(await readThemes(dir))].map((t) => [t.name, t.theme]))
+  }
+  /** Margin's examples, each filled in from its base when that is here; `ready` is false when it is not. */
+  const examples = async () => {
+    const from = exampleThemeDir()
+    if (!from) return []
+    const known = await knownThemes()
+    return (await readThemes(from)).map((t) => {
+      const full = complete(t.theme, known)
+      const base = typeof t.theme?.meta?.['base theme'] === 'string' ? t.theme.meta['base theme'] : ''
+      return { name: t.name, theme: full, base, ready: hasPage(full) && (!base || known.has(base)) }
+    })
+  }
+
+  // Margin's example themes, to choose from in the gallery.
+  app.get('/api/themes/examples', h(async (_req, res) => {
+    res.json({ themes: await examples() })
+  }))
 
   // The themes in the notes folder.
   app.get('/api/themes', h(async (_req, res) => {
@@ -88,7 +123,15 @@ export function themeRoutes(app, h, VAULT, HttpError) {
   // same name is replaced. Each is written to a hidden file and renamed into place.
   app.post('/api/themes', h(async (req, res) => {
     const add = []
-    if (Array.isArray(req.body?.names)) {
+    if (Array.isArray(req.body?.examples)) {
+      const all = new Map((await examples()).map((t) => [t.name, t]))
+      for (const n of req.body.examples) {
+        const t = all.get(n)
+        if (!t) throw new HttpError(404, `Margin has no example theme called “${n}”`)
+        if (!t.ready) throw new HttpError(400, `It builds on the theme “${t.base}”, which is not here: add that one first, or add it on a computer with Bear`)
+        add.push({ name: cleanName(n), theme: t.theme })
+      }
+    } else if (Array.isArray(req.body?.names)) {
       const from = bearThemeDir()
       if (!from) throw new HttpError(404, 'Bear is not installed on this computer')
       const bear = new Map((await readThemes(from)).map((t) => [t.name, t.theme]))
@@ -101,11 +144,8 @@ export function themeRoutes(app, h, VAULT, HttpError) {
       const theme = req.body?.theme
       if (!isObject(theme)) throw new HttpError(400, 'That is not a theme file')
       // A theme built on another: filled in from the themes in the notes folder, then Bear's, when it has one.
-      const from = bearThemeDir()
-      const known = new Map([...(from ? await readThemes(from) : []), ...(await readThemes(dir))].map((t) => [t.name, t.theme]))
-      const full = complete(theme, known)
-      const has = (t, s) => typeof t?.[s]?.['background color'] === 'string'
-      if (!has(full, 'editor') && !has(full, 'base')) {
+      const full = complete(theme, await knownThemes())
+      if (!hasPage(full)) {
         const base = theme?.meta?.['base theme']
         throw new HttpError(400, typeof base === 'string' ? `It builds on the theme “${base}”, which is not here: add that one first, or add it on a computer with Bear` : 'That is not a theme file')
       }

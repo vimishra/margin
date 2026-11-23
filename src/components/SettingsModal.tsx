@@ -853,6 +853,9 @@ export function SettingsModal() {
                 <Row label="Bullet size" hint="How big the dot of a bulleted list item is, in the editor and in read mode. Small is the size Margin used before.">
                   <Segmented value={s.bulletSize ?? 'medium'} onChange={set('bulletSize')} options={[['small', 'Small'], ['medium', 'Medium'], ['large', 'Large']]} />
                 </Row>
+                <Row label="Cursor" hint="The text cursor in the editor. Only the pane you are typing in shows it, so a block makes that pane easy to spot.">
+                  <Segmented value={s.cursorStyle ?? 'block'} onChange={set('cursorStyle')} options={[['line', 'Line'], ['thick', 'Thick line'], ['block', 'Block']]} />
+                </Row>
                 <Row label="Indent guides" hint="A faint vertical line down each level of a nested list.">
                   <Toggle label="Indent guides" value={s.indentGuides} onChange={set('indentGuides')} />
                 </Row>

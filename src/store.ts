@@ -115,6 +115,8 @@ export interface Settings {
   listIndent: number
   /** How big the dot of a bulleted list item is. */
   bulletSize: 'small' | 'medium' | 'large'
+  /** The text cursor in the editor: a thin line, a thicker one, or a block the width of a letter. */
+  cursorStyle: 'line' | 'thick' | 'block'
   imageBorder: 'none' | 'hairline' | 'shadow'
   /** Tables are as wide as their contents need, or always the full width of the page. */
   tableWidth: 'fit' | 'full'
@@ -189,6 +191,7 @@ export const DEFAULT_SETTINGS: Settings = {
   lineHeight: 1.7,
   listIndent: 28,
   bulletSize: 'medium',
+  cursorStyle: 'block',
   imageBorder: 'hairline',
   tableWidth: 'fit',
   indentGuides: true,
@@ -1996,6 +1999,7 @@ export function applyAppearance() {
   root.style.setProperty('--label-weight', String(Math.max(500, Math.min(fontWeight, 560))))
   root.style.setProperty('--list-indent', `${get().settings.listIndent ?? 28}px`)
   root.dataset.bullet = get().settings.bulletSize ?? 'medium'
+  root.dataset.cursor = get().settings.cursorStyle ?? 'block'
   root.style.setProperty('--list-guide', get().settings.indentGuides === false ? 'transparent' : 'var(--border-strong)')
   // Bullets and list numbers take the Heading 2 colour when one is set.
   root.style.setProperty('--list-marker', (styles?.h2 && styleColor(styles.h2, dark)) || (look === 'bear' ? 'var(--accent)' : 'var(--text-3)'))

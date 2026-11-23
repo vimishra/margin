@@ -1,0 +1,13 @@
+{
+  "meta": {
+    "base theme": "Dark Graphite",
+    "description": "Dark Graphite with a near-black page, a dark sidebar and brighter text. An example of a theme built on another: it lists only what it changes."
+  },
+  "base": {
+    "background color": "#0E0E0E",
+    "text color": "#E3E3E3"
+  },
+  "sidebar": {
+    "background color": "#1B1B1B"
+  }
+}
