@@ -1173,7 +1173,7 @@ Triage, the Inbox and Today bring you what is **urgent**. What is **important bu
 
 ### Saved filters
 
-Under **Tasks** in the sidebar are Inbox, Today, Upcoming, Anytime, Someday and Logbook, and Overdue while anything is overdue. When Anytime holds more than 25 tasks, or the Inbox more than 10, its count becomes a **red badge**: a sign the list has grown past what you can keep track of, and that the end-of-day Inbox pass or the weekly review needs doing. Settings → General → **Anytime warning** and **Inbox warning** change the limits; 0 turns one off. You can add your own:
+Under **Tasks** in the sidebar are Inbox, Today, Upcoming, Anytime, Someday and Logbook, and Overdue while anything is overdue. When Today holds more than 10 tasks, Anytime more than 25, or the Inbox more than 10, its count becomes a **red badge**: more planned for today than a day holds, or a list grown past what you can keep track of, so the end-of-day Inbox pass or the weekly review needs doing. Settings → General → **Today warning**, **Anytime warning** and **Inbox warning** change the limits; 0 turns one off. The selected list's count is drawn in that row's text colour, so it stays readable on the highlight. You can add your own:
 
 1. In the Tasks view, choose a list, narrow it down (say `#atlas p2`), and pick From and Group by.
 2. Click **Save filter** and give it a name.

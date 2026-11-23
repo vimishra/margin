@@ -152,7 +152,8 @@ export interface Settings {
   taskViews: SavedTaskView[]
   /** Write "@done(date)" on a task when it is ticked, for the Logbook. */
   logCompletion: boolean
-  /** The sidebar's Anytime and Inbox counts turn red above these numbers; 0 turns the warning off. */
+  /** The sidebar's Today, Anytime and Inbox counts turn red above these numbers; 0 turns the warning off. */
+  todayLimit: number
   anytimeLimit: number
   inboxLimit: number
   /** A ticked task (with the lines under it) moves to the end of its list. */
@@ -219,6 +220,7 @@ export const DEFAULT_SETTINGS: Settings = {
   headingTabFold: true,
   taskViews: [],
   logCompletion: true,
+  todayLimit: 10,
   anytimeLimit: 25,
   inboxLimit: 10,
   sinkDoneTasks: true,

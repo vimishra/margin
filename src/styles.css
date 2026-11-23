@@ -613,6 +613,16 @@ button.chip:hover,
 .nav-item.active .nav-icon {
   color: var(--accent-text);
 }
+/* The selected item's count in its text colour, not the faint one: on the selected background the faint grey can
+   all but vanish (it did on Dark Graphite's). The warning and over-limit counts keep their own colours. */
+.nav-item.active .count {
+  color: inherit;
+}
+/* While the window is in the back the selected row is only a light tint (see .window-inactive), so the theme's
+   selected-row text, made for its strong selection colour, is not used then. */
+:root[data-color-theme]:not(.window-inactive) .sidebar .nav-item.active {
+  color: var(--theme-side-active-text);
+}
 .nav-label {
   flex: 1;
   overflow: hidden;
@@ -4839,7 +4849,8 @@ body.resizing {
   color: var(--danger);
   font-weight: 600;
 }
-/* Anytime or the Inbox past its limit (Settings → General): the number as a bright red badge. */
+/* Today, Anytime or the Inbox past its limit (Settings → General): the number as a bright red badge, also on the
+   selected row. */
 .nav-item.sub.over .count {
   color: #fff;
   background: #e5484d;

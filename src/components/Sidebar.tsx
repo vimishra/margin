@@ -116,6 +116,7 @@ export function Sidebar() {
   const hiddenNotes = useHiddenTaskNotes()
   const taskViews = useStore((s) => s.settings.taskViews)
   const weekSetting = useStore((s) => s.settings.weekStart)
+  const todayLimit = useStore((s) => s.settings.todayLimit ?? 10)
   const anytimeLimit = useStore((s) => s.settings.anytimeLimit ?? 25)
   const inboxLimit = useStore((s) => s.settings.inboxLimit ?? 10)
   const taskView = route.name === 'tasks' ? route.view : undefined
@@ -129,8 +130,9 @@ export function Sidebar() {
         const [, label, title] = TASK_FILTERS.find(([x]) => x === f)!
         // The Logbook only grows, so a count beside it says nothing.
         const n = f === 'done' ? 0 : count({ filter: f, query: '', source: 'all' })
-        // Anytime and the Inbox warn when they grow past their limits (Settings → Tasks): a list too long to trust.
-        const limit = f === 'anytime' ? anytimeLimit : f === 'inbox' ? inboxLimit : 0
+        // Today, Anytime and the Inbox warn when they grow past their limits (Settings → General): too much to do
+        // today, or a list too long to trust.
+        const limit = f === 'today' ? todayLimit : f === 'anytime' ? anytimeLimit : f === 'inbox' ? inboxLimit : 0
         const over = limit > 0 && n > limit
         return { id: f as string, label, title: over ? `${title} More than ${limit}: time to sort it.` : title, count: n, warn: f === 'overdue', over, savedId: undefined as string | undefined }
       })
@@ -138,7 +140,7 @@ export function Sidebar() {
     const saved = taskViews.map((v) => ({ id: `s:${v.id}`, label: v.name, title: 'Saved filter. Right-click to rename or delete.', count: count(v), warn: false, over: false, savedId: v.id as string | undefined }))
     // As in Things, the number beside Tasks is what is in Today, which includes anything overdue.
     return { dueNow: all.filter((t) => isToday(t)).length, taskLists: [...builtIn, ...saved] }
-  }, [notes, templatesFolder, inboxFolder, taskViews, weekSetting, hiddenNotes, anytimeLimit, inboxLimit])
+  }, [notes, templatesFolder, inboxFolder, taskViews, weekSetting, hiddenNotes, todayLimit, anytimeLimit, inboxLimit])
   // Open suggestions in the newest run of the triage note; null when no triage note is set.
   const triageOpen = useMemo(() => {
     if (!triagePath) return null

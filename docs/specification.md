@@ -1,6 +1,6 @@
 # Margin product specification
 
-This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.51.0.
+This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.52.0.
 
 It is written to be handed to a developer or a coding tool. Where a detail is a free choice for the implementer, it says so; everything else is a requirement.
 
@@ -785,7 +785,7 @@ A page (`#/review`; "Weekly review" under Tasks in the sidebar; command "Go to W
 
 ### 12.6 Saved filters
 
-**Sidebar warnings:** the Anytime count is shown as a red badge (white on red) when it is above `anytimeLimit` (setting, default 25), and the Inbox count when above `inboxLimit` (default 10); 0 turns either off. The entry's tooltip then adds "More than N: time to sort it."
+**Sidebar warnings:** the Today count is shown as a red badge (white on red) when it is above `todayLimit` (setting, default 10), the Anytime count when above `anytimeLimit` (default 25), and the Inbox count when above `inboxLimit` (default 10); 0 turns any off. The selected entry's count takes that entry's text colour (under a colour theme, the sidebar's secondary text colour when it contrasts better with the selection than the sidebar text, and not while the window is in the back). The entry's tooltip then adds "More than N: time to sort it."
 
 A saved filter is a list, a narrow-down text, a From value and a grouping, with a name. It appears under Tasks in the sidebar with a live count. Opening one and changing anything offers **Update filter**. It can be renamed, saved as new, or deleted (with Undo). Stored in app settings.
 

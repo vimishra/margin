@@ -45,6 +45,20 @@ export const isDarkTheme = (t: ThemeFile) => luminance(pageColor(t) || '#ffffff'
 export const isThemeFile = (t: unknown): t is ThemeFile =>
   !!t && typeof t === 'object' && !!pageColor(t as ThemeFile) && !!(themeColor(t as ThemeFile, 'editor.text color') || themeColor(t as ThemeFile, 'base.text color'))
 
+/** Contrast between two hex colours, 1 (none) to 21. */
+const contrast = (a: string, b: string) => {
+  const [x, y] = [luminance(a), luminance(b)]
+  return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05)
+}
+const isHex = (s: string) => /^#[0-9a-f]{3,8}$/i.test(s)
+
+/** The text for a selected sidebar row: the theme's own, unless the ordinary sidebar text reads better on it. */
+function selectedText(own: string, normal: string, selection: string): string {
+  if (!own) return normal
+  if (!isHex(own) || !isHex(normal) || !isHex(selection)) return own
+  return contrast(own, selection) >= contrast(normal, selection) ? own : normal
+}
+
 const mix = (a: string, pct: number, b: string) => `color-mix(in srgb, ${a} ${pct}%, ${b})`
 
 /**
@@ -121,6 +135,9 @@ export function themeVars(t: ThemeFile): Record<string, string> {
     '--theme-side-border-strong': mix(sideText, sideDark ? 24 : 20, sideBg),
     '--theme-side-hover': mix(sideText, 8, 'transparent'),
     '--theme-side-active': c('sidebar.background secondary color') || mix(sideText, 15, 'transparent'),
+    // Bear draws a selected row's text in the sidebar's secondary text colour, made for that row's background; used
+    // only when it reads better there than the ordinary sidebar text (a few themes pair white with a pale selection).
+    '--theme-side-active-text': selectedText(c('sidebar.text secondary color'), sideText, c('sidebar.background secondary color')),
     '--theme-side-accent': c('sidebar.selected icon color') || c('sidebar.accent color') || accent,
     '--theme-side-scheme': sideDark ? 'dark' : 'light',
   })

@@ -2,6 +2,16 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.52.0 (2026-11-23)
+
+### Added
+
+- **A red badge for Today, too,** when more than 10 tasks are planned or due today (overdue ones included): more than a day holds. Change the limit, or turn it off with 0, in Settings → General → Today warning, beside the Anytime and Inbox ones.
+
+### Fixed
+
+- **The selected list's count in the sidebar was hard to read** under some colour themes (under Dark Graphite and Darker Graphite it was almost the colour of the highlight). It now takes the row's text colour; under a colour theme, the theme's own colour for selected rows, when that reads better.
+
 ## 1.51.0 (2026-11-23)
 
 ### Added
