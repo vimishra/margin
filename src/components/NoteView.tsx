@@ -453,11 +453,19 @@ export function NoteView({ note, slot = 'main' }: { note: Note; slot?: 'main' | 
       if (!ed || useStore.getState().activePane !== slot) return
       applyFormat(ed, (e as CustomEvent<string>).detail)
     }
+    // The external editor asks where the cursor is, to open the file at that line.
+    const onCaretLine = (e: Event) => {
+      if (useStore.getState().activePane !== slot) return
+      const line = editor.current?.selection()?.line
+      if (line !== undefined) (e as CustomEvent<(l: number) => void>).detail(line)
+    }
     window.addEventListener('margin:line', onLine)
     window.addEventListener('margin:format', onFormat)
+    window.addEventListener('margin:caretLine', onCaretLine)
     return () => {
       window.removeEventListener('margin:line', onLine)
       window.removeEventListener('margin:format', onFormat)
+      window.removeEventListener('margin:caretLine', onCaretLine)
     }
   }, [mode])
 

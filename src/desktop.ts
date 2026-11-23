@@ -10,6 +10,8 @@ export interface DesktopBridge {
   chooseVault(): Promise<boolean>
   revealVault(): Promise<unknown>
   revealFile(relativePath: string): Promise<unknown>
+  /** Open a note's file in the external editor at a line of its page (from 1), with the command from the settings. */
+  openInEditor?(relativePath: string, line: number, command: string): Promise<{ ok: boolean; error?: string }>
   savePdf(name: string): Promise<string | null>
   /** Ask for a folder; resolves to its path, or null if cancelled. */
   chooseFolder?(title: string): Promise<string | null>

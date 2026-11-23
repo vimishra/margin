@@ -2,6 +2,16 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.53.0 (2026-11-23)
+
+### Added
+
+- **Open in external editor** (desktop app): ⌘⇧E, ⌘K → Open in external editor, or File → Open in External Editor opens the note in front in your own editor, at the line your cursor is on, after saving what you typed. Choose the editor in Settings → General → External editor; it starts as Neomacs (`neomacsclient -n +{line} {file}`), and `emacsclient`, `code -g {file}:{line}` or `zed {file}:{line}` work the same way. Margin finds the program on your shell's PATH and says plainly when it cannot start it.
+
+### Changed
+
+- **Edits made in another editor show as soon as you return to Margin**: the notes on screen are re-read when its window comes back to the front, not only every 10 seconds.
+
 ## 1.52.0 (2026-11-23)
 
 ### Added

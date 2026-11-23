@@ -1160,6 +1160,36 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 </ul>
 <p>Each pane has its own tabs. The pane you last clicked is the active one, marked with a coloured line along the top; search, jump to heading, list shortcuts and ⌘W apply to it. Drag the divider to resize; double-click it for equal halves.</p>
 <p><strong>⌃Tab</strong> (Ctrl+Tab on Linux, ⌥` in the browser) moves the keyboard to the other pane, without the mouse. The pane flashes with a coloured frame so you can see where your keys now go, and the cursor is where you left it in that pane. With the Block cursor (Settings → Appearance → Cursor), the pane you are typing in has a solid blinking block and the other an outline, so you can tell them apart at any time. It works when the left pane shows Triage or the Tasks view too: their keys apply after the switch. Also in ⌘K (Switch to the other pane), the Go menu, and Settings → Shortcuts, where the key can be changed.</p>
+<h2 id="editing-a-note-in-another-editor">Editing a note in another editor</h2>
+<p>Sometimes a note is easier to work on in your own editor. In the desktop app, <strong>⌘⇧E</strong> (or ⌘K → <strong>Open in external editor</strong>, or File → Open in External Editor) opens the note in front in your editor, <strong>at the line your cursor is on</strong>. Margin saves what you typed first, so the editor gets what is on screen.</p>
+<p><strong>Choosing the editor.</strong> Settings → General → <strong>External editor</strong> holds the command, with <code>{file}</code> for the note's file and <code>{line}</code> for the line. It starts as Neomacs:</p>
+<div class="table"><table><thead>
+<tr>
+<th>Editor</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Neomacs (the default)</td>
+<td><code>neomacsclient -n +{line} {file}</code></td>
+</tr>
+<tr>
+<td>Emacs</td>
+<td><code>emacsclient -n +{line} {file}</code></td>
+</tr>
+<tr>
+<td>VS Code</td>
+<td><code>code -g {file}:{line}</code></td>
+</tr>
+<tr>
+<td>Zed</td>
+<td><code>zed {file}:{line}</code></td>
+</tr>
+</tbody>
+</table></div><p>Margin finds the program on your shell's PATH (Homebrew's folder and <code>~/.local/bin</code> included), and runs it directly, not through a shell. If it cannot start the editor, or the editor stops with an error (an Emacs client with no server running, for instance), a message says why. For the <code>-n</code> client commands, the editor must already be running with its server on: in Emacs or Neomacs, <code>(server-start)</code> in your init file.</p>
+<p><strong>Coming back.</strong> Margin re-reads the notes on screen as soon as you return to its window (and every 10 seconds anyway), so what you changed in the editor shows straight away, without moving your cursor. For changes Margin makes while the file is open in your editor (ticking a task, say), turn on <code>global-auto-revert-mode</code> in Emacs or Neomacs; VS Code reloads the file by itself when you have no unsaved changes in it.</p>
+<p><strong>One place at a time.</strong> Edit a note in one editor at a time. Margin never saves over a newer file: if both have unsaved changes, Margin shows the newer version and offers <strong>Use mine</strong>.</p>
 <h2 id="history-trash-and-export">History, trash and export</h2>
 <p><strong>Version history</strong> (⌥V) keeps a snapshot for every five minutes of editing. Pick a version to see what changed, then <strong>Restore this version</strong>.</p>
 <p><strong>Deleting</strong> a note moves it to the trash. A message offers <strong>Undo</strong> for a few seconds, which puts it straight back.</p>
@@ -1927,6 +1957,11 @@ margin-tasks open --no-due --notebook Work --paths
 <td>Switch to the other pane</td>
 <td>⌃Tab (Ctrl+Tab on Linux)</td>
 <td>⌥`</td>
+</tr>
+<tr>
+<td>Open in external editor</td>
+<td>⌘⇧E</td>
+<td>—</td>
 </tr>
 <tr>
 <td>Write / Read</td>

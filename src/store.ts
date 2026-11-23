@@ -77,6 +77,8 @@ export interface Settings {
   startPage: 'home' | 'today' | 'last'
   /** Where New note puts a note. (An older 'inbox' choice is read as 'current': the Inbox notebook is for tasks.) */
   newNoteFolder: 'current' | 'root'
+  /** The command that opens a note in another editor (desktop app): {file} and {line} are filled in. */
+  externalEditor: string
   inboxFolder: string
   weekStart: 'auto' | 'sunday' | 'monday'
   timeFormat: '24' | '12'
@@ -171,6 +173,7 @@ export interface Settings {
 export const DEFAULT_SETTINGS: Settings = {
   startPage: 'home',
   newNoteFolder: 'current',
+  externalEditor: 'neomacsclient -n +{line} {file}',
   inboxFolder: 'Inbox',
   weekStart: 'auto',
   timeFormat: '24',
@@ -833,7 +836,16 @@ export function watchNotes(): () => void {
     }
   }
   const timer = window.setInterval(() => void check(), 10_000)
-  return () => clearInterval(timer)
+  // Coming back to Margin (from an external editor, say) checks at once, so edits made there show straight away.
+  const now = () => void check()
+  const onVisible = () => document.visibilityState === 'visible' && now()
+  window.addEventListener('focus', now)
+  document.addEventListener('visibilitychange', onVisible)
+  return () => {
+    clearInterval(timer)
+    window.removeEventListener('focus', now)
+    document.removeEventListener('visibilitychange', onVisible)
+  }
 }
 
 // ---------- saving ----------

@@ -721,6 +721,14 @@ export function SettingsModal() {
                 <Row label="New notes go to" hint="Where a new note is created when you press New note.">
                   <Select value={s.newNoteFolder} onChange={set('newNoteFolder')} options={[['current', 'The notebook I am in'], ['root', 'Top level, no notebook']]} />
                 </Row>
+                {desktop?.openInEditor && (
+                  <Row
+                    label="External editor"
+                    hint="The command that opens a note in another editor (⌘⇧E, or ⌘K → Open in external editor), at the cursor's line. {file} is the note's file and {line} the line. Examples: neomacsclient -n +{line} {file} · emacsclient -n +{line} {file} · code -g {file}:{line} · zed {file}:{line}. Margin finds the program on your shell's PATH."
+                  >
+                    <Text value={s.externalEditor ?? 'neomacsclient -n +{line} {file}'} onChange={set('externalEditor')} />
+                  </Row>
+                )}
                 <Row label="Inbox notebook" hint="Holds the Inbox note, where Quick task adds tasks. Its tasks with no planned day make the Inbox list in Tasks, and stay out of Anytime until you decide on them.">
                   <Text value={s.inboxFolder} onChange={set('inboxFolder')} />
                 </Row>

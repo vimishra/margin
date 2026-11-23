@@ -6,6 +6,7 @@ import net from 'node:net'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { openInEditor } from './externalEditor.mjs'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const isMac = process.platform === 'darwin'
@@ -286,6 +287,8 @@ function buildMenu() {
         cmd('Export as Markdown', 'exmd'),
         cmd('Export as HTML', 'exhtml'),
         cmd('Export as Word', 'exdoc'),
+        { type: 'separator' },
+        cmd('Open in External Editor', 'externalEditor'),
         { type: 'separator' },
         cmd('Import from Obsidian…', 'import'),
         { label: 'Choose Notes Folder…', click: () => chooseVault() },
@@ -663,6 +666,7 @@ if (!app.requestSingleInstanceLock()) {
     })
     ipcMain.handle('vault:choose', () => chooseVault())
     ipcMain.handle('vault:reveal', () => shell.openPath(vault))
+    ipcMain.handle('editor:open', (_e, rel, line, template) => openInEditor(vault, rel, line, template))
     ipcMain.handle('vault:reveal-file', (_e, rel) => {
       const file = path.resolve(vault, String(rel))
       if (file.startsWith(vault + path.sep)) shell.showItemInFolder(file)

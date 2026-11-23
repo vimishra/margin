@@ -52,6 +52,7 @@ import {
   SquareX,
   RefreshCw,
   ListFilter,
+  SquarePen,
 } from 'lucide-react'
 import { pickMergeTarget, turnIntoNotebook } from './refactor'
 import { importFromTodoist } from './todoist'
@@ -61,6 +62,7 @@ import { exportHtml, exportMarkdown, exportPdf, exportWord } from './lib/export'
 import { ALT, MOD } from './lib/util'
 import { SHORTCUT_DEFS, hint } from './shortcuts'
 import { desktop, fileManager } from './desktop'
+import { canOpenExternally, openInExternalEditor } from './externalEditor'
 import { TASK_FILTERS } from './lib/tasks'
 import { listColor, listIcon } from './components/listIcons'
 
@@ -187,6 +189,7 @@ export function commands(): Command[] {
         keywords: 'wikilink reference',
         run: () => navigator.clipboard.writeText(`[[${note.title}]]`).then(() => toast('Link copied. Paste it into another note.'), () => toast('Could not copy')),
       },
+      ...(canOpenExternally() ? [{ id: 'externalEditor', label: 'Open in external editor', icon: i(SquarePen), keywords: 'emacs neomacs vscode code vim editor external open outside', run: () => void openInExternalEditor() }] : []),
       ...(desktop ? [{ id: 'reveal', label: `Show this note's file in ${fileManager}`, icon: i(FolderOpen), keywords: 'finder file explorer reveal', run: () => void desktop!.revealFile(note.path) }] : []),
       { id: 'closeTab', label: 'Close this tab', icon: i(X), run: () => window.dispatchEvent(new CustomEvent('margin:action', { detail: 'closeTab' })) },
       { id: 'pin', label: note.pinned ? 'Unpin this note' : 'Pin this note', icon: i(Pin), run: () => updateNote(note.id, { pinned: !note.pinned }) },

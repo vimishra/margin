@@ -893,6 +893,25 @@ Each pane has its own tabs. The pane you last clicked is the active one, marked 
 
 **⌃Tab** (Ctrl+Tab on Linux, ⌥` in the browser) moves the keyboard to the other pane, without the mouse. The pane flashes with a coloured frame so you can see where your keys now go, and the cursor is where you left it in that pane. With the Block cursor (Settings → Appearance → Cursor), the pane you are typing in has a solid blinking block and the other an outline, so you can tell them apart at any time. It works when the left pane shows Triage or the Tasks view too: their keys apply after the switch. Also in ⌘K (Switch to the other pane), the Go menu, and Settings → Shortcuts, where the key can be changed.
 
+## Editing a note in another editor
+
+Sometimes a note is easier to work on in your own editor. In the desktop app, **⌘⇧E** (or ⌘K → **Open in external editor**, or File → Open in External Editor) opens the note in front in your editor, **at the line your cursor is on**. Margin saves what you typed first, so the editor gets what is on screen.
+
+**Choosing the editor.** Settings → General → **External editor** holds the command, with `{file}` for the note's file and `{line}` for the line. It starts as Neomacs:
+
+| Editor | Command |
+| --- | --- |
+| Neomacs (the default) | `neomacsclient -n +{line} {file}` |
+| Emacs | `emacsclient -n +{line} {file}` |
+| VS Code | `code -g {file}:{line}` |
+| Zed | `zed {file}:{line}` |
+
+Margin finds the program on your shell's PATH (Homebrew's folder and `~/.local/bin` included), and runs it directly, not through a shell. If it cannot start the editor, or the editor stops with an error (an Emacs client with no server running, for instance), a message says why. For the `-n` client commands, the editor must already be running with its server on: in Emacs or Neomacs, `(server-start)` in your init file.
+
+**Coming back.** Margin re-reads the notes on screen as soon as you return to its window (and every 10 seconds anyway), so what you changed in the editor shows straight away, without moving your cursor. For changes Margin makes while the file is open in your editor (ticking a task, say), turn on `global-auto-revert-mode` in Emacs or Neomacs; VS Code reloads the file by itself when you have no unsaved changes in it.
+
+**One place at a time.** Edit a note in one editor at a time. Margin never saves over a newer file: if both have unsaved changes, Margin shows the newer version and offers **Use mine**.
+
 ## History, trash and export
 
 **Version history** (⌥V) keeps a snapshot for every five minutes of editing. Pick a version to see what changed, then **Restore this version**.
@@ -1396,6 +1415,7 @@ Press **?** (or click **Shortcuts** at the bottom of the sidebar) for a window l
 | Jump to tab | ⌥1–9 | ⌥1–9 |
 | Close tab | ⌘W | ⌥W |
 | Switch to the other pane | ⌃Tab (Ctrl+Tab on Linux) | ⌥` |
+| Open in external editor | ⌘⇧E | — |
 | Write / Read | ⌘E | ⌘E |
 | Search in note | ⌃S, ⌃R | ⌃S, ⌃R |
 | Find in what is in front (in a note: find and replace) | ⌘F | ⌘F |
