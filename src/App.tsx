@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { FileQuestion } from 'lucide-react'
-import { SIDEBAR_WIDTH, closeSideTab, closeTab, cycleTab, go, load, paneTabs, setSidebarWidth, setSideWidth, ui, useStore, watchNotes } from './store'
+import { SIDEBAR_WIDTH, closeSideTab, closeTab, cycleTab, go, load, paneTabs, setSidebarWidth, setSideWidth, switchPane, ui, useStore, watchNotes } from './store'
 import type { Note } from './types'
 import { commands } from './commands'
 import { actionFor, eventCombo, recording, syncDesktopMenu } from './shortcuts'
@@ -76,6 +76,7 @@ export function runAction(id: string, source: 'key' | 'menu') {
   else if (id === 'find') findHere()
   else if (id === 'prevTab') cycleTab(-1)
   else if (id === 'nextTab') cycleTab(1)
+  else if (id === 'otherPane') switchPane()
   else commands().find((c) => c.id === id)?.run()
 }
 

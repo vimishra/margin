@@ -891,6 +891,8 @@ Open a second note beside the first:
 
 Each pane has its own tabs. The pane you last clicked is the active one, marked with a coloured line along the top; search, jump to heading, list shortcuts and ⌘W apply to it. Drag the divider to resize; double-click it for equal halves.
 
+**⌃Tab** (Ctrl+Tab on Linux, ⌥` in the browser) moves the keyboard to the other pane, without the mouse. The pane flashes with a coloured frame so you can see where your keys now go, and the cursor is where you left it in that pane. It works when the left pane shows Triage or the Tasks view too: their keys apply after the switch. Also in ⌘K (Switch to the other pane), the Go menu, and Settings → Shortcuts, where the key can be changed.
+
 ## History, trash and export
 
 **Version history** (⌥V) keeps a snapshot for every five minutes of editing. Pick a version to see what changed, then **Restore this version**.
@@ -1393,6 +1395,7 @@ Press **?** (or click **Shortcuts** at the bottom of the sidebar) for a window l
 | Previous / next tab | ⌘⇧[ / ⌘⇧] | ⌥[ / ⌥] |
 | Jump to tab | ⌥1–9 | ⌥1–9 |
 | Close tab | ⌘W | ⌥W |
+| Switch to the other pane | ⌃Tab (Ctrl+Tab on Linux) | ⌥` |
 | Write / Read | ⌘E | ⌘E |
 | Search in note | ⌃S, ⌃R | ⌃S, ⌃R |
 | Find in what is in front (in a note: find and replace) | ⌘F | ⌘F |

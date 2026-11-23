@@ -56,7 +56,7 @@ import {
 import { pickMergeTarget, turnIntoNotebook } from './refactor'
 import { importFromTodoist } from './todoist'
 import { archiveEverywhere, archiveHere, archiveProject } from './archive'
-import { addTag, closeAllTabs, closeOtherTabs, duplicateNote, renameNote, toast, askPageWidth, closeSide, createFolder, currentNote, openSide, swapPanes, importFromObsidian, carryTop3, newMeeting, newPerson, addMeetingEntry, deleteNote, go, newNote, openDaily, setPref, ui, updateNote, useStore } from './store'
+import { addTag, closeAllTabs, closeOtherTabs, duplicateNote, renameNote, toast, askPageWidth, closeSide, createFolder, currentNote, openSide, swapPanes, switchPane, importFromObsidian, carryTop3, newMeeting, newPerson, addMeetingEntry, deleteNote, go, newNote, openDaily, setPref, ui, updateNote, useStore } from './store'
 import { exportHtml, exportMarkdown, exportPdf, exportWord } from './lib/export'
 import { ALT, MOD } from './lib/util'
 import { SHORTCUT_DEFS, hint } from './shortcuts'
@@ -136,6 +136,7 @@ export function commands(): Command[] {
   const onTab = sideActive || s.route.name === 'note'
   if (onTab && paneTabs.length > 1) list.push({ id: 'closeOthers', label: 'Close all other tabs', icon: i(X), keywords: 'tabs', run: () => closeOtherTabs() })
   if (paneTabs.length) list.push({ id: 'tabList', label: 'Show all open tabs…', icon: i(ListTree), keywords: 'tabs list find switch', run: () => ui({ palette: { mode: 'tabs', pane: sideActive ? 'side' : 'main' } }) })
+  if (s.side) list.push({ id: 'otherPane', label: 'Switch to the other pane', icon: i(Columns2), keywords: 'split side pane focus jump move left right', run: () => switchPane() })
   if (paneTabs.length) list.push({ id: 'closeAll', label: 'Close all tabs', icon: i(X), keywords: 'tabs', run: () => closeAllTabs() })
   if (note) {
     list.push(

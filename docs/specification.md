@@ -1,6 +1,6 @@
 # Margin product specification
 
-This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.47.1.
+This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.49.0.
 
 It is written to be handed to a developer or a coding tool. Where a detail is a free choice for the implementer, it says so; everything else is a requirement.
 
@@ -203,6 +203,7 @@ Top to bottom:
 - The address reflects the view: `#/home`, `#/note/<id>`, `#/journal`, `#/calendar`, `#/all`, `#/tasks`, `#/tasks/<list>`, `#/tasks/s:<filter id>`, `#/folder/<path>`, `#/tag/<tag>`, `#/research`, `#/scratch`.
 - **Side pane:** a second note beside the main view, with its own tabs. It opens by ⌘-click or ⌥-click on any note reference, by "Open to the side", or by ⌥↵ in the palette. The divider drags between 25% and 70% of the width; double-click gives equal halves. The two panes can be swapped.
 - The pane last clicked is the **active pane**, marked by a thick accent line along the top of its tab bar. Every app-level command that acts on "the current note" (formatting, search in note, jump to heading, close tab, rename and so on) applies to the active pane's note.
+- **Switch to the other pane** (⌃Tab on a Mac, Ctrl+Tab on Linux, ⌥` in a browser; changeable) makes the other pane active and gives it the keyboard: its editor with the caret where it was, or, for a view without an editor (read mode, Triage, the Tasks view), the view itself, so its own keys apply. The newly active pane flashes an accent frame that fades within a second. With only one pane open it says so and does nothing.
 
 ### 4.4 Home
 

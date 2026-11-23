@@ -118,7 +118,7 @@ The document itself is always plain markdown. Preview is only decoration, so wha
 
 ### Two panes
 
-The main pane follows the address bar (`#/note/<id>`). The side pane is separate state in the store (`side`, `sideTabs`). `activePane` records which one was last clicked; commands that act on "the current note" read it.
+The main pane follows the address bar (`#/note/<id>`). The side pane is separate state in the store (`side`, `sideTabs`). `activePane` records which one was last clicked; commands that act on "the current note" read it. `switchPane()` in `store.ts` (the `otherPane` action) flips it from the keyboard, focuses the other pane's editor or view, and adds the `pane-flash` class for the fading frame.
 
 ## The file format
 

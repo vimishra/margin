@@ -402,6 +402,7 @@ function buildMenu() {
         { type: 'separator' },
         cmd('Previous Tab', 'prevTab'),
         cmd('Next Tab', 'nextTab'),
+        cmd('Switch to the Other Pane', 'otherPane'),
       ],
     },
     // No "Close" here: ⌘W belongs to Close Tab unless the user reassigns it.

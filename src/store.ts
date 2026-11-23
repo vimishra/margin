@@ -565,6 +565,38 @@ export function swapPanes() {
   openNote(side)
 }
 
+/** The element that holds a pane: the side note, or the main column (a note, Triage, the Tasks view…). */
+const paneBox = (pane: 'main' | 'side') => document.querySelector<HTMLElement>(pane === 'side' ? '.view .side-pane' : '.view > .pane-col')
+
+/**
+ * Move the keyboard to the other pane and flash it, so it is plain which one the keys now go to. The caret is where
+ * it was left in that pane (CodeMirror keeps its selection); a view without an editor gets the focus itself.
+ */
+export function switchPane() {
+  const s = get()
+  if (!s.side || !s.notes[s.side]) {
+    toast('There is only one pane. Open a note to the side first (⌘K → Open this note to the side).')
+    return
+  }
+  const to = s.activePane === 'side' ? 'main' : 'side'
+  set({ activePane: to })
+  const box = paneBox(to)
+  if (!box) return
+  const editor =
+    box.querySelector<HTMLElement>('.journal-day.focused .cm-content') ?? box.querySelector<HTMLElement>('.pane-view .cm-content, .note .cm-content')
+  if (editor) editor.focus({ preventScroll: true })
+  else {
+    // Read mode, Triage, the Tasks view: blur the other pane's editor so their own keys apply here.
+    const target = box.querySelector<HTMLElement>('.pane-view > *, .note') ?? box
+    if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1')
+    target.focus({ preventScroll: true })
+  }
+  box.classList.remove('pane-flash')
+  void box.offsetWidth // restart the animation when pressed twice quickly
+  box.classList.add('pane-flash')
+  window.setTimeout(() => box.classList.remove('pane-flash'), 700)
+}
+
 export function setSidebarWidth(px: number) {
   const sidebarWidth = Math.round(Math.min(480, Math.max(224, px)))
   local.set('sidebarWidth', sidebarWidth)

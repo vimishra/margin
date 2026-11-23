@@ -179,7 +179,7 @@ save → PUT /api/notes/:id → server writes the file, snapshots a version
 <h3 id="shortcuts">Shortcuts</h3>
 <p><code>shortcuts.ts</code> defines each action with a default key combination per platform. One handler in <code>App.tsx</code> turns a key press into a combination, looks up the action and runs it. Overrides are stored in settings. In the desktop app the page sends the current keys to the shell so the menu bar shows them.</p>
 <h3 id="two-panes">Two panes</h3>
-<p>The main pane follows the address bar (<code>#/note/&lt;id&gt;</code>). The side pane is separate state in the store (<code>side</code>, <code>sideTabs</code>). <code>activePane</code> records which one was last clicked; commands that act on &quot;the current note&quot; read it.</p>
+<p>The main pane follows the address bar (<code>#/note/&lt;id&gt;</code>). The side pane is separate state in the store (<code>side</code>, <code>sideTabs</code>). <code>activePane</code> records which one was last clicked; commands that act on &quot;the current note&quot; read it. <code>switchPane()</code> in <code>store.ts</code> (the <code>otherPane</code> action) flips it from the keyboard, focuses the other pane's editor or view, and adds the <code>pane-flash</code> class for the fading frame.</p>
 <h2 id="the-file-format">The file format</h2>
 <pre><code class="language-markdown">---
 id: 3f9a1c20be

@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.49.0 (2026-11-23)
+
+### Added
+
+- **Switch between the two panes from the keyboard.** With a note open to the side, ⌃Tab (Ctrl+Tab on Linux, ⌥` in the browser) moves the keyboard to the other pane, with the cursor where you left it there. The pane you land on flashes a frame in your accent colour, so it is plain where your keys now go. It works with Triage or the Tasks view on the left too: their keys apply after the switch. Also in ⌘K (Switch to the other pane), the Go menu, and Settings → Shortcuts, where the key can be changed.
+
 ## 1.48.1 (2026-11-20)
 
 ### Fixed

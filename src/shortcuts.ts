@@ -49,6 +49,8 @@ export const SHORTCUT_DEFS: ShortcutDef[] = [
   { id: 'folder', label: 'New notebook', group: 'Create', web: '' },
   { id: 'side', label: 'Open to the side, or close the side pane', group: 'In a note', web: 'Mod+Alt+\\' },
   { id: 'swap', label: 'Swap the two panes', group: 'In a note', web: '' },
+  // ⌃Tab, as in most editors; a browser keeps ⌃Tab for its own tabs, so the browser app uses ⌥`.
+  { id: 'otherPane', label: 'Switch to the other pane', group: 'Navigate', web: 'Alt+`', desktop: isMac ? 'Ctrl+Tab' : 'Mod+Tab' },
   { id: 'outline', label: 'Jump to a heading', group: 'In a note', web: 'Mod+Shift+O' },
   { id: 'blockLink', label: 'Copy link to this block (or heading)', group: 'In a note', web: '' },
   { id: 'isearch', label: 'Search in this note as you type', group: 'In a note', web: isMac ? 'Ctrl+S' : 'Mod+S' },
