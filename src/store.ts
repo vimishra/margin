@@ -152,6 +152,9 @@ export interface Settings {
   taskViews: SavedTaskView[]
   /** Write "@done(date)" on a task when it is ticked, for the Logbook. */
   logCompletion: boolean
+  /** The sidebar's Anytime and Inbox counts turn red above these numbers; 0 turns the warning off. */
+  anytimeLimit: number
+  inboxLimit: number
   /** A ticked task (with the lines under it) moves to the end of its list. */
   sinkDoneTasks: boolean
   /** "Archive done tasks in all notes" takes tasks done at least this many days ago. */
@@ -216,6 +219,8 @@ export const DEFAULT_SETTINGS: Settings = {
   headingTabFold: true,
   taskViews: [],
   logCompletion: true,
+  anytimeLimit: 25,
+  inboxLimit: 10,
   sinkDoneTasks: true,
   archiveAfterDays: 7,
   archiveFolder: 'Archive',

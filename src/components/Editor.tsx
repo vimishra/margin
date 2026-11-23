@@ -1069,7 +1069,10 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
       const view = viewRef.current
       if (!view) return
       const at = Math.min(pos, view.state.doc.length)
-      view.dispatch({ effects: [EditorView.scrollIntoView(at, { y: 'center' }), flashLine.of(at)] })
+      // The caret goes to the end of that line too, without taking the keyboard, so switching to this pane (⌃Tab)
+      // lands on the task, ready to type on the next line.
+      const end = view.state.doc.lineAt(at).to
+      view.dispatch({ selection: { anchor: end }, effects: [EditorView.scrollIntoView(at, { y: 'center' }), flashLine.of(at)] })
       clearTimeout(peekTimer.current)
       peekTimer.current = window.setTimeout(() => viewRef.current === view && view.dispatch({ effects: flashLine.of(null) }), 1700)
     },

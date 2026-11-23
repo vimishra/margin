@@ -2,6 +2,16 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.51.0 (2026-11-23)
+
+### Added
+
+- **Red badges when Anytime or the Inbox grow too long.** The sidebar's Anytime count turns into a bright red badge above 25 tasks, and the Inbox's above 10: a sign that tasks are arriving faster than they are sorted, and that the end-of-day Inbox pass or the weekly review is due. Change the limits, or turn them off with 0, in Settings → General → Anytime warning and Inbox warning.
+
+### Changed
+
+- **N in Triage puts the triage note's cursor on the task,** at the end of its line, while the keyboard stays in the Triage view (and the cursor follows ↑ and ↓). So ⌃Tab takes you straight to the task in the note, and ⌃Tab again back.
+
 ## 1.50.0 (2026-11-23)
 
 ### Added

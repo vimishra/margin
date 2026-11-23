@@ -1,6 +1,6 @@
 # Margin product specification
 
-This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.50.0.
+This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.51.0.
 
 It is written to be handed to a developer or a coding tool. Where a detail is a free choice for the implementer, it says so; everything else is a requirement.
 
@@ -784,6 +784,8 @@ A page (`#/review`; "Weekly review" under Tasks in the sidebar; command "Go to W
 - **Projects:** every project note (as in Group by Project) that has at least one task listed under it, outside the Archive notebook, grouped by notebook (alphabetical), each with: title (opens the note), a bar and "done/total" of the tasks listed under it, the day the last was done, and its **next action**: its own first open task not in Someday, in line order, else the first such task listed under it; or "Only Someday tasks left". A star toggles the focus tag on the next action; other focus tasks of the project show as chips. A project with no open task is **Stalled**, with **Write the next step** (asks, then adds `- [ ] text` at the end of its Open Threads section), **…as a focus task** (the same, tagged) and **Archive** (as "Move this note to the Archive").
 
 ### 12.6 Saved filters
+
+**Sidebar warnings:** the Anytime count is shown as a red badge (white on red) when it is above `anytimeLimit` (setting, default 25), and the Inbox count when above `inboxLimit` (default 10); 0 turns either off. The entry's tooltip then adds "More than N: time to sort it."
 
 A saved filter is a list, a narrow-down text, a From value and a grouping, with a name. It appears under Tasks in the sidebar with a live count. Opening one and changing anything offers **Update filter**. It can be renamed, saved as new, or deleted (with Undo). Stored in app settings.
 

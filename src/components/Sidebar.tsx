@@ -116,6 +116,8 @@ export function Sidebar() {
   const hiddenNotes = useHiddenTaskNotes()
   const taskViews = useStore((s) => s.settings.taskViews)
   const weekSetting = useStore((s) => s.settings.weekStart)
+  const anytimeLimit = useStore((s) => s.settings.anytimeLimit ?? 25)
+  const inboxLimit = useStore((s) => s.settings.inboxLimit ?? 10)
   const taskView = route.name === 'tasks' ? route.view : undefined
   // Lists shown under Tasks: the ones from Things, Overdue while anything is, then the filters saved from the Tasks view.
   const { dueNow, taskLists } = useMemo(() => {
@@ -126,13 +128,17 @@ export function Sidebar() {
       .map((f) => {
         const [, label, title] = TASK_FILTERS.find(([x]) => x === f)!
         // The Logbook only grows, so a count beside it says nothing.
-        return { id: f as string, label, title, count: f === 'done' ? 0 : count({ filter: f, query: '', source: 'all' }), warn: f === 'overdue', savedId: undefined as string | undefined }
+        const n = f === 'done' ? 0 : count({ filter: f, query: '', source: 'all' })
+        // Anytime and the Inbox warn when they grow past their limits (Settings → Tasks): a list too long to trust.
+        const limit = f === 'anytime' ? anytimeLimit : f === 'inbox' ? inboxLimit : 0
+        const over = limit > 0 && n > limit
+        return { id: f as string, label, title: over ? `${title} More than ${limit}: time to sort it.` : title, count: n, warn: f === 'overdue', over, savedId: undefined as string | undefined }
       })
       .filter((v) => v.id !== 'overdue' || v.count > 0)
-    const saved = taskViews.map((v) => ({ id: `s:${v.id}`, label: v.name, title: 'Saved filter. Right-click to rename or delete.', count: count(v), warn: false, savedId: v.id as string | undefined }))
+    const saved = taskViews.map((v) => ({ id: `s:${v.id}`, label: v.name, title: 'Saved filter. Right-click to rename or delete.', count: count(v), warn: false, over: false, savedId: v.id as string | undefined }))
     // As in Things, the number beside Tasks is what is in Today, which includes anything overdue.
     return { dueNow: all.filter((t) => isToday(t)).length, taskLists: [...builtIn, ...saved] }
-  }, [notes, templatesFolder, inboxFolder, taskViews, weekSetting, hiddenNotes])
+  }, [notes, templatesFolder, inboxFolder, taskViews, weekSetting, hiddenNotes, anytimeLimit, inboxLimit])
   // Open suggestions in the newest run of the triage note; null when no triage note is set.
   const triageOpen = useMemo(() => {
     if (!triagePath) return null
@@ -293,7 +299,7 @@ export function Sidebar() {
               {taskLists.map((v) => (
                 <button
                   key={v.id}
-                  className={cx('nav-item sub', taskView === v.id && 'active', v.warn && v.count > 0 && 'warn')}
+                  className={cx('nav-item sub', taskView === v.id && 'active', v.warn && v.count > 0 && 'warn', v.over && 'over')}
                   title={v.title}
                   onClick={() => go({ name: 'tasks', view: v.id })}
                   onContextMenu={(e) =>

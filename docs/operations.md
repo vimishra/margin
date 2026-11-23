@@ -336,6 +336,8 @@ In each sitting, ask of every action, **"does this belong to something important
 
 This is the review that keeps the lists trustworthy. Open the Tasks view: ⌘⇧T.
 
+**The red badges tell you when it is overdue.** If the Inbox count in the sidebar turns red (more than 10), the end-of-day pass is being skipped; if Anytime's does (more than 25), tasks are arriving (often moved from Triage) faster than they are planned, parked or dropped. Either way, the flow is not keeping up: do the matching step below before the list stops being trusted. The limits are in Settings → General.
+
 1. **Empty the Inbox: press 1,** as at the end of a day. Nothing should be left in it after the review.
 2. **Clear what is overdue: press 7.** For each task: do it, give it a new date, or delete it. To push a batch to one day, use **Move all…**.
 3. **Read what is coming: press 3** for Upcoming.

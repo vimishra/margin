@@ -64,6 +64,7 @@ The view shows each task, its details and links, but not everything your program
 
 - **N** shows the selected task in the note, on the right, with its line lit up for a moment. So does **Show in the triage note** in a task's right-click menu, the button next to **Open the note**, or ⌥-click on **Open the note**.
 - **The keyboard stays in the view,** so you go on with ↓, Space, M and the rest. While the note is open on the right, it **follows** you: each ↑ or ↓ brings the new task's place in the note into view.
+- **The note's cursor waits on the task,** at the end of its line. To read or work in the note itself, press **⌃Tab** (Switch to the other pane): you land right there. Back in the view with ⌃Tab again. Keep notes of your own out of the triage note, though: your program rewrites it on each run. Move the task first (M or F) and write under it in its workstream note.
 - **Click in the note** to work there with the note's own keys (see [Working in the note itself](#working-in-the-note-itself)); click the view to go back to its keys.
 - The note on the right is an ordinary tab: close it with its ×, or drag the divider to give either side more room.
 

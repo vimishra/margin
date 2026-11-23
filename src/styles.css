@@ -4839,6 +4839,16 @@ body.resizing {
   color: var(--danger);
   font-weight: 600;
 }
+/* Anytime or the Inbox past its limit (Settings → General): the number as a bright red badge. */
+.nav-item.sub.over .count {
+  color: #fff;
+  background: #e5484d;
+  font-weight: 650;
+  padding: 0 6px;
+  border-radius: 9px;
+  min-width: 20px;
+  text-align: center;
+}
 .task-bulk {
   display: flex;
   align-items: center;

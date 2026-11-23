@@ -727,6 +727,12 @@ export function SettingsModal() {
                 <Row label="Week starts on" hint="For the calendar.">
                   <Segmented value={s.weekStart} onChange={set('weekStart')} options={[['auto', 'Auto'], ['sunday', 'Sunday'], ['monday', 'Monday']]} />
                 </Row>
+                <Row label="Anytime warning" hint="The Anytime count in the sidebar turns into a red badge when it has more tasks than this. 0 turns the warning off.">
+                  <Stepper value={s.anytimeLimit ?? 25} min={0} max={500} step={5} onChange={set('anytimeLimit')} />
+                </Row>
+                <Row label="Inbox warning" hint="The Inbox count in the sidebar turns into a red badge when it has more tasks than this. 0 turns the warning off.">
+                  <Stepper value={s.inboxLimit ?? 10} min={0} max={200} onChange={set('inboxLimit')} />
+                </Row>
                 <Row label="Record when tasks are done" hint="Ticking a task writes @done(date) on its line, so the Logbook can show when it was done. Unticking takes it off.">
                   <Toggle label="Record when tasks are done" value={s.logCompletion} onChange={set('logCompletion')} />
                 </Row>
