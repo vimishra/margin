@@ -1241,7 +1241,7 @@ A daily note shows a **Tasks for this day** panel listing tasks from other notes
 
 `margin-tasks` lists your tasks in a terminal, for scripts and automation. It reads the notes folder directly, gives the same lists as the Tasks view, and never changes a note. It works whether or not Margin is running.
 
-It ships inside Margin and needs only Python 3.8 or newer: nothing else to install.
+It ships inside Margin and needs only Python 3.8 or newer: nothing else to install. To learn how it works inside, read [Reading margin_tasks.py](margin-tasks-code.md), a guided tour of its code.
 
 **Installing it.** Choose **Help → Command-Line Tool…** and click **Install**. Margin puts a link named `margin-tasks` in `~/.local/bin`, a folder in your own home, so no password is needed. The link keeps working when Margin is updated.
 

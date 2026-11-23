@@ -8,6 +8,9 @@ The rules here mirror src/lib/tasks.ts. tests/task-cases.json holds cases checke
 if one side changes and the other does not, `npm run test:tasks` fails.
 
 Standard library only; Python 3.8 or newer.
+
+To learn how it works, read docs/margin-tasks-code.md beside this file: a guided tour of every part, in this
+file's order, with the Python ideas explained and worked examples.
 """
 from __future__ import annotations
 
@@ -74,6 +77,8 @@ class Task:
         value = planned.group(2) if planned else None
         self.someday = bool(value) and value.lower() == "someday"
         self.planned = None if self.someday else value
+        # Dates stay as text ("2026-11-20"): always year-month-day with leading zeros, so comparing the text compares
+        # the dates, which the rules below rely on (tour, section 7).
         due = DUE.search(raw)
         self.due = due.group(2) if due else None
         done_on = DONE.search(raw) or CANCELLED.search(raw)
@@ -84,6 +89,7 @@ class Task:
         self.remind = "%s %s" % (remind.group(2), (remind.group(3) or "09:00").rjust(5, "0")) if remind else None
         # A block id at the end (" ^abc123", for [[Note#^abc123]] links) is not part of what the task says.
         text = re.sub(r"\s\^[A-Za-z0-9-]+\s*$", "", raw)
+        # Each marker is removed once (count=1), as the app does; group 1 puts back the space before it.
         for pattern in (PRIORITY, SCHEDULED, DUE, DONE, CANCELLED, REPEAT, REMIND):
             text = pattern.sub(lambda m: m.group(1), text, count=1)
         self.text = re.sub(r"\s{2,}", " ", text).strip()
@@ -247,6 +253,8 @@ def in_list(t: Task, name: str, week_start: int, now: str, inbox: str = "Inbox")
         return True
     if name == "logbook":
         return t.done
+    # Every list from here on is about open tasks, so finished ones (ticked or cancelled) are turned away once,
+    # here, rather than in each rule below (tour, section 10).
     if t.done:
         return False
     if name == "today":
@@ -282,6 +290,8 @@ def next_date(t: Task, now: str) -> str:
 
 
 def urgency_key(t: Task, now: str):
+    # A tuple sorts item by item: date, then priority (negated, so P1 first), then note and line to break ties.
+    # "9999" stands for "no date" and sorts after every real date (tour, section 11).
     return (next_date(t, now) or "9999", -t.priority, t.note.id, t.index)
 
 
@@ -358,7 +368,8 @@ def read_notes(root: str) -> List[Note]:
     for folder, dirs, files in os.walk(root):
         rel = os.path.relpath(folder, root)
         rel = "" if rel == "." else rel.replace(os.sep, "/")
-        # Hidden folders (history, trash) and the attachments folder hold no notes.
+        # Hidden folders (history, trash) and the attachments folder hold no notes. Assigning to dirs[:], not dirs,
+        # changes the list os.walk itself uses, so it never goes into the folders left out (tour, section 13).
         dirs[:] = sorted(d for d in dirs if not d.startswith(".") and not (not rel and d.lower() in attachments))
         for name in sorted(files):
             if name.startswith(".") or not name.lower().endswith(".md"):
@@ -396,6 +407,7 @@ def parse_day(text: str, now: str) -> str:
         return add_days(now, int(m.group(2)) * (1 if m.group(1) == "+" else -1))
     names = [w for w in WEEKDAYS if len(s) >= 3 and w.startswith(s)]
     if len(names) == 1:
+        # "or 7": the next such day is never today, so "friday" on a Friday means a week later.
         ahead = (WEEKDAYS.index(names[0]) - dt.date.fromisoformat(now).weekday()) % 7 or 7
         return add_days(now, ahead)
     raise SystemExit("margin-tasks: %r is not a day. Use YYYY-MM-DD, today, tomorrow, +3, or a weekday." % text)
@@ -546,6 +558,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     week_start = {"sunday": 0, "monday": 1}.get(args.week_start or "", default_week_start())
 
     notes = read_notes(find_vault(args.vault))
+    # Only notes directly in the Templates notebook are left out, not notebooks inside it: the same as the app.
     tasks = [t for n in notes if n.folder != args.templates for t in n.tasks()]
     tasks = [t for t in tasks if in_list(t, name, week_start, now, args.inbox)]
 
@@ -590,6 +603,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     tasks = [t for t in tasks if keep(t)]
 
     order = args.sort or ("done" if name == "logbook" else "urgency")
+    # Always by urgency first, then by the chosen order. Python's sort is stable, so tasks that tie in the second
+    # sort keep their urgency order: "by due date, then by urgency" (tour, section 16).
     tasks.sort(key=lambda t: urgency_key(t, now))
     if order == "done":
         tasks.sort(key=lambda t: t.done_on or "", reverse=True)
