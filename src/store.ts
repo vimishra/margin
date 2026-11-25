@@ -9,6 +9,7 @@ import { addToTop3, takeUnfinishedTop3 } from './lib/top3'
 import { desktop } from './desktop'
 import type { Note, NotePatch, NoteType, Route } from './types'
 import { appendCard } from './lib/canvas'
+import { plainTitle, sections, trimLines } from './lib/refactor'
 import { clock, displayTitle, isYmd, local, today, parseYmd, ymd, dailyLabel } from './lib/util'
 import { INBOX_NOTE_TITLE, TASK_LINE, isInboxNote, notePathKey, isProjectNote, projectsOf, rewriteTask, shortDate, withDetails, type SavedTaskView, type Task, type TaskView } from './lib/tasks'
 
@@ -1783,6 +1784,90 @@ export function moveTasksToNote(tasks: Task[], targetId: string, heading = '', o
     label: 'Undo',
     run: () => (pendingUndo === undo ? undoAction() : undo()),
   })
+  armUndo(undo)
+}
+
+/** What a drag of a list item or a section carries: its note, the line it starts on (0-based) and that line's text. */
+export interface BlockRef {
+  noteId: string
+  line: number
+  text: string
+  kind: 'list' | 'section'
+}
+
+/**
+ * The lines a dragged list item or section covers in a note's lines, as [first, end) (end not included), or null
+ * when the line is no longer what was picked up. A list item takes the lines indented under it; a section runs to
+ * the next heading of its level or higher.
+ */
+export function blockRange(lines: string[], ref: BlockRef): [number, number] | null {
+  if (lines[ref.line] !== ref.text) return null
+  if (ref.kind === 'section') {
+    const s = sections(lines.join('\n')).find((x) => x.start === ref.line)
+    return s ? [s.start, s.end] : null
+  }
+  const indent = /^\s*/.exec(lines[ref.line])![0].length
+  let end = ref.line + 1
+  while (end < lines.length && lines[end].trim() && /^\s*/.exec(lines[end])![0].length > indent) end++
+  return [ref.line, end]
+}
+
+/**
+ * Move a list item (with the lines under it) or a section (a heading and everything under it) into another note:
+ * at a line when dropped into its text (`at`, with a list item re-indented to `indent`), or else a list item under
+ * Open Threads (at the end of a daily note) and a section at the end. One Undo (and ⌘Z straight after) puts both
+ * notes back.
+ */
+export function moveBlockTo(ref: BlockRef, targetId: string, place: { at?: number; indent?: string } = {}) {
+  const source = get().notes[ref.noteId]
+  const target = get().notes[targetId]
+  if (!source || !target || source.id === target.id || isProtectedNote(source.id) || isProtectedNote(target.id)) return
+  // The page only: a canvas kept below it is not part of any section.
+  const cut = source.content.indexOf('\n\n<!-- canvas -->')
+  const canvasTail = cut < 0 ? '' : source.content.slice(cut)
+  const lines = (cut < 0 ? source.content : source.content.slice(0, cut)).split('\n')
+  const range = blockRange(lines, ref)
+  if (!range) return toast('That has changed since it was picked up. Try again.')
+  const [a, b] = range
+  const own = /^\s*/.exec(lines[a])![0].length
+  let block = lines.slice(a, b).map((l) => l.slice(Math.min(own, /^\s*/.exec(l)![0].length)))
+  if (ref.kind === 'section') block = trimLines(block)
+  const before: Record<string, string> = { [source.id]: source.content, [target.id]: target.content }
+  // Out of the source; a section takes the blank lines it leaves behind with it.
+  const rest = [...lines.slice(0, a), ...lines.slice(b)]
+  if (ref.kind === 'section') while (a > 0 && a < rest.length && !rest[a - 1].trim() && !rest[a].trim()) rest.splice(a, 1)
+  updateNote(source.id, { content: rest.join('\n') + canvasTail })
+  const into = get().notes[target.id] ?? target
+  if (place.at !== undefined) {
+    if (ref.kind === 'section') {
+      // Set off from what is around it by a blank line, as sections are written.
+      const page = into.content.split('\n')
+      const above = place.at > 0 && (page[place.at - 1] ?? '').trim() !== ''
+      const below = place.at < page.length && (page[place.at] ?? '').trim() !== ''
+      insertIntoNote(into, [...(above ? [''] : []), ...block, ...(below ? [''] : [])].join('\n'), place.at, '')
+    } else insertIntoNote(into, block.join('\n'), place.at, place.indent ?? '')
+  } else if (ref.kind === 'section') {
+    const idx = into.content.indexOf('\n\n<!-- canvas -->')
+    const page = (idx < 0 ? into.content : into.content.slice(0, idx)).replace(/\s+$/, '')
+    const tail = idx < 0 ? '' : into.content.slice(idx)
+    updateNote(into.id, { content: (page ? page + '\n\n' : '') + block.join('\n') + '\n' + tail })
+  } else if (into.type === 'daily') appendToNote(into, block.join('\n'), '', true)
+  else appendToNote(into, block.join('\n'), OPEN_THREADS, true, true)
+  const after = Object.fromEntries(Object.keys(before).map((id) => [id, get().notes[id]?.content]))
+  const undo = () => {
+    const now = get().notes
+    if (Object.keys(before).some((id) => now[id]?.content !== after[id])) return toast('Those notes have changed since; nothing was undone.')
+    undoing = true
+    try {
+      for (const [id, content] of Object.entries(before)) updateNote(id, { content })
+    } finally {
+      undoing = false
+    }
+    toast('Undid the move')
+  }
+  const what = ref.kind === 'section' ? `“${plainTitle(ref.text.replace(/^#+\s*/, ''))}”` : 'the item'
+  const where = place.at === undefined && ref.kind === 'list' && into.type !== 'daily' ? ` › ${OPEN_THREADS}` : ''
+  toast(`Moved ${what} to ${displayTitle(target)}${where}`, { label: 'Undo', run: () => (pendingUndo === undo ? undoAction() : undo()) })
   armUndo(undo)
 }
 

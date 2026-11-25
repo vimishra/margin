@@ -2,6 +2,16 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.56.0 (2026-11-25)
+
+### Added
+
+- **Drag list items and headings, as tasks are dragged.** The handle (⋮⋮) now also appears beside a bulleted or numbered list item and beside a heading. A list item takes its sub-items and the lines under it; a heading takes its whole section. Drop them elsewhere in the note (a list item takes the indent of the list it lands in; a section is set off by blank lines), into the other pane's note where you drop it, or on a note in the sidebar, a tab or a list (a list item under Open Threads, a section at the end). Calendar days take only tasks. ⌘Z undoes a move straight afterwards. Plain paragraphs and code have no handle.
+
+### Changed
+
+- **The handle sits in one column on every line,** to the left of the fold arrows, so it is never under the arrow of an item with a sub-list.
+
 ## 1.55.0 (2026-11-25)
 
 ### Added

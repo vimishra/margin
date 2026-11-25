@@ -3,10 +3,29 @@
 // note, under Planned (`moveTasksToDay`). The task travels as its note, line and text, and is found again on drop,
 // so a list redrawn in between cannot move the wrong line.
 import type React from 'react'
-import { isProtectedNote, moveTasksTo, moveTasksToDay, openDatePicker, toast, useStore } from './store'
+import { isProtectedNote, moveBlockTo, moveTasksTo, moveTasksToDay, openDatePicker, toast, useStore, type BlockRef } from './store'
 import { tasksOf, type Task } from './lib/tasks'
 
 export const TASK_DRAG = 'text/margin-task'
+/** A list item (with the lines under it) or a section, dragged by its handle in the editor. Not taken by days. */
+export const BLOCK_DRAG = 'text/margin-block'
+
+/** Put a list item or a section on a drag. */
+export function setBlockDrag(dt: DataTransfer, ref: BlockRef) {
+  dt.setData(BLOCK_DRAG, JSON.stringify(ref))
+  dt.setData('text/plain', ref.text.trim())
+  dt.effectAllowed = 'move'
+}
+
+/** The list item or section a drop carries (checked against its note again when it is moved). */
+export function readBlockDrag(dt: DataTransfer): BlockRef | undefined {
+  try {
+    const ref = JSON.parse(dt.getData(BLOCK_DRAG)) as BlockRef
+    return ref && typeof ref.noteId === 'string' && typeof ref.line === 'number' && typeof ref.text === 'string' && (ref.kind === 'list' || ref.kind === 'section') ? ref : undefined
+  } catch {
+    return undefined
+  }
+}
 
 /** Put a task on a drag. */
 export function setTaskDrag(dt: DataTransfer, task: Task) {
@@ -35,10 +54,11 @@ const droppedTask = (e: React.DragEvent) => readTaskDrag(e.dataTransfer)
 
 /**
  * Props that make a note (a sidebar entry, a tab, a row in a list) take a dropped task: into its Open Threads, as M
- * does, or for a daily note under Planned, as a move to that day does. `over` marks it while a task is held over it.
+ * does, or for a daily note under Planned, as a move to that day does. A dragged list item goes under Open Threads
+ * too (at the end of a daily note), and a section at the end. `over` marks it while a task is held over it.
  */
 export function noteDropProps(noteId: string, over: string, setOver: (id: string) => void) {
-  const carries = (e: React.DragEvent) => e.dataTransfer.types.includes(TASK_DRAG) && !isProtectedNote(noteId)
+  const carries = (e: React.DragEvent) => (e.dataTransfer.types.includes(TASK_DRAG) || e.dataTransfer.types.includes(BLOCK_DRAG)) && !isProtectedNote(noteId)
   return {
     onDragOver: (e: React.DragEvent) => {
       if (!carries(e)) return
@@ -52,6 +72,12 @@ export function noteDropProps(noteId: string, over: string, setOver: (id: string
       e.preventDefault()
       e.stopPropagation()
       setOver('')
+      // A list item or a section: under Open Threads (a section at the end), as Move section does.
+      if (e.dataTransfer.types.includes(BLOCK_DRAG)) {
+        const ref = readBlockDrag(e.dataTransfer)
+        if (ref && ref.noteId !== noteId) moveBlockTo(ref, noteId)
+        return
+      }
       const task = droppedTask(e)
       if (!task) return toast('That task has changed since it was picked up. Try again.')
       void moveTasksTo([task], noteId)
