@@ -2,6 +2,14 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.55.0 (2026-11-25)
+
+### Added
+
+- **Move a task to a day.** Drag a task onto a day in the sidebar calendar or the Calendar view, press ⇧S on it in the Tasks view, or use "Move to a day's note…" (task menu, ⌘K, Format menu). It moves, with the lines under it, into that day's daily note under a **Planned** heading at the top, is planned for that day, and gets a link to its project so it still counts there. A day's note made ahead of time still takes in the last day's unfinished Top 3 when its day comes.
+- **Drag and drop for tasks.** A handle (⋮⋮) appears beside a task line in a note; tasks can also be dragged in read mode, from the Calendar view's day preview, and from task lists. Drop on a calendar day; on a tab, a pinned or recent note in the sidebar, or a note in a list (into its Open Threads, as M does); elsewhere in the same note to reorder; or into another note's text at that spot (a daily note also plans it for that day).
+- **⌘Z undoes a move** (to a day or another note) straight afterwards, wherever the keyboard is, until anything else changes; then ⌘Z is the ordinary undo again. Edit → Undo does the same.
+
 ## 1.54.0 (2026-11-25)
 
 ### Added

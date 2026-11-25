@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { FileQuestion } from 'lucide-react'
-import { SIDEBAR_WIDTH, closeSideTab, closeTab, cycleTab, go, load, paneTabs, setSidebarWidth, setSideWidth, switchPane, ui, useStore, watchNotes } from './store'
+import { SIDEBAR_WIDTH, canUndoAction, closeSideTab, closeTab, cycleTab, justUndidAction, undoAction, go, load, paneTabs, setSidebarWidth, setSideWidth, switchPane, ui, useStore, watchNotes } from './store'
 import type { Note } from './types'
 import { commands } from './commands'
 import { actionFor, eventCombo, recording, syncDesktopMenu } from './shortcuts'
@@ -76,6 +76,10 @@ export function runAction(id: string, source: 'key' | 'menu') {
   else if (id === 'find') findHere()
   else if (id === 'prevTab') cycleTab(-1)
   else if (id === 'nextTab') cycleTab(1)
+  // ⌘Z (or Edit → Undo): the last move, while nothing has changed since; otherwise the ordinary undo of typing.
+  else if (id === 'appUndo') {
+    if (!undoAction() && !justUndidAction() && source === 'menu') void desktop?.nativeUndo?.()
+  }
   else if (id === 'otherPane') switchPane()
   else commands().find((c) => c.id === id)?.run()
 }
@@ -89,6 +93,13 @@ function onKey(e: KeyboardEvent) {
   if (combo === 'Mod+F' && s.help) {
     e.preventDefault()
     findHere()
+    return
+  }
+  // ⌘Z right after a move undoes the move, wherever the keyboard is; otherwise ⌘Z is left to the editor or field.
+  if (combo === 'Mod+Z' && !overlay && canUndoAction()) {
+    e.preventDefault()
+    e.stopPropagation()
+    runAction('appUndo', 'key')
     return
   }
   if (combo) {

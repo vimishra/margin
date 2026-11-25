@@ -9,6 +9,8 @@ import { afterTick } from '../lib/repeat'
 import { isYmd } from '../lib/util'
 import { openDaily } from '../store'
 import { mountTaskBlocks } from './TaskBlock'
+import { tasksOf } from '../lib/tasks'
+import { setTaskDrag } from '../taskDrag'
 
 /**
  * Open the note a wikilink points to, creating it when it does not exist yet. With an anchor (`#Heading` or
@@ -44,9 +46,11 @@ interface Props {
   onChange?: (source: string) => void
   /** The note shown, when it is one: ticking in a note an outside program owns changes only the box. */
   noteId?: string
+  /** Open tasks can be dragged (onto a day, a note, or into a note), when the source is the note's page. */
+  dragTasks?: boolean
 }
 
-export const Preview = memo(function Preview({ source, className, onChange, noteId }: Props) {
+export const Preview = memo(function Preview({ source, className, onChange, noteId, dragTasks }: Props) {
   const ref = useRef<HTMLDivElement>(null)
   // Re-render links when the set of note titles changes, not on every keystroke elsewhere.
   const titles = useStore((s) => titlesKey(s.notes))
@@ -124,5 +128,22 @@ export const Preview = memo(function Preview({ source, className, onChange, note
     }
   }
 
-  return <div ref={ref} className={`md ${className || ''}`} onClick={onClick} dangerouslySetInnerHTML={{ __html: html }} />
+  // Each open task's list item can be picked up; it carries the task as the note has it (found by its line).
+  useEffect(() => {
+    if (!dragTasks || !noteId || isProtectedNote(noteId)) return
+    ref.current?.querySelectorAll<HTMLElement>('li[data-line]').forEach((li) => {
+      const box = li.querySelector(':scope > input[type=checkbox], :scope > p > input[type=checkbox]') as HTMLInputElement | null
+      if (box && !box.checked && !li.closest('.task-block-mount')) li.draggable = true
+    })
+  }, [html, dragTasks, noteId])
+  const onDragStart = (e: React.DragEvent) => {
+    const li = (e.target as HTMLElement).closest?.('li[data-line]') as HTMLElement | null
+    const note = noteId ? useStore.getState().notes[noteId] : undefined
+    const task = li && note ? tasksOf(note).find((t) => t.line === Number(li.dataset.line)) : undefined
+    if (!task) return
+    e.stopPropagation()
+    setTaskDrag(e.dataTransfer, task)
+  }
+
+  return <div ref={ref} className={`md ${className || ''}`} onClick={onClick} onDragStart={dragTasks ? onDragStart : undefined} dangerouslySetInnerHTML={{ __html: html }} />
 })

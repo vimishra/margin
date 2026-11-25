@@ -366,6 +366,7 @@ export function applyFormat(ed: EditorHandle, kind: string) {
     taskToday: () => ed.taskEdit('today'),
     taskMove: () => ed.taskMove(false),
     taskMoveTo: () => ed.taskMove(true),
+    taskToDay: () => ed.taskToDay(),
     bold: () => ed.wrap('**', '**', 'bold'),
     italic: () => ed.wrap('*', '*', 'italic'),
     strike: () => ed.wrap('~~', '~~', 'text'),
@@ -711,7 +712,7 @@ export function NoteView({ note, slot = 'main' }: { note: Note; slot?: 'main' | 
                 {mode === 'read' && (
                   <div className="reading" onDoubleClick={() => setPref('mode', 'edit')}>
                     {page.trim() ? (
-                      <Preview source={page} onChange={setPage} noteId={note.id} />
+                      <Preview source={page} onChange={setPage} noteId={note.id} dragTasks />
                     ) : (
                       <p className="empty-hint">Nothing here yet. Press {hint('mode')} to start writing.</p>
                     )}

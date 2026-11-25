@@ -159,6 +159,7 @@ export function commands(): Command[] {
       { id: 'taskWhen', label: 'Task: when…', icon: i(CalendarDays), keywords: 'plan schedule planned day someday reschedule', run: () => format('taskWhen') },
       { id: 'taskDue', label: 'Task: due date…', icon: i(CalendarDays), keywords: 'deadline', run: () => format('taskDue') },
       { id: 'taskMove', label: 'Task: move to a note', icon: i(FolderInput), keywords: 'file refile project workstream open threads triage rules', run: () => format('taskMove') },
+      { id: 'taskToDay', label: "Task: move to a day's note…", icon: i(CalendarPlus), keywords: 'daily note day plan date calendar planned move schedule', run: () => format('taskToDay') },
       { id: 'taskMoveTo', label: 'Task: move to a note you pick…', icon: i(FolderInput), keywords: 'file refile project workstream open threads triage', run: () => format('taskMoveTo') },
       { id: 'taskPriority', label: 'Task: change priority', icon: i(ListChecks), keywords: 'p1 p2 p3 importance', run: () => format('taskPriority') },
       { id: 'done', label: 'Tick or untick this task', icon: i(ListChecks), keywords: 'complete done check toggle finish', run: () => format('done') },

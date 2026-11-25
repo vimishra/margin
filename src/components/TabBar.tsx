@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, PanelLeft, Plus, X } from 'lucide-react'
 import { closeSide, closeSideTab, closeTab, newNote, openMenu, openNote, openSide, setActivePane, setPref, ui, useStore } from '../store'
+import { noteDropProps } from '../taskDrag'
 import { ALT, cx, displayTitle, local } from '../lib/util'
 import { NoteIcon, noteMenu } from './bits'
 import { hint } from '../shortcuts'
@@ -23,6 +24,8 @@ export function TabBar({ side = false }: { side?: boolean }) {
 
   // Whether tabs are hidden off either end of the row: those ends fade, and the count button shows.
   const [hidden, setHidden] = useState({ left: false, right: false })
+  // The tab a dragged task is held over: dropping it there moves the task into that note.
+  const [taskOver, setTaskOver] = useState('')
   const measure = () => {
     const el = strip.current
     if (!el) return
@@ -77,7 +80,8 @@ export function TabBar({ side = false }: { side?: boolean }) {
           return (
             <div
               key={id}
-              className={cx('tab', id === active && 'active')}
+              className={cx('tab', id === active && 'active', taskOver === id && 'drop')}
+              {...noteDropProps(id, taskOver, setTaskOver)}
               title={`${displayTitle(n)}${i < 9 ? `  ${ALT}${i + 1}` : ''}`}
               // ⌘-click or ⌥-click sends the note to the other pane.
               onClick={(e) => (e.metaKey || e.altKey || e.ctrlKey ? there(id) : here(id))}

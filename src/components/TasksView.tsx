@@ -1,10 +1,11 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
-import { AlignLeft, Archive, Bell, BookmarkPlus, Box, CalendarClock, CalendarDays, Check, ChevronDown, ChevronRight, FileText, Flag, FolderInput, ListChecks, ListTree, MoreHorizontal, Repeat, Search, SquareCheck, SquareX, Star, Target, Users } from 'lucide-react'
+import { AlignLeft, Archive, Bell, BookmarkPlus, Box, CalendarClock, CalendarDays, Check, ChevronDown, ChevronRight, FileText, Flag, FolderInput, ListChecks, ListTree, MoreHorizontal, Repeat, Search, SquareCheck, SquareX, Star, Target, Users, CalendarPlus } from 'lucide-react'
 import type { Note } from '../types'
 import { deleteTaskView, go, openDatePicker, openFromClick, openMenu, openNoteAt, openSideAt, renameTaskView, rescheduleTasks, saveTaskView, ensureInboxNote, inboxNotebook, moveTasksToNote, ui, updateTask, updateTaskView, useHiddenTaskNotes, usePageWidthStyle, useStore, type MenuItem } from '../store'
 import { hint } from '../shortcuts'
 import { archiveEverywhere } from '../archive'
 import { toggleFocus } from '../focus'
+import { pickDayFor, startTaskDrag } from '../taskDrag'
 import { FocusStrip } from './FocusStrip'
 import { focusKey, focusTasks, isFocus, taskKey } from '../lib/focus'
 import { renderInline, renderMarkdown } from '../lib/markdown'
@@ -55,6 +56,7 @@ function taskMenu(task: Task, row: Element): MenuItem[] {
     { label: 'When…', hint: 'S', icon: <CalendarClock size={14} />, onSelect: () => pickDate(row, task, 'scheduled') },
     { label: 'Due date…', hint: 'D', icon: <CalendarDays size={14} />, onSelect: () => pickDate(row, task, 'due') },
     { label: 'Move to another note…', hint: 'M', icon: <FolderInput size={14} />, onSelect: () => moveToNote(task) },
+    ...(task.done ? [] : [{ label: "Move to a day's note…", hint: '⇧S', icon: <CalendarPlus size={14} />, onSelect: () => pickDayFor({ currentTarget: row }, task) }]),
     ...(focusKey(useStore.getState().settings.focusTag) && !task.done
       ? [{ label: isFocus(task, focusKey(useStore.getState().settings.focusTag)) ? 'Remove from focus' : 'Make it a focus task', hint: 'F', icon: <Target size={14} />, onSelect: () => toggleFocus(task) }]
       : []),
@@ -106,7 +108,13 @@ export function TaskRow({ task, note, showNote = true, active = false, star = fa
   }
   const late = (d?: string) => !task.done && !!d && d < now
   return (
-    <div className={cx('task', task.done && 'done', task.cancelled && 'cancelled', `pri-${task.priority}`, active && 'active')} onMouseMove={onHover} onContextMenu={(e) => (onHover?.(), openMenu(e, taskMenu(task, e.currentTarget)))}>
+    <div
+      className={cx('task', task.done && 'done', task.cancelled && 'cancelled', `pri-${task.priority}`, active && 'active')}
+      draggable={!task.done}
+      onDragStart={(e) => startTaskDrag(e, task)}
+      onMouseMove={onHover}
+      onContextMenu={(e) => (onHover?.(), openMenu(e, taskMenu(task, e.currentTarget)))}
+    >
       <input type="checkbox" className={task.cancelled ? 'box-cancelled' : undefined} checked={task.done} title={task.cancelled ? 'Cancelled. Click to reopen.' : task.done ? 'Mark as not done' : 'Mark as done'} onChange={() => updateTask(task, { done: !task.done })} />
       <div className="task-main" onClick={open} title="Open in its note">
         <span className="task-text">
@@ -440,6 +448,7 @@ export function TasksView({ view }: { view?: string }) {
         else if (e.key === 'Enter') (e.preventDefault(), e.shiftKey ? openSideAt(task.noteId, task.raw, true) : openNoteAt(task.noteId, task.raw, [], true))
         else if (e.key === 't') (e.preventDefault(), updateTask(task, { raw: withDetails(task.raw, { scheduled: now }) }))
         else if (e.key === 'd') (e.preventDefault(), pickDate(rowEl(), task, 'due'))
+        else if (e.key === 'S' && !task.done) (e.preventDefault(), pickDayFor({ currentTarget: rowEl() }, task))
         else if (e.key === 's') (e.preventDefault(), pickDate(rowEl(), task, 'scheduled'))
         else if (e.key === 'm') (e.preventDefault(), moveToNote(task))
         else if (e.key === 'c') (e.preventDefault(), updateTask(task, { cancelled: !task.cancelled }))

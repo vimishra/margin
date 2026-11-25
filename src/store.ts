@@ -10,7 +10,7 @@ import { desktop } from './desktop'
 import type { Note, NotePatch, NoteType, Route } from './types'
 import { appendCard } from './lib/canvas'
 import { clock, displayTitle, isYmd, local, today, parseYmd, ymd, dailyLabel } from './lib/util'
-import { INBOX_NOTE_TITLE, TASK_LINE, isInboxNote, notePathKey, isProjectNote, rewriteTask, shortDate, withDetails, type SavedTaskView, type Task, type TaskView } from './lib/tasks'
+import { INBOX_NOTE_TITLE, TASK_LINE, isInboxNote, notePathKey, isProjectNote, projectsOf, rewriteTask, shortDate, withDetails, type SavedTaskView, type Task, type TaskView } from './lib/tasks'
 
 export interface Toast {
   id: number
@@ -960,9 +960,39 @@ document.addEventListener('visibilitychange', () => {
 })
 window.addEventListener('focus', () => refresh())
 
+// ---------- ⌘Z for app actions ----------
+// A move made from outside the editor (a task to a day or another note) can be undone with ⌘Z, as long as nothing
+// has been changed since: any later change to a note (typing, ticking) takes that chance away, and ⌘Z goes back to
+// undoing typing as usual. The message's Undo button works the same way.
+let pendingUndo: (() => void) | null = null
+let undoing = false
+let undoneAt = 0
+function armUndo(run: () => void) {
+  pendingUndo = run
+}
+/** True while ⌘Z would undo the last move. */
+export const canUndoAction = () => !!pendingUndo
+/** True just after ⌘Z undid a move, so the menu's copy of the same key press does not undo typing as well. */
+export const justUndidAction = () => Date.now() - undoneAt < 600
+/** Undo the last move, if it is still undoable. False when there is none. */
+export function undoAction(): boolean {
+  const run = pendingUndo
+  if (!run) return false
+  pendingUndo = null
+  undoneAt = Date.now()
+  undoing = true
+  try {
+    run()
+  } finally {
+    undoing = false
+  }
+  return true
+}
+
 export function updateNote(id: string, patch: NotePatch) {
   const note = get().notes[id]
   if (!note) return
+  if (!undoing) pendingUndo = null
   // Moved into a notebook: add that notebook's tags. Tags are never taken away on the way out.
   if (patch.folder !== undefined && patch.folder !== note.folder) {
     const tags = withTags(patch.tags ?? note.tags, patch.folder)
@@ -1075,14 +1105,21 @@ const makingDaily = new Map<string, Promise<Note | null>>()
 /** The daily note for a date, created from the template if it does not exist yet. */
 export function ensureDaily(date: string): Promise<Note | null> {
   const existing = findDaily(date)
-  if (existing) return Promise.resolve(existing)
+  if (existing) {
+    // Made ahead of time (a task moved to the day): it still takes in the last day's unfinished Top 3, once.
+    if (date === today() && get().settings.carryTop3 !== false && local.get('carriedOn', '') !== date) {
+      local.set('carriedOn', date)
+      if (existing.created.slice(0, 10) < date) carryTop3(existing.id)
+    }
+    return Promise.resolve(existing)
+  }
   // Two requests for the same new day (or for the template) must not create it twice.
   let making = makingDaily.get(date)
   if (!making) {
     making = createDaily(date)
       .then((note) => {
         // A new day starts with whatever was left unticked in the last day's Top 3.
-        if (note && date === today() && get().settings.carryTop3 !== false) carryTop3(note.id)
+        if (note && date === today() && get().settings.carryTop3 !== false) (local.set('carriedOn', date), carryTop3(note.id))
         return note
       })
       .finally(() => makingDaily.delete(date))
@@ -1513,11 +1550,23 @@ export async function addToInbox(lines: string): Promise<boolean> {
   }
 }
 
+/** Put lines into a note's page in front of line `at` (from 0; past the end means at the end), each indented by `indent`. */
+function insertIntoNote(note: Note, text: string, at: number, indent: string) {
+  const idx = note.content.indexOf('\n\n<!-- canvas -->')
+  const page = idx < 0 ? note.content : note.content.slice(0, idx)
+  const tail = idx < 0 ? '' : note.content.slice(idx)
+  const lines = page.split('\n')
+  // A page ending in a line break has an empty last "line"; what is dropped at the end goes before it.
+  const end = lines.length && lines[lines.length - 1] === '' ? lines.length - 1 : lines.length
+  lines.splice(Math.max(0, Math.min(at, end)), 0, ...text.split('\n').map((l) => indent + l))
+  updateNote(note.id, { content: lines.join('\n') + tail })
+}
+
 /**
  * Add text as a list item to a note, under `heading` or at the end of the page. With `asIs`, the lines go in
  * exactly as given. Where it went: the line, or -1 for the end. Null when there was nothing to add.
  */
-function appendToNote(note: Note, text: string, heading: string, asIs = false, createHeading = false): number | null {
+function appendToNote(note: Note, text: string, heading: string, asIs = false, createHeading = false, headingAtTop = false): number | null {
   const id = note.id
   const body = asIs ? text.replace(/\n+$/, '') : text.trim()
   if (!body.trim()) return null
@@ -1531,7 +1580,10 @@ function appendToNote(note: Note, text: string, heading: string, asIs = false, c
   // An empty note gets the entry as its first line, not after a blank one.
   const lines = kept ? kept.split('\n') : []
   const { at, start } = heading ? sectionEnd(lines, heading) : { at: -1, start: -1 }
-  if (at < 0 && heading && createHeading) {
+  if (at < 0 && heading && createHeading && headingAtTop) {
+    // The heading is not there yet and belongs at the top (Planned in a daily note): above everything else.
+    lines.unshift(`## ${heading}`, '', ...entry, ...(lines.length ? [''] : []))
+  } else if (at < 0 && heading && createHeading) {
     // The heading is not there yet: add it at the end of the page, with the entry under it.
     lines.push(...(lines.length && lines[lines.length - 1].trim() ? [''] : []), `## ${heading}`, '', ...entry)
   } else if (at < 0) lines.push(...entry)
@@ -1606,11 +1658,67 @@ export async function moveTaskToNewNote(task: Task, typed: string) {
   if (note) moveTasksToNote([task], note.id, OPEN_THREADS)
 }
 
+/** The heading at the top of a daily note that tasks moved to that day go under, made when it is not there. */
+export const PLANNED = 'Planned'
+
+/**
+ * Move tasks to a day: into that day's daily note (made if needed), under Planned at the top, planned for the day.
+ * A task keeps its project: its line gets a link to the project note (or the note it came from), which is how a
+ * task in a daily note is counted under a project. Triage tasks are not moved this way (M or F moves them first).
+ */
+export async function moveTasksToDay(tasks: Task[], date: string) {
+  const own = tasks.filter((t) => !isProtectedNote(t.noteId))
+  if (!own.length) return toast('Triage suggestions move with M or F first; then they can go to a day.')
+  const day = await ensureDaily(date)
+  if (!day) return toast('Could not make the daily note for that day.')
+  const s = get()
+  // Already in that day's note: only the planned day changes.
+  const here = own.filter((t) => t.noteId === day.id)
+  for (const t of here) updateTask(t, { raw: withDetails(t.raw, { scheduled: date }) })
+  const rest = own.filter((t) => t.noteId !== day.id)
+  if (!rest.length) return here.length ? toast(`Planned for ${shortDate(date)}`) : undefined
+  const rewrite = dayRewrite(date)
+  const label = `${rest.length === 1 ? 'Moved' : `Moved ${rest.length} tasks`} to ${dailyLabel(date)} › ${PLANNED}`
+  moveTasksToNote(rest, day.id, PLANNED, { top: true, rewrite, done: label })
+}
+
+/**
+ * Move tasks into a note, wherever they are dropped: into a daily note as a move to that day (planned for it, with a
+ * link to the project), into any other note under Open Threads, as M does. With `at` (a line of the note's page,
+ * from 0), they go in at that line instead, indented with `indent` (the list they land in).
+ */
+export async function moveTasksTo(tasks: Task[], targetId: string, place: { at?: number; indent?: string } = {}) {
+  const target = get().notes[targetId]
+  if (!target) return
+  if (target.type === 'daily' && isYmd(target.title)) {
+    if (place.at === undefined) return moveTasksToDay(tasks, target.title)
+    const date = target.title
+    return moveTasksToNote(tasks.filter((t) => !isProtectedNote(t.noteId)), targetId, '', { at: place.at, indent: place.indent, rewrite: dayRewrite(date), done: `Moved to ${dailyLabel(date)}` })
+  }
+  moveTasksToNote(tasks.filter((t) => !isProtectedNote(t.noteId)), targetId, place.at === undefined ? OPEN_THREADS : '', place)
+}
+
+/** A task's text on its way to a day: planned for it, with a link to its project unless it comes from a daily note. */
+function dayRewrite(date: string) {
+  const s = get()
+  return (t: Task) => {
+    let raw = withDetails(t.raw, { scheduled: date })
+    const from = s.notes[t.noteId]
+    if (from && from.type !== 'daily') {
+      for (const id of projectsOf(t, s.notes, s.settings)) {
+        const title = s.notes[id]?.title
+        if (title && s.notes[id].type !== 'daily' && !raw.includes(`[[${title}`)) raw += ` [[${title}]]`
+      }
+    }
+    return raw
+  }
+}
+
 /**
  * Move tasks into another note: each task's line, and the indented lines under it (notes, sub-tasks), are taken
  * out of its note and added, in order, at the end of the other one's page. One Undo puts everything back.
  */
-export function moveTasksToNote(tasks: Task[], targetId: string, heading = '') {
+export function moveTasksToNote(tasks: Task[], targetId: string, heading = '', opts: { top?: boolean; rewrite?: (t: Task) => string; done?: string; at?: number; indent?: string } = {}) {
   const s = get()
   const target = s.notes[targetId]
   if (!target) return
@@ -1634,27 +1742,48 @@ export function moveTasksToNote(tasks: Task[], targetId: string, heading = '') {
       while (end < lines.length && lines[end].trim() && /^\s*/.exec(lines[end])![0].length > indent) end++
       ranges.push([t.line, end])
       // Written at the left edge in the new note; the lines under it keep their indent relative to it.
-      blocks.push(lines.slice(t.line, end).map((l) => l.slice(Math.min(indent, /^\s*/.exec(l)![0].length))).join('\n'))
+      const block = lines.slice(t.line, end).map((l) => l.slice(Math.min(indent, /^\s*/.exec(l)![0].length)))
+      // The task's own text can be changed on the way (a planned day and a link back, for a move to a day).
+      if (opts.rewrite) block[0] = block[0].slice(0, block[0].length - m[4].length) + opts.rewrite(t)
+      blocks.push(block.join('\n'))
       moved++
     }
     if (!ranges.length) continue
     before[id] = source.content
     for (const [a, b] of [...ranges].reverse()) lines.splice(a, b - a)
+    // A daily note's Planned heading left with nothing under it goes too (Undo brings it back with the rest).
+    if (source.type === 'daily') {
+      const h = lines.findIndex((l) => l.trim() === `## ${PLANNED}`)
+      if (h >= 0) {
+        let end = h + 1
+        while (end < lines.length && !/^#{1,2}\s/.test(lines[end])) end++
+        if (lines.slice(h + 1, end).every((l) => !l.trim())) lines.splice(h, end - h)
+      }
+    }
     updateNote(id, { content: lines.join('\n') })
   }
   if (!moved) return toast('Those tasks have changed since this list was drawn. Try again.')
   before[target.id] = target.content
-  appendToNote(get().notes[target.id] ?? target, blocks.join('\n'), heading, true, !!heading)
+  if (opts.at !== undefined) insertIntoNote(get().notes[target.id] ?? target, blocks.join('\n'), opts.at, opts.indent ?? '')
+  else appendToNote(get().notes[target.id] ?? target, blocks.join('\n'), heading, true, !!heading, !!opts.top)
   const after = Object.fromEntries(Object.keys(before).map((id) => [id, get().notes[id]?.content]))
-  toast(`Moved ${moved === 1 ? 'to' : `${moved} tasks to`} ${displayTitle(target)}${heading ? ` › ${heading}` : ''}`, {
-    label: 'Undo',
-    run: () => {
-      // Only put things back if none of the notes has been changed since.
-      const now = get().notes
-      if (Object.keys(before).some((id) => now[id]?.content !== after[id])) return toast('Those notes have changed since; nothing was undone.')
+  const undo = () => {
+    // Only put things back if none of the notes has been changed since.
+    const now = get().notes
+    if (Object.keys(before).some((id) => now[id]?.content !== after[id])) return toast('Those notes have changed since; nothing was undone.')
+    undoing = true
+    try {
       for (const [id, content] of Object.entries(before)) updateNote(id, { content })
-    },
+    } finally {
+      undoing = false
+    }
+    toast(`Undid the move${moved === 1 ? '' : ` of ${moved} tasks`}`)
+  }
+  toast(opts.done ?? `Moved ${moved === 1 ? 'to' : `${moved} tasks to`} ${displayTitle(target)}${heading ? ` › ${heading}` : ''}`, {
+    label: 'Undo',
+    run: () => (pendingUndo === undo ? undoAction() : undo()),
   })
+  armUndo(undo)
 }
 
 /** Move several tasks to one day. For each, the date that made it late is the one changed. */

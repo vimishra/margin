@@ -31,7 +31,9 @@ import { fillTemplate, openDatePicker, templates, timeNow, toast, updateNote, us
 import { resolver, tagCounts } from '../lib/links'
 import { blockIdOf, blocksOf, headingText, newBlockId } from '../lib/blocks'
 import { parseDatePhrase } from '../lib/dates'
-import { TASK_LINE, parseRemind, parseTaskText, withDetails } from '../lib/tasks'
+import { TASK_LINE, parseRemind, parseTaskText, tasksOf, withDetails } from '../lib/tasks'
+import { pickDayFor } from '../taskDrag'
+import { taskDragEditor } from './taskDragEditor'
 import { parseRepeat } from '../lib/repeat'
 import { BLOCK_LISTS, BLOCK_SETTINGS } from '../lib/taskQuery'
 import { dailyLabel, isYmd, longDate, today, tagHue } from '../lib/util'
@@ -60,6 +62,8 @@ export interface EditorHandle {
   taskEdit(kind: 'priority' | 'due' | 'when' | 'today'): void
   /** Move the task under the cursor into another note: by the triage rules in the triage note; `pick` always asks. */
   taskMove(pick: boolean): void
+  /** Ask for a day and move the task at the cursor into that day's daily note, under Planned. */
+  taskToDay(): void
   scrollToLine(line: number): void
   /** Bring a place into view and light up its line briefly, without moving the cursor or taking the keyboard. */
   peek(pos: number): void
@@ -756,6 +760,7 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
           markdown({ base: markdownLanguage, codeLanguages: languages, extensions: [foldOnlySectionsAndLists, HighlightSyntax] }),
           folding(foldKey),
           editorNote.of(foldKey ?? ''),
+          taskDragEditor,
           syntaxHighlighting(highlight),
           marks,
           isearchHighlight,
@@ -919,6 +924,19 @@ export const Editor = forwardRef<EditorHandle, Props>(function Editor({ value, o
       if (!view) return
       const [from, to] = selectedLines(view)
       moveTaskFromEditor(view.state.facet(editorNote), view.state.doc.toString(), from, to, pick)
+    },
+    taskToDay() {
+      const view = viewRef.current
+      if (!view) return
+      const noteId = view.state.facet(editorNote)
+      const note = useStore.getState().notes[noteId]
+      const line = view.state.doc.lineAt(view.state.selection.main.head).number - 1
+      // The note in the store holds what is typed, so its tasks' lines match the editor's.
+      const task = note && tasksOf(note).find((t) => t.line === line)
+      if (!task) return void toast('The cursor is not on a task')
+      const at = view.coordsAtPos(view.state.selection.main.head) ?? view.contentDOM.getBoundingClientRect()
+      const anchor = { getBoundingClientRect: () => ({ left: at.left, right: at.left, top: at.top, bottom: at.bottom }) } as unknown as EventTarget
+      pickDayFor({ currentTarget: anchor }, task)
     },
     taskEdit(kind) {
       const view = viewRef.current

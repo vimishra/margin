@@ -1493,6 +1493,10 @@ Daily/  Meetings/  Inbox/  Templates/  Scratch/  Assets/    managed by Margin
 <td>When: planned day or Someday</td>
 </tr>
 <tr>
+<td>⇧S</td>
+<td>Move to a day's note: into that day's daily note, under Planned (see <a href="#moving-a-task-to-a-day">Moving a task to a day</a>)</td>
+</tr>
+<tr>
 <td>P</td>
 <td>Priority</td>
 </tr>
@@ -1630,6 +1634,48 @@ today #atlas
 <p>When a list contains overdue tasks, <strong>Move all…</strong> opens the calendar. Pick one day and every overdue task shown gets it as its new due date. Narrow the list first to move only some of them. The confirmation has an <strong>Undo</strong>. Tasks whose planned day has passed are not overdue, so they are not moved; they wait in Today.</p>
 <h3 id="the-top-3">The Top 3</h3>
 <p>The Top 3 is the short checklist at the top of each daily note: the few things that would make the day a success. Its items are tasks like any other. What is left unticked moves into the next day's Top 3 when that note is created; see <a href="#meeting-notes-and-templates">Meeting notes and templates</a> for the details and the setting that turns this off.</p>
+<h3 id="moving-a-task-to-a-day">Moving a task to a day</h3>
+<p>To commit to a task on a particular day, move it into that day's note. <strong>Drag</strong> a task (from the Tasks view, the panel under a daily note, a tasks block or the Focus box) onto a day in the sidebar calendar or the Calendar view; the day lights up while you hold it there. Or, with the keyboard: <strong>⇧S</strong> on a task in the Tasks view, <strong>Move to a day's note…</strong> in its right-click menu, or, with the cursor on a task in a note, ⌘K → <strong>Task: move to a day's note…</strong> (also in the Format menu and the editor's right-click menu); then pick the day.</p>
+<p>Margin then:</p>
+<ul>
+<li>moves the task, with the lines under it, into that day's daily note (made if it does not exist yet), under a <strong>Planned</strong> heading at the top, above the Top 3;</li>
+<li>plans it for that day (<code>&gt;2026-11-28</code>), so it is in Today when the day comes;</li>
+<li>adds a link to its project (<code>[[Atlas launch]]</code>), or to the note it came from, so it still shows under that project when the Tasks view is grouped by project and in the Weekly review.</li>
+</ul>
+<p>One <strong>Undo</strong> puts it all back: the button on the message, or <strong>⌘Z</strong> right away (it undoes the move as long as you have not changed anything since; after that, ⌘Z goes back to undoing your typing). The same goes for moving a task to another note with M. The task is no longer in the project note itself; the link leads back there. A task already in that day's note only gets the planned day. Triage suggestions are moved with M or F first.</p>
+<p>A day's note made ahead of time like this still takes in the last day's unfinished Top 3 items, the first time it is opened on its day.</p>
+<h3 id="dragging-tasks">Dragging tasks</h3>
+<p>Tasks can be dragged with the mouse:</p>
+<ul>
+<li><strong>From a note:</strong> point at a task line and a handle (⋮⋮) appears at its left; drag that. In read mode, and in the Calendar view's preview of a day, drag the task itself.</li>
+<li><strong>From a list:</strong> drag a task's row in the Tasks view, the panel under a daily note, a tasks block or the Focus box.</li>
+</ul>
+<p>And dropped:</p>
+<div class="table"><table><thead>
+<tr>
+<th>Drop it on</th>
+<th>What happens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A day in the sidebar calendar or the Calendar view</td>
+<td>Moved into that day's note, under Planned, as above</td>
+</tr>
+<tr>
+<td>A note in the sidebar (pinned or recent), a tab, or a note in a list (All notes, a notebook)</td>
+<td>Moved into that note under Open Threads, as <strong>M</strong> does; a daily note takes it under Planned, for that day</td>
+</tr>
+<tr>
+<td>Somewhere else in the same note</td>
+<td>Moved there, with the lines under it; a line shows where it will land</td>
+</tr>
+<tr>
+<td>Into another note's text (the other pane)</td>
+<td>Moved into that note at that place; into a daily note, it is also planned for that day</td>
+</tr>
+</tbody>
+</table></div><p>The lines under a task go with it, and it takes the indent of the list it lands in. ⌘Z right afterwards undoes it. Ticked tasks and the triage note's tasks are not dragged; the triage note takes no drops either, since its layout belongs to your triage program. A move out of a day's note that leaves its Planned heading empty takes the heading away too.</p>
 <h3 id="tasks-in-the-daily-note">Tasks in the daily note</h3>
 <p>A daily note shows a <strong>Tasks for this day</strong> panel listing tasks from other notes that are due or planned for that date. Today's note also lists what is overdue, and, under <strong>From earlier days</strong>, tasks planned for an earlier day that are still open. The panel is a view: nothing is copied into the daily note's file, and ticking a task there ticks it in its own note. On a canvas day the panel starts folded in the top-left corner.</p>
 <h3 id="tasks-from-the-command-line">Tasks from the command line</h3>

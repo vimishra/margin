@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowDownUp, BookMarked, Files, Folder, FolderOpen, Hash, Hourglass, Pin, Plus, Search, Trash2 } from 'lucide-react'
 import type { Note, Route } from '../types'
 import { deleteNote, editFolderTags, go, inheritedTags, newNote, openFromClick, openMenu, openNote, updateNote, useStore } from '../store'
+import { noteDropProps } from '../taskDrag'
 import { tagsOf } from '../lib/links'
 import { cx, displayTitle, expiresIn, local, relTime, snippet, tagStyle } from '../lib/util'
 import { NoteIcon, noteMenu } from './bits'
@@ -79,6 +80,8 @@ export function ListView({ route }: { route: Route }) {
   useStore((s) => s.folderTags)
   const config = useMemo(() => configFor(route), [route])
   const [query, setQuery] = useState('')
+  // The row a dragged task is held over: dropping it there moves the task into that note.
+  const [taskOver, setTaskOver] = useState('')
   const [status, setStatus] = useState('all')
   const [sort, setSort] = useState<Sort>(() => (route.name === 'scratch' ? 'expires' : local.get<Sort>('sort', 'updated')))
   const [active, setActive] = useState(0)
@@ -199,7 +202,8 @@ export function ListView({ route }: { route: Route }) {
           {rows.map((n, i) => (
             <div
               key={n.id}
-              className={cx('row', i === active && 'active')}
+              className={cx('row', i === active && 'active', taskOver === n.id && 'drop')}
+              {...noteDropProps(n.id, taskOver, setTaskOver)}
               draggable
               onDragStart={(e) => {
                 e.dataTransfer.setData('text/margin-note', n.id)

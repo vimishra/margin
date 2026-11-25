@@ -18,6 +18,7 @@ contextBridge.exposeInMainWorld('marginDesktop', {
   chooseVault: () => ipcRenderer.invoke('vault:choose'),
   revealVault: () => ipcRenderer.invoke('vault:reveal'),
   revealFile: (relativePath) => ipcRenderer.invoke('vault:reveal-file', relativePath),
+  nativeUndo: () => ipcRenderer.invoke('edit:undo'),
   openInEditor: (relativePath, line, command) => ipcRenderer.invoke('editor:open', relativePath, line, command),
   chooseFolder: (title) => ipcRenderer.invoke('folder:choose', title),
   savePdf: (name) => ipcRenderer.invoke('pdf:save', name),

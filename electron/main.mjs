@@ -302,7 +302,9 @@ function buildMenu() {
     {
       label: 'Edit',
       submenu: [
-        { role: 'undo' },
+        // Undo goes through the page first: right after a move (a task to a day or a note) it undoes the move;
+        // otherwise the page asks for the ordinary undo (edit:undo), which is what the role did.
+        { label: 'Undo', accelerator: 'CmdOrCtrl+Z', click: () => send('appUndo') },
         { role: 'redo' },
         { type: 'separator' },
         { role: 'cut' },
@@ -357,6 +359,7 @@ function buildMenu() {
         cmd('Change Task Priority', 'taskPriority'),
         cmd('Move Task to a Note', 'taskMove'),
         cmd('Move Task to a Note You Pick…', 'taskMoveTo'),
+        cmd("Move Task to a Day's Note…", 'taskToDay'),
         { type: 'separator' },
         cmd('Fold or Unfold', 'foldToggle'),
         cmd('Fold', 'fold'),
@@ -508,6 +511,7 @@ function createWindow() {
         task('Change Priority', 'taskPriority'),
         task('Move to a Note', 'taskMove'),
         task('Move to a Note You Pick…', 'taskMoveTo'),
+        task("Move to a Day's Note…", 'taskToDay'),
         sep,
       )
     }
@@ -666,6 +670,7 @@ if (!app.requestSingleInstanceLock()) {
     })
     ipcMain.handle('vault:choose', () => chooseVault())
     ipcMain.handle('vault:reveal', () => shell.openPath(vault))
+    ipcMain.handle('edit:undo', (e) => e.sender.undo())
     ipcMain.handle('editor:open', (_e, rel, line, template) => openInEditor(vault, rel, line, template))
     ipcMain.handle('vault:reveal-file', (_e, rel) => {
       const file = path.resolve(vault, String(rel))

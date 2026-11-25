@@ -57,6 +57,7 @@ import {
   triageNote,
   useHiddenTaskNotes,
 } from '../store'
+import { noteDropProps } from '../taskDrag'
 import type { Route } from '../types'
 import { tagCounts } from '../lib/links'
 import { TASK_FILTERS, allTasks, isToday, selectTasks, type TaskFilter, type TaskView } from '../lib/tasks'
@@ -108,6 +109,8 @@ export function Sidebar() {
   const [collapsed, setCollapsed] = useState<string[]>(() => local.get('collapsed', []))
   const [allTags, setAllTags] = useState(false)
   const [dropTarget, setDropTarget] = useState<string | null>(null)
+  // The note a dragged task is held over (pinned and recent notes take tasks).
+  const [taskOver, setTaskOver] = useState('')
 
   const list = useMemo(() => Object.values(notes), [notes])
   const templatesFolder = useStore((s) => s.settings.templatesFolder)
@@ -351,7 +354,7 @@ export function Sidebar() {
           <div className="nav-group">
             <div className="nav-head">Pinned</div>
             {pinned.map((n) => (
-              <button key={n.id} className={cx('nav-item', activeNote === n.id && 'active')} onClick={(e) => openFromClick(e, n.id)} onContextMenu={(e) => openMenu(e, noteMenu(n))}>
+              <button key={n.id} className={cx('nav-item', activeNote === n.id && 'active', taskOver === n.id && 'drop')} onClick={(e) => openFromClick(e, n.id)} onContextMenu={(e) => openMenu(e, noteMenu(n))} {...noteDropProps(n.id, taskOver, setTaskOver)}>
                 <span className="nav-icon">
                   <NoteIcon note={n} />
                 </span>
@@ -365,7 +368,7 @@ export function Sidebar() {
           <div className="nav-group">
             <div className="nav-head">Recent</div>
             {recentNotes.map((n) => (
-              <button key={n.id} className={cx('nav-item', activeNote === n.id && 'active')} onClick={(e) => openFromClick(e, n.id)} onContextMenu={(e) => openMenu(e, noteMenu(n))}>
+              <button key={n.id} className={cx('nav-item', activeNote === n.id && 'active', taskOver === n.id && 'drop')} onClick={(e) => openFromClick(e, n.id)} onContextMenu={(e) => openMenu(e, noteMenu(n))} {...noteDropProps(n.id, taskOver, setTaskOver)}>
                 <span className="nav-icon">
                   <NoteIcon note={n} />
                 </span>

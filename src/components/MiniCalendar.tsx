@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
 import { go, openDaily, useStore } from '../store'
+import { dayDropProps } from '../taskDrag'
 import { addDays, cx, firstWeekday, isYmd, local, longDate, parseYmd, today, ymd } from '../lib/util'
 
 /** A small month calendar for the sidebar. Click a day to open (or start) its daily note. */
@@ -10,6 +11,8 @@ export function MiniCalendar() {
   const weekStart = useStore((s) => s.settings.weekStart)
   const [open, setOpen] = useState(() => local.get('miniCalendar', true))
   const [month, setMonth] = useState(() => today().slice(0, 7))
+  // The day a dragged task is held over, to light it up.
+  const [dropOver, setDropOver] = useState('')
   const start = weekStart === 'sunday' ? 0 : weekStart === 'monday' ? 1 : firstWeekday()
 
   const dailies = useMemo(() => {
@@ -74,9 +77,10 @@ export function MiniCalendar() {
           {days.map((day) => (
             <button
               key={day}
-              className={cx('mini-cal-day', day.slice(0, 7) !== month && 'outside', day === today() && 'today', day === selected && 'selected', dailies.has(day) && 'has-note')}
-              title={`${longDate(day)}${dailies.has(day) ? '' : ' · start daily note'}`}
+              className={cx('mini-cal-day', day.slice(0, 7) !== month && 'outside', day === today() && 'today', day === selected && 'selected', dailies.has(day) && 'has-note', dropOver === day && 'drop-over')}
+              title={`${longDate(day)}${dailies.has(day) ? '' : ' · start daily note'}. Drop a task here to move it to this day.`}
               onClick={() => openDaily(day)}
+              {...dayDropProps(day, dropOver, setDropOver)}
             >
               {Number(day.slice(8))}
             </button>

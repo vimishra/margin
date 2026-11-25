@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { Note } from '../types'
 import { openDaily, openNote, useStore } from '../store'
+import { dayDropProps } from '../taskDrag'
 import { parseCanvas, splitContent } from '../lib/canvas'
 import { addDays, cx, displayTitle, firstWeekday, isYmd, longDate, parseYmd, today, ymd } from '../lib/util'
 import { NoteIcon } from './bits'
@@ -11,6 +12,8 @@ export function CalendarView() {
   const notes = useStore((s) => s.notes)
   const [selected, setSelected] = useState(today())
   const [month, setMonth] = useState(() => today().slice(0, 7))
+  // The day a dragged task is held over, to light it up.
+  const [dropOver, setDropOver] = useState('')
   const grid = useRef<HTMLDivElement>(null)
   const weekStart = useStore((s) => s.settings.weekStart)
   const start = weekStart === 'sunday' ? 0 : weekStart === 'monday' ? 1 : firstWeekday()
@@ -94,9 +97,10 @@ export function CalendarView() {
               <button
                 key={day}
                 tabIndex={-1}
-                className={cx('cal-day', day.slice(0, 7) !== month && 'outside', day === today() && 'today', day === selected && 'selected')}
+                className={cx('cal-day', day.slice(0, 7) !== month && 'outside', day === today() && 'today', day === selected && 'selected', dropOver === day && 'drop-over')}
                 onClick={() => select(day)}
                 onDoubleClick={() => openDaily(day)}
+                {...dayDropProps(day, dropOver, setDropOver)}
               >
                 <span className="cal-num">
                   {Number(day.slice(8))}
@@ -123,7 +127,7 @@ export function CalendarView() {
 
         {daily && (
           <div className="cal-preview">
-            {dailyParts!.page.trim() && <Preview source={dailyParts!.page} className="compact" />}
+            {dailyParts!.page.trim() && <Preview source={dailyParts!.page} className="compact" noteId={daily.id} dragTasks />}
             {cards.length > 0 && (
               <>
                 <div className="cal-label">
