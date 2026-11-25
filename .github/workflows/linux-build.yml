@@ -100,13 +100,17 @@ jobs:
           name=$(basename "$deb")
           gh release upload "$tag" "$deb" --clobber
           gh release view "$tag" --json body -q .body > "$RUNNER_TEMP/body.md"
-          if ! grep -q '^## Linux' "$RUNNER_TEMP/body.md"; then
-            NAME="$name" node -e '
-              const fs = require("fs")
-              const file = process.argv[1]
-              let s = fs.readFileSync(file, "utf8")
-              const name = process.env.NAME
-              s = s.replace(/^For Macs with ([^\n]*?)\.$/m, (m, who) => `For Macs with ${who}, and for Linux on 64-bit Intel or AMD (Debian, Ubuntu, and a Chromebook’s Linux environment).`)
+          # The first line says who the release is for: rebuilt from what it says of Macs, plus Linux, so a note
+          # added by hand (such as "This release has no Linux build") does not run into it. The install steps are
+          # added once. Run again, it changes nothing.
+          NAME="$name" node -e '
+            const fs = require("fs")
+            const file = process.argv[1]
+            let s = fs.readFileSync(file, "utf8")
+            const name = process.env.NAME
+            const LINUX_WHO = "for Linux on 64-bit Intel or AMD (Debian, Ubuntu, and a Chromebook\u2019s Linux environment)"
+            s = s.replace(/^For Macs with ([^.\n]*)\.[^\n]*$/m, (m, who) => `For Macs with ${who.split(", and for Linux")[0]}, and ${LINUX_WHO}.`)
+            if (!/^## Linux/m.test(s)) {
               const linux = [
                 "## Linux (.deb, amd64)",
                 "",
@@ -121,8 +125,8 @@ jobs:
               ].join("\n")
               const at = s.indexOf("Notes and settings are kept")
               s = at >= 0 ? s.slice(0, at) + linux + "\n" + s.slice(at) : s + "\n\n" + linux
-              fs.writeFileSync(file, s)
-            ' "$RUNNER_TEMP/body.md"
-            gh release edit "$tag" --notes-file "$RUNNER_TEMP/body.md"
-          fi
+            }
+            fs.writeFileSync(file, s)
+          ' "$RUNNER_TEMP/body.md"
+          gh release view "$tag" --json body -q .body | cmp -s - "$RUNNER_TEMP/body.md" || gh release edit "$tag" --notes-file "$RUNNER_TEMP/body.md"
           echo "Added $name to [$tag](https://github.com/${{ github.repository }}/releases/tag/$tag)" >> "$GITHUB_STEP_SUMMARY"
