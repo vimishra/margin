@@ -104,7 +104,10 @@ export const taskDragEditor = ViewPlugin.fromClass(
       this.line = line.number
       this.handle.style.display = ''
       this.handle.style.top = `${at.top - box.top + (at.bottom - at.top) / 2 - 10}px`
-      this.handle.style.left = `${left - box.left - 26}px`
+      // Always in one column, left of the fold arrows (which sit just left of the text), so it is in the same place
+      // on every task line and never under the arrow of a task with sub-items.
+      const hx = left - 48
+      this.handle.style.left = `${hx - box.left}px`
     }
     onDragStart = (e: DragEvent) => {
       const { view } = this
