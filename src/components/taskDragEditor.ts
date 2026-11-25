@@ -132,6 +132,9 @@ export const taskDragEditor = ViewPlugin.fromClass(
     line = 0
     kind: Kind = 'task'
     shape: ReturnType<typeof outline> | null = null
+    /** The line the handle is for, on screen: the band in which the pointer keeps it, from the handle to the text. */
+    band: { left: number; right: number; top: number; bottom: number } | null = null
+    watching = false
     constructor(readonly view: EditorView) {
       this.handle = document.createElement('div')
       this.handle.className = 'cm-task-handle'
@@ -150,6 +153,30 @@ export const taskDragEditor = ViewPlugin.fromClass(
     hide() {
       this.handle.style.display = 'none'
       this.line = 0
+      this.band = null
+      this.unwatch()
+    }
+    /**
+     * The handle sits left of the text, outside the editor's own area, so the pointer leaves the editor on its way
+     * there. While it is in the strip between the handle and the text, level with the line, the handle stays.
+     */
+    inBand(x: number, y: number) {
+      const b = this.band
+      return !!b && x >= b.left - 8 && x <= b.right + 4 && y >= b.top - 6 && y <= b.bottom + 6
+    }
+    track = (e: MouseEvent) => {
+      if (this.view.dom.contains(e.target as Node)) return this.unwatch()
+      if (!this.inBand(e.clientX, e.clientY)) this.hide()
+    }
+    watch() {
+      if (this.watching) return
+      this.watching = true
+      document.addEventListener('mousemove', this.track, true)
+    }
+    unwatch() {
+      if (!this.watching) return
+      this.watching = false
+      document.removeEventListener('mousemove', this.track, true)
     }
     /** Show the handle beside an open task, a list item or a heading under the pointer. */
     point(x: number, y: number) {
@@ -175,6 +202,7 @@ export const taskDragEditor = ViewPlugin.fromClass(
       // on every task line and never under the arrow of a task with sub-items.
       const hx = left - 48
       this.handle.style.left = `${hx - box.left}px`
+      this.band = { left: hx, right: left, top: Math.min(at.top, at.top + (at.bottom - at.top) / 2 - 10), bottom: Math.max(at.bottom, at.top + (at.bottom - at.top) / 2 + 10) }
     }
     onDragStart = (e: DragEvent) => {
       const { view } = this
@@ -202,6 +230,7 @@ export const taskDragEditor = ViewPlugin.fromClass(
       if (u.docChanged || u.viewportChanged) this.hide()
     }
     destroy() {
+      this.unwatch()
       this.handle.remove()
       this.marker.remove()
     }
@@ -212,7 +241,10 @@ export const taskDragEditor = ViewPlugin.fromClass(
         if (!(e.target as HTMLElement).closest?.('.cm-task-handle')) this.point(e.clientX, e.clientY)
       },
       mouseleave(e) {
-        if (!(e.relatedTarget as HTMLElement | null)?.closest?.('.cm-task-handle')) this.hide()
+        if ((e.relatedTarget as HTMLElement | null)?.closest?.('.cm-task-handle')) return
+        // On the way to the handle: keep it while the pointer stays level with the line, between it and the text.
+        if (this.inBand(e.clientX, e.clientY)) this.watch()
+        else this.hide()
       },
       dragover(e) {
         const types = e.dataTransfer?.types ?? []
