@@ -1007,7 +1007,7 @@ With the cursor on a task in a note, these keys change its details without typin
 
 Move to today and Priority apply to every task in a selection. The two move keys are not ⌥⌘M, which macOS keeps for Minimize All; on Linux they are Ctrl+Alt+M and Ctrl+Alt+Shift+M. The same four are in ⌘K under "Task:", and all of them can be changed in Settings → Shortcuts. In the browser version they are ⌥⇧T, ⌥⇧S, ⌥⇧D and ⌥⇧P.
 
-In the editor the details show as small labels. A due date turns red once it has passed. A planned day that is today or earlier is highlighted, because the task is in Today.
+In the editor the details show as small labels. The planned day, due date, Someday and the day a task was done show as pills, as in the Tasks view ("Fri, Nov 28", "Due Tomorrow", "Someday", "Done Yesterday"); put the cursor on the line and they turn back into what is written (`>2026-11-28`, `@due(2026-11-26)`, `>someday`, `@done(…)`), to edit by hand. A due date turns red once it has passed. A planned day that is today or earlier is highlighted, because the task is in Today. The file always keeps the written form, so other editors and `margin-tasks` read it as before.
 
 ### Cancelling a task
 

@@ -11,7 +11,7 @@ import { TableWidget, parseTable, tableActions } from './tableWidget'
 import { isearchState, setMatches } from './isearch'
 import { resolver } from '../lib/links'
 import { ui, useStore } from '../store'
-import { TASK_TOKENS, lineDoneChanges } from '../lib/tasks'
+import { TASK_TOKENS, lineDoneChanges, shortDate } from '../lib/tasks'
 import { shortLinkHref, shortLinkPattern, shortLinks } from '../lib/shortlinks'
 import { today } from '../lib/util'
 import { dispatchTick, editorNote } from './lists'
@@ -214,6 +214,39 @@ class RuleWidget extends WidgetType {
   toDOM() {
     const el = document.createElement('span')
     el.className = 'cm-rule'
+    return el
+  }
+  ignoreEvent() {
+    return false
+  }
+}
+
+/** Icons for the date pills, as in the Tasks view (Lucide's shapes, drawn in the text colour). */
+const PILL_ICONS: Record<string, string> = {
+  planned: '<path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5"/><path d="M16 2v4M8 2v4M3 10h5"/><path d="M17.5 17.5 16 16.3V14"/><circle cx="16" cy="16" r="6"/>',
+  due: '<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/>',
+  someday: '<rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8M10 12h4"/>',
+  done: '<path d="M20 6 9 17l-5-5"/>',
+  cancelled: '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="m15 9-6 6M9 9l6 6"/>',
+}
+
+/**
+ * A task's planned day, due date, Someday or done day, shown as a pill like the Tasks view's ("Due Tomorrow"); the
+ * text it stands for (`>2026-11-28`, `@due(…)`, `@done(…)`) comes back when the cursor is on the line, to edit.
+ */
+class TaskDateWidget extends WidgetType {
+  constructor(readonly kind: string, readonly label: string, readonly cls: string, readonly title: string) {
+    super()
+  }
+  eq(o: TaskDateWidget) {
+    return o.kind === this.kind && o.label === this.label && o.cls === this.cls
+  }
+  toDOM() {
+    const el = document.createElement('span')
+    el.className = `${this.cls} cm-task-pill`
+    el.title = this.title
+    el.innerHTML = `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${PILL_ICONS[this.kind]}</svg>`
+    el.append(this.label)
     return el
   }
   ignoreEvent() {
@@ -626,7 +659,12 @@ function build(state: EditorState, follow: (t: string, side?: boolean, anchor?: 
               : m[7] ? 'cm-task-date cm-task-remind'
               : `cm-task-date${open && m[2] <= now ? ' now' : ''}`
             const title = m[1] ? ['', 'High', 'Medium', 'Low'][Number(m[1])] + ' priority' : m[4] ? 'Someday: kept out of Today, Upcoming and Anytime' : m[5] ? (m[0].startsWith('@cancelled') ? 'Cancelled on this day' : 'Done on this day') : m[3] ? 'Due date' : m[6] ? `Repeats: ${m[6]}. Ticking it adds the next one.` : m[7] ? 'Reminder: a notification at this time while Margin is open' : 'Planned for this day'
-            out.push(Decoration.mark({ class: cls, attributes: { title } }).range(a, b))
+            // Dates become pills while the cursor is elsewhere; on the line they are the text, to edit.
+            const kind = m[2] ? 'planned' : m[3] ? 'due' : m[4] ? 'someday' : m[5] ? (m[0].startsWith('@cancelled') ? 'cancelled' : 'done') : ''
+            if (kind && !onLines(a, b) && (kind !== 'done' && kind !== 'cancelled' ? true : !open)) {
+              const label = kind === 'planned' ? shortDate(m[2], now) : kind === 'due' ? `Due ${shortDate(m[3], now)}` : kind === 'someday' ? 'Someday' : `${kind === 'done' ? 'Done' : 'Cancelled'} ${shortDate(m[5], now)}`
+              out.push(Decoration.replace({ widget: new TaskDateWidget(kind, label, cls, `${title}. Put the cursor on the line to edit it.`) }).range(a, b))
+            } else out.push(Decoration.mark({ class: cls, attributes: { title } }).range(a, b))
           }
           if (!onLines(from, to)) {
             out.push(hide.range(from, to + 1))

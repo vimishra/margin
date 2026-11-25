@@ -91,7 +91,7 @@ The owner's real notes (work meetings) are in `~/Documents/Vault`, set as `vault
 
 ## Open ideas, not yet built
 
-- Task details shown as labels in read mode and exports (today they appear as typed).
+- Task details shown as labels in read mode and exports (today they appear as typed; the editor shows date pills, `TaskDateWidget` in `livePreview.ts`).
 - Per-pane drag and drop of tabs; more than two panes.
 - Search highlighting inside tables and rendered math.
 - Version-history frequency as a setting (needs server-side config).

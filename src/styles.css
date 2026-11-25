@@ -4659,6 +4659,17 @@ body.resizing {
 .cm-task-date * {
   color: inherit !important;
 }
+/* The pill drawn for a date while the cursor is on another line: an icon and a friendly day, as in the Tasks view. */
+.cm-task-date.cm-task-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1.5;
+  vertical-align: baseline;
+}
+.cm-task-pill svg {
+  flex: none;
+}
 /* Each kind of detail in its own colour, as tags are (--tag-l and --tag-bg-a follow the theme): a due date orange,
    a reminder violet, a repeat teal. A due date today or missed still turns blue or red below. */
 .cm-task-date.cm-task-due,

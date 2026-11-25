@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.54.0 (2026-11-25)
+
+### Added
+
+- **Task dates as pills in the editor.** The planned day, due date, Someday and the day a task was done now show on a task line as pills, as in the Tasks view ("Thu, Oct 29", "Due Tomorrow", "Someday", "Done Yesterday"), a missed due date in red. Put the cursor on the line and they turn back into what is written (`>2026-10-29`, `@due(…)`, `>someday`, `@done(…)`) to edit by hand. The file keeps the written form, so other editors and `margin-tasks` read it as before.
+
 ## 1.53.0 (2026-11-23)
 
 ### Added

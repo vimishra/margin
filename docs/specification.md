@@ -1,6 +1,6 @@
 # Margin product specification
 
-This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.53.0.
+This document specifies Margin completely enough to build it again from nothing. It describes what the app does and the rules it follows, not how the current code is organised. It matches version 1.54.0.
 
 It is written to be handed to a developer or a coding tool. Where a detail is a free choice for the implementer, it says so; everything else is a requirement.
 
@@ -635,7 +635,7 @@ When the app rewrites a task's details it writes: text, priority, planned day or
 - On a task line, `@repeat(` offers daily, weekdays, weekly, every 2 weeks, monthly, yearly, every monday and 3 days after done, and any typed rule that is understood; `@remind(` followed by a day and time in words (`fri 2pm`, `tomorrow 9:30`, `14:00` for today, a day alone for 09:00) offers it as `YYYY-MM-DD HH:MM`, plus today 17:00, tomorrow, monday, friday and next monday at 09:00. The slash commands Repeat and Remind me insert the start and open those suggestions. Quick task turns `@remind(words)` into a day and time when it saves.
 - On a task line, `>` or `@due(` followed by a phrase offers dates: today, tomorrow, weekday names, next week, next month, or any phrase from [section 20](#20-dates-typed-in-words); `>some` offers someday.
 - With the cursor on a task (shortcuts in [section 16](#16-keyboard-shortcuts)): tick or untick; move to today (sets the planned day to today and leaves the due date); when (opens the date picker for the planned day, with Someday); due date (opens the date picker); priority (steps P1, P2, P3, none). Tick, move to today and priority apply to every task in a selection. On a non-task line they say so.
-- In the editor, details show as small labels: priority badge red for P1, amber for P2, grey for P3; dates as pills, the planned day highlighted when it is today or earlier, the due date red once passed. A done task is struck through and its labels muted.
+- In the editor, details show as small labels: priority badge red for P1, amber for P2, grey for P3; dates as pills, the planned day highlighted when it is today or earlier, the due date red once passed. A done task is struck through and its labels muted. While the cursor is on another line, the planned day, due date, Someday and (on a ticked or cancelled task) the done or cancelled day are drawn in place of their text as pills like the Tasks view's: an icon and the day in the Tasks view's words (Today, Tomorrow, Yesterday, or the short date), as "<day>", "Due <day>", "Someday", "Done <day>" or "Cancelled <day>"; on the cursor's line (with the editor focused) the written text shows, to edit. Priority, repeat and reminder stay as styled text. The file is never changed by this.
 
 ### 12.3 Ticking
 
