@@ -1285,6 +1285,13 @@ And dropped:
 
 The lines under a task go with it, and it takes the indent of the list it lands in. ⌘Z right afterwards undoes it. Ticked tasks and the triage note's tasks are not dragged; the triage note takes no drops either, since its layout belongs to your triage program. A move out of a day's note that leaves its Planned heading empty takes the heading away too.
 
+**List items and sections move the same way.** The handle (⋮⋮) also appears beside a bulleted or numbered list item and beside a heading, always in the same column, to the left of the fold arrows:
+
+- **A list item** takes the lines and sub-items under it. Dropped elsewhere in the note, it takes the indent of the list it lands in. Dropped on a note in the sidebar, a tab or a note in a list, it goes under that note's Open Threads (at the end of a daily note). Dropped into the other pane's note, it goes where you drop it.
+- **A heading** takes its whole section: everything under it down to the next heading of the same or a higher level, as **Move section** does. Dropped elsewhere in the note or into the other pane's note, it goes where you drop it, with a blank line above and below. Dropped on a note in the sidebar, a tab or a list, it goes at the end of that note.
+- They are not dropped on calendar days, since a bullet or a section has no date. Plain paragraphs have no handle; cut and paste moves them.
+- A move within a note is one change, so ⌘Z puts it back; a move to another note shows **Undo**, and ⌘Z right afterwards undoes it too.
+
 ### Tasks in the daily note
 
 A daily note shows a **Tasks for this day** panel listing tasks from other notes that are due or planned for that date. Today's note also lists what is overdue, and, under **From earlier days**, tasks planned for an earlier day that are still open. The panel is a view: nothing is copied into the daily note's file, and ticking a task there ticks it in its own note. On a canvas day the panel starts folded in the top-left corner.
