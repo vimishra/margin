@@ -2,6 +2,12 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.56.1 (2026-11-25)
+
+### Fixed
+
+- **The drag handle disappeared on the way to it.** It sits to the left of the text, and moving the pointer off the text hid it before it could be reached (unless the pointer happened to pass over a fold arrow). It now stays while the pointer moves from the line to the handle, and goes once the pointer leaves that strip.
+
 ## 1.56.0 (2026-11-25)
 
 ### Added
