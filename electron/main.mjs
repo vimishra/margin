@@ -432,7 +432,7 @@ function buildMenu() {
 }
 
 function createWindow() {
-  const saved = readConfig().bounds
+  const { bounds: saved, maximized } = readConfig()
   win = new BrowserWindow({
     width: 1360,
     height: 880,
@@ -447,8 +447,18 @@ function createWindow() {
     icon: iconPath,
     webPreferences: { preload: path.join(here, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, spellcheck: true },
   })
-  win.once('ready-to-show', () => win.show())
-  win.on('close', () => writeConfig({ bounds: win.getBounds() }))
+  // Shown once its first frame is drawn, to avoid a white flash. Under Wayland (Linux, Crostini's terminal) a hidden
+  // window is never drawn, so that never comes: it is shown when the page has loaded, or after two seconds, anyway.
+  const show = () => {
+    if (!win || win.isDestroyed() || win.isVisible()) return
+    if (maximized) win.maximize()
+    win.show()
+  }
+  win.once('ready-to-show', show)
+  win.webContents.once('did-finish-load', show)
+  setTimeout(show, 2000)
+  // The normal size is kept, with whether it was maximized: saving a maximized window's size made it open oversized.
+  win.on('close', () => writeConfig({ bounds: win.getNormalBounds(), maximized: win.isMaximized() }))
   win.on('closed', () => (win = null))
   // Mouse back/forward buttons on Windows and Linux, and three-finger swipes on a Mac trackpad.
   win.on('app-command', (_e, command) => {
@@ -599,7 +609,15 @@ function createWindow() {
   }
 }
 
-if (!app.requestSingleInstanceLock()) {
+// On a Chromebook's Linux (Crostini), Electron would use Wayland, where Margin's window never appears; X11 (which
+// Crostini also offers) works. The display system is chosen before this code runs, so Margin starts itself again at
+// once with --ozone-platform=x11, before any window or server. A --ozone-platform given by hand is left alone.
+const crostini = process.platform === 'linux' && (fs.existsSync('/opt/google/cros-containers') || fs.existsSync('/dev/.cros_milestone'))
+const needsX11 = crostini && !!process.env.DISPLAY && !process.argv.some((a) => a.startsWith('--ozone-platform'))
+if (needsX11) {
+  app.relaunch({ args: [...process.argv.slice(1), '--ozone-platform=x11'] })
+  app.exit(0)
+} else if (!app.requestSingleInstanceLock()) {
   app.quit()
 } else {
   app.on('second-instance', () => send('focus'))

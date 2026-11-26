@@ -255,6 +255,8 @@ Each release also has a Linux package, `margin-notes_<version>_amd64.deb`, for 6
 
 **Updating:** install the newer `.deb` the same way; your notes and settings are kept. `margin-update` is for Macs only.
 
+**On a Chromebook, Margin uses X11.** Crostini offers two display systems, Wayland and X11; under Wayland Margin's window does not appear (and, on some Chromebooks, a maximized window was twice as wide as the screen). So on a Chromebook Margin starts itself in X11, whether opened from the launcher or by typing `margin`; you may see the terminal prompt come back at once while the window opens. To try Wayland anyway, start it with `margin --ozone-platform=wayland`: a display system you name yourself is always used. If text looks soft, right-click Margin on the shelf and untick **Use low density**, then make Margin larger with Ctrl+= or its text size setting if needed.
+
 If a Chromebook keeps showing a generic icon for Margin after an update, it is showing a remembered one: right-click the Terminal icon on the shelf, choose **Shut down Linux**, and open Margin again.
 
 **Notes on Linux:**

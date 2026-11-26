@@ -2,6 +2,14 @@
 
 What changed in each released version of Margin. Installers are on the [releases page](https://github.com/vimishra/margin/releases).
 
+## 1.56.2 (2026-11-26)
+
+### Fixed
+
+- **On a Chromebook, Margin's window did not open when started from the terminal, and a maximized window was twice as wide as the screen.** Crostini offers Wayland and X11; under Wayland the window never appeared, and the width came from how the window was scaled. Margin now starts itself in X11 on a Chromebook, from the launcher or the terminal (`--ozone-platform=wayland` still tries Wayland).
+- **The window could stay hidden** if Electron never reported its first frame drawn; it is now shown once the page has loaded, or after 2 seconds at the latest.
+- **A window closed while maximized came back oversized.** Margin now keeps the window's normal size and whether it was maximized, and reopens it maximized.
+
 ## 1.56.1 (2026-11-25)
 
 ### Fixed
